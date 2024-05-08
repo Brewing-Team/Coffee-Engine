@@ -12,3 +12,4 @@ _deps
 .cache
 build
 bin
+*.vscode
