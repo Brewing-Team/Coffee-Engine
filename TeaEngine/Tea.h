@@ -4,6 +4,7 @@
 // For use by TeaEngine applications
 
 #include "TeaEngine/Application.h"
+#include "TeaEngine/Log.h"
 
 // ---Entry Point------------------
 #include "TeaEngine/EntryPoint.h"

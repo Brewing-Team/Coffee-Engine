@@ -6,7 +6,10 @@ file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp")
 
 SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
 
+find_package(spdlog REQUIRED)
+
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_link_libraries(${PROJECT_NAME}
-    tea-engine)
+    tea-engine
+    spdlog::spdlog)
