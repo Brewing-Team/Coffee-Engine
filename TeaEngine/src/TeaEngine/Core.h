@@ -2,11 +2,8 @@
 #define CORE_H
 
 /* #ifdef TEA_PLATFORM_WINDOWS
-#ifdef TEA_BUILD_DLL
-#define TEA_API __declspec(dllexport)
-#else
-#define TEA_API __declspec(dllimport)
-#endif
 #endif */
+
+#define BIT(x) (1 << x)
 
 #endif /* CORE_H */
