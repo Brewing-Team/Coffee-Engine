@@ -11,5 +11,6 @@ CTestTestfile.cmake
 _deps
 .cache
 build
+out
 bin
 *.vscode
