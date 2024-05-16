@@ -5,6 +5,7 @@ namespace Tea
 
     Application::Application()
     {
+        m_Window = Window::Create(WindowProps("Hello Tea Engine!"));
     }
 
     Application::~Application()

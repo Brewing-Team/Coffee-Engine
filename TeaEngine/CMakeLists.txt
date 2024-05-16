@@ -7,6 +7,7 @@ file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.h")
 
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
+find_package(SDL2 REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 add_library(tea-engine ALIAS ${PROJECT_NAME})
@@ -17,4 +18,5 @@ target_include_directories(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
     spdlog::spdlog
-    fmt::fmt)
+    fmt::fmt
+    SDL2::SDL2)

@@ -1,6 +1,8 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
+#include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Core/Window.h"
 namespace Tea
 {
 
@@ -11,6 +13,8 @@ namespace Tea
         virtual ~Application();
 
         void Run();
+        private:
+        Scope<Window> m_Window;
     };
 
     // To be defined in CLIENT
