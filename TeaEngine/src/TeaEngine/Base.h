@@ -1,5 +1,5 @@
-#ifndef CORE_H
-#define CORE_H
+#ifndef BASE_H
+#define BASE_H
 
 /* #ifdef TEA_PLATFORM_WINDOWS
 #endif */
