@@ -3,11 +3,11 @@
 
 // For use by TeaEngine applications
 
-#include "TeaEngine/Application.h"
-#include "TeaEngine/Log.h"
+#include "TeaEngine/Core/Application.h"
+#include "TeaEngine/Core/Log.h"
 
 // ---Entry Point------------------
-#include "TeaEngine/EntryPoint.h"
+#include "TeaEngine/Core/EntryPoint.h"
 // --------------------------------
 
 #endif /* TEA_H */
