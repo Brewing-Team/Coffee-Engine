@@ -1,6 +1,8 @@
 {
     "dependencies": [
       "fmt",
-      "spdlog"
+      "spdlog",
+      "sdl2",
+      "glm"
     ]
   }
