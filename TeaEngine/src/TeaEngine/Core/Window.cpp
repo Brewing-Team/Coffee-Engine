@@ -28,7 +28,7 @@ namespace Tea {
 
         SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
-        m_Window = SDL_CreateWindow(m_Data.Title.c_str(), 0, 0, m_Data.Width, m_Data.Height, SDL_WINDOW_OPENGL);
+        m_Window = SDL_CreateWindow(m_Data.Title.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, m_Data.Width, m_Data.Height, SDL_WINDOW_OPENGL);
 
         SDL_GLContext context = SDL_GL_CreateContext(m_Window); //Put the variable in my Rendering API
     }
