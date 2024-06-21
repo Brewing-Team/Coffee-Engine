@@ -1,5 +1,4 @@
-#ifndef MOUSECODES_H
-#define MOUSECODES_H
+#pragma once
 
 #include <cstdint>
 namespace Tea
@@ -27,5 +26,3 @@ namespace Tea
 		};
 	}
 }
-
-#endif /* MOUSECODES_H */

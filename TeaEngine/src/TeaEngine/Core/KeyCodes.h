@@ -1,5 +1,4 @@
-#ifndef KEYCODES_H
-#define KEYCODES_H
+#pragma once
 
 #include <cstdint>
 namespace Tea
@@ -144,5 +143,3 @@ namespace Tea
 		};
 	}
 }
-
-#endif /* KEYCODES_H */

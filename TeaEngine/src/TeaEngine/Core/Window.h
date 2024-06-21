@@ -1,6 +1,3 @@
-#ifndef WINDOW_H
-#define WINDOW_H
-
 #pragma once
 
 #include "TeaEngine/Core/Base.h"
@@ -60,5 +57,3 @@ namespace Tea {
 	};
 
 }
-
-#endif

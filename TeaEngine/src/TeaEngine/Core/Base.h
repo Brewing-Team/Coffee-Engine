@@ -1,5 +1,4 @@
-#ifndef BASE_H
-#define BASE_H
+#pragma once
 
 #include <memory>
 #include <cassert>
@@ -35,5 +34,3 @@ namespace Tea {
 
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Core/Assert.h"
-
-#endif /* CORE_H */

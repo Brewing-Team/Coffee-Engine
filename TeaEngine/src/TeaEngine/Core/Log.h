@@ -1,5 +1,4 @@
-#ifndef LOG_H
-#define LOG_H
+#pragma once
 
 #include <memory>
 #include <spdlog/logger.h>
@@ -33,5 +32,3 @@ namespace Tea
 #define TEA_WARN(...)       ::Tea::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define TEA_ERROR(...)      ::Tea::Log::GetClientLogger()->error(__VA_ARGS__)
 #define TEA_FATAL(...)      ::Tea::Log::GetClientLogger()->fatal(__VA_ARGS__)
-
-#endif

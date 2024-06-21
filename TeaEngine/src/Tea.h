@@ -1,5 +1,4 @@
-#ifndef TEA_H
-#define TEA_H
+#pragma once
 
 // For use by TeaEngine applications
 
@@ -10,5 +9,3 @@
 // ---Entry Point------------------
 #include "TeaEngine/Core/EntryPoint.h"
 // --------------------------------
-
-#endif /* TEA_H */

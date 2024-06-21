@@ -1,5 +1,4 @@
-#ifndef ENTRYPOINT_H
-#define ENTRYPOINT_H
+#pragma once
 
 extern Tea::Application* Tea::CreateApplication();
 
@@ -16,5 +15,3 @@ int main(int argc, const char** argv)
 
     return 0;
 }
-
-#endif /* ENTRYPOINT_H */

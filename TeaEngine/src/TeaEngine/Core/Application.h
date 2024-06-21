@@ -1,5 +1,4 @@
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Window.h"
@@ -21,4 +20,3 @@ namespace Tea
     Application* CreateApplication();
 
 } // namespace Tea
-#endif /* APPLICATION_H */
