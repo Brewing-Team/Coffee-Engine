@@ -2,7 +2,7 @@
     "dependencies": [
       "fmt",
       "spdlog",
-      "sdl2",
+      "glfw",
       "glm"
     ]
   }

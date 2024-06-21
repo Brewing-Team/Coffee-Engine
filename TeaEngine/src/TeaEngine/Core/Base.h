@@ -2,9 +2,14 @@
 #define BASE_H
 
 #include <memory>
+#include <cassert>
 
-/* #ifdef TEA_PLATFORM_WINDOWS
-#endif */
+#ifdef TEA_DEBUG
+    #define TEA_ASSERTS
+#endif
+
+#define TEA_EXPAND_MACRO(x) x
+#define TEA_STRINGIFY_MACRO(x) #x
 
 #define BIT(x) (1 << x)
 
@@ -27,5 +32,8 @@ namespace Tea {
 	}
 
 }
+
+#include "TeaEngine/Core/Log.h"
+#include "TeaEngine/Core/Assert.h"
 
 #endif /* CORE_H */

@@ -1,24 +1,29 @@
-#include "Input.h"
+#include "TeaEngine/Core/Input.h"
+#include "TeaEngine/Core/Application.h"
+
+#include <GLFW/glfw3.h>
 
 namespace Tea {
 
-	bool Input::IsKeyPressed(const SDL_Scancode key)
+	bool Input::IsKeyPressed(const KeyCode key)
 	{
-		const Uint8* state = SDL_GetKeyboardState(NULL); // Passing NULL for size parameter
-        return state[key];
+
 	}
 
-	bool Input::IsMouseButtonPressed(const Uint8 button)
+	bool Input::IsMouseButtonPressed(const MouseCode button)
 	{
-		return SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(button);
 	}
 
 	glm::vec2 Input::GetMousePosition()
 	{
-        int x, y;
-		SDL_GetMouseState(&x, &y);
+	}
 
-		return { (float)x, (float)y };
+	float Input::GetMouseX()
+	{
+	}
+
+	float Input::GetMouseY()
+	{
 	}
 
 }

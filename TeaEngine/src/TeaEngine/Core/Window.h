@@ -7,7 +7,7 @@
 
 #include <cstdint>
 #include <sstream>
-#include <SDL2/SDL_video.h>
+#include <GLFW/glfw3.h>
 
 namespace Tea {
 
@@ -47,7 +47,7 @@ namespace Tea {
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
 	private:
-		SDL_Window* m_Window;
+		GLFWwindow* m_Window;
 
 		struct WindowData
 		{

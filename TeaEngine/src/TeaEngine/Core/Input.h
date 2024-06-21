@@ -1,9 +1,8 @@
-#ifndef INPUT_H
-#define INPUT_H
-
 #pragma once
 
-#include <SDL2/SDL.h>
+#include "TeaEngine/Core/KeyCodes.h"
+#include "TeaEngine/Core/MouseCodes.h"
+
 #include <glm/glm.hpp>
 
 namespace Tea {
@@ -11,11 +10,11 @@ namespace Tea {
 	class Input
 	{
 	public:
-		static bool IsKeyPressed(SDL_Scancode key);
+		static bool IsKeyPressed(const KeyCode key);
 
-		static bool IsMouseButtonPressed(Uint8 button);
+		static bool IsMouseButtonPressed(const MouseCode button);
 		static glm::vec2 GetMousePosition();
+		static float GetMouseX();
+		static float GetMouseY();
 	};
 }
-
-#endif
