@@ -1,8 +1,10 @@
 #pragma once
 
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Events/Event.h"
 
 #include <cstdint>
+#include <functional>
 #include <sstream>
 #include <GLFW/glfw3.h>
 
@@ -25,6 +27,8 @@ namespace Tea {
     class Window
 	{
 	public:
+		using EventCallbackFn = std::function<void(Event&)>;
+
 		Window(const WindowProps& props);
 		virtual ~Window();
 
@@ -34,6 +38,7 @@ namespace Tea {
 		unsigned int GetHeight() const { return m_Data.Height; }
 
 		// Window attributes
+		void SetEventCallback(const EventCallbackFn& callback) {m_Data.EventCallback = callback;}
 		void SetVSync(bool enabled);
 		bool IsVSync() const;
 
@@ -51,6 +56,8 @@ namespace Tea {
 			std::string Title;
 			unsigned int Width, Height;
 			bool VSync;
+
+			EventCallbackFn EventCallback;
 		};
 
 		WindowData m_Data;

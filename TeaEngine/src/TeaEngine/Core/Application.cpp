@@ -1,5 +1,7 @@
 #include "TeaEngine/Core/Application.h"
 
+#include <GLFW/glfw3.h>
+
 namespace Tea
 {
 
@@ -17,7 +19,6 @@ namespace Tea
         while (m_Running)
         {
             m_Window->OnUpdate();
-
         }
     }
 
