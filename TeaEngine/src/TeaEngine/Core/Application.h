@@ -14,6 +14,7 @@ namespace Tea
         void Run();
         private:
         Scope<Window> m_Window;
+        bool m_Running = true;
     };
 
     // To be defined in CLIENT

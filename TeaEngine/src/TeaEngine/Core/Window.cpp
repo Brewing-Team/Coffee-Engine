@@ -44,12 +44,14 @@ namespace Tea {
 			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 			++s_GLFWWindowCount;
 
+		glfwMakeContextCurrent(m_Window); //Replace by my own Context
+
 		//TODO: Create OpenGL Context
 		//m_Context = GraphicsContext::Create(m_Window);
 		//m_Context->Init();
 
-			glfwSetWindowUserPointer(m_Window, &m_Data);
-			SetVSync(true);
+		glfwSetWindowUserPointer(m_Window, &m_Data);
+		SetVSync(true);
     }
 
 	void Window::Shutdown()
@@ -66,6 +68,7 @@ namespace Tea {
 	void Window::OnUpdate()
 	{
 		glfwPollEvents();
+		glfwSwapBuffers(m_Window);
 	}
 
 	void Window::SetVSync(bool enabled)

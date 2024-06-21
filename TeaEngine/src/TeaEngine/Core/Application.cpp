@@ -5,7 +5,7 @@ namespace Tea
 
     Application::Application()
     {
-        m_Window = Window::Create(WindowProps("Hello Tea Engine!"));
+        m_Window = Window::Create(WindowProps("Tea Engine"));
     }
 
     Application::~Application()
@@ -14,8 +14,11 @@ namespace Tea
 
     void Application::Run()
     {
-        while (true)
-            ;
+        while (m_Running)
+        {
+            m_Window->OnUpdate();
+
+        }
     }
 
 } // namespace Tea
