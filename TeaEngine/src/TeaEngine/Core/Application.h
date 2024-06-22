@@ -12,6 +12,8 @@ namespace Tea
         virtual ~Application();
 
         void Run();
+
+        void OnEvent(Event& e);
         private:
         Scope<Window> m_Window;
         bool m_Running = true;

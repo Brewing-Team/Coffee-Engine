@@ -8,10 +8,16 @@ namespace Tea
     Application::Application()
     {
         m_Window = Window::Create(WindowProps("Tea Engine"));
+        m_Window->SetEventCallback(std::bind)
     }
 
     Application::~Application()
     {
+    }
+
+    void Application::OnEvent(Event& e)
+    {
+
     }
 
     void Application::Run()
