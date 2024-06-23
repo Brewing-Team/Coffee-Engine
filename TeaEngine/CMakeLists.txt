@@ -19,7 +19,9 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     spdlog::spdlog
     fmt::fmt
-    glfw)
+    glfw
+    GL #TODO: REMOVE IT WHEN GLAD ADDED
+    )
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE TEA_DEBUG=1)
