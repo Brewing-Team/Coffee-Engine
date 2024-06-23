@@ -14,3 +14,4 @@ build
 out
 bin
 *.vscode
+*.kdev4
