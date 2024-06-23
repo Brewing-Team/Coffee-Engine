@@ -4,11 +4,12 @@
 
 namespace Tea
 {
+    #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
     Application::Application()
     {
         m_Window = Window::Create(WindowProps("Tea Engine"));
-        m_Window->SetEventCallback(std::bind(&Application::OnEvent, this, std::placeholders::_1));
+        m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
     }
 
     Application::~Application()
@@ -17,6 +18,9 @@ namespace Tea
 
     void Application::OnEvent(Event& e)
     {
+        EventDispatcher dispacher(e);
+        dispacher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+
         TEA_CORE_INFO("{0}", e);
     }
 
@@ -26,6 +30,12 @@ namespace Tea
         {
             m_Window->OnUpdate();
         }
+    }
+
+    bool Application::OnWindowClose(WindowCloseEvent& e)
+    {
+        m_Running = false;
+        return true;
     }
 
 } // namespace Tea

@@ -2,6 +2,7 @@
 
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Window.h"
+#include <TeaEngine/Events/ApplicationEvent.h>
 namespace Tea
 {
 
@@ -15,6 +16,8 @@ namespace Tea
 
         void OnEvent(Event& e);
         private:
+        bool OnWindowClose(WindowCloseEvent& e);
+
         Scope<Window> m_Window;
         bool m_Running = true;
     };
