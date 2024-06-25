@@ -1,3 +1,4 @@
+#include "TeaEngine/ImGui/ImGuiLayer.h"
 #include <Tea.h>
 
 class ExampleLayer : public Tea::Layer
@@ -25,6 +26,7 @@ class Sandbox : public Tea::Application
     Sandbox()
     {
         PushLayer(new ExampleLayer());
+        PushOverlay(new Tea::ImGuiLayer());
     }
 
     ~Sandbox()

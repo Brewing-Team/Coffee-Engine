@@ -6,7 +6,8 @@
 #include <cstdint>
 #include <functional>
 #include <sstream>
-#include <GLFW/glfw3.h>
+
+struct GLFWwindow;
 
 namespace Tea {
 

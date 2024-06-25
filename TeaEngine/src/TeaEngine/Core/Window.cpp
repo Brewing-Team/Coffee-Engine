@@ -1,11 +1,14 @@
 #include "TeaEngine/Core/Window.h"
+#include "TeaEngine/Core/Assert.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Events/ApplicationEvent.h"
 #include "TeaEngine/Events/KeyEvent.h"
 #include "TeaEngine/Events/MouseEvent.h"
 
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
 #include <cstddef>
 
 namespace Tea {
@@ -49,6 +52,9 @@ namespace Tea {
 			++s_GLFWWindowCount;
 
 		glfwMakeContextCurrent(m_Window); //Replace by my own Context
+
+        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        TEA_CORE_ASSERT(status, "Failed to initialize Glad!");
 
 		//TODO: Create OpenGL Context
 		//m_Context = GraphicsContext::Create(m_Window);

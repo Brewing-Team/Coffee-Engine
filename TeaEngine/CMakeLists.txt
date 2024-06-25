@@ -20,8 +20,12 @@ target_link_libraries(${PROJECT_NAME}
     spdlog::spdlog
     fmt::fmt
     glfw
-    GL #TODO: REMOVE IT WHEN GLAD ADDED
+    GLAD
+    ImGui
     )
+
+add_subdirectory(vendor/GLAD)
+add_subdirectory(vendor/imgui)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE TEA_DEBUG=1)

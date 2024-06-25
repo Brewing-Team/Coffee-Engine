@@ -2,14 +2,19 @@
 #include "TeaEngine/Core/Layer.h"
 #include "TeaEngine/Core/Log.h"
 
-#include <GLFW/glfw3.h>
+#include <glad/glad.h>
 
 namespace Tea
 {
     #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
 
+    Application* Application::s_Instance = nullptr;
+
     Application::Application()
     {
+        TEA_CORE_ASSERT(!s_Instance, "Application already exists!");
+		s_Instance = this;
+
         m_Window = Window::Create(WindowProps("Tea Engine"));
         m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
     }
@@ -21,11 +26,13 @@ namespace Tea
     void Application::PushLayer(Layer* layer)
     {
         m_LayerStack.PushLayer(layer);
+        layer->OnAttach();
     }
 
     void Application::PushOverlay(Layer* layer)
     {
         m_LayerStack.PushOverlay(layer);
+        layer->OnAttach();
     }
 
     void Application::OnEvent(Event& e)
