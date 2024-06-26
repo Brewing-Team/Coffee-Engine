@@ -11,12 +11,12 @@ public:
 
     void OnUpdate() override
     {
-        TEA_INFO("ExampleLayer::Update");
+        //TEA_INFO("ExampleLayer::Update");
     }
 
     void OnEvent(Tea::Event& event)
     {
-        TEA_TRACE("{0}", event);
+        //TEA_TRACE("{0}", event);
     }
 };
 
@@ -26,7 +26,6 @@ class Sandbox : public Tea::Application
     Sandbox()
     {
         PushLayer(new ExampleLayer());
-        PushOverlay(new Tea::ImGuiLayer());
     }
 
     ~Sandbox()

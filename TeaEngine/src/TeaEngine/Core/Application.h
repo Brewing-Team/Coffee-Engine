@@ -3,7 +3,10 @@
 #include "Base.h"
 #include "Window.h"
 #include "LayerStack.h"
-#include <TeaEngine/Events/ApplicationEvent.h>
+#include "TeaEngine/Events/ApplicationEvent.h"
+
+#include "TeaEngine/ImGui/ImGuiLayer.h"
+
 namespace Tea
 {
 
@@ -27,6 +30,7 @@ namespace Tea
         bool OnWindowClose(WindowCloseEvent& e);
 
         Scope<Window> m_Window;
+        ImGuiLayer* m_ImGuiLayer;
         bool m_Running = true;
         LayerStack m_LayerStack;
 

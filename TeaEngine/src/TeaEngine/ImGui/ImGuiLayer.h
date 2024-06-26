@@ -10,13 +10,14 @@ namespace Tea {
         /// @brief 
         ~ImGuiLayer();
 
-        void OnAttach();
-        void OnDetach();
-        void OnUpdate();
-        void OnEvent(Event& e);
+        void OnAttach() override;
+        void OnDetach() override;
+        void OnEvent(Event& e) override;
 
         void Begin();
 		void End();
+
+        void OnImGuiRender() override;
 
         void BlockEvents(bool block) { m_BlockEvents = block; }
     private:

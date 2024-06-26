@@ -7,6 +7,7 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#include <GLFW/glfw3.h>
 
 namespace Tea {
 
@@ -25,7 +26,9 @@ namespace Tea {
         ImGui::StyleColorsDark();
 
         ImGuiIO& io = ImGui::GetIO();
-        io.BackendFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; //Comment this for disable the detached imgui windows from the main window
 
         Application& app = Application::Get();
         GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
@@ -39,16 +42,6 @@ namespace Tea {
         ImGui:ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
-    }
-
-    void ImGuiLayer::OnUpdate()
-    {
-        Begin();
-
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
-
-        End();
     }
 
     void ImGuiLayer::OnEvent(Event& e)
@@ -77,5 +70,19 @@ namespace Tea {
 		// Rendering
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) //Comment this for disable the detached imgui windows from the main window
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
 	}
+
+    void ImGuiLayer::OnImGuiRender()
+    {
+        static bool show = true;
+        ImGui::ShowDemoWindow(&show);
+    }
 }
