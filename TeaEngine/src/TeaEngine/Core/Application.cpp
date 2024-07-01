@@ -59,7 +59,7 @@ namespace Tea
     {
         while (m_Running)
         {
-            glClearColor(.3,.4,.2,1);
+            glClearColor(.2f,.2f,.2f,1);
             glClear(GL_COLOR_BUFFER_BIT);
 
             for(Layer* layer : m_LayerStack)
