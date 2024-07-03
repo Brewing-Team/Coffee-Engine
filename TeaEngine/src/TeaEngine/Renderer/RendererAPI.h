@@ -7,6 +7,8 @@ namespace Tea {
     class RendererAPI{
     public:
 
+        void Init();
+
         void DrawIndexed(const Ref<VertexArray>& vertexArray);
 
         static Scope<RendererAPI> Create();
