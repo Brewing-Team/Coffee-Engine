@@ -6,7 +6,6 @@
 #include "TeaEngine/Events/KeyEvent.h"
 #include "TeaEngine/Events/MouseEvent.h"
 
-#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <cstddef>
@@ -53,14 +52,9 @@ namespace Tea {
 			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 			++s_GLFWWindowCount;
 
-		glfwMakeContextCurrent(m_Window); //Replace by my own Context
-
-        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-        TEA_CORE_ASSERT(status, "Failed to initialize Glad!");
-
-		//TODO: Create OpenGL Context
-		//m_Context = GraphicsContext::Create(m_Window);
-		//m_Context->Init();
+		//Create OpenGL Context
+		m_Context = GraphicsContext::Create(m_Window);
+		m_Context->Init();
 
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
@@ -162,7 +156,7 @@ namespace Tea {
 	void Window::OnUpdate()
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(m_Window);
+		m_Context->SwapBuffers();
 	}
 
 	void Window::SetVSync(bool enabled)

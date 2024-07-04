@@ -2,6 +2,7 @@
 
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Events/Event.h"
+#include "TeaEngine/Renderer/GraphicsContext.h"
 
 #include <cstdint>
 #include <functional>
@@ -51,6 +52,7 @@ namespace Tea {
 		virtual void Shutdown();
 	private:
 		GLFWwindow* m_Window;
+		Scope<GraphicsContext> m_Context;
 
 		struct WindowData
 		{
