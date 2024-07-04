@@ -30,6 +30,10 @@ ExampleLayer::ExampleLayer() : Layer("Example")
 void ExampleLayer::OnUpdate()
 {
     //TEA_INFO("ExampleLayer::Update");
+    
+    m_RendererAPI->SetClearColor({.2f,.2f,.2f,1});
+    m_RendererAPI->Clear();
+
     m_defaultShader->Bind();
     m_RendererAPI->DrawIndexed(m_VertexArray);
 }
