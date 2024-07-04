@@ -39,6 +39,16 @@ namespace Tea {
 		glEnable(GL_LINE_SMOOTH);
     }
 
+	void RendererAPI::SetClearColor(const glm::vec4& color)
+	{
+		glClearColor(color.r, color.g, color.b, color.a);
+	}
+
+	void RendererAPI::Clear()
+	{
+		glClear(GL_COLOR_BUFFER_BIT);
+	}
+
     void RendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)
     {
         vertexArray->Bind();
