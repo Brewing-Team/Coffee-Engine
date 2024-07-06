@@ -2,11 +2,12 @@
 
 ExampleLayer::ExampleLayer() : Layer("Example")
     {
-        float vertices[3 * 3] = {
-            0.5f, -0.5f, 0.0f,
-            -0.5f, -0.5f, 0.0f,
-            0.0f, 0.5f, 0.0f
-        };
+    float vertices[6 * 3] = {
+        // positions        // colors
+        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
+       -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
+        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top
+    };
 
         unsigned int indices[3] = {
             0,1,2
@@ -19,7 +20,16 @@ ExampleLayer::ExampleLayer() : Layer("Example")
         m_VertexArray->Bind();
 
         m_VertexBuffer = Tea::VertexBuffer::Create(vertices, sizeof(vertices)); //el size no estoy muy seguro
+        Tea::BufferLayout layout = {
+            {Tea::ShaderDataType::Vec3, "a_Position"},
+            {Tea::ShaderDataType::Vec3, "a_Color"}
+        };
+
+        m_VertexBuffer->SetLayout(layout);
+
         m_IndexBuffer = Tea::IndexBuffer::Create(indices, 3);
+
+
 
         m_VertexArray->AddVertexBuffer(m_VertexBuffer);
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
