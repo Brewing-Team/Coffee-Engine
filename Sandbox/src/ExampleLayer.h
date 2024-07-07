@@ -13,6 +13,8 @@ public:
     void OnUpdate() override;
 
     void OnEvent(Tea::Event& event);
+
+    void OnImGuiRender();
 private:
     Tea::Ref<Tea::VertexArray> m_VertexArray;
     Tea::Ref<Tea::VertexBuffer> m_VertexBuffer;
@@ -20,4 +22,5 @@ private:
     Tea::Scope<Tea::RendererAPI> m_RendererAPI;
 
     Tea::Ref<Tea::Shader> m_defaultShader;
+    Tea::Ref<Tea::Texture> m_Texture;
 };

@@ -1,14 +1,15 @@
 #include "ExampleLayer.h"
 #include "TeaEngine/Renderer/Buffer.h"
+#include <imgui.h>
 
 ExampleLayer::ExampleLayer() : Layer("Example")
     {
-    float vertices[8 * 3] = {
-        // positions        // colors          //Texture Coords
-        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, -1.0f,   // bottom right
-       -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  -1.0f, -1.0f,  // bottom left
-        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f     // top
-    };
+        float vertices[8 * 3] = {
+            // positions        // colors          // Texture Coords
+            0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  2.0f, 0.0f,   // bottom right
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,   // bottom left
+            0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 2.0f    // top
+        };
 
         unsigned int indices[3] = {
             0,1,2
@@ -36,9 +37,9 @@ ExampleLayer::ExampleLayer() : Layer("Example")
         
         m_defaultShader = Tea::Shader::Create("assets/shaders/TextureShader.vert", "assets/shaders/TextureShader.frag");
 
-        Tea::Ref<Tea::Texture> texture = Tea::Texture::Load("assets/textures/test.png");
+        m_Texture = Tea::Texture::Load("assets/textures/test.jpg");
 
-        texture->Bind(0);
+        m_Texture->Bind(0);
 
         m_defaultShader->Bind();
         m_defaultShader->setInt("tex", 0);
@@ -59,4 +60,10 @@ void ExampleLayer::OnUpdate()
 void ExampleLayer::OnEvent(Tea::Event& event)
 {
     //TEA_TRACE("{0}", event);
+}
+
+void ExampleLayer::OnImGuiRender()
+{
+    //ImGui::Begin("debug-texture");
+    //ImGui::End();
 }

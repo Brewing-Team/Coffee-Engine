@@ -35,6 +35,7 @@ namespace Tea {
         m_FilePath = path;
 
         int nrComponents;
+        stbi_set_flip_vertically_on_load(true);
         unsigned char* m_Data = stbi_load(m_FilePath.c_str(), &m_Width, &m_Height, &nrComponents, 0);
         if(m_Data)
         {
@@ -57,12 +58,13 @@ namespace Tea {
             glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
             glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
 
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
             
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             
-            glTexSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data);
+            glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data);
 
             stbi_image_free(m_Data);
         }
