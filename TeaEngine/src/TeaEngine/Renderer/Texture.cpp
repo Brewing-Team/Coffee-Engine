@@ -3,33 +3,29 @@
 #include "TeaEngine/Renderer/Image.h"
 
 #include <glad/glad.h>
+#include <stb_image.h>
 
 namespace Tea {
 
-    GLint ImageChannelsToOpenGLComponents(ImageChannels channels)
+    GLenum ImageFormatToOpenGLInternalFormat(ImageFormat format)
     {
-        switch (channels) {
-            case ImageChannels::R8: return GL_R8; break;
-            case ImageChannels::RGB8: return GL_RGB8; break;
-            case ImageChannels::RGBA8: return GL_RGBA8; break;
+        switch(format)
+        {
+            case ImageFormat::R8: return GL_R8; break;
+            case ImageFormat::RG8: return GL_RG8; break;
+            case ImageFormat::RGB8: return GL_RGB8; break;
+            case ImageFormat::RGBA8: return GL_RGBA8; break;
         }
     }
 
-    TextureFormat ImageChannelsToTextureFormat(ImageChannels channels)
+    GLenum ImageFormatToOpenGLFormat(ImageFormat format)
     {
-        switch (channels) {
-            case ImageChannels::R8: return TextureFormat::R; break;
-            case ImageChannels::RGB8: return TextureFormat::RGB; break;
-            case ImageChannels::RGBA8: return TextureFormat::RGBA; break;
-        }
-    }
-
-    GLenum TextureFormatToOpenGLFormat(TextureFormat format)
-    {
-        switch (format) {
-            case TextureFormat::R: return GL_RED; break;
-            case TextureFormat::RGB: return GL_RGB; break;
-            case TextureFormat::RGBA: return GL_RGBA; break;
+        switch(format)
+        {
+            case ImageFormat::R8: return GL_RED; break;
+            case ImageFormat::RG8: return GL_RG; break;
+            case ImageFormat::RGB8: return GL_RGB; break;
+            case ImageFormat::RGBA8: return GL_RGBA; break;
         }
     }
 
@@ -38,15 +34,45 @@ namespace Tea {
         glGenTextures(1, &m_textureID);
         glBindTexture(GL_TEXTURE_2D, m_textureID);
 
-        Ref<Image> img = Image::Load(path);
+        m_FilePath = path;
 
-        GLint channels = ImageChannelsToOpenGLComponents(img->GetChannels());
+        int nrComponents;
+        unsigned char* m_Data = stbi_load(m_FilePath.c_str(), &m_Width, &m_Height, &nrComponents, 0);
 
-        m_Format = ImageChannelsToTextureFormat(img->GetChannels());
+        switch (nrComponents)
+        {
+            case 1:
+                m_Format = ImageFormat::R8;
+            break;
+            case 3:
+                m_Format = ImageFormat::RGB8;
+            break;
+            case 4:
+                m_Format = ImageFormat::RGBA8;
+            break;
+        }
 
-        GLenum format = TextureFormatToOpenGLFormat(m_Format);
+        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Format);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, channels, img->GetSize().first, img->GetSize().second, 0, format, GL_UNSIGNED_BYTE, img->GetData());
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, m_Data);
+
+        stbi_image_free(m_Data);
+    }
+
+    void Texture::Bind()
+    {
+        glBindTexture(GL_TEXTURE_2D, m_textureID);
+    }
+
+    void Texture::Unbind()
+    {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    Ref<Texture> Texture::Load(std::string& path)
+    {
+        return CreateRef<Texture>(path);
     }
 
 }

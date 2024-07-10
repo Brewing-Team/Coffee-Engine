@@ -2,6 +2,7 @@
 
 #include <TeaEngine/Renderer/RendererAPI.h>
 #include <TeaEngine/Renderer/Shader.h>
+#include <TeaEngine/Renderer/Texture.h>
 #include <TeaEngine/Core/Layer.h>
 
 class ExampleLayer : public Tea::Layer

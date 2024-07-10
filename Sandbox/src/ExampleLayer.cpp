@@ -2,11 +2,11 @@
 
 ExampleLayer::ExampleLayer() : Layer("Example")
     {
-    float vertices[6 * 3] = {
-        // positions        // colors
-        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // bottom right
-       -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // bottom left
-        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // top
+    float vertices[8 * 3] = {
+        // positions        // colors          //Texture Coords
+        0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, -1.0f,   // bottom right
+       -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  -1.0f, -1.0f,  // bottom left
+        0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f     // top
     };
 
         unsigned int indices[3] = {
@@ -35,6 +35,13 @@ ExampleLayer::ExampleLayer() : Layer("Example")
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
         
         m_defaultShader = Tea::Shader::Create("assets/shaders/flatColor.vert", "assets/shaders/flatColor.frag");
+
+        std::string s = "assets/textures/test.png";
+
+        Tea::Ref<Tea::Texture> texture = Tea::Texture::Load(s);
+
+        texture.Bind();
+
     }
 
 void ExampleLayer::OnUpdate()
