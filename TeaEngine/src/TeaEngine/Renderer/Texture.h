@@ -25,6 +25,8 @@ namespace Tea {
         void Bind(uint32_t slot);
 
          std::pair<int, int> GetSize() { return std::make_pair(m_Width, m_Height); };
+         int GetWidth() { return m_Width; };
+         int GetHeight() { return m_Width; };
         const std::string& GetPath() { return m_FilePath; };
         ImageFormat GetImageFormat() { return m_Format; };
 

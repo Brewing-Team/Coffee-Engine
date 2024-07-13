@@ -2,13 +2,15 @@
 #include "TeaEngine/Renderer/Buffer.h"
 #include <imgui.h>
 
+#include <glm/gtc/type_ptr.hpp>
+
 ExampleLayer::ExampleLayer() : Layer("Example")
     {
         float vertices[8 * 3] = {
             // positions        // colors          // Texture Coords
-            0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  2.0f, 0.0f,   // bottom right
+            0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  1.0f, 0.0f,   // bottom right
         -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,   // bottom left
-            0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  1.0f, 2.0f    // top
+            0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f,  0.5f, 1.0f    // top
         };
 
         unsigned int indices[3] = {
@@ -64,6 +66,17 @@ void ExampleLayer::OnEvent(Tea::Event& event)
 
 void ExampleLayer::OnImGuiRender()
 {
-    //ImGui::Begin("debug-texture");
-    //ImGui::End();
+    ImGui::Begin("debug-texture");
+
+    static glm::vec2 textureOffset = glm::vec2(0,0);
+    static float scale = 1.0f;
+
+    ImGui::DragFloat2("textureOffset", glm::value_ptr(textureOffset), 0.01);
+
+    ImGui::DragFloat("textureScale", &scale, 0.01);
+
+    m_defaultShader->setVec2("textureOffset", textureOffset);
+    m_defaultShader->setFloat("textureScale", scale);
+
+    ImGui::End();
 }
