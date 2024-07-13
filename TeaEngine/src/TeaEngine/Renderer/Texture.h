@@ -19,17 +19,16 @@ namespace Tea {
     class Texture
     {
     public:
-        Texture(std::string& path);
+        Texture(const std::string& path);
         ~Texture();
 
-        void Bind();
-        void Unbind();
+        void Bind(uint32_t slot);
 
          std::pair<int, int> GetSize() { return std::make_pair(m_Width, m_Height); };
         const std::string& GetPath() { return m_FilePath; };
         ImageFormat GetImageFormat() { return m_Format; };
 
-        static Ref<Texture> Load(std::string& path);
+        static Ref<Texture> Load(const std::string& path);
     private:
         std::string m_FilePath;
         uint32_t m_textureID;

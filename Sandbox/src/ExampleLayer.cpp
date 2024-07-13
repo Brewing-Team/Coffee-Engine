@@ -1,4 +1,5 @@
 #include "ExampleLayer.h"
+#include "TeaEngine/Renderer/Buffer.h"
 
 ExampleLayer::ExampleLayer() : Layer("Example")
     {
@@ -22,25 +23,25 @@ ExampleLayer::ExampleLayer() : Layer("Example")
         m_VertexBuffer = Tea::VertexBuffer::Create(vertices, sizeof(vertices)); //el size no estoy muy seguro
         Tea::BufferLayout layout = {
             {Tea::ShaderDataType::Vec3, "a_Position"},
-            {Tea::ShaderDataType::Vec3, "a_Color"}
+            {Tea::ShaderDataType::Vec3, "a_Color"},
+            {Tea::ShaderDataType::Vec2, "a_TexCoord"}
         };
 
         m_VertexBuffer->SetLayout(layout);
 
         m_IndexBuffer = Tea::IndexBuffer::Create(indices, 3);
 
-
-
         m_VertexArray->AddVertexBuffer(m_VertexBuffer);
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
         
-        m_defaultShader = Tea::Shader::Create("assets/shaders/flatColor.vert", "assets/shaders/flatColor.frag");
+        m_defaultShader = Tea::Shader::Create("assets/shaders/TextureShader.vert", "assets/shaders/TextureShader.frag");
 
-        std::string s = "assets/textures/test.png";
+        Tea::Ref<Tea::Texture> texture = Tea::Texture::Load("assets/textures/test.png");
 
-        Tea::Ref<Tea::Texture> texture = Tea::Texture::Load(s);
+        texture->Bind(0);
 
-        texture.Bind();
+        m_defaultShader->Bind();
+        m_defaultShader->setInt("tex", 0);
 
     }
 

@@ -2,6 +2,7 @@
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Image.h"
 
+#include <cstdint>
 #include <glad/glad.h>
 #include <stb_image.h>
 
@@ -29,48 +30,55 @@ namespace Tea {
         }
     }
 
-    Texture::Texture(std::string& path)
+    Texture::Texture(const std::string& path)
     {
-        glGenTextures(1, &m_textureID);
-        glBindTexture(GL_TEXTURE_2D, m_textureID);
-
         m_FilePath = path;
 
         int nrComponents;
         unsigned char* m_Data = stbi_load(m_FilePath.c_str(), &m_Width, &m_Height, &nrComponents, 0);
-
-        switch (nrComponents)
+        if(m_Data)
         {
-            case 1:
-                m_Format = ImageFormat::R8;
-            break;
-            case 3:
-                m_Format = ImageFormat::RGB8;
-            break;
-            case 4:
-                m_Format = ImageFormat::RGBA8;
-            break;
+            switch (nrComponents)
+            {
+                case 1:
+                    m_Format = ImageFormat::R8;
+                break;
+                case 3:
+                    m_Format = ImageFormat::RGB8;
+                break;
+                case 4:
+                    m_Format = ImageFormat::RGBA8;
+                break;
+            }
+
+            GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Format);
+            GLenum format = ImageFormatToOpenGLFormat(m_Format);
+
+            glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
+            glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            
+            glTexSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data);
+
+            stbi_image_free(m_Data);
         }
-
-        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Format);
-        GLenum format = ImageFormatToOpenGLFormat(m_Format);
-
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_Width, m_Height, 0, format, GL_UNSIGNED_BYTE, m_Data);
-
-        stbi_image_free(m_Data);
     }
 
-    void Texture::Bind()
+    Texture::~Texture()
     {
-        glBindTexture(GL_TEXTURE_2D, m_textureID);
+        glDeleteTextures(1, &m_textureID);
     }
 
-    void Texture::Unbind()
+    void Texture::Bind(uint32_t slot)
     {
-        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTextureUnit(slot, m_textureID);
     }
 
-    Ref<Texture> Texture::Load(std::string& path)
+    Ref<Texture> Texture::Load(const std::string& path)
     {
         return CreateRef<Texture>(path);
     }
