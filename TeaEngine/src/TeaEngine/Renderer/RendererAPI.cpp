@@ -35,7 +35,7 @@ namespace Tea {
         glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		//glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LINE_SMOOTH);
     }
 
@@ -46,7 +46,7 @@ namespace Tea {
 
 	void RendererAPI::Clear()
 	{
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
     void RendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)

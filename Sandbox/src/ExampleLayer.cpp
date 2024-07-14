@@ -3,6 +3,7 @@
 #include <imgui.h>
 
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 ExampleLayer::ExampleLayer() : Layer("Example")
     {
@@ -23,25 +24,25 @@ ExampleLayer::ExampleLayer() : Layer("Example")
             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-            -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
 
             // Back face
-            -0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
 
             // Left face
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            -0.5f, -0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
 
             // Right face
-            0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
 
             // Top face
             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
@@ -50,11 +51,12 @@ ExampleLayer::ExampleLayer() : Layer("Example")
             -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 
             // Bottom face
-            -0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  1.0f, 0.0f
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 1.0f
         };
+
 
         unsigned int cubeIndices[] = {
             // Front face
@@ -122,13 +124,14 @@ void ExampleLayer::OnUpdate()
 
     m_defaultShader->Bind();
 
-    glm::mat4 model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-    glm::mat4 view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));;
+    glm::mat4 view = glm::mat4(1.0f);
+
+
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));;
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1600 / (float)900, 0.1f, 100.0f);
 
     m_defaultShader->setMat4("view", view);
     m_defaultShader->setMat4("projection", projection);
-    m_defaultShader->setMat4("model", model);
 
     m_RendererAPI->DrawIndexed(m_VertexArray);
 }
@@ -140,7 +143,10 @@ void ExampleLayer::OnEvent(Tea::Event& event)
 
 void ExampleLayer::OnImGuiRender()
 {
-    ImGui::Begin("debug-texture");
+    ImGui::Begin("debug-cube");
+
+    //ImGui::Text("Texture Parameters")
+    ImGui::SeparatorText("Texture Parameters");
 
     static glm::vec2 textureOffset = glm::vec2(0,0);
     static float scale = 1.0f;
@@ -151,6 +157,23 @@ void ExampleLayer::OnImGuiRender()
 
     m_defaultShader->setVec2("textureOffset", textureOffset);
     m_defaultShader->setFloat("textureScale", scale);
+
+    ImGui::SeparatorText("Transform Parameters");
+
+    static glm::vec3 position = glm::vec3(0.0,0.0,0.0);
+    static glm::vec3 dirAxis = glm::vec3(0.0,1.0,0.0);
+    static float angle = 0.0;
+
+    ImGui::DragFloat3("position", glm::value_ptr(position), 0.01);
+    ImGui::DragFloat3("Axis of rotation", glm::value_ptr(dirAxis), 0.05f, -1.0f, 1.0f);
+    ImGui::DragFloat("angle", &angle);
+
+    glm::mat4 model = glm::mat4(1.0f);
+
+    model = glm::translate(model, position);
+    model = glm::rotate(model, glm::radians(angle), dirAxis);
+
+    m_defaultShader->setMat4("model", model);
 
     ImGui::End();
 }
