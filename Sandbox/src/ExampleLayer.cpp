@@ -1,5 +1,10 @@
 #include "ExampleLayer.h"
+#include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Buffer.h"
+#include "TeaEngine/Renderer/Model.h"
+#include "TeaEngine/Renderer/VertexArray.h"
+#include <glm/fwd.hpp>
+#include <glm/trigonometric.hpp>
 #include <imgui.h>
 
 #include <glm/gtc/type_ptr.hpp>
@@ -112,6 +117,9 @@ ExampleLayer::ExampleLayer() : Layer("Example")
 
         m_defaultShader->Bind();
         m_defaultShader->setInt("tex", 0);
+        
+
+        helmet = Tea::Model("assets/models/DamagedHelmet.glb");
 
     }
 
@@ -133,7 +141,26 @@ void ExampleLayer::OnUpdate()
     m_defaultShader->setMat4("view", view);
     m_defaultShader->setMat4("projection", projection);
 
-    m_RendererAPI->DrawIndexed(m_VertexArray);
+    //m_RendererAPI->DrawIndexed(m_VertexArray);
+
+    for (auto& mesh : helmet.GetMeshes()) {
+        Tea::Ref<Tea::VertexBuffer> vb = mesh->GetVertexBuffer();
+        Tea::BufferLayout layout = {
+            {Tea::ShaderDataType::Vec3, ""},
+            {Tea::ShaderDataType::Vec2, ""},
+            {Tea::ShaderDataType::Vec3, ""},
+            {Tea::ShaderDataType::Vec3, ""},
+            {Tea::ShaderDataType::Vec3, ""}
+        };
+        vb->SetLayout(layout);
+
+        Tea::Ref<Tea::IndexBuffer> ib = mesh->GetIndexBuffer();
+
+        Tea::Ref<Tea::VertexArray> va = Tea::VertexArray::Create();
+        va->AddVertexBuffer(vb);
+        va->SetIndexBuffer(ib);
+        m_RendererAPI->DrawIndexed(va);
+    }
 }
 
 void ExampleLayer::OnEvent(Tea::Event& event)
@@ -161,17 +188,18 @@ void ExampleLayer::OnImGuiRender()
     ImGui::SeparatorText("Transform Parameters");
 
     static glm::vec3 position = glm::vec3(0.0,0.0,0.0);
-    static glm::vec3 dirAxis = glm::vec3(0.0,1.0,0.0);
-    static float angle = 0.0;
+    static glm::vec3 eulerAngles = glm::vec3(0.0,0.0,0.0); 
+    
 
     ImGui::DragFloat3("position", glm::value_ptr(position), 0.01);
-    ImGui::DragFloat3("Axis of rotation", glm::value_ptr(dirAxis), 0.05f, -1.0f, 1.0f);
-    ImGui::DragFloat("angle", &angle);
+    ImGui::DragFloat3("Axis of rotation", glm::value_ptr(eulerAngles));
 
     glm::mat4 model = glm::mat4(1.0f);
 
     model = glm::translate(model, position);
-    model = glm::rotate(model, glm::radians(angle), dirAxis);
+    model = glm::rotate(model, glm::radians(eulerAngles.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(eulerAngles.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    model = glm::rotate(model, glm::radians(eulerAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
 
     m_defaultShader->setMat4("model", model);
 

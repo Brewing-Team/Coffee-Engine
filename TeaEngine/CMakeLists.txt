@@ -8,6 +8,7 @@ file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.h")
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(assimp REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 add_library(tea-engine ALIAS ${PROJECT_NAME})
@@ -23,6 +24,7 @@ target_link_libraries(${PROJECT_NAME}
     GLAD
     ImGui
     stb_image
+    assimp
     )
 
 add_subdirectory(vendor/GLAD)

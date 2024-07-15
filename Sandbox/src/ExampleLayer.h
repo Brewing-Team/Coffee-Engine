@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TeaEngine/Renderer/Model.h"
 #include <TeaEngine/Renderer/RendererAPI.h>
 #include <TeaEngine/Renderer/Shader.h>
 #include <TeaEngine/Renderer/Texture.h>
@@ -23,5 +24,7 @@ private:
 
     Tea::Ref<Tea::Shader> m_defaultShader;
     Tea::Ref<Tea::Texture> m_Texture;
+
+    Tea::Model helmet;
 
 };
