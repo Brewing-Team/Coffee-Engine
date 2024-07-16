@@ -145,15 +145,6 @@ void ExampleLayer::OnUpdate()
 
     for (auto& mesh : helmet.GetMeshes()) {
         Tea::Ref<Tea::VertexBuffer> vb = mesh->GetVertexBuffer();
-        Tea::BufferLayout layout = {
-            {Tea::ShaderDataType::Vec3, ""},
-            {Tea::ShaderDataType::Vec2, ""},
-            {Tea::ShaderDataType::Vec3, ""},
-            {Tea::ShaderDataType::Vec3, ""},
-            {Tea::ShaderDataType::Vec3, ""}
-        };
-        vb->SetLayout(layout);
-
         Tea::Ref<Tea::IndexBuffer> ib = mesh->GetIndexBuffer();
 
         Tea::Ref<Tea::VertexArray> va = Tea::VertexArray::Create();

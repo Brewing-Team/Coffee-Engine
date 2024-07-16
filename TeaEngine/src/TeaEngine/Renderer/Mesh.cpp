@@ -11,6 +11,16 @@ namespace Tea {
 
         m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), m_Indices.size());
         m_VertexBuffer = VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
+
+        BufferLayout layout = {
+            {ShaderDataType::Vec3, "a_Position"},
+            {ShaderDataType::Vec2, "a_TexCoords"},
+            {ShaderDataType::Vec3, "a_Normals"},
+            {ShaderDataType::Vec3, "a_Tangent"},
+            {ShaderDataType::Vec3, "a_Bitangent"}
+        };
+
+        m_VertexBuffer->SetLayout(layout);
     }
 
 }
