@@ -3,6 +3,7 @@
 #include "TeaEngine/Renderer/Buffer.h"
 #include "TeaEngine/Renderer/Model.h"
 #include "TeaEngine/Renderer/VertexArray.h"
+#include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/trigonometric.hpp>
 #include <imgui.h>
@@ -109,7 +110,7 @@ ExampleLayer::ExampleLayer() : Layer("Example")
         m_VertexArray->AddVertexBuffer(m_VertexBuffer);
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
         
-        m_defaultShader = Tea::Shader::Create("assets/shaders/TextureShader.vert", "assets/shaders/TextureShader.frag");
+        m_defaultShader = Tea::Shader::Create("assets/shaders/FaceIndexShader.vert", "assets/shaders/FaceIndexShader.frag");
 
         m_Texture = Tea::Texture::Load("assets/textures/test.jpg");
 
@@ -167,23 +168,25 @@ void ExampleLayer::OnImGuiRender()
     ImGui::SeparatorText("Texture Parameters");
 
     static glm::vec2 textureOffset = glm::vec2(0,0);
-    static float scale = 1.0f;
+    static float textureScale = 1.0f;
 
     ImGui::DragFloat2("textureOffset", glm::value_ptr(textureOffset), 0.01);
 
-    ImGui::DragFloat("textureScale", &scale, 0.01);
+    ImGui::DragFloat("textureScale", &textureScale, 0.01);
 
     m_defaultShader->setVec2("textureOffset", textureOffset);
-    m_defaultShader->setFloat("textureScale", scale);
+    m_defaultShader->setFloat("textureScale", textureScale);
 
     ImGui::SeparatorText("Transform Parameters");
 
     static glm::vec3 position = glm::vec3(0.0,0.0,0.0);
     static glm::vec3 eulerAngles = glm::vec3(0.0,0.0,0.0); 
+    static glm::vec3 scale = glm::vec3(1.0f);
     
 
     ImGui::DragFloat3("position", glm::value_ptr(position), 0.01);
     ImGui::DragFloat3("Axis of rotation", glm::value_ptr(eulerAngles));
+    ImGui::DragFloat3("Scale", glm::value_ptr(scale), 0.05);
 
     glm::mat4 model = glm::mat4(1.0f);
 
@@ -191,6 +194,7 @@ void ExampleLayer::OnImGuiRender()
     model = glm::rotate(model, glm::radians(eulerAngles.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(eulerAngles.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(eulerAngles.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    model = glm::scale(model, scale);
 
     m_defaultShader->setMat4("model", model);
 
