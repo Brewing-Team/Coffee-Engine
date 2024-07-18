@@ -86,6 +86,11 @@ namespace Tea {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             model->AddMesh(processMesh(mesh, scene));
         }
+
+        for(uint32_t i = 0; i < node->mNumChildren; i++)
+        {
+            processNode(model, node->mChildren[i], scene);
+        }
     }
 
     Model::Model(const std::string& filePath)
