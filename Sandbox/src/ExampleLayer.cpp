@@ -1,6 +1,8 @@
 #include "ExampleLayer.h"
+#include "TeaEngine/Core/Application.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Buffer.h"
+#include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Model.h"
 #include "TeaEngine/Renderer/VertexArray.h"
 #include <glm/ext/matrix_transform.hpp>
@@ -121,12 +123,19 @@ ExampleLayer::ExampleLayer() : Layer("Example")
         
 
         helmet = Tea::Model("assets/models/DamagedHelmet.glb");
+        plane = Tea::Model("assets/models/plane.glb");
+
+        m_EditorCamera = Tea::EditorCamera(45.0f);
+
+        Tea::Application::Get().GetWindow().SetVSync(false);
 
     }
 
 void ExampleLayer::OnUpdate()
 {
     //TEA_INFO("ExampleLayer::Update");
+
+    m_EditorCamera.OnUpdate();
     
     m_RendererAPI->SetClearColor({.2f,.2f,.2f,1});
     m_RendererAPI->Clear();
@@ -138,6 +147,10 @@ void ExampleLayer::OnUpdate()
 
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));;
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)1600 / (float)900, 0.1f, 100.0f);
+
+    //TEMP
+    view = m_EditorCamera.GetViewMatrix();
+    projection = m_EditorCamera.GetProjection();
 
     m_defaultShader->setMat4("view", view);
     m_defaultShader->setMat4("projection", projection);
@@ -153,11 +166,30 @@ void ExampleLayer::OnUpdate()
         va->SetIndexBuffer(ib);
         m_RendererAPI->DrawIndexed(va);
     }
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
+    model = glm::scale(model, glm::vec3(10.0f));
+
+    m_defaultShader->setMat4("model", model);
+
+    for (auto& mesh : plane.GetMeshes()) {
+        Tea::Ref<Tea::VertexBuffer> vb = mesh->GetVertexBuffer();
+        Tea::Ref<Tea::IndexBuffer> ib = mesh->GetIndexBuffer();
+
+        Tea::Ref<Tea::VertexArray> va = Tea::VertexArray::Create();
+        va->AddVertexBuffer(vb);
+        va->SetIndexBuffer(ib);
+        m_RendererAPI->DrawIndexed(va);
+    }
+
+    model = glm::mat4(1.0f);
 }
 
 void ExampleLayer::OnEvent(Tea::Event& event)
 {
     //TEA_TRACE("{0}", event);
+    m_EditorCamera.OnEvent(event);
 }
 
 void ExampleLayer::OnImGuiRender()

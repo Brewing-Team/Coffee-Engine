@@ -1,5 +1,7 @@
 #pragma once
 
+#include "TeaEngine/Renderer/Camera.h"
+#include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Model.h"
 #include <TeaEngine/Renderer/RendererAPI.h>
 #include <TeaEngine/Renderer/Shader.h>
@@ -26,5 +28,8 @@ private:
     Tea::Ref<Tea::Texture> m_Texture;
 
     Tea::Model helmet;
+    Tea::Model plane;
+
+    Tea::EditorCamera m_EditorCamera;
 
 };
