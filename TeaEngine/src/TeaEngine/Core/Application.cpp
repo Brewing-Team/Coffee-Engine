@@ -6,8 +6,6 @@
 
 namespace Tea
 {
-    #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
-
     Application* Application::s_Instance = nullptr;
 
     Application::Application()
@@ -16,7 +14,7 @@ namespace Tea
 		s_Instance = this;
 
         m_Window = Window::Create(WindowProps("Tea Engine"));
-        m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+        m_Window->SetEventCallback(TEA_BIND_EVENT_FN(OnEvent));
 
         m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
@@ -41,7 +39,7 @@ namespace Tea
     void Application::OnEvent(Event& e)
     {
         EventDispatcher dispacher(e);
-        dispacher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+        dispacher.Dispatch<WindowCloseEvent>(TEA_BIND_EVENT_FN(OnWindowClose));
 
         //TEA_CORE_TRACE("{0}", e);
 
