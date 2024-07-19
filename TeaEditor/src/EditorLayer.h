@@ -1,6 +1,9 @@
 #pragma once
 
-#include <TeaEngine/Core/Layer.h>
+#include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Renderer/EditorCamera.h"
+#include "TeaEngine/Scene/Scene.h"
+#include "TeaEngine/Core/Layer.h"
 
 namespace Tea {
 
@@ -10,13 +13,20 @@ namespace Tea {
         EditorLayer();
         virtual ~EditorLayer() = default;
 
+        void OnAttach() override;
+
         void OnUpdate() override;
 
-        void OnEvent(Tea::Event& event);
+        void OnEvent(Tea::Event& event) override;
 
-        void OnImGuiRender();
+        void OnDetach() override;
+
+        void OnImGuiRender() override;
     private:
+        Ref<Scene> m_EditorScene;
+        Ref<Scene> m_ActiveScene;
 
+        EditorCamera m_EditorCamera;
     };
     
 }
