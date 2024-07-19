@@ -55,12 +55,12 @@ namespace Tea {
             }
         }
 
-        TEA_CORE_INFO("Camera Position: ({0}, {1})", m_Position.x, m_Position.y);
+     /* TEA_CORE_INFO("Camera Position: ({0}, {1})", m_Position.x, m_Position.y);
         TEA_CORE_INFO("Camera Focal Point: ({0}, {1})", m_FocalPoint.x, m_FocalPoint.y);
 
         glm::vec3 cameraEulerAngles = glm::eulerAngles(GetOrientation());
         TEA_CORE_INFO("Camera Euler Angles: ({0}, {1}, {2})", glm::degrees(cameraEulerAngles.x), glm::degrees(cameraEulerAngles.y), glm::degrees(cameraEulerAngles.z));
-
+        */
         UpdateView();
     }
 
