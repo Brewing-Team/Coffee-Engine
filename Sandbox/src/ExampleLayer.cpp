@@ -4,6 +4,7 @@
 #include "TeaEngine/Renderer/Buffer.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Model.h"
+#include "TeaEngine/Renderer/RendererAPI.h"
 #include "TeaEngine/Renderer/VertexArray.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
@@ -92,10 +93,6 @@ ExampleLayer::ExampleLayer() : Layer("Example")
             22, 23, 20
         };
 
-
-        m_RendererAPI = Tea::RendererAPI::Create();
-        m_RendererAPI->Init();
-
         m_VertexArray = Tea::VertexArray::Create();
         m_VertexArray->Bind();
 
@@ -137,8 +134,8 @@ void ExampleLayer::OnUpdate()
 
     m_EditorCamera.OnUpdate();
     
-    m_RendererAPI->SetClearColor({.2f,.2f,.2f,1});
-    m_RendererAPI->Clear();
+    Tea::RendererAPI::SetClearColor({.2f,.2f,.2f,1});
+    Tea::RendererAPI::Clear();
 
     m_defaultShader->Bind();
 
@@ -164,7 +161,7 @@ void ExampleLayer::OnUpdate()
         Tea::Ref<Tea::VertexArray> va = Tea::VertexArray::Create();
         va->AddVertexBuffer(vb);
         va->SetIndexBuffer(ib);
-        m_RendererAPI->DrawIndexed(va);
+        Tea::RendererAPI::DrawIndexed(va);
     }
 
     glm::mat4 model = glm::mat4(1.0f);
@@ -180,7 +177,7 @@ void ExampleLayer::OnUpdate()
         Tea::Ref<Tea::VertexArray> va = Tea::VertexArray::Create();
         va->AddVertexBuffer(vb);
         va->SetIndexBuffer(ib);
-        m_RendererAPI->DrawIndexed(va);
+        Tea::RendererAPI::DrawIndexed(va);
     }
 
     model = glm::mat4(1.0f);

@@ -3,6 +3,7 @@
 #include "TeaEngine/Core/Log.h"
 
 #include "TeaEngine/Core/Input.h"
+#include "TeaEngine/Renderer/RendererAPI.h"
 
 namespace Tea
 {
@@ -15,6 +16,9 @@ namespace Tea
 
         m_Window = Window::Create(WindowProps("Tea Engine"));
         m_Window->SetEventCallback(TEA_BIND_EVENT_FN(OnEvent));
+
+        //TODO: Create The Renderer Instance and remove the RendererAPI Instance
+        RendererAPI::Init();
 
         m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

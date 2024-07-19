@@ -6,7 +6,6 @@
 #include "TeaEngine/Core/MouseCodes.h"
 #include "TeaEngine/Events/Event.h"
 #include "TeaEngine/Events/MouseEvent.h"
-#include "TeaEngine/Renderer/Camera.h"
 #include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>

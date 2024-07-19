@@ -4,6 +4,8 @@
 
 namespace Tea {
 
+	Scope<RendererAPI> RendererAPI::s_RendererAPI = RendererAPI::Create();
+
     void OpenGLMessageCallback(
 		unsigned source,
 		unsigned type,
