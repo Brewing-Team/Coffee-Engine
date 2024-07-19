@@ -1,6 +1,7 @@
 #include "TeaEngine/Renderer/Mesh.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
+#include "TeaEngine/Renderer/VertexArray.h"
 
 namespace Tea {
 
@@ -21,6 +22,10 @@ namespace Tea {
         };
 
         m_VertexBuffer->SetLayout(layout);
+
+        m_VertexArray = VertexArray::Create();
+        m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+        m_VertexArray->SetIndexBuffer(m_IndexBuffer);
     }
 
 }

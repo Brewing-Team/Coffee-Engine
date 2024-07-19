@@ -2,6 +2,7 @@
 
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Buffer.h"
+#include "TeaEngine/Renderer/VertexArray.h"
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
@@ -25,9 +26,11 @@ namespace Tea {
     public:
         Mesh(const std::vector<uint32_t>& indices, const std::vector<Vertex>& vertices);
 
+        const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
         const Ref<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
         const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
     private:
+        Ref<VertexArray> m_VertexArray;
         Ref<VertexBuffer> m_VertexBuffer;
         Ref<IndexBuffer> m_IndexBuffer;
 
