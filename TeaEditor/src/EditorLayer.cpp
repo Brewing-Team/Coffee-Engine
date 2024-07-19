@@ -18,7 +18,7 @@ namespace Tea {
         m_EditorScene = CreateRef<Scene>();
         m_ActiveScene = m_EditorScene;
 
-        m_EditorCamera = EditorCamera(30.0f);
+        m_EditorCamera = EditorCamera(45.0f);
 
         m_ActiveScene->OnInit();
     }
@@ -28,11 +28,16 @@ namespace Tea {
         RendererAPI::SetClearColor({.2f,.2f,.2f,1});
         RendererAPI::Clear();
 
+        m_EditorCamera.OnUpdate();
+
         m_ActiveScene->OnUpdate();
+        m_ActiveScene->OnUpdateEditor(m_EditorCamera);
     }
 
     void EditorLayer::OnEvent(Tea::Event& event)
     {
+        m_EditorCamera.OnEvent(event);
+
         m_ActiveScene->OnEvent(event);
     }
 
@@ -43,9 +48,9 @@ namespace Tea {
 
     void EditorLayer::OnImGuiRender()
     {
-        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+       /*  ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
         ImGui::BeginMainMenuBar();
-        ImGui::EndMainMenuBar();
+        ImGui::EndMainMenuBar(); */
     }
 
 }
