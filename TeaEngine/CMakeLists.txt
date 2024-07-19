@@ -25,11 +25,13 @@ target_link_libraries(${PROJECT_NAME}
     ImGui
     stb_image
     assimp
+    EnTT::EnTT
     )
 
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb_image)
+add_subdirectory(vendor/entt)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE TEA_DEBUG=1)
