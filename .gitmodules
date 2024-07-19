@@ -2,3 +2,6 @@
 [submodule "TeaEngine/vendor/imgui"]
 	path = TeaEngine/vendor/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "TeaEngine/vendor/entt"]
+	path = TeaEngine/vendor/entt
+	url = https://github.com/skypjack/entt.git
