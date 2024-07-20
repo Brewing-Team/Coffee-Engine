@@ -4,6 +4,7 @@
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Scene/Scene.h"
 #include "TeaEngine/Core/Layer.h"
+#include "Panels/SceneTreePanel.h"
 
 namespace Tea {
 
@@ -27,6 +28,9 @@ namespace Tea {
         Ref<Scene> m_ActiveScene;
 
         EditorCamera m_EditorCamera;
+
+        //Panels
+        SceneTreePanel m_SceneTreePanel;
     };
     
 }

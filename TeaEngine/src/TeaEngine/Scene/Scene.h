@@ -28,6 +28,7 @@ namespace Tea {
         entt::registry m_Registry;
 
         friend class Entity;
+        friend class SceneTreePanel;
     };
 
 }

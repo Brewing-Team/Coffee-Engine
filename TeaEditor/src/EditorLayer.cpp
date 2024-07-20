@@ -1,9 +1,11 @@
 #include "EditorLayer.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
+#include "TeaEngine/Core/Application.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
 #include "TeaEngine/Scene/Scene.h"
+#include "Panels/SceneTreePanel.h"
 #include "imgui.h"
 
 namespace Tea {
@@ -21,6 +23,8 @@ namespace Tea {
         m_EditorCamera = EditorCamera(45.0f);
 
         m_ActiveScene->OnInit();
+
+        m_SceneTreePanel.SetContext(m_ActiveScene);
     }
 
     void EditorLayer::OnUpdate()
@@ -48,9 +52,20 @@ namespace Tea {
 
     void EditorLayer::OnImGuiRender()
     {
-       /*  ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
-        ImGui::BeginMainMenuBar();
-        ImGui::EndMainMenuBar(); */
+        ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+        if (ImGui::BeginMainMenuBar()) {
+
+            if (ImGui::BeginMenu("File")) {
+                if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { }
+                if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
+
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
+
+        m_SceneTreePanel.OnImGuiRender();
     }
 
 }
