@@ -2,7 +2,9 @@
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
+#include "TeaEngine/Renderer/Material.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
+#include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Renderer/Shader.h"
@@ -22,11 +24,9 @@ namespace Tea {
 
     void Scene::OnInit()
     {
-        for(int i = 0; i < 10; i++){
-            Entity e = CreateEntity("Entity Test");
+        Entity e = CreateEntity("Entity Test");
             
-            e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
-        }
+        e.AddComponent<ModelComponent>("assets/models/plane.glb");
     }
 
     void Scene::OnUpdate()
@@ -37,12 +37,14 @@ namespace Tea {
     void Scene::OnUpdateEditor(EditorCamera& camera)
     {
         //-------------- TEMPORAL ------------------
-        Ref<Shader> s = Tea::Shader::Create("assets/shaders/FaceIndexShader.vert", "assets/shaders/FaceIndexShader.frag");
+        MaterialTextures mTextures;
+        mTextures.albedo = Texture::Load("assets/textures/test2.jpg");
 
-        s->Bind();
+        Ref<Material> standardMaterial = CreateRef<Material>(mTextures);
 
-        s->setMat4("view", camera.GetViewMatrix());
-        s->setMat4("projection", camera.GetProjection());
+        //temporal, in the future use UBO's for this two values
+        standardMaterial->SetViewMatrix(camera.GetViewMatrix());
+        standardMaterial->SetProjectionMatrix(camera.GetProjection());
 
         //------------------------------------------
 
@@ -56,7 +58,9 @@ namespace Tea {
             auto& modelComponent = view.get<ModelComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
             
-            s->setMat4("model", transformComponent.GetTransform()); //TEMPORAL
+            standardMaterial->SetModelMatrix(transformComponent.GetTransform());
+
+            standardMaterial->Use();
 
             for (auto& mesh : modelComponent.model->GetMeshes())
             {
