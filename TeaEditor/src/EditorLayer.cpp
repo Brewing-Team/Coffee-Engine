@@ -73,11 +73,17 @@ namespace Tea {
 
         m_SceneTreePanel.OnImGuiRender();
 
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
+
+        Application::Get().GetImGuiLayer()->BlockEvents(!ImGui::IsWindowHovered());
+
+
         uint32_t textureID = m_Framebuffer->GetColorAttachmentID();
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
         ImGui::Image((void*)textureID, viewportPanelSize, {0, 1}, {1, 0});
         ImGui::End();
+        ImGui::PopStyleVar();
     }
 
 }
