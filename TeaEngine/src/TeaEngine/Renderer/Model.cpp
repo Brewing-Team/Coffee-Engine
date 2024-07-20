@@ -13,7 +13,7 @@
 namespace Tea {
 
 
-    Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene)
+    Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)
     {
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
@@ -79,7 +79,7 @@ namespace Tea {
     }
     
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-    void processNode(Model* model, aiNode* node, const aiScene* scene)
+    void Model::processNode(Model* model, aiNode* node, const aiScene* scene)
     {
         for(uint32_t i = 0; i < node->mNumMeshes; i++)
         {
