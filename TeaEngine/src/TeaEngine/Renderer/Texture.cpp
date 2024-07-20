@@ -109,7 +109,7 @@ namespace Tea {
         return CreateRef<Texture>(path);
     }
 
-    static Ref<Texture> Create(uint32_t width, uint32_t height, ImageFormat format)
+    Ref<Texture> Texture::Create(uint32_t width, uint32_t height, ImageFormat format)
     {
         return CreateRef<Texture>(width, height, format);
     }

@@ -1,4 +1,5 @@
 #include "Framebuffer.h"
+#include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Texture.h"
 
 #include <glad/glad.h>
@@ -46,17 +47,13 @@ namespace Tea {
         if(m_fboID)
         {
             glDeleteFramebuffers(1, &m_fboID);
-            for (auto& texture : m_ColorTextures)
+            /* for (auto& texture : m_ColorTextures)
             {
-                if(texture != nullptr)
-                {
-                    delete texture;
-                }
-            }
-            if(m_DepthTexture != nullptr)
-            {
-                delete m_DepthTexture;
-            }
+                texture.reset();
+            } */
+            m_ColorTextures.clear();
+            //m_DepthTexture = nullptr;
+            m_DepthTexture.reset();
 
             glCreateFramebuffers(1, &m_fboID);
             glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
@@ -68,13 +65,13 @@ namespace Tea {
                 if(imageFormat == ImageFormat::DEPTH24STENCIL8)
                 {
                     //m_DepthTexture = new Texture(m_Width, m_Height, imageFormat);
-                    Texture* depthTexture = new Texture(m_Width, m_Height, imageFormat);
+                    Ref<Texture> depthTexture = Texture::Create(m_Width, m_Height, imageFormat);
                     AttachDepthTexture(depthTexture);
                 }
                 else
                 {
                     //m_ColorTextures.push_back(new Texture(m_Width, m_Height, imageFormat));
-                    Texture* colorTexture = new Texture(m_Width, m_Height, imageFormat);
+                    Ref<Texture> colorTexture = Texture::Create(m_Width, m_Height, imageFormat);
                     AttachColorTexture(colorTexture);
                 }
             }
@@ -92,13 +89,13 @@ namespace Tea {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void Framebuffer::AttachColorTexture(Texture* texture)
+    void Framebuffer::AttachColorTexture(Ref<Texture>& texture)
     {
         m_ColorTextures.push_back(texture);
         glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + m_ColorTextures.size() - 1, texture->GetID(), 0);
     }
 
-    void Framebuffer::AttachDepthTexture(Texture* texture)
+    void Framebuffer::AttachDepthTexture(Ref<Texture>& texture)
     {
         m_DepthTexture = texture;
         glNamedFramebufferTexture(m_fboID, GL_DEPTH_STENCIL_ATTACHMENT, texture->GetID(), 0);

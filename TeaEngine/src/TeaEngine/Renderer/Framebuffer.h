@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Texture.h"
 #include <cstdint>
 #include <initializer_list>
@@ -20,8 +21,8 @@ namespace Tea {
 
         void Resize(uint32_t width, uint32_t height);
 
-        void AttachColorTexture(Texture* texture);
-        void AttachDepthTexture(Texture* texture);
+        void AttachColorTexture(Ref<Texture>& texture);
+        void AttachDepthTexture(Ref<Texture>& texture);
 
         uint32_t GetColorAttachmentID (uint32_t index = 0) const { return m_ColorTextures[index]->GetID(); }
         
@@ -35,8 +36,8 @@ namespace Tea {
 
         std::vector<ImageFormat> m_Attachments;
 
-        std::vector<Texture*> m_ColorTextures = {};
-        Texture* m_DepthTexture = nullptr;
+        std::vector<Ref<Texture>> m_ColorTextures;
+        Ref<Texture> m_DepthTexture;
     };
 
 }
