@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Renderer/Material.h"
 #include "TeaEngine/Renderer/Model.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
@@ -42,5 +43,15 @@ namespace Tea {
             : model(model) {}
          ModelComponent(const std::string& path)
             :model(CreateRef<Model>(path)) {}
+    };
+
+    struct MaterialComponent
+    {
+        Ref<Material> material;
+
+        MaterialComponent() = default;
+        MaterialComponent(const MaterialComponent&) = default;
+        MaterialComponent(Ref<Material> material)
+            : material(material) {}
     };
 }
