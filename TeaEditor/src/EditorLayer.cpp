@@ -7,6 +7,7 @@
 #include "TeaEngine/Scene/Scene.h"
 #include "Panels/SceneTreePanel.h"
 #include "imgui.h"
+#include <sys/types.h>
 
 namespace Tea {
 
@@ -17,6 +18,8 @@ namespace Tea {
 
     void EditorLayer::OnAttach()
     {
+        m_Framebuffer = Framebuffer::Create(1280, 720, {ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8});
+
         m_EditorScene = CreateRef<Scene>();
         m_ActiveScene = m_EditorScene;
 
@@ -29,6 +32,7 @@ namespace Tea {
 
     void EditorLayer::OnUpdate()
     {
+        m_Framebuffer->Bind();
         RendererAPI::SetClearColor({.2f,.2f,.2f,1});
         RendererAPI::Clear();
 
@@ -36,6 +40,8 @@ namespace Tea {
 
         m_ActiveScene->OnUpdate();
         m_ActiveScene->OnUpdateEditor(m_EditorCamera);
+
+        m_Framebuffer->UnBind();
     }
 
     void EditorLayer::OnEvent(Tea::Event& event)
@@ -66,6 +72,12 @@ namespace Tea {
         }
 
         m_SceneTreePanel.OnImGuiRender();
+
+        ImGui::Begin("Viewport");
+        uint32_t textureID = m_Framebuffer->GetColorAttachmentID();
+        ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+        ImGui::Image((void*)textureID, viewportPanelSize, {0, 1}, {1, 0});
+        ImGui::End();
     }
 
 }
