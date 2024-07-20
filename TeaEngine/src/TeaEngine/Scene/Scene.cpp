@@ -8,6 +8,7 @@
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Renderer/Shader.h"
+#include <string>
 
 namespace Tea {
 
@@ -19,6 +20,8 @@ namespace Tea {
     {
         Entity entity = { m_Registry.create(), this };
         entity.AddComponent<TransformComponent>();
+        auto& nameTag = entity.AddComponent<TagComponent>();
+        nameTag.Tag = name.empty() ? "Entity" : name;
         return entity;
     }
 
@@ -26,7 +29,12 @@ namespace Tea {
     {
         Entity e = CreateEntity("Entity Test");
             
-        e.AddComponent<ModelComponent>("assets/models/plane.glb");
+        e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
+
+        for(int i = 0; i < 10; i++)
+        {
+            Entity e = CreateEntity("Entity(" + std::to_string(i) + ")");
+        }
     }
 
     void Scene::OnUpdate()
