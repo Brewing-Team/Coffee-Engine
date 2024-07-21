@@ -3,6 +3,7 @@
 #include "TeaEngine/Core/Log.h"
 
 #include "TeaEngine/Core/Input.h"
+#include "TeaEngine/Renderer/Renderer.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
 
 #include <tracy/Tracy.hpp>
@@ -22,7 +23,7 @@ namespace Tea
         m_Window->SetEventCallback(TEA_BIND_EVENT_FN(OnEvent));
 
         //TODO: Create The Renderer Instance and remove the RendererAPI Instance
-        RendererAPI::Init();
+        Renderer::Init();
 
         m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

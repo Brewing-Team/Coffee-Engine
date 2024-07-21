@@ -3,6 +3,7 @@
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Material.h"
+#include "TeaEngine/Renderer/Renderer.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
 #include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Scene/Components.h"
@@ -36,14 +37,14 @@ namespace Tea {
     {
         ZoneScoped;
 
-        Entity e = CreateEntity("Entity Test");
+        Entity e = CreateEntity("Damaged Helmet");
 
         e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
 
-        for(int i = 0; i < 10; i++)
+/*         for(int i = 0; i < 10; i++)
         {
             Entity e = CreateEntity("Entity(" + std::to_string(i) + ")");
-        }
+        } */
 
         mTextures.albedo = Texture::Load("assets/textures/test2.jpg");
         standardMaterial = CreateRef<Material>(mTextures);
@@ -61,10 +62,12 @@ namespace Tea {
         //-------------- TEMPORAL ------------------
 
         //temporal, in the future use UBO's for this two values
-        standardMaterial->SetViewMatrix(camera.GetViewMatrix());
-        standardMaterial->SetProjectionMatrix(camera.GetProjection());
+        //standardMaterial->SetViewMatrix(camera.GetViewMatrix());
+        //standardMaterial->SetProjectionMatrix(camera.GetProjection());
 
         //------------------------------------------
+
+        Renderer::BeginScene(camera);
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<ModelComponent, TransformComponent>();
@@ -76,15 +79,17 @@ namespace Tea {
             auto& modelComponent = view.get<ModelComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
 
-            standardMaterial->SetModelMatrix(transformComponent.GetTransform());
+            //standardMaterial->SetModelMatrix(transformComponent.GetTransform());
 
-            standardMaterial->Use();
+            //standardMaterial->Use();
 
             for (auto& mesh : modelComponent.model->GetMeshes())
             {
-                RendererAPI::DrawIndexed(mesh->GetVertexArray());
+                Renderer::Submit(standardMaterial->GetShader(), mesh->GetVertexArray(), transformComponent.GetTransform());
             }
         }
+
+        Renderer::EndScene();
     }
 
     void Scene::OnEvent(Event& e)
