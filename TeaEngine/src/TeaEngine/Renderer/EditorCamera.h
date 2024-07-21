@@ -24,6 +24,8 @@ namespace Tea {
         void OnUpdate();
         void OnEvent(Event& event);
 
+        inline void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
+
         const glm::mat4 GetViewMatrix() const { return m_ViewMatrix; };
 
         glm::vec3 GetUpDirection() const;
@@ -61,5 +63,7 @@ namespace Tea {
         float m_Pitch = 0.0f, m_Yaw = 0.0f;
 
         glm::vec2 m_InitialMousePosition = glm::vec2(0.0f, 0.0f);
+
+        float m_ViewportWidth = 1280, m_ViewportHeight = 720;
     };
 }

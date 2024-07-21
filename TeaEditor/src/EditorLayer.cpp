@@ -7,6 +7,7 @@
 #include "TeaEngine/Scene/Scene.h"
 #include "Panels/SceneTreePanel.h"
 #include "imgui.h"
+#include <cstdint>
 #include <sys/types.h>
 
 namespace Tea {
@@ -32,8 +33,15 @@ namespace Tea {
 
     void EditorLayer::OnUpdate()
     {
+        if((m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f) &&
+           (m_Framebuffer->GetWidth() != m_ViewportSize.x || m_Framebuffer->GetHeight() != m_ViewportSize.y))
+        {
+            m_Framebuffer->Resize((uint32_t)m_ViewportSize.x,(uint32_t)m_ViewportSize.y);
+            m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
+        }
+
         m_Framebuffer->Bind();
-        RendererAPI::SetClearColor({.2f,.2f,.2f,1});
+        RendererAPI::SetClearColor({.1f,.1f,.1f,1});
         RendererAPI::Clear();
 
         m_EditorCamera.OnUpdate();
@@ -75,13 +83,17 @@ namespace Tea {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
+        
+        m_ViewportFocused = ImGui::IsWindowFocused();
+        m_ViewportHovered = ImGui::IsWindowHovered();
 
-        Application::Get().GetImGuiLayer()->BlockEvents(!ImGui::IsWindowHovered());
+        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
 
+        ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
+        m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
 
         uint32_t textureID = m_Framebuffer->GetColorAttachmentID();
-        ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-        ImGui::Image((void*)textureID, viewportPanelSize, {0, 1}, {1, 0});
+        ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, {0, 1}, {1, 0});
         ImGui::End();
         ImGui::PopStyleVar();
     }

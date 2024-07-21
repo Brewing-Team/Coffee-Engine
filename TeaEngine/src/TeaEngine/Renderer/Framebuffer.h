@@ -21,6 +21,9 @@ namespace Tea {
 
         void Resize(uint32_t width, uint32_t height);
 
+        const uint32_t GetWidth() const { return m_Width; }
+        const uint32_t GetHeight() const { return m_Height; }
+
         void AttachColorTexture(Ref<Texture>& texture);
         void AttachDepthTexture(Ref<Texture>& texture);
 

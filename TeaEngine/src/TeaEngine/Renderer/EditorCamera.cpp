@@ -97,6 +97,7 @@ namespace Tea {
 
     void EditorCamera::UpdateProjection()
     {
+        m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
         m_Projection = ProjectionTypeToMat4(m_ProjectionType);
     }
 

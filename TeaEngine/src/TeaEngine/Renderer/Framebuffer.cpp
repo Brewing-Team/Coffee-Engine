@@ -82,6 +82,7 @@ namespace Tea {
     void Framebuffer::Bind()
     {
         glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
+        glViewport(0, 0, m_Width, m_Height);
     }
 
     void Framebuffer::UnBind()
