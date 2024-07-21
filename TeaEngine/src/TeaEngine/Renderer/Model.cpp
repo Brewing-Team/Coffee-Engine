@@ -8,6 +8,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <cstdint>
+#include <tracy/Tracy.hpp>
 #include <vector>
 
 namespace Tea {
@@ -15,6 +16,8 @@ namespace Tea {
 
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)
     {
+        ZoneScoped;
+
         std::vector<Vertex> vertices;
         std::vector<uint32_t> indices;
 
@@ -43,7 +46,7 @@ namespace Tea {
             if(mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
             {
                 glm::vec2 vec;
-                // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
+                // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
                 // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
                 vec.x = mesh->mTextureCoords[0][i].x;
                 vec.y = mesh->mTextureCoords[0][i].y;
@@ -77,10 +80,12 @@ namespace Tea {
 
         return CreateRef<Mesh>(indices, vertices);
     }
-    
+
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void Model::processNode(Model* model, aiNode* node, const aiScene* scene)
     {
+        ZoneScoped;
+
         for(uint32_t i = 0; i < node->mNumMeshes; i++)
         {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
@@ -95,6 +100,8 @@ namespace Tea {
 
     Model::Model(const std::string& filePath)
     {
+        ZoneScoped;
+
         LoadModel(filePath);
     }
 

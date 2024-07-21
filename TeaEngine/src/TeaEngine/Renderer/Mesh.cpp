@@ -2,11 +2,14 @@
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Renderer/VertexArray.h"
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
     Mesh::Mesh(const std::vector<uint32_t>& indices, const std::vector<Vertex>& vertices)
     {
+        ZoneScoped;
+
         m_Indices = indices;
         m_Vertices = vertices;
 

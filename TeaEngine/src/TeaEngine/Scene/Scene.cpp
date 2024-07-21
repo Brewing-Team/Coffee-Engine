@@ -9,8 +9,13 @@
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Renderer/Shader.h"
 #include <string>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
+
+    //TEMPORAL
+    static MaterialTextures mTextures;
+    static Ref<Material> standardMaterial;
 
     Scene::Scene()
     {
@@ -18,6 +23,8 @@ namespace Tea {
 
     Entity Scene::CreateEntity(const std::string& name)
     {
+        ZoneScoped;
+
         Entity entity = { m_Registry.create(), this };
         entity.AddComponent<TransformComponent>();
         auto& nameTag = entity.AddComponent<TagComponent>();
@@ -27,28 +34,31 @@ namespace Tea {
 
     void Scene::OnInit()
     {
+        ZoneScoped;
+
         Entity e = CreateEntity("Entity Test");
-            
+
         e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
 
         for(int i = 0; i < 10; i++)
         {
             Entity e = CreateEntity("Entity(" + std::to_string(i) + ")");
         }
+
+        mTextures.albedo = Texture::Load("assets/textures/test2.jpg");
+        standardMaterial = CreateRef<Material>(mTextures);
     }
 
     void Scene::OnUpdate()
     {
-       
+        ZoneScoped;
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera)
     {
-        //-------------- TEMPORAL ------------------
-        MaterialTextures mTextures;
-        mTextures.albedo = Texture::Load("assets/textures/test2.jpg");
+        ZoneScoped;
 
-        Ref<Material> standardMaterial = CreateRef<Material>(mTextures);
+        //-------------- TEMPORAL ------------------
 
         //temporal, in the future use UBO's for this two values
         standardMaterial->SetViewMatrix(camera.GetViewMatrix());
@@ -65,7 +75,7 @@ namespace Tea {
             // Get the ModelComponent and TransformComponent for the current entity
             auto& modelComponent = view.get<ModelComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
-            
+
             standardMaterial->SetModelMatrix(transformComponent.GetTransform());
 
             standardMaterial->Use();
@@ -79,12 +89,12 @@ namespace Tea {
 
     void Scene::OnEvent(Event& e)
     {
-
+        ZoneScoped;
     }
 
     void Scene::OnExit()
     {
-
+        ZoneScoped;
     }
 
 }

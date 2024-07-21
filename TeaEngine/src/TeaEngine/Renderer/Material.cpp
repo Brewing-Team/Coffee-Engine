@@ -1,10 +1,13 @@
 #include "Material.h"
 #include <glm/fwd.hpp>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
-    
+
     Material::Material(MaterialTextures& materialTextures)
     {
+        ZoneScoped;
+
         textures.albedo = materialTextures.albedo;
 
         m_Shader = Tea::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
@@ -17,6 +20,8 @@ namespace Tea {
 
     void Material::Use()
     {
+        ZoneScoped;
+
         m_Shader->Bind();
     }
 

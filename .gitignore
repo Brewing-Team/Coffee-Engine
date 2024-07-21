@@ -16,3 +16,4 @@ bin
 *.vscode
 *.kdev4
 *.kate-swp
+/traces

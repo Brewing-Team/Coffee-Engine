@@ -2,6 +2,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
@@ -16,6 +17,8 @@ namespace Tea {
 
     void GraphicsContext::Init()
     {
+        ZoneScoped;
+
         glfwMakeContextCurrent(m_WindowHandle);
         int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 		TEA_CORE_ASSERT(status, "Failed to initialize Glad!");
@@ -30,7 +33,11 @@ namespace Tea {
 
     void GraphicsContext::SwapBuffers()
     {
+        ZoneScoped;
+
         glfwSwapBuffers(m_WindowHandle);
+
+        FrameMark;
     }
 
     Scope<GraphicsContext> GraphicsContext::Create(GLFWwindow* window)

@@ -9,16 +9,19 @@
 #include "imgui.h"
 #include <cstdint>
 #include <sys/types.h>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
     EditorLayer::EditorLayer() : Layer("Example")
     {
-      
+
     }
 
     void EditorLayer::OnAttach()
     {
+        ZoneScoped;
+
         m_Framebuffer = Framebuffer::Create(1280, 720, {ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8});
 
         m_EditorScene = CreateRef<Scene>();
@@ -33,6 +36,8 @@ namespace Tea {
 
     void EditorLayer::OnUpdate()
     {
+        ZoneScoped;
+
         if((m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f) &&
            (m_Framebuffer->GetWidth() != m_ViewportSize.x || m_Framebuffer->GetHeight() != m_ViewportSize.y))
         {
@@ -54,6 +59,8 @@ namespace Tea {
 
     void EditorLayer::OnEvent(Tea::Event& event)
     {
+        ZoneScoped;
+
         m_EditorCamera.OnEvent(event);
 
         m_ActiveScene->OnEvent(event);
@@ -61,11 +68,15 @@ namespace Tea {
 
     void EditorLayer::OnDetach()
     {
+        ZoneScoped;
+
         m_ActiveScene->OnExit();
     }
 
     void EditorLayer::OnImGuiRender()
     {
+        ZoneScoped;
+
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
         if (ImGui::BeginMainMenuBar()) {
@@ -83,7 +94,7 @@ namespace Tea {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
-        
+
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
 

@@ -8,6 +8,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <tracy/Tracy.hpp>
+
 #include <cstddef>
 
 namespace Tea {
@@ -21,16 +23,22 @@ namespace Tea {
 
 	Window::Window(const WindowProps& props)
 	{
+        ZoneScoped;
+
 		Init(props);
 	}
 
 	Window::~Window()
 	{
+        ZoneScoped;
+
 		Shutdown();
 	}
 
 	void Window::Init(const WindowProps& props)
 	{
+        ZoneScoped;
+
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
@@ -41,17 +49,20 @@ namespace Tea {
 
         if (s_GLFWWindowCount == 0)
 		{
+            ZoneScopedN("gltfInit");
 			int success = glfwInit();
 			TEA_CORE_ASSERT(success, "Could not initialize GLFW!");
 			glfwSetErrorCallback(GLFWErrorCallback);
 		}
 
+        {
+            ZoneScopedN("glfwCreateWindow");
 		#if defined(TEA_DEBUG)
 			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
 		#endif
 			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 			++s_GLFWWindowCount;
-
+        }
 		//Create OpenGL Context
 		m_Context = GraphicsContext::Create(m_Window);
 		m_Context->Init();
@@ -144,6 +155,8 @@ namespace Tea {
 
 	void Window::Shutdown()
 	{
+        ZoneScoped;
+
 		glfwDestroyWindow(m_Window);
 		--s_GLFWWindowCount;
 
@@ -155,12 +168,16 @@ namespace Tea {
 
 	void Window::OnUpdate()
 	{
+        ZoneScoped;
+
 		glfwPollEvents();
 		m_Context->SwapBuffers();
 	}
 
 	void Window::SetVSync(bool enabled)
 	{
+        ZoneScoped;
+
 		if (enabled)
 			glfwSwapInterval(1);
 		else

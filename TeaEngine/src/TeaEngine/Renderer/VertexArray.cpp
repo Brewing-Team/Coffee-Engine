@@ -1,6 +1,7 @@
 #include "TeaEngine/Renderer/VertexArray.h"
 
 #include <glad/glad.h>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
@@ -22,29 +23,39 @@ namespace Tea {
 		TEA_CORE_ASSERT(false, "Unknown ShaderDataType!");
 		return 0;
 	}
-    
+
     VertexArray::VertexArray()
     {
+        ZoneScoped;
+
         glCreateVertexArrays(1, &m_vaoID);
     }
 
     VertexArray::~VertexArray()
     {
+        ZoneScoped;
+
         glDeleteVertexArrays(1, &m_vaoID);
     }
 
     void VertexArray::Bind()
     {
+        ZoneScoped;
+
         glBindVertexArray(m_vaoID);
     }
 
     void VertexArray::Unbind()
     {
+        ZoneScoped;
+
         glBindVertexArray(0);
     }
 
     void VertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
     {
+        ZoneScoped;
+
 		TEA_CORE_ASSERT(vertexBuffer->GetLayout().GetElements().size(), "Vertex Buffer has no layout!");
 
 		glBindVertexArray(m_vaoID);
@@ -112,6 +123,8 @@ namespace Tea {
 
     void VertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
     {
+        ZoneScoped;
+
         glBindVertexArray(m_vaoID);
         indexBuffer->Bind();
 

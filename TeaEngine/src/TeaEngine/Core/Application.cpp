@@ -5,12 +5,16 @@
 #include "TeaEngine/Core/Input.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
 
+#include <tracy/Tracy.hpp>
+
 namespace Tea
 {
     Application* Application::s_Instance = nullptr;
 
     Application::Application()
     {
+        ZoneScoped;
+
         TEA_CORE_ASSERT(!s_Instance, "Application already exists!");
 		s_Instance = this;
 
@@ -30,12 +34,16 @@ namespace Tea
 
     void Application::PushLayer(Layer* layer)
     {
+        ZoneScoped;
+
         m_LayerStack.PushLayer(layer);
         layer->OnAttach();
     }
 
     void Application::PushOverlay(Layer* layer)
     {
+        ZoneScoped;
+        
         m_LayerStack.PushOverlay(layer);
         layer->OnAttach();
     }
@@ -47,6 +55,8 @@ namespace Tea
 
     void Application::OnEvent(Event& e)
     {
+        ZoneScoped;
+
         EventDispatcher dispacher(e);
         dispacher.Dispatch<WindowCloseEvent>(TEA_BIND_EVENT_FN(OnWindowClose));
 
@@ -62,14 +72,26 @@ namespace Tea
 
     void Application::Run()
     {
+        ZoneScoped;
+
         while (m_Running)
-        {
-            for(Layer* layer : m_LayerStack)
-                layer->OnUpdate();
-            
+        {   
+            ZoneScopedN("RunLoop");
+
+            {
+                ZoneScopedN("LayerStack Update");
+
+                for(Layer* layer : m_LayerStack)
+                    layer->OnUpdate();
+            }
+
             m_ImGuiLayer->Begin();
-            for(Layer* layer : m_LayerStack)
-                layer->OnImGuiRender();
+            {
+                ZoneScopedN("LayerStack ImGuiRender");
+
+                for(Layer* layer : m_LayerStack)
+                    layer->OnImGuiRender();
+            }
             m_ImGuiLayer->End();
 
             m_Window->OnUpdate();
@@ -78,6 +100,8 @@ namespace Tea
 
     bool Application::OnWindowClose(WindowCloseEvent& e)
     {
+        ZoneScoped;
+
         m_Running = false;
         return true;
     }

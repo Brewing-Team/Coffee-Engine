@@ -3,11 +3,14 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
     Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     {
+        ZoneScoped;
+
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
@@ -16,7 +19,7 @@ namespace Tea {
         // ensure ifstream objects can throw exceptions:
         vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
         fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        try 
+        try
         {
             // open files
             vShaderFile.open(vertexPath);
@@ -24,13 +27,13 @@ namespace Tea {
             std::stringstream vShaderStream, fShaderStream;
             // read file's buffer contents into streams
             vShaderStream << vShaderFile.rdbuf();
-            fShaderStream << fShaderFile.rdbuf();		
+            fShaderStream << fShaderFile.rdbuf();
             // close file handlers
             vShaderFile.close();
             fShaderFile.close();
             // convert stream into string
             vertexCode = vShaderStream.str();
-            fragmentCode = fShaderStream.str();			
+            fragmentCode = fShaderStream.str();
         }
         catch (std::ifstream::failure& e)
         {
@@ -63,75 +66,101 @@ namespace Tea {
 
     Shader::~Shader()
     {
+        ZoneScoped;
+
         glDeleteProgram(m_ShaderID);
     }
 
     void Shader::Bind()
     {
+        ZoneScoped;
+
         glUseProgram(m_ShaderID);
     }
 
     void Shader::Unbind()
     {
+        ZoneScoped;
+
         glUseProgram(0);
     }
 
     void Shader::setBool(const std::string& name, bool value) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniform1i(location, (int)value);
     }
 
     void Shader::setInt(const std::string& name, int value) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniform1i(location, value);
     }
-    
+
     void Shader::setFloat(const std::string& name, float value) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniform1f(location, value);
     }
-    
+
     void Shader::setVec2(const std::string& name, const glm::vec2& value) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniform2fv(location, 1, &value[0]);
     }
-    
+
     void Shader::setVec3(const std::string& name, const glm::vec3& value) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniform3fv(location, 1, &value[0]);
     }
-    
+
     void Shader::setVec4(const std::string& name, const glm::vec4& value) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniform4fv(location, 1, &value[0]);
     }
-    
+
     void Shader::setMat2(const std::string& name, const glm::mat2& mat) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniformMatrix2fv(location, 1, GL_FALSE, &mat[0][0]);
     }
-    
+
     void Shader::setMat3(const std::string& name, const glm::mat3& mat) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniformMatrix3fv(location, 1, GL_FALSE, &mat[0][0]);
     }
-    
+
     void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
     {
+        ZoneScoped;
+
         GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
         glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
     }
-    
+
     Ref<Shader> Shader::Create(const std::string& vertexPath, const std::string& fragmentPath)
     {
+        ZoneScoped;
+
         return CreateRef<Shader>(vertexPath, fragmentPath);
     }
 

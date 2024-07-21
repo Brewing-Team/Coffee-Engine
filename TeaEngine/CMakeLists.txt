@@ -17,7 +17,7 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${INCLUDE_DIRS}
 )
 
-target_link_libraries(${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME} PUBLIC
     spdlog::spdlog
     fmt::fmt
     glfw
@@ -26,12 +26,18 @@ target_link_libraries(${PROJECT_NAME}
     stb_image
     assimp
     EnTT::EnTT
+    Tracy::TracyClient
     )
+
+# Set this in a profile like (Release + Profile)
+option(TRACY_ENABLE "" ON)
+option(TRACY_ON_DEMAND "" ON)
 
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/entt)
+add_subdirectory(vendor/tracy)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE TEA_DEBUG=1)

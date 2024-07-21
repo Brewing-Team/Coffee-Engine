@@ -8,6 +8,7 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
@@ -22,6 +23,8 @@ namespace Tea {
 
     void ImGuiLayer::OnAttach()
     {
+        ZoneScoped;
+
         ImGui::CreateContext();
         ImGui::StyleColorsDark();
 
@@ -39,6 +42,8 @@ namespace Tea {
 
     void ImGuiLayer::OnDetach()
     {
+        ZoneScoped;
+
         ImGui:ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
@@ -56,6 +61,8 @@ namespace Tea {
 
     void ImGuiLayer::Begin()
 	{
+        ZoneScoped;
+
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
@@ -63,6 +70,8 @@ namespace Tea {
 
 	void ImGuiLayer::End()
 	{
+        ZoneScoped;
+
 		ImGuiIO& io = ImGui::GetIO();
 		Application& app = Application::Get();
 		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());

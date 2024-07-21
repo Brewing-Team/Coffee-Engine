@@ -3,6 +3,7 @@
 #include "TeaEngine/Renderer/Texture.h"
 
 #include <glad/glad.h>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
@@ -11,6 +12,8 @@ namespace Tea {
     Framebuffer::Framebuffer(uint32_t width, uint32_t height, std::initializer_list<ImageFormat> attachments)
         : m_Width(width), m_Height(height), m_Attachments(attachments)
     {
+        ZoneScoped;
+
         glCreateFramebuffers(1, &m_fboID);
 
         Invalidate();
@@ -23,6 +26,8 @@ namespace Tea {
 
     void Framebuffer::Resize(uint32_t width, uint32_t height)
     {
+        ZoneScoped;
+
         if(width == 0 || height == 0 || width > s_MaxFramebufferSize || height > s_MaxFramebufferSize)
         {
             TEA_CORE_WARN("Attempted to resize framebuffer to {0}, {1}", width, height);
@@ -44,6 +49,8 @@ namespace Tea {
 
     void Framebuffer::Invalidate()
     {
+        ZoneScoped;
+
         if(m_fboID)
         {
             glDeleteFramebuffers(1, &m_fboID);
@@ -57,7 +64,7 @@ namespace Tea {
 
             glCreateFramebuffers(1, &m_fboID);
             glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
-            
+
             for (size_t i = 0; i < m_Attachments.size(); i++)
             {
                 ImageFormat imageFormat = m_Attachments[i];
@@ -81,23 +88,31 @@ namespace Tea {
 
     void Framebuffer::Bind()
     {
+        ZoneScoped;
+
         glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
         glViewport(0, 0, m_Width, m_Height);
     }
 
     void Framebuffer::UnBind()
     {
+        ZoneScoped;
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void Framebuffer::AttachColorTexture(Ref<Texture>& texture)
     {
+        ZoneScoped;
+
         m_ColorTextures.push_back(texture);
         glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + m_ColorTextures.size() - 1, texture->GetID(), 0);
     }
 
     void Framebuffer::AttachDepthTexture(Ref<Texture>& texture)
     {
+        ZoneScoped;
+
         m_DepthTexture = texture;
         glNamedFramebufferTexture(m_fboID, GL_DEPTH_STENCIL_ATTACHMENT, texture->GetID(), 0);
     }

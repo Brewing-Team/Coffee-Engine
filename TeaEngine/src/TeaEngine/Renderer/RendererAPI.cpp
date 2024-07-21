@@ -1,6 +1,7 @@
 #include "TeaEngine/Renderer/RendererAPI.h"
 
 #include <glad/glad.h>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
@@ -22,16 +23,18 @@ namespace Tea {
 			case GL_DEBUG_SEVERITY_LOW:          TEA_CORE_WARN(message); return;
 			case GL_DEBUG_SEVERITY_NOTIFICATION: TEA_CORE_TRACE(message); return;
 		}
-		
+
 		TEA_CORE_ASSERT(false, "Unknown severity level!");
 	}
 
     void RendererAPI::Init()
     {
+        ZoneScoped;
+
         glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 		glDebugMessageCallback(OpenGLMessageCallback, nullptr);
-		
+
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
 
         glEnable(GL_BLEND);
@@ -43,16 +46,22 @@ namespace Tea {
 
 	void RendererAPI::SetClearColor(const glm::vec4& color)
 	{
+	    ZoneScoped;
+
 		glClearColor(color.r, color.g, color.b, color.a);
 	}
 
 	void RendererAPI::Clear()
 	{
+	    ZoneScoped;
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
     void RendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)
     {
+        ZoneScoped;
+
         vertexArray->Bind();
         uint32_t count = vertexArray->GetIndexBuffer()->GetCount();
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);

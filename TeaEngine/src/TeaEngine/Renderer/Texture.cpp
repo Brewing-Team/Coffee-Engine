@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <glad/glad.h>
 #include <stb_image.h>
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
@@ -35,6 +36,8 @@ namespace Tea {
     Texture::Texture(uint32_t width, uint32_t height, ImageFormat imageFormat)
         : m_Width(width), m_Height(height), m_Format(imageFormat)
     {
+        ZoneScoped;
+
         GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Format);
         GLenum format = ImageFormatToOpenGLFormat(m_Format);
 
@@ -43,13 +46,15 @@ namespace Tea {
 
         glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        
+
         glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
 
     Texture::Texture(const std::string& path)
     {
+        ZoneScoped;
+
         m_FilePath = path;
 
         int nrComponents;
@@ -78,10 +83,10 @@ namespace Tea {
 
             glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            
+
             glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            
+
             glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data);
 
             stbi_image_free(m_Data);
@@ -90,16 +95,22 @@ namespace Tea {
 
     Texture::~Texture()
     {
+        ZoneScoped;
+
         glDeleteTextures(1, &m_textureID);
     }
 
     void Texture::Bind(uint32_t slot)
     {
+        ZoneScoped;
+
         glBindTextureUnit(slot, m_textureID);
     }
 
     void Texture::SetData(void* data, uint32_t size)
     {
+        ZoneScoped;
+
         GLenum format = ImageFormatToOpenGLFormat(m_Format);
         glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, data);
     }
