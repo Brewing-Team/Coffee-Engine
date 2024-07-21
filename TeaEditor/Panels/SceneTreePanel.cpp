@@ -3,6 +3,8 @@
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Core/Log.h"
+#include "TeaEngine/Scene/SceneTree.h"
+#include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include <cstdint>
 #include <cstring>
@@ -12,7 +14,7 @@
 
 
 namespace Tea {
-    
+
     SceneTreePanel::SceneTreePanel(const Ref<Scene>& scene)
     {
         m_Context = scene;
@@ -31,7 +33,12 @@ namespace Tea {
         for(auto entityID: view)
         {
             Entity entity{ entityID, m_Context.get()};
-            DrawEntityNode(entity);
+            auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
+            
+            if(hierarchyComponent.m_Parent == entt::null)
+            {
+                DrawEntityNode(entity);
+            }
         }
 
         if(ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
@@ -54,7 +61,12 @@ namespace Tea {
     {
         auto& entityNameTag = entity.GetComponent<TagComponent>().Tag;
 
-        ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_OpenOnArrow;
+        auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
+
+        ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
+                                   ((hierarchyComponent.m_First == entt::null) ? ImGuiTreeNodeFlags_Leaf : 0) |
+                                   ImGuiTreeNodeFlags_OpenOnArrow;
+        
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityNameTag.c_str());
 
         if(ImGui::IsItemClicked())
@@ -64,7 +76,17 @@ namespace Tea {
 
         if(opened)
         {
-            //Here you would call DrawEntityNode for the child nodes and blablabla
+            if(hierarchyComponent.m_First != entt::null)
+            {
+                // Recursively draw all children
+                Entity childEntity{ hierarchyComponent.m_First, m_Context.get()};
+                while((entt::entity)childEntity != entt::null)
+                {
+                    DrawEntityNode(childEntity);
+                    auto& childHierarchyComponent = childEntity.GetComponent<HierarchyComponent>();
+                    childEntity = Entity{ childHierarchyComponent.m_Next, m_Context.get() };
+                }
+            }
             ImGui::TreePop();
         }
     }

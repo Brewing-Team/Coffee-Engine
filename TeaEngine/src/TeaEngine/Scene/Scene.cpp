@@ -9,6 +9,9 @@
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Renderer/Shader.h"
+#include "TeaEngine/Scene/SceneTree.h"
+#include "entt/entity/fwd.hpp"
+#include <cstdint>
 #include <string>
 #include <tracy/Tracy.hpp>
 
@@ -20,6 +23,7 @@ namespace Tea {
 
     Scene::Scene()
     {
+        m_SceneTree = CreateScope<SceneTree>(this);
     }
 
     Entity Scene::CreateEntity(const std::string& name)
@@ -33,13 +37,34 @@ namespace Tea {
         return entity;
     }
 
+    void Scene::DestroyEntity(Entity entity)
+    {
+        m_Registry.destroy((entt::entity)entity);
+    }
+
     void Scene::OnInit()
     {
         ZoneScoped;
 
+        Entity Root = CreateEntity("Root");
+        Root.AddComponent<HierarchyComponent>();
+
+        for(int i = 0; i < 5; i++)
+        {
+            Entity child1 = CreateEntity("Child(" + std::to_string(i) + ")");
+            child1.AddComponent<HierarchyComponent>((entt::entity)Root);
+
+            for(int i = 0; i < 5; i++)
+            {
+                Entity child2 = CreateEntity("Child(" + std::to_string(i) + ")");
+                child2.AddComponent<HierarchyComponent>((entt::entity)child1);
+            }
+        }
+
         Entity e = CreateEntity("Damaged Helmet");
 
         e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
+        e.AddComponent<HierarchyComponent>();
 
 /*         for(int i = 0; i < 10; i++)
         {
@@ -58,6 +83,8 @@ namespace Tea {
     void Scene::OnUpdateEditor(EditorCamera& camera)
     {
         ZoneScoped;
+
+        m_SceneTree->Update();
 
         //-------------- TEMPORAL ------------------
 

@@ -2,6 +2,7 @@
 
 #include "TeaEngine/Events/Event.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
+#include "TeaEngine/Scene/SceneTree.h"
 
 #include <entt/entt.hpp>
 #include <string>
@@ -27,7 +28,10 @@ namespace Tea {
     private:
         entt::registry m_Registry;
 
+        Scope<SceneTree> m_SceneTree;
+
         friend class Entity;
+        friend class SceneTree;
         friend class SceneTreePanel;
     };
 

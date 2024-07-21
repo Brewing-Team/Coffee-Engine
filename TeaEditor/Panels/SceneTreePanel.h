@@ -3,6 +3,7 @@
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Scene/Scene.h"
 #include "TeaEngine/Scene/Entity.h"
+#include "entt/entity/fwd.hpp"
 
 namespace Tea {
 
