@@ -18,6 +18,8 @@ namespace Tea {
         static void OnDestroy(entt::registry& registry, entt::entity entity);
         static void OnUpdate(entt::registry& registry, entt::entity entity);
 
+        static void Reparent(entt::registry& registry, entt::entity entity, entt::entity parent);
+
         entt::entity m_Parent;
         entt::entity m_First;
         entt::entity m_Next;

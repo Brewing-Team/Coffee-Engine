@@ -74,6 +74,26 @@ namespace Tea {
             m_SelectionContext = entity;
         }
 
+        if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+        {
+            ImGui::SetDragDropPayload("ENTITY_NODE", &entity, sizeof(Entity)); // Use the entity ID or a pointer as payload
+            ImGui::Text("%s", entityNameTag.c_str());
+            ImGui::EndDragDropSource();
+        }
+
+        if (ImGui::BeginDragDropTarget())
+        {
+            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_NODE"))
+            {
+                // Assuming payload is an Entity, but you need to cast and check appropriately
+                Entity payloadEntity = *(const Entity*)payload->Data;
+                // Process the drop, e.g., reparenting the entity in the hierarchy
+                // This is where you would update the ECS or scene graph
+                HierarchyComponent::Reparent(m_Context->m_Registry, entity, (entt::entity)payloadEntity); //I think is not necessary do the casting, it does it automatically;
+            }
+            ImGui::EndDragDropTarget();
+        }
+
         if(opened)
         {
             if(hierarchyComponent.m_First != entt::null)

@@ -59,6 +59,48 @@ namespace Tea {
         TEA_CORE_INFO("HierarchyComponent::OnUpdate()");
     }
 
+    void HierarchyComponent::Reparent(entt::registry& registry, entt::entity entity, entt::entity parent)
+    {
+        auto& hierarchy = registry.get<HierarchyComponent>(entity);
+        auto& parentHierarchy = registry.get<HierarchyComponent>(hierarchy.m_Parent);
+        
+
+        //Remove the Entity from the current position
+        if(entity != parentHierarchy.m_First)
+        {
+            auto prevHierachy = registry.get<HierarchyComponent>(hierarchy.m_Prev);
+            auto nextHierachy = registry.get<HierarchyComponent>(hierarchy.m_Next);
+            prevHierachy.m_Next = hierarchy.m_Next;
+            prevHierachy.m_Prev = hierarchy.m_Prev;
+        }
+        else
+        {
+            parentHierarchy.m_First = hierarchy.m_Next;
+        }
+
+        //Add it to the new
+        hierarchy.m_Parent = parent;
+        parentHierarchy = registry.get<HierarchyComponent>(hierarchy.m_Parent);
+
+        if(parentHierarchy.m_First == entt::null)
+        {
+            parentHierarchy.m_First = entity;
+        }
+        else
+        {
+            //Get the last child of the parent
+            auto lastEntity = parentHierarchy.m_First;
+            auto lastHierarchy = registry.try_get<HierarchyComponent>(lastEntity);
+            while(lastHierarchy != nullptr && lastHierarchy->m_Next != entt::null)
+            {
+                lastEntity = lastHierarchy->m_Next;
+                lastHierarchy = registry.try_get<HierarchyComponent>(lastEntity);
+            }
+            lastHierarchy->m_Next = entity;
+            lastHierarchy->m_Prev = lastEntity;
+        }
+    }
+
     SceneTree::SceneTree(Scene* scene) : m_Context(scene)
     {
         auto& registry = m_Context->m_Registry;
