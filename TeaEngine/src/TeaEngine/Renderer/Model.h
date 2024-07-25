@@ -2,7 +2,9 @@
 
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Mesh.h"
+#include "TeaEngine/Scene/Scene.h"
 #include <assimp/scene.h>
+#include <string>
 #include <vector>
 namespace Tea {
 
@@ -16,6 +18,8 @@ namespace Tea {
 
         const std::vector<Ref<Mesh>>& GetMeshes() const { return m_Meshes; };
         void AddMesh(const Ref<Mesh> mesh) { m_Meshes.push_back(mesh); };
+
+        std::string& GetName() { return m_Name; }
     private:
         Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene);
         void processNode(Model* model, aiNode* node, const aiScene* scene);
@@ -23,6 +27,6 @@ namespace Tea {
         std::vector<Ref<Mesh>> m_Meshes;
         
         std::string m_FilePath;
+        std::string m_Name;
     };
-
 }

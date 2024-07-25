@@ -11,6 +11,7 @@
 #include <tracy/Tracy.hpp>
 #include <vector>
 
+
 namespace Tea {
 
 
@@ -78,7 +79,10 @@ namespace Tea {
                 indices.push_back(face.mIndices[j]);
         }
 
-        return CreateRef<Mesh>(indices, vertices);
+        Ref<Mesh> resultMesh = CreateRef<Mesh>(indices, vertices);
+        resultMesh->SetName(mesh->mName.C_Str());
+
+        return resultMesh;
     }
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
@@ -115,6 +119,8 @@ namespace Tea {
             TEA_CORE_ERROR("ERROR::ASSIMP:: {0}", importer.GetErrorString());
             return;
         }
+
+        m_Name = scene->mName.C_Str();
 
         processNode(this, scene->mRootNode, scene);
     }

@@ -10,6 +10,7 @@
 namespace Tea {
     
     class Entity;
+    class Model;
 
     class Scene
     {
@@ -35,4 +36,6 @@ namespace Tea {
         friend class SceneTreePanel;
     };
 
+    //TEMP, IDK IF THIS IS WELL
+    void AddModelToTheSceneTree(Scene* scene, Ref<Model> model);
 }

@@ -34,6 +34,7 @@ namespace Tea {
         entity.AddComponent<TransformComponent>();
         auto& nameTag = entity.AddComponent<TagComponent>();
         nameTag.Tag = name.empty() ? "Entity" : name;
+        entity.AddComponent<HierarchyComponent>();
         return entity;
     }
 
@@ -47,24 +48,23 @@ namespace Tea {
         ZoneScoped;
 
         Entity Root = CreateEntity("Root");
-        Root.AddComponent<HierarchyComponent>();
 
         for(int i = 0; i < 5; i++)
         {
             Entity child1 = CreateEntity("Child(" + std::to_string(i) + ")");
-            child1.AddComponent<HierarchyComponent>((entt::entity)Root);
+            child1.SetParent(Root);
 
             for(int i = 0; i < 5; i++)
             {
                 Entity child2 = CreateEntity("Child(" + std::to_string(i) + ")");
-                child2.AddComponent<HierarchyComponent>((entt::entity)child1);
+                child2.SetParent(child1);
             }
         }
 
-        Entity e = CreateEntity("Damaged Helmet");
+        //Entity e = CreateEntity("Damaged Helmet");
+        //e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
 
-        e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
-        e.AddComponent<HierarchyComponent>();
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet.glb"));
 
 /*         for(int i = 0; i < 10; i++)
         {
@@ -97,23 +97,21 @@ namespace Tea {
         Renderer::BeginScene(camera);
 
         // Get all entities with ModelComponent and TransformComponent
-        auto view = m_Registry.view<ModelComponent, TransformComponent>();
+        auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
         // Loop through each entity with the specified components
         for (auto entity : view)
         {
             // Get the ModelComponent and TransformComponent for the current entity
-            auto& modelComponent = view.get<ModelComponent>(entity);
+            auto& meshComponent = view.get<MeshComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
+
+            Ref<Mesh> mesh = meshComponent.GetMesh();
 
             //standardMaterial->SetModelMatrix(transformComponent.GetTransform());
 
             //standardMaterial->Use();
-
-            for (auto& mesh : modelComponent.model->GetMeshes())
-            {
-                Renderer::Submit(standardMaterial->GetShader(), mesh->GetVertexArray(), transformComponent.GetTransform());
-            }
+            Renderer::Submit(standardMaterial->GetShader(), mesh->GetVertexArray(), transformComponent.GetTransform());
         }
 
         Renderer::EndScene();
@@ -127,6 +125,18 @@ namespace Tea {
     void Scene::OnExit()
     {
         ZoneScoped;
+    }
+
+    void AddModelToTheSceneTree(Scene* scene, Ref<Model> model)
+    {
+        Entity root = scene->CreateEntity(model->GetName());
+
+        for(auto& mesh : model->GetMeshes())
+        {
+            Entity meshEntity = scene->CreateEntity(mesh->GetName());
+            meshEntity.AddComponent<MeshComponent>(mesh);
+            meshEntity.SetParent(root);
+        }
     }
 
 }

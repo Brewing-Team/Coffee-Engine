@@ -29,6 +29,9 @@ namespace Tea {
         const Ref<VertexArray>& GetVertexArray() const { return m_VertexArray; }
         const Ref<VertexBuffer>& GetVertexBuffer() const { return m_VertexBuffer; }
         const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
+
+        void SetName(const std::string& name) { m_Name = name; }
+        std::string& GetName() { return m_Name; }
     private:
         Ref<VertexArray> m_VertexArray;
         Ref<VertexBuffer> m_VertexBuffer;

@@ -2,6 +2,7 @@
 
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Material.h"
+#include "TeaEngine/Renderer/Mesh.h"
 #include "TeaEngine/Renderer/Model.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
@@ -51,8 +52,20 @@ namespace Tea {
         ModelComponent(const ModelComponent&) = default;
         ModelComponent(Ref<Model> model)
             : model(model) {}
-         ModelComponent(const std::string& path)
+        ModelComponent(const std::string& path)
             :model(CreateRef<Model>(path)) {}
+    };
+
+    struct MeshComponent
+    {
+        Ref<Mesh> mesh;
+
+        MeshComponent() = default;
+        MeshComponent(const MeshComponent&) = default;
+        MeshComponent(Ref<Mesh> mesh)
+            : mesh(mesh) {}
+
+        Ref<Mesh> GetMesh() {return mesh; };
     };
 
     struct MaterialComponent
