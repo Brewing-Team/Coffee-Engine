@@ -64,7 +64,7 @@ namespace Tea {
         //Entity e = CreateEntity("Damaged Helmet");
         //e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
 
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet.glb"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
 /*         for(int i = 0; i < 10; i++)
         {
@@ -86,14 +86,6 @@ namespace Tea {
 
         m_SceneTree->Update();
 
-        //-------------- TEMPORAL ------------------
-
-        //temporal, in the future use UBO's for this two values
-        //standardMaterial->SetViewMatrix(camera.GetViewMatrix());
-        //standardMaterial->SetProjectionMatrix(camera.GetProjection());
-
-        //------------------------------------------
-
         Renderer::BeginScene(camera);
 
         // Get all entities with ModelComponent and TransformComponent
@@ -105,13 +97,14 @@ namespace Tea {
             // Get the ModelComponent and TransformComponent for the current entity
             auto& meshComponent = view.get<MeshComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
+            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
+            Ref<Material> material = materialComponent->material ? materialComponent->material : standardMaterial;
 
-            //standardMaterial->SetModelMatrix(transformComponent.GetTransform());
-
-            //standardMaterial->Use();
-            Renderer::Submit(standardMaterial->GetShader(), mesh->GetVertexArray(), transformComponent.GetTransform());
+            material->Use();
+            
+            Renderer::Submit(material->GetShader(), mesh->GetVertexArray(), transformComponent.GetTransform());
         }
 
         Renderer::EndScene();
@@ -135,6 +128,12 @@ namespace Tea {
         {
             Entity meshEntity = scene->CreateEntity(mesh->GetName());
             meshEntity.AddComponent<MeshComponent>(mesh);
+
+            if(mesh->GetMaterial())
+            {
+                meshEntity.AddComponent<MaterialComponent>(mesh->GetMaterial());
+            }
+
             meshEntity.SetParent(root);
         }
     }

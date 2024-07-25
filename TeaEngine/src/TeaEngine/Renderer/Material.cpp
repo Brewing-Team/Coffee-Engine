@@ -23,6 +23,7 @@ namespace Tea {
         ZoneScoped;
 
         m_Shader->Bind();
+        textures.albedo->Bind(0);
     }
 
     void Material::SetModelMatrix(const glm::mat4& modelMatrix)

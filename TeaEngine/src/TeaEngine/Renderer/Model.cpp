@@ -1,13 +1,18 @@
 #include "TeaEngine/Renderer/Model.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
+#include "TeaEngine/Renderer/Material.h"
 #include "TeaEngine/Renderer/Mesh.h"
+#include "TeaEngine/Renderer/Texture.h"
 
 #include <assimp/Importer.hpp>
+#include <assimp/material.h>
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <assimp/types.h>
 #include <cstdint>
+#include <string>
 #include <tracy/Tracy.hpp>
 #include <vector>
 
@@ -50,7 +55,7 @@ namespace Tea {
                 // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
                 // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
                 vec.x = mesh->mTextureCoords[0][i].x;
-                vec.y = mesh->mTextureCoords[0][i].y;
+                vec.y = 1 - mesh->mTextureCoords[0][i].y;
                 vertex.TexCoords = vec;
 
                 // tangent
@@ -78,9 +83,24 @@ namespace Tea {
             for(unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);
         }
+        
+        std::string directory = m_FilePath.substr(0, m_FilePath.find_last_of('/') + 1);
+
+        aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+
+        //This needs an urgent optimization, I need the Libraries of this Resources for reuse this Textures and Materials.
+        MaterialTextures matTextures;
+        aiString textureName;
+        material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName);
+        std::string texturePath = directory + std::string(textureName.C_Str());
+        matTextures.albedo = Texture::Load(texturePath);
+
+        Ref<Material> meshMaterial = CreateRef<Material>(matTextures);
 
         Ref<Mesh> resultMesh = CreateRef<Mesh>(indices, vertices);
         resultMesh->SetName(mesh->mName.C_Str());
+        resultMesh->SetMaterial(meshMaterial);
 
         return resultMesh;
     }
@@ -106,6 +126,8 @@ namespace Tea {
     {
         ZoneScoped;
 
+        m_FilePath = filePath;
+
         LoadModel(filePath);
     }
 
@@ -120,7 +142,7 @@ namespace Tea {
             return;
         }
 
-        m_Name = scene->mName.C_Str();
+        m_Name = scene->mRootNode->mName.C_Str();
 
         processNode(this, scene->mRootNode, scene);
     }

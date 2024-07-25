@@ -2,6 +2,7 @@
 
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Renderer/Buffer.h"
+#include "TeaEngine/Renderer/Material.h"
 #include "TeaEngine/Renderer/VertexArray.h"
 #include <cstdint>
 #include <glm/fwd.hpp>
@@ -31,13 +32,18 @@ namespace Tea {
         const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
         void SetName(const std::string& name) { m_Name = name; }
-        std::string& GetName() { return m_Name; }
+        const std::string& GetName() const { return m_Name; }
+
+        void SetMaterial(Ref<Material>& material) { m_Material = material; };
+        const Ref<Material>& GetMaterial() const { return m_Material; }
     private:
         Ref<VertexArray> m_VertexArray;
         Ref<VertexBuffer> m_VertexBuffer;
         Ref<IndexBuffer> m_IndexBuffer;
 
         std::string m_Name;
+
+        Ref<Material> m_Material;
 
         std::vector<uint32_t> m_Indices;
         std::vector<Vertex> m_Vertices;
