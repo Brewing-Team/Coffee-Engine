@@ -89,7 +89,7 @@ namespace Tea {
                 Entity payloadEntity = *(const Entity*)payload->Data;
                 // Process the drop, e.g., reparenting the entity in the hierarchy
                 // This is where you would update the ECS or scene graph
-                HierarchyComponent::Reparent(m_Context->m_Registry, entity, (entt::entity)payloadEntity); //I think is not necessary do the casting, it does it automatically;
+                HierarchyComponent::Reparent(m_Context->m_Registry, (entt::entity)payloadEntity, entity); //I think is not necessary do the casting, it does it automatically;
             }
             ImGui::EndDragDropTarget();
         }

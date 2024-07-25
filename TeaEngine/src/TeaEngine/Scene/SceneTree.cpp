@@ -2,6 +2,7 @@
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Scene/Scene.h"
 #include "entt/entity/entity.hpp"
+#include <tracy/Tracy.hpp>
 
 namespace Tea {
 
@@ -22,8 +23,6 @@ namespace Tea {
 
     void HierarchyComponent::OnConstruct(entt::registry& registry, entt::entity entity)
     {
-        TEA_CORE_INFO("HierarchyComponent::OnConstruct()");
-
         auto& hierarchy = registry.get<HierarchyComponent>(entity);
 
         if(hierarchy.m_Parent != entt::null)
@@ -52,52 +51,65 @@ namespace Tea {
 
     void HierarchyComponent::OnDestroy(entt::registry& registry, entt::entity entity)
     {
-        TEA_CORE_INFO("HierarchyComponent::OnDestroy()");
+        auto& hierarchy = registry.get<HierarchyComponent>(entity);
+        // if is the first child
+        if(hierarchy.m_Prev == entt::null || !registry.valid(hierarchy.m_Prev))
+        {
+            if(hierarchy.m_Parent != entt::null && registry.valid(hierarchy.m_Parent))
+            {
+                auto parent_hierarchy = registry.try_get<HierarchyComponent>(hierarchy.m_Parent);
+                if(parent_hierarchy != nullptr)
+                {
+                    parent_hierarchy->m_First = hierarchy.m_Next;
+                    if(hierarchy.m_Next != entt::null)
+                    {
+                        auto next_hierarchy = registry.try_get<HierarchyComponent>(hierarchy.m_Next);
+                        if(next_hierarchy != nullptr)
+                        {
+                            next_hierarchy->m_Prev = entt::null;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            auto prev_hierarchy = registry.try_get<HierarchyComponent>(hierarchy.m_Prev);
+            if(prev_hierarchy != nullptr)
+            {
+                prev_hierarchy->m_Next = hierarchy.m_Next;
+            }
+            if(hierarchy.m_Next != entt::null)
+            {
+                auto next_hierarchy = registry.try_get<HierarchyComponent>(hierarchy.m_Next);
+                if(next_hierarchy != nullptr)
+                {
+                    next_hierarchy->m_Prev = hierarchy.m_Prev;
+                }
+            }
+        }
     }
     void HierarchyComponent::OnUpdate(entt::registry& registry, entt::entity entity)
     {
-        TEA_CORE_INFO("HierarchyComponent::OnUpdate()");
+        
     }
 
     void HierarchyComponent::Reparent(entt::registry& registry, entt::entity entity, entt::entity parent)
     {
-        auto& hierarchy = registry.get<HierarchyComponent>(entity);
-        auto& parentHierarchy = registry.get<HierarchyComponent>(hierarchy.m_Parent);
+        ZoneScoped;
         
+        auto hierarchyComponent = registry.try_get<HierarchyComponent>(entity);
 
-        //Remove the Entity from the current position
-        if(entity != parentHierarchy.m_First)
-        {
-            auto prevHierachy = registry.get<HierarchyComponent>(hierarchy.m_Prev);
-            auto nextHierachy = registry.get<HierarchyComponent>(hierarchy.m_Next);
-            prevHierachy.m_Next = hierarchy.m_Next;
-            prevHierachy.m_Prev = hierarchy.m_Prev;
-        }
-        else
-        {
-            parentHierarchy.m_First = hierarchy.m_Next;
-        }
+        HierarchyComponent::OnDestroy(registry, entity);
 
-        //Add it to the new
-        hierarchy.m_Parent = parent;
-        parentHierarchy = registry.get<HierarchyComponent>(hierarchy.m_Parent);
+        hierarchyComponent->m_Parent = entt::null;
+        hierarchyComponent->m_Next = entt::null;
+        hierarchyComponent->m_Prev = entt::null;
 
-        if(parentHierarchy.m_First == entt::null)
+        if(parent != entt::null)
         {
-            parentHierarchy.m_First = entity;
-        }
-        else
-        {
-            //Get the last child of the parent
-            auto lastEntity = parentHierarchy.m_First;
-            auto lastHierarchy = registry.try_get<HierarchyComponent>(lastEntity);
-            while(lastHierarchy != nullptr && lastHierarchy->m_Next != entt::null)
-            {
-                lastEntity = lastHierarchy->m_Next;
-                lastHierarchy = registry.try_get<HierarchyComponent>(lastEntity);
-            }
-            lastHierarchy->m_Next = entity;
-            lastHierarchy->m_Prev = lastEntity;
+            hierarchyComponent->m_Parent = parent;
+            HierarchyComponent::OnConstruct(registry, entity);
         }
     }
 

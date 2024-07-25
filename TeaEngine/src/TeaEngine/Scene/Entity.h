@@ -2,6 +2,7 @@
 
 #include "TeaEngine/Core/Assert.h"
 #include "TeaEngine/Scene/Scene.h"
+#include "TeaEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include <cstdint>
@@ -47,6 +48,11 @@ namespace Tea {
         operator uint32_t() const { return (uint32_t)m_EntityHandle; }
         bool operator==(const Entity& other) const { return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene; }
         bool operator!=(const Entity& other) const { return !operator==(other); }
+
+        void SetParent(Entity entity) 
+        {
+           HierarchyComponent::Reparent(m_Scene->m_Registry, m_EntityHandle, entity);
+        }
 
     private:
         entt::entity m_EntityHandle{ entt::null };
