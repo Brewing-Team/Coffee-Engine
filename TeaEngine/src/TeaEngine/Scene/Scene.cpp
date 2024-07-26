@@ -61,17 +61,14 @@ namespace Tea {
             }
         }
 
-        //Entity e = CreateEntity("Damaged Helmet");
-        //e.AddComponent<ModelComponent>("assets/models/DamagedHelmet.glb");
-
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/survival_guitar_backpack/scene.gltf"));
 
 /*         for(int i = 0; i < 10; i++)
         {
             Entity e = CreateEntity("Entity(" + std::to_string(i) + ")");
         } */
 
-        mTextures.albedo = Texture::Load("assets/textures/test2.jpg");
+        mTextures.albedo = Texture::Load("assets/textures/UVMap-Grid.jpg");
         standardMaterial = CreateRef<Material>(mTextures);
     }
 
