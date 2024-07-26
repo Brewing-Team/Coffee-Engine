@@ -61,7 +61,7 @@ namespace Tea {
             }
         }
 
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/survival_guitar_backpack/scene.gltf"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
 /*         for(int i = 0; i < 10; i++)
         {
