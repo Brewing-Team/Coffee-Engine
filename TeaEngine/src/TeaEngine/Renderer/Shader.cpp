@@ -7,6 +7,8 @@
 
 namespace Tea {
 
+    std::unordered_map<std::string, Ref<Shader>> ShaderLibrary::m_Shaders;
+
     Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     {
         ZoneScoped;
@@ -161,7 +163,19 @@ namespace Tea {
     {
         ZoneScoped;
 
-        return CreateRef<Shader>(vertexPath, fragmentPath);
+        std::filesystem::path filePath(vertexPath);
+        std::string fileName = filePath.stem().string();
+
+        if(ShaderLibrary::Exists(fileName))
+        {
+            return ShaderLibrary::Get(fileName);
+        }
+        else
+        {
+            Ref<Shader> shader = CreateRef<Shader>(vertexPath, fragmentPath);
+            ShaderLibrary::Add(fileName, shader);
+            return shader;
+        }
     }
 
     void Shader::checkCompileErrors(GLuint shader, std::string type)
