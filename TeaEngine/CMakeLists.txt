@@ -8,6 +8,7 @@ file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp" "${SRC_DIR}/*.h")
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 find_package(glfw3 REQUIRED)
+find_package(glm REQUIRED)
 find_package(assimp REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
@@ -21,6 +22,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     spdlog::spdlog
     fmt::fmt
     glfw
+    glm::glm
     GLAD
     ImGui
     stb_image
