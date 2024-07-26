@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 
 namespace Tea {
 
@@ -47,6 +48,16 @@ namespace Tea {
         uint32_t m_textureID;
         int m_Width, m_Height;
         ImageFormat m_Format;
+    };
+
+    class TextureLibrary
+    {
+    public:
+        static void Add(const std::string& name, const Ref<Texture>& texture) { m_Textures[name] = texture; }
+        static Ref<Texture> Get(const std::string& name) { return m_Textures[name]; }
+        static bool Exists(const std::string& name) { return m_Textures[name] ? true : false; }
+    private:
+        static std::unordered_map<std::string, Ref<Texture>> m_Textures;
     };
 
 }

@@ -9,6 +9,8 @@
 
 namespace Tea {
 
+    std::unordered_map<std::string, Ref<Texture>> TextureLibrary::m_Textures;
+
     GLenum ImageFormatToOpenGLInternalFormat(ImageFormat format)
     {
         switch(format)
@@ -117,7 +119,19 @@ namespace Tea {
 
     Ref<Texture> Texture::Load(const std::string& path)
     {
-        return CreateRef<Texture>(path);
+        std::filesystem::path filePath(path);
+        std::string fileName = filePath.filename().string();
+
+        if(TextureLibrary::Exists(fileName))
+        {
+            return TextureLibrary::Get(fileName);
+        }
+        else
+        {
+            Ref<Texture> texture = CreateRef<Texture>(path);
+            TextureLibrary::Add(fileName, texture);
+            return texture;
+        }
     }
 
     Ref<Texture> Texture::Create(uint32_t width, uint32_t height, ImageFormat format)
