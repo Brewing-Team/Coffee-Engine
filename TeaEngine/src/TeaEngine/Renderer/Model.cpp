@@ -42,7 +42,7 @@ namespace Tea {
 
         m_Name = scene->mRootNode->mName.C_Str();
 
-        processNode(this, scene->mRootNode, scene);
+        processNode(scene->mRootNode, scene);
     }
 
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)
@@ -131,19 +131,25 @@ namespace Tea {
     }
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-    void Model::processNode(Model* model, aiNode* node, const aiScene* scene)
+    void Model::processNode(aiNode* node, const aiScene* scene)
     {
         ZoneScoped;
+
+        m_Name = node->mName.C_Str();
 
         for(uint32_t i = 0; i < node->mNumMeshes; i++)
         {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            model->AddMesh(processMesh(mesh, scene));
+            this->AddMesh(processMesh(mesh, scene));
         }
 
         for(uint32_t i = 0; i < node->mNumChildren; i++)
         {
-            processNode(model, node->mChildren[i], scene);
+            Ref<Model> child = CreateRef<Model>();
+            child->m_Parent = this;
+            m_Children.push_back(child);
+
+            child->processNode(node->mChildren[i], scene);
         }
     }
 

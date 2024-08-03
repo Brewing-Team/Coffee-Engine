@@ -11,6 +11,7 @@
 #include "TeaEngine/Renderer/Shader.h"
 #include "TeaEngine/Scene/SceneTree.h"
 #include "entt/entity/fwd.hpp"
+#include <cstddef>
 #include <cstdint>
 #include <string>
 #include <tracy/Tracy.hpp>
@@ -61,7 +62,7 @@ namespace Tea {
             }
         }
 
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("/home/hugo/Documentos/GitHub/Tea-Engine/TeaEditor/assets/models/survival_guitar_backpack/untitled.glb"));
 
 /*         for(int i = 0; i < 10; i++)
         {
@@ -97,7 +98,7 @@ namespace Tea {
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
-            Ref<Material> material = materialComponent->material ? materialComponent->material : standardMaterial;
+            Ref<Material> material = /*materialComponent->material ? materialComponent->material :*/ standardMaterial;
 
             material->Use();
             
@@ -119,7 +120,11 @@ namespace Tea {
 
     void AddModelToTheSceneTree(Scene* scene, Ref<Model> model)
     {
-        Entity root = scene->CreateEntity(model->GetName());
+        static Entity parent;
+
+        Entity modelEntity = scene->CreateEntity(model->GetName());
+
+        if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
 
         for(auto& mesh : model->GetMeshes())
         {
@@ -131,7 +136,13 @@ namespace Tea {
                 meshEntity.AddComponent<MaterialComponent>(mesh->GetMaterial());
             }
 
-            meshEntity.SetParent(root);
+            meshEntity.SetParent(modelEntity);
+        }
+
+        for(auto& c : model->GetChildren())
+        {
+            parent = modelEntity;
+            AddModelToTheSceneTree(scene, c);
         }
     }
 

@@ -20,11 +20,18 @@ namespace Tea {
         void AddMesh(const Ref<Mesh> mesh) { m_Meshes.push_back(mesh); };
 
         std::string& GetName() { return m_Name; }
+
+        const Model* GetParent() const { return m_Parent; }
+        const std::vector<Ref<Model>> GetChildren() const { return m_Children; }
     private:
         Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene);
-        void processNode(Model* model, aiNode* node, const aiScene* scene);
+        void processNode(aiNode* node, const aiScene* scene);
     private:
         std::vector<Ref<Mesh>> m_Meshes;
+
+        //Study to use raw pointers or smart pointers for the Hierarchy references
+        Model* m_Parent;
+        std::vector<Ref<Model>> m_Children;
         
         std::string m_FilePath;
         std::string m_Name;
