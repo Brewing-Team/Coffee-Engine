@@ -20,6 +20,31 @@
 namespace Tea {
 
 
+    Model::Model(const std::string& filePath)
+    {
+        ZoneScoped;
+
+        m_FilePath = filePath;
+
+        LoadModel(m_FilePath);
+    }
+
+    void Model::LoadModel(const std::string& path)
+    {
+        Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        // check for errors
+        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+        {
+            TEA_CORE_ERROR("ERROR::ASSIMP:: {0}", importer.GetErrorString());
+            return;
+        }
+
+        m_Name = scene->mRootNode->mName.C_Str();
+
+        processNode(this, scene->mRootNode, scene);
+    }
+
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)
     {
         ZoneScoped;
@@ -120,31 +145,6 @@ namespace Tea {
         {
             processNode(model, node->mChildren[i], scene);
         }
-    }
-
-    Model::Model(const std::string& filePath)
-    {
-        ZoneScoped;
-
-        m_FilePath = filePath;
-
-        LoadModel(filePath);
-    }
-
-    void Model::LoadModel(const std::string& path)
-    {
-        Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-        // check for errors
-        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
-        {
-            TEA_CORE_ERROR("ERROR::ASSIMP:: {0}", importer.GetErrorString());
-            return;
-        }
-
-        m_Name = scene->mRootNode->mName.C_Str();
-
-        processNode(this, scene->mRootNode, scene);
     }
 
 }
