@@ -128,9 +128,9 @@ namespace Tea {
             {
                 entityNameTag = std::string(buffer);
             }
-        }
 
-        ImGui::Separator();
+            ImGui::Separator();
+        }
 
         if(entity.HasComponent<TransformComponent>())
         {
@@ -149,9 +149,8 @@ namespace Tea {
 
                 ImGui::TreePop();
             }
+            ImGui::Separator();
         }
-
-        ImGui::Separator();
 
         if(entity.HasComponent<ModelComponent>())
         {
@@ -181,6 +180,27 @@ namespace Tea {
 
                 ImGui::TreePop();
             }
+            ImGui::Separator();
+        }
+
+        if(entity.HasComponent<MeshComponent>())
+        {
+            auto& meshComponent = entity.GetComponent<MeshComponent>();
+            if(ImGui::TreeNode("Mesh"))
+            {
+                ImGui::TreePop();
+            }
+            ImGui::Separator();
+        }
+
+        if(entity.HasComponent<MeshComponent>())
+        {
+            auto& materialComponent = entity.GetComponent<MaterialComponent>();
+            if(ImGui::TreeNode("Material"))
+            {
+                ImGui::TreePop();
+            }
+            ImGui::Separator();
         }
     }
 
