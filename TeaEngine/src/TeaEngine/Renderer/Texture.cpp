@@ -1,5 +1,6 @@
 #include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Renderer/Image.h"
 
 #include <cstdint>
@@ -92,6 +93,11 @@ namespace Tea {
             glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data);
 
             stbi_image_free(m_Data);
+        }
+        else
+        {
+            TEA_CORE_ERROR("Failed to load texture: {0} (REASON: {1})", m_FilePath, stbi_failure_reason());
+            //m_textureID = 0; // Set texture ID to 0 to indicate failure
         }
     }
 
