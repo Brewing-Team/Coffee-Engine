@@ -63,6 +63,8 @@ namespace Tea {
         ZoneScoped;
 
         vertexArray->Bind();
+		vertexArray->GetVertexBuffers()[0]->Bind();
+		vertexArray->GetIndexBuffer()->Bind();
         uint32_t count = vertexArray->GetIndexBuffer()->GetCount();
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
