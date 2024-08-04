@@ -146,6 +146,7 @@ namespace Tea {
         for(uint32_t i = 0; i < node->mNumChildren; i++)
         {
             Ref<Model> child = CreateRef<Model>();
+            child->m_FilePath = m_FilePath;
             child->m_Parent = this;
             m_Children.push_back(child);
 
