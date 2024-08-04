@@ -48,7 +48,7 @@ namespace Tea {
     {
         ZoneScoped;
 
-        Entity Root = CreateEntity("Root");
+/*         Entity Root = CreateEntity("Root");
 
         for(int i = 0; i < 5; i++)
         {
@@ -60,14 +60,9 @@ namespace Tea {
                 Entity child2 = CreateEntity("Child(" + std::to_string(i) + ")");
                 child2.SetParent(child1);
             }
-        }
-
-        AddModelToTheSceneTree(this, CreateRef<Model>("/home/hugo/Documentos/GitHub/Tea-Engine/TeaEditor/assets/models/survival_guitar_backpack/untitled.glb"));
-
-/*         for(int i = 0; i < 10; i++)
-        {
-            Entity e = CreateEntity("Entity(" + std::to_string(i) + ")");
         } */
+
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/survival_guitar_backpack/scene.gltf"));
 
         mTextures.albedo = Texture::Load("assets/textures/UVMap-Grid.jpg");
         standardMaterial = CreateRef<Material>(mTextures);
@@ -98,7 +93,7 @@ namespace Tea {
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
-            Ref<Material> material = /*materialComponent->material ? materialComponent->material :*/ standardMaterial;
+            Ref<Material> material = materialComponent->material ? materialComponent->material : standardMaterial;
 
             material->Use();
             
@@ -128,15 +123,15 @@ namespace Tea {
 
         for(auto& mesh : model->GetMeshes())
         {
-            Entity meshEntity = scene->CreateEntity(mesh->GetName());
-            meshEntity.AddComponent<MeshComponent>(mesh);
+            //Entity meshEntity = scene->CreateEntity(mesh->GetName());
+            modelEntity.AddComponent<MeshComponent>(mesh);
 
             if(mesh->GetMaterial())
             {
-                meshEntity.AddComponent<MaterialComponent>(mesh->GetMaterial());
+                modelEntity.AddComponent<MaterialComponent>(mesh->GetMaterial());
             }
 
-            meshEntity.SetParent(modelEntity);
+            //modelEntity.SetParent(modelEntity);
         }
 
         for(auto& c : model->GetChildren())
