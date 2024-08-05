@@ -4,6 +4,7 @@
 #include "TeaEngine/Renderer/Mesh.h"
 #include "TeaEngine/Scene/Scene.h"
 #include <assimp/scene.h>
+#include <glm/fwd.hpp>
 #include <string>
 #include <vector>
 namespace Tea {
@@ -23,6 +24,8 @@ namespace Tea {
 
         const Model* GetParent() const { return m_Parent; }
         const std::vector<Ref<Model>> GetChildren() const { return m_Children; }
+        
+        const glm::mat4 GetTransform() const { return m_Transform; }
     private:
         Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene);
         void processNode(aiNode* node, const aiScene* scene);
@@ -35,5 +38,7 @@ namespace Tea {
         
         std::string m_FilePath;
         std::string m_Name;
+
+        glm::mat4 m_Transform;
     };
 }

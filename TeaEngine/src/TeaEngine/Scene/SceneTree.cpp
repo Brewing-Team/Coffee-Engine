@@ -1,7 +1,9 @@
 #include "SceneTree.h"
 #include "TeaEngine/Core/Log.h"
+#include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Scene.h"
 #include "entt/entity/entity.hpp"
+#include "entt/entity/fwd.hpp"
 #include <tracy/Tracy.hpp>
 
 namespace Tea {
@@ -123,12 +125,47 @@ namespace Tea {
 
     void SceneTree::Update()
     {
-/*         auto& registry = m_Context->m_Registry;
+        auto& registry = m_Context->m_Registry;
         auto view = registry.view<HierarchyComponent>();
         for(auto entity : view)
         {
-            const auto hierarchy = registry.try_get<HierarchyComponent>(entity);
-        } */
+            const auto hierarchy = registry.get<HierarchyComponent>(entity);
+
+            if(hierarchy.m_Parent == entt::null)
+            {
+                UpdateTransform(entity);
+            }
+        }
+    }
+
+    void SceneTree::UpdateTransform(entt::entity entity)
+    {
+        auto& registry = m_Context->m_Registry;
+        
+        auto& hierarchyComponent = registry.get<HierarchyComponent>(entity);
+        auto& transformComponent = registry.get<TransformComponent>(entity);
+
+        // Update the world transform of the entity
+
+        if(hierarchyComponent.m_Parent != entt::null)
+        {
+            auto& parentTransformComponent = registry.get<TransformComponent>(hierarchyComponent.m_Parent);
+
+            transformComponent.SetWorldTransform(parentTransformComponent.GetWorldTransform());
+        }
+        else
+        {
+            transformComponent.SetWorldTransform(glm::mat4(1.0f));
+        }
+
+        // Recursively update all the children
+
+        entt::entity child = hierarchyComponent.m_First;
+        while(child != entt::null)
+        {
+            UpdateTransform(child);
+            child = registry.get<HierarchyComponent>(child).m_Next;
+        }
     }
 
 }

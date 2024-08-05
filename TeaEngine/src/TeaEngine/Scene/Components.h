@@ -8,9 +8,11 @@
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace Tea {
     struct TagComponent
@@ -25,6 +27,9 @@ namespace Tea {
 
     struct TransformComponent
     {
+        private:
+        glm::mat4 worldMatrix = glm::mat4(1.0f);
+        public:
         glm::vec3 Position = { 0.0f, 0.0f, 0.0f };
         glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f };
         glm::vec3 Scale = { 1.0f, 1.0f, 1.0f };
@@ -34,13 +39,33 @@ namespace Tea {
         TransformComponent(const glm::vec3& position)
             : Position(position) {}
 
-        glm::mat4 GetTransform() const 
+        glm::mat4 GetLocalTransform() const 
         {
             glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
 
             return glm::translate(glm::mat4(1.0f), Position)
                     * rotation
                     * glm::scale(glm::mat4(1.0f), Scale);
+        }
+
+        void SetLocalTransform(const glm::mat4& transform) //TODO: Improve this function, this way is ugly and glm::decompose is from gtx (is supposed to not be very stable)
+        {
+            glm::vec3 skew;
+            glm::vec4 perspective;
+            glm::quat orientation;
+
+            glm::decompose(transform, Scale, orientation, Position, skew, perspective);
+            Rotation = glm::eulerAngles(orientation);
+        }
+
+        glm::mat4 GetWorldTransform() const
+        {
+            return worldMatrix;
+        }
+
+        void SetWorldTransform(const glm::mat4& transform)
+        {
+            worldMatrix = transform * GetLocalTransform();
         }
     };
 

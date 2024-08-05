@@ -97,7 +97,7 @@ namespace Tea {
 
             material->Use();
             
-            Renderer::Submit(material->GetShader(), mesh->GetVertexArray(), transformComponent.GetTransform());
+            Renderer::Submit(material->GetShader(), mesh->GetVertexArray(), transformComponent.GetWorldTransform());
         }
 
         Renderer::EndScene();
@@ -120,6 +120,7 @@ namespace Tea {
         Entity modelEntity = scene->CreateEntity(model->GetName());
 
         if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
+        modelEntity.GetComponent<TransformComponent>().SetLocalTransform(model->GetTransform());
 
         for(auto& mesh : model->GetMeshes())
         {

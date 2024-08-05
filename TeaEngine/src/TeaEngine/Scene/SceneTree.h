@@ -34,6 +34,8 @@ namespace Tea {
 
         void Update();
 
+        void UpdateTransform(entt::entity entity);
+
     private:
         Scene* m_Context;
     };
