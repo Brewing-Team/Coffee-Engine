@@ -62,7 +62,7 @@ namespace Tea {
             }
         } */
 
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/survival_guitar_backpack/scene.gltf"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/sponza-gltf-pbr/sponza.glb"));
 
         mTextures.albedo = Texture::Load("assets/textures/UVMap-Grid.jpg");
         standardMaterial = CreateRef<Material>(mTextures);
@@ -122,17 +122,24 @@ namespace Tea {
         if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
         modelEntity.GetComponent<TransformComponent>().SetLocalTransform(model->GetTransform());
 
-        for(auto& mesh : model->GetMeshes())
+        auto& meshes = model->GetMeshes();
+        bool hasMultipleMeshes = meshes.size() > 1;
+
+        for(auto& mesh : meshes)
         {
-            //Entity meshEntity = scene->CreateEntity(mesh->GetName());
-            modelEntity.AddComponent<MeshComponent>(mesh);
+            Entity entity = hasMultipleMeshes ? scene->CreateEntity(mesh->GetName()) : modelEntity;
+
+            entity.AddComponent<MeshComponent>(mesh);
 
             if(mesh->GetMaterial())
             {
-                modelEntity.AddComponent<MaterialComponent>(mesh->GetMaterial());
+                entity.AddComponent<MaterialComponent>(mesh->GetMaterial());
             }
 
-            //modelEntity.SetParent(modelEntity);
+            if(hasMultipleMeshes)
+            {
+                entity.SetParent(modelEntity);
+            }
         }
 
         for(auto& c : model->GetChildren())
