@@ -48,12 +48,12 @@ sudo apt-get install libspdlog-dev libfmt-dev libglfw3-dev libglm-dev libassimp-
 #### 2. Build
 ```
 mkdir build && cd build
-cmake ..
+cmake .. -DCMAKE_BUILD_TYPE=Release
 make -j $(nproc) TeaEditor
 ```
 #### 3. Enjoy!
 ```
-cd ../bin
+cd ../bin/TeaEditor/Release
 ./TeaEditor
 ```
 </details>
@@ -80,7 +80,7 @@ cd ../bin
 
 # Screenshots
 
-![Tea-Engine Screenshot-1.png](/Screenshots/Screenshot-1.png?raw=true)
+![Tea-Engine Screenshot-1.png](/Resources/Screenshot-1.png?raw=true)
 
 ---
 
