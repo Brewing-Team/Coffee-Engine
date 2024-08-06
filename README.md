@@ -1,7 +1,7 @@
 # Tea-Engine
 
 <p align="center">
-    <img src="/resources/temporal-logo.webp?raw=true">
+    <img src="/Resources/temporal-logo.webp?raw=true">
 </p>
 
 **Tea Engine is a Beautiful(not yet but it will be) and Cross-platform 3D Game Engine written in C++ using OpenGL and GLFW.** </br> 
