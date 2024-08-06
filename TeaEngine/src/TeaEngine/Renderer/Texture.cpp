@@ -97,7 +97,7 @@ namespace Tea {
         else
         {
             TEA_CORE_ERROR("Failed to load texture: {0} (REASON: {1})", m_FilePath, stbi_failure_reason());
-            //m_textureID = 0; // Set texture ID to 0 to indicate failure
+            m_textureID = 0; // Set texture ID to 0 to indicate failure
         }
     }
 
