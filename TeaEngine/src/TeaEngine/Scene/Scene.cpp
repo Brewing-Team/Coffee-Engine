@@ -62,7 +62,7 @@ namespace Tea {
             }
         } */
 
-        //AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/sponza-gltf-pbr/sponza.glb"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/survival_guitar_backpack/scene.gltf"));
 
         mTextures.albedo = Texture::Load("assets/textures/UVMap-Grid.jpg");
         standardMaterial = CreateRef<Material>(mTextures);

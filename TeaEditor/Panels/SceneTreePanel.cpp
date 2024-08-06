@@ -185,7 +185,6 @@ namespace Tea {
                 ImGui::Text("Scale");
                 ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale));
             }
-            ImGui::Separator();
         }
 
         if(entity.HasComponent<ModelComponent>())
@@ -214,7 +213,6 @@ namespace Tea {
                     ImGui::EndListBox();
                 }
             }
-            ImGui::Separator();
         }
 
         if(entity.HasComponent<MeshComponent>())
@@ -223,17 +221,17 @@ namespace Tea {
             if(ImGui::CollapsingHeader("Mesh"))
             {
             }
-            ImGui::Separator();
         }
 
-        if(entity.HasComponent<MeshComponent>())
+        if(entity.HasComponent<MaterialComponent>())
         {
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
             if(ImGui::CollapsingHeader("Material"))
             {
             }
-            ImGui::Separator();
         }
+
+        ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
@@ -253,7 +251,7 @@ namespace Tea {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -261,7 +259,7 @@ namespace Tea {
                 for (int n = 0; n < IM_ARRAYSIZE(items); n++)
                 {
                     const bool is_selected = (item_current == n);
-                    if (ImGui::Selectable(items[n], is_selected))
+                    if (ImGui::Selectable(items[n].c_str(), is_selected))
                         item_current = n;
 
                     // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -276,7 +274,29 @@ namespace Tea {
             
             ImGui::Button("Cancel");
             ImGui::SameLine();
-            ImGui::Button("Add Component");
+            if(ImGui::Button("Add Component"))
+            {
+                if(items[item_current] == "Tag Component")
+                {
+                    entity.AddComponent<TagComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Transform Component")
+                {
+                    entity.AddComponent<TransformComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Mesh Component")
+                {
+                    entity.AddComponent<MeshComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Material Component")
+                {
+                    entity.AddComponent<MaterialComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+            }
 
             ImGui::EndPopup();
         }
