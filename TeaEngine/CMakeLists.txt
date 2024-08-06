@@ -32,8 +32,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     )
 
 # Set this in a profile like (Release + Profile)
-option(TRACY_ENABLE "" ON)
-option(TRACY_ON_DEMAND "" ON)
+option(TRACY_ENABLE "Enable Tracy Profiler" ON)
+option(TRACY_ON_DEMAND "Enable Tracy on-demand mode" OFF)
+option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on first call)" OFF)
 
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/imgui)
