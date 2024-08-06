@@ -20,6 +20,8 @@ namespace Tea {
         void OnImGuiRender() override;
 
         void BlockEvents(bool block) { m_BlockEvents = block; }
+
+        void StyleColorsTea();
     private:
     	bool m_BlockEvents = true;
     };
