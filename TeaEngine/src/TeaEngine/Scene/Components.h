@@ -58,7 +58,7 @@ namespace Tea {
             Rotation = glm::eulerAngles(orientation);
         }
 
-        glm::mat4 GetWorldTransform() const
+        const glm::mat4& GetWorldTransform() const
         {
             return worldMatrix;
         }
@@ -90,7 +90,7 @@ namespace Tea {
         MeshComponent(Ref<Mesh> mesh)
             : mesh(mesh) {}
 
-        Ref<Mesh> GetMesh() {return mesh; };
+        const Ref<Mesh>& GetMesh() const {return mesh; };
     };
 
     struct MaterialComponent
