@@ -28,6 +28,18 @@ namespace Tea {
     void SceneTreePanel::OnImGuiRender()
     {
         ImGui::Begin("Scene Tree");
+
+        //Button for adding entities to the scene tree
+        if(ImGui::Button("+", {24,24}))
+        {
+            m_Context->CreateEntity();
+        }
+        ImGui::SameLine();
+
+        char searchBuffer[1024];
+        ImGui::InputTextWithHint("##searchbar", "Search by name:",searchBuffer, 1024);
+
+        ImGui::BeginChild("entity tree", {0,0}, ImGuiChildFlags_Border);
         
         auto view = m_Context->m_Registry.view<entt::entity>();
         for(auto entityID: view)
@@ -40,6 +52,8 @@ namespace Tea {
                 DrawEntityNode(entity);
             }
         }
+
+        ImGui::EndChild();
 
         if(ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
         {
@@ -65,7 +79,7 @@ namespace Tea {
 
         ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
                                    ((hierarchyComponent.m_First == entt::null) ? ImGuiTreeNodeFlags_Leaf : 0) |
-                                   ImGuiTreeNodeFlags_OpenOnArrow;
+                                   ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
         
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityNameTag.c_str());
 
@@ -73,6 +87,30 @@ namespace Tea {
         {
             m_SelectionContext = entity;
         }
+
+        //Code of Double clicking the item for changing the name (WIP)
+
+        ImVec2 itemSize = ImGui::GetItemRectSize();
+
+        if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
+        {
+            ImVec2 popupPos = ImGui::GetItemRectMin();
+            float indent = ImGui::GetStyle().IndentSpacing;
+            ImGui::SetNextWindowPos({popupPos.x + indent, popupPos.y});
+            ImGui::OpenPopup("EntityPopup");
+        }
+
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+
+        if (ImGui::BeginPopup("EntityPopup"/*, ImGuiWindowFlags_NoBackground*/)) 
+        {
+            auto buff = entity.GetComponent<TagComponent>().Tag.c_str();
+            ImGui::SetNextItemWidth(itemSize.x - ImGui::GetStyle().IndentSpacing);
+            ImGui::InputText("##entity-name", (char*)buff, 128);
+            ImGui::EndPopup();
+        }
+
+        ImGui::PopStyleVar();
 
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
         {
@@ -136,7 +174,7 @@ namespace Tea {
         {
             auto& transformComponent = entity.GetComponent<TransformComponent>();
 
-            if(ImGui::TreeNode("Transform"))
+            if(ImGui::CollapsingHeader("Transform"))
             {   
                 ImGui::Text("Position");
                 ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.Position));
@@ -146,8 +184,6 @@ namespace Tea {
 
                 ImGui::Text("Scale");
                 ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale));
-
-                ImGui::TreePop();
             }
             ImGui::Separator();
         }
@@ -155,7 +191,7 @@ namespace Tea {
         if(entity.HasComponent<ModelComponent>())
         {
             auto& modelComponent = entity.GetComponent<ModelComponent>();
-            if(ImGui::TreeNode("Model"))
+            if(ImGui::CollapsingHeader("Model"))
             {   
                 auto& meshesArray = modelComponent.model->GetMeshes();
                 ImGui::SeparatorText("List of Meshes");
@@ -177,8 +213,6 @@ namespace Tea {
                     }
                     ImGui::EndListBox();
                 }
-
-                ImGui::TreePop();
             }
             ImGui::Separator();
         }
@@ -186,9 +220,8 @@ namespace Tea {
         if(entity.HasComponent<MeshComponent>())
         {
             auto& meshComponent = entity.GetComponent<MeshComponent>();
-            if(ImGui::TreeNode("Mesh"))
+            if(ImGui::CollapsingHeader("Mesh"))
             {
-                ImGui::TreePop();
             }
             ImGui::Separator();
         }
@@ -196,11 +229,56 @@ namespace Tea {
         if(entity.HasComponent<MeshComponent>())
         {
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
-            if(ImGui::TreeNode("Material"))
+            if(ImGui::CollapsingHeader("Material"))
             {
-                ImGui::TreePop();
             }
             ImGui::Separator();
+        }
+
+        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+
+        float buttonWidth = 200.0f;
+        float buttonHeight = 32.0f;
+        float availableWidth = ImGui::GetContentRegionAvail().x;
+        float cursorPosX = (availableWidth - buttonWidth) * 0.5f;
+        ImGui::SetCursorPosX(cursorPosX);
+
+        if(ImGui::Button("Add Component", {buttonWidth, buttonHeight}))
+        {
+            ImGui::OpenPopup("Add Component...");
+        }
+
+        if(ImGui::BeginPopupModal("Add Component..."))
+        {
+            static char buffer[256] = "";
+            ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
+
+            const char* items[] = { "Apple", "Banana", "Cherry", "Kiwi", "Mango", "Orange", "Pineapple", "Strawberry", "Watermelon" };
+            static int item_current = 1;
+
+            if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
+            {
+                for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+                {
+                    const bool is_selected = (item_current == n);
+                    if (ImGui::Selectable(items[n], is_selected))
+                        item_current = n;
+
+                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndListBox();
+            }
+            
+            ImGui::Text("Description");
+            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur. Morbi eleifend molestie faucibus. Duis eu eros vitae felis rutrum porttitor sed sit amet leo. Duis blandit pretium leo at feugiat. Sed egestas fermentum elementum. Nulla ut interdum dolor. Nullam ullamcorper neque ac mauris tincidunt vestibulum. Ut id augue id lorem malesuada suscipit. ");
+            
+            ImGui::Button("Cancel");
+            ImGui::SameLine();
+            ImGui::Button("Add Component");
+
+            ImGui::EndPopup();
         }
     }
 
