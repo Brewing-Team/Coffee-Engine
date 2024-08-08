@@ -21,6 +21,7 @@ namespace Tea {
     //TEMPORAL
     static MaterialTextures mTextures;
     static Ref<Material> standardMaterial;
+    static Ref<Model> defaultModel;
 
     Scene::Scene()
     {
@@ -66,6 +67,8 @@ namespace Tea {
 
         mTextures.albedo = Texture::Load("assets/textures/UVMap-Grid.jpg");
         standardMaterial = CreateRef<Material>(mTextures);
+
+        defaultModel = CreateRef<Model>("assets/models/MissingMesh.glb");
     }
 
     void Scene::OnUpdate()
@@ -93,6 +96,7 @@ namespace Tea {
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
+            if(!mesh) mesh = defaultModel->GetMeshes()[0];
             Ref<Material> material = materialComponent->material ? materialComponent->material : standardMaterial;
 
             material->Use();
