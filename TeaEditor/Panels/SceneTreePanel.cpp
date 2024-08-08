@@ -177,13 +177,13 @@ namespace Tea {
             if(ImGui::CollapsingHeader("Transform"))
             {   
                 ImGui::Text("Position");
-                ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.Position));
+                ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.Position), 0.1f);
                 
                 ImGui::Text("Rotation");
-                ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.Rotation));
+                ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.Rotation),  0.1f);
 
                 ImGui::Text("Scale");
-                ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale));
+                ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale),  0.1f);
             }
         }
 
@@ -270,7 +270,7 @@ namespace Tea {
             }
             
             ImGui::Text("Description");
-            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur. Morbi eleifend molestie faucibus. Duis eu eros vitae felis rutrum porttitor sed sit amet leo. Duis blandit pretium leo at feugiat. Sed egestas fermentum elementum. Nulla ut interdum dolor. Nullam ullamcorper neque ac mauris tincidunt vestibulum. Ut id augue id lorem malesuada suscipit. ");
+            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur.");
             
             ImGui::Button("Cancel");
             ImGui::SameLine();
@@ -294,6 +294,10 @@ namespace Tea {
                 else if(items[item_current] == "Material Component")
                 {
                     entity.AddComponent<MaterialComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else
+                {
                     ImGui::CloseCurrentPopup();
                 }
             }
