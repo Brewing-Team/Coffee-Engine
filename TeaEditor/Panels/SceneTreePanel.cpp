@@ -285,22 +285,26 @@ namespace Tea {
             {
                 if(items[item_current] == "Tag Component")
                 {
-                    entity.AddComponent<TagComponent>();
+                    if(!entity.HasComponent<TagComponent>())
+                        entity.AddComponent<TagComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Transform Component")
                 {
-                    entity.AddComponent<TransformComponent>();
+                    if(!entity.HasComponent<TransformComponent>())
+                        entity.AddComponent<TransformComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Mesh Component")
                 {
-                    entity.AddComponent<MeshComponent>();
+                    if(!entity.HasComponent<MeshComponent>())
+                        entity.AddComponent<MeshComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Material Component")
                 {
-                    entity.AddComponent<MaterialComponent>();
+                    if(!entity.HasComponent<MaterialComponent>())
+                        entity.AddComponent<MaterialComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else
