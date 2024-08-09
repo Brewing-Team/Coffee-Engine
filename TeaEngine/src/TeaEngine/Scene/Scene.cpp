@@ -10,6 +10,7 @@
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Renderer/Shader.h"
 #include "TeaEngine/Scene/SceneTree.h"
+#include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include <cstddef>
 #include <cstdint>
@@ -42,6 +43,16 @@ namespace Tea {
 
     void Scene::DestroyEntity(Entity entity)
     {
+        auto& hierarchyComponent = m_Registry.get<HierarchyComponent>(entity);
+        auto curr = hierarchyComponent.m_First;
+
+        while(curr != entt::null)
+        {
+            Entity e{curr, this};
+            DestroyEntity(e);
+            curr = m_Registry.get<HierarchyComponent>(curr).m_Next;
+        }
+
         m_Registry.destroy((entt::entity)entity);
     }
 
