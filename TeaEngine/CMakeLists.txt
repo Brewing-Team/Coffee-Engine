@@ -44,6 +44,8 @@ add_subdirectory(vendor/tracy)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE TEA_DEBUG=1)
+    message(STATUS "TEA_DEBUG ENABLED!")
 else()
 target_compile_definitions(${PROJECT_NAME} PRIVATE TEA_DEBUG=0)
+message(STATUS "TEA_DEBUG DISABLED!")
 endif()
