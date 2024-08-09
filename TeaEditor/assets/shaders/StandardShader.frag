@@ -7,5 +7,5 @@ uniform sampler2D albedo;
 
 void main()
 {
-    FragColor = texture(albedo, TexCoord);
+    FragColor = vec4(1.0);
 }

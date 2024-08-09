@@ -4,6 +4,13 @@
 
 namespace Tea {
 
+    Material::Material()
+    {
+        ZoneScoped;
+
+        m_Shader = Tea::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
+    }
+
     Material::Material(MaterialTextures& materialTextures)
     {
         ZoneScoped;
