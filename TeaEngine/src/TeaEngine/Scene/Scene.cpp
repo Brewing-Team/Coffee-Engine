@@ -74,7 +74,7 @@ namespace Tea {
             }
         } */
 
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/survival_guitar_backpack/scene.gltf"));
+        //AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/survival_guitar_backpack/scene.gltf"));
 
         mTextures.albedo = Texture::Load("assets/textures/UVMap-Grid.jpg");
         standardMaterial = CreateRef<Material>(mTextures);
@@ -108,7 +108,7 @@ namespace Tea {
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             if(!mesh) mesh = defaultModel->GetMeshes()[0];
-            Ref<Material> material = materialComponent->material ? materialComponent->material : standardMaterial;
+            Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : standardMaterial;
 
             material->Use();
             
