@@ -87,6 +87,10 @@ namespace Tea {
 
                 ImGui::EndMenu();
             }
+            
+            ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - 25);
+            ImGui::TextDisabled("FPS: %.1f", ImGui::GetIO().Framerate);
+
             ImGui::EndMainMenuBar();
         }
 
