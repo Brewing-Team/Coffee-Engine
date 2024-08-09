@@ -29,6 +29,13 @@ namespace Tea {
     {
         ImGui::Begin("Scene Tree");
 
+        //delete node and all children if supr is pressed and the node is selected
+        if(ImGui::IsKeyPressed(ImGuiKey_Delete) && m_SelectionContext)
+        {
+            m_Context->DestroyEntity(m_SelectionContext);
+            m_SelectionContext = {};
+        }
+
         //Button for adding entities to the scene tree
         if(ImGui::Button("+", {24,24}))
         {
