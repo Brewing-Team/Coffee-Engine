@@ -13,7 +13,7 @@ class ExampleLayer : public Tea::Layer
 public:
     ExampleLayer();
 
-    void OnUpdate() override;
+    void OnUpdate(float dt) override;
 
     void OnEvent(Tea::Event& event);
 

@@ -128,7 +128,7 @@ ExampleLayer::ExampleLayer() : Layer("Example")
 
     }
 
-void ExampleLayer::OnUpdate()
+void ExampleLayer::OnUpdate(float dt)
 {
     //TEA_INFO("ExampleLayer::Update");
 

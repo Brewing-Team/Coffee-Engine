@@ -17,7 +17,7 @@ namespace Tea {
 
         void OnAttach() override;
 
-        void OnUpdate() override;
+        void OnUpdate(float dt) override;
 
         void OnEvent(Tea::Event& event) override;
 

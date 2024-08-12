@@ -6,6 +6,7 @@
 #include "TeaEngine/Renderer/Renderer.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
 
+#include <GLFW/glfw3.h>
 #include <tracy/Tracy.hpp>
 
 namespace Tea
@@ -79,11 +80,17 @@ namespace Tea
         {   
             ZoneScopedN("RunLoop");
 
+            float time = (float)glfwGetTime();
+            float deltaTime = time - m_LastFrameTime;
+            m_LastFrameTime = time;
+
+            TEA_CORE_TRACE("Delta Time: {0}", 1 / deltaTime);
+
             {
                 ZoneScopedN("LayerStack Update");
 
                 for(Layer* layer : m_LayerStack)
-                    layer->OnUpdate();
+                    layer->OnUpdate(deltaTime);
             }
 
             m_ImGuiLayer->Begin();

@@ -34,7 +34,7 @@ namespace Tea {
         m_SceneTreePanel.SetContext(m_ActiveScene);
     }
 
-    void EditorLayer::OnUpdate()
+    void EditorLayer::OnUpdate(float dt)
     {
         ZoneScoped;
 
