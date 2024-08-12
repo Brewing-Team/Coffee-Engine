@@ -84,8 +84,6 @@ namespace Tea
             float deltaTime = time - m_LastFrameTime;
             m_LastFrameTime = time;
 
-            TEA_CORE_TRACE("Delta Time: {0}", 1 / deltaTime);
-
             {
                 ZoneScopedN("LayerStack Update");
 

@@ -81,17 +81,48 @@ namespace Tea {
 
         if (ImGui::BeginMainMenuBar()) {
 
-            if (ImGui::BeginMenu("File")) {
+            if (ImGui::BeginMenu("File"))
+            {
                 if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { }
                 if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
 
                 ImGui::EndMenu();
             }
-            
+            if (ImGui::BeginMenu("Project"))
+            {
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Editor"))
+            {
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("About"))
+            {
+                if(ImGui::MenuItem("About TeaEngine"))
+                { 
+                    ImGui::OpenPopup("About TeaEngine");
+                }
+                ImGui::EndMenu();
+            }
+
             ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - 25);
             ImGui::TextDisabled("FPS: %.1f", ImGui::GetIO().Framerate);
 
             ImGui::EndMainMenuBar();
+        }
+
+
+        //TODO: Move this to a separate function
+        if(ImGui::BeginPopupModal("About TeaEngine"))
+        {
+            ImGui::Text("TeaEngine is a game engine developed by Hugo Planell Moreno.");
+            ImGui::Text("This engine is being developed as part of a personal project.");
+            ImGui::Text("The engine is still in development and is not ready for production.");
+            ImGui::Text("The engine is open source and can be found on GitHub.");
+            ImGui::Text("The engine is licensed under the MIT License.");
+            if (ImGui::Button("Close"))
+                ImGui::CloseCurrentPopup();
+            ImGui::EndPopup();
         }
 
         m_SceneTreePanel.OnImGuiRender();
