@@ -25,6 +25,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     glm::glm
     GLAD
     ImGui
+    ImGuizmo
     stb_image
     assimp
     EnTT::EnTT
@@ -38,6 +39,7 @@ option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on
 
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/imgui)
+add_subdirectory(vendor/ImGuizmo)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/entt)
 add_subdirectory(vendor/tracy)

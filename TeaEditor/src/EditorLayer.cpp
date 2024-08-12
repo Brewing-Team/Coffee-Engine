@@ -4,9 +4,13 @@
 #include "TeaEngine/Core/Application.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
+#include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Scene.h"
 #include "Panels/SceneTreePanel.h"
-#include "imgui.h"
+#include <glm/fwd.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <imgui.h>
+#include <ImGuizmo.h>
 #include <cstdint>
 #include <sys/types.h>
 #include <tracy/Tracy.hpp>
@@ -32,6 +36,9 @@ namespace Tea {
         m_ActiveScene->OnInit();
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
+
+        //REMOVE!!!
+        m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
     }
 
     void EditorLayer::OnUpdate(float dt)
@@ -129,6 +136,11 @@ namespace Tea {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
+        auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
+		auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
+		auto viewportOffset = ImGui::GetWindowPos();
+		m_ViewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
+		m_ViewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
 
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
@@ -140,6 +152,44 @@ namespace Tea {
 
         uint32_t textureID = m_Framebuffer->GetColorAttachmentID();
         ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, {0, 1}, {1, 0});
+
+        //Guizmo
+        Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
+
+        if(selectedEntity and m_GizmoType != -1)
+        {
+            ImGuizmo::SetOrthographic(false);
+            ImGuizmo::SetDrawlist();
+
+            ImGuizmo::SetRect(m_ViewportBounds[0].x, m_ViewportBounds[0].y, m_ViewportBounds[1].x - m_ViewportBounds[0].x, m_ViewportBounds[1].y - m_ViewportBounds[0].y);
+
+            const glm::mat4& cameraProjection = m_EditorCamera.GetProjection();
+            glm::mat4 cameraView = m_EditorCamera.GetViewMatrix();
+
+            auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
+            glm::mat4 transform = transformComponent.GetWorldTransform();
+
+            ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
+                                (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL,
+                         glm::value_ptr(transform));
+
+            if(ImGuizmo::IsUsing())
+            {
+                glm::vec3 skew;
+                glm::vec4 perspective;
+                glm::quat orientation;
+
+                glm::vec3 position, rotation, scale;
+
+                glm::decompose(transform, scale, orientation, position, skew, perspective);
+                rotation = glm::eulerAngles(orientation);
+
+                transformComponent.Position = position;
+                transformComponent.Rotation = rotation;
+                transformComponent.Scale = scale;
+            }
+        }
+
         ImGui::End();
         ImGui::PopStyleVar();
     }

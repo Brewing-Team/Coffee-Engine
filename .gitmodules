@@ -8,3 +8,6 @@
 [submodule "TeaEngine/vendor/tracy"]
 	path = TeaEngine/vendor/tracy
 	url = https://github.com/wolfpld/tracy.git
+[submodule "TeaEngine/vendor/ImGuizmo"]
+	path = TeaEngine/vendor/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo.git
