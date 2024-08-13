@@ -114,24 +114,11 @@ namespace Tea {
                 ImGui::EndMenu();
             }
 
-            ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x - 25);
+            //set the fps counter in the right side of the menu bar
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 75);
             ImGui::TextDisabled("FPS: %.1f", ImGui::GetIO().Framerate);
 
             ImGui::EndMainMenuBar();
-        }
-
-
-        //TODO: Move this to a separate function
-        if(ImGui::BeginPopupModal("About TeaEngine"))
-        {
-            ImGui::Text("TeaEngine is a game engine developed by Hugo Planell Moreno.");
-            ImGui::Text("This engine is being developed as part of a personal project.");
-            ImGui::Text("The engine is still in development and is not ready for production.");
-            ImGui::Text("The engine is open source and can be found on GitHub.");
-            ImGui::Text("The engine is licensed under the MIT License.");
-            if (ImGui::Button("Close"))
-                ImGui::CloseCurrentPopup();
-            ImGui::EndPopup();
         }
 
         m_SceneTreePanel.OnImGuiRender();
