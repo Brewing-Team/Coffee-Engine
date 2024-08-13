@@ -78,6 +78,9 @@ namespace Tea {
 
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
     {
+        if(event.IsRepeat() > 0)
+            return false;
+
         switch (event.GetKeyCode())
         {
             case Tea::Key::G:
@@ -88,6 +91,14 @@ namespace Tea {
             break;
             case Tea::Key::S:
                 m_GizmoType = ImGuizmo::OPERATION::SCALE;
+            break;
+            case Tea::Key::F:
+                if(m_SceneTreePanel.GetSelectedEntity())
+                {
+                    glm::mat4 worldTransform = m_SceneTreePanel.GetSelectedEntity().GetComponent<TransformComponent>().GetWorldTransform();
+                    
+                    m_EditorCamera.SetFocusPoint(glm::vec3(worldTransform[3]));
+                }
             break;
         }
 

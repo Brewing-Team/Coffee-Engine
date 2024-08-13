@@ -26,6 +26,8 @@ namespace Tea {
 
         inline void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
 
+        inline void SetFocusPoint(glm::vec3 focusPoint) { m_FocalPoint = focusPoint; }
+
         const glm::mat4 GetViewMatrix() const { return m_ViewMatrix; };
 
         glm::vec3 GetUpDirection() const;
