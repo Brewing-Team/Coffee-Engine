@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Events/KeyEvent.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Framebuffer.h"
 #include "TeaEngine/Scene/Scene.h"
@@ -19,7 +20,9 @@ namespace Tea {
 
         void OnUpdate(float dt) override;
 
-        void OnEvent(Tea::Event& event) override;
+        void OnEvent(Event& event) override;
+
+        bool OnKeyPressed(KeyPressedEvent& event);
 
         void OnDetach() override;
 

@@ -2,6 +2,7 @@
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Core/Application.h"
+#include "TeaEngine/Events/KeyEvent.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
 #include "TeaEngine/Scene/Components.h"
@@ -38,9 +39,6 @@ namespace Tea {
         m_ActiveScene->OnInit();
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
-
-        //REMOVE!!!
-        m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
     }
 
     void EditorLayer::OnUpdate(float dt)
@@ -73,6 +71,27 @@ namespace Tea {
         m_EditorCamera.OnEvent(event);
 
         m_ActiveScene->OnEvent(event);
+
+        EventDispatcher dispatcher(event);
+        dispatcher.Dispatch<KeyPressedEvent>(TEA_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
+    }
+
+    bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
+    {
+        switch (event.GetKeyCode())
+        {
+            case Tea::Key::G:
+                m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
+            break;
+            case Tea::Key::R:
+                m_GizmoType = ImGuizmo::OPERATION::ROTATE;
+            break;
+            case Tea::Key::S:
+                m_GizmoType = ImGuizmo::OPERATION::SCALE;
+            break;
+        }
+
+        return false;
     }
 
     void EditorLayer::OnDetach()
@@ -149,15 +168,16 @@ namespace Tea {
         {
             ImGuizmo::SetGizmoSizeClipSpace(0.2);
 
+            // Customize ImGuizmo style to be more similar to Godot
+
             auto& style = ImGuizmo::GetStyle();
 
-            // Customize ImGuizmo style to be more similar to Godot
-            style.TranslationLineThickness = 4.0f;
-            style.TranslationLineArrowSize = 10.0f;
-            style.RotationLineThickness = 4.0f;
-            style.RotationOuterLineThickness = 6.0f;
-            style.ScaleLineThickness = 4.0f;
-            style.ScaleLineCircleSize = 6.0f;
+            //style.TranslationLineThickness = 3.0f;
+            //style.TranslationLineArrowSize = 10.0f;
+            //style.RotationLineThickness = 4.0f;
+            //style.RotationOuterLineThickness = 4.0f;
+            //style.ScaleLineThickness = 4.0f;
+            //style.ScaleLineCircleSize = 6.0f;
 
             // Set colors
             style.Colors[ImGuizmo::DIRECTION_X] = ImVec4(0.918f, 0.196f, 0.310f, 1.0f);
@@ -203,6 +223,10 @@ namespace Tea {
                 // Update the local transform component
                 transformComponent.SetLocalTransform(localTransform);
             }
+        }
+        else
+        {
+            m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
         }
 
         ImGui::End();
