@@ -181,7 +181,7 @@ namespace Tea {
         {
             auto& transformComponent = entity.GetComponent<TransformComponent>();
 
-            if(ImGui::CollapsingHeader("Transform"))
+            if(ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
             {   
                 ImGui::Text("Position");
                 ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.Position), 0.1f);
@@ -197,7 +197,7 @@ namespace Tea {
         if(entity.HasComponent<ModelComponent>())
         {
             auto& modelComponent = entity.GetComponent<ModelComponent>();
-            if(ImGui::CollapsingHeader("Model"))
+            if(ImGui::CollapsingHeader("Model", ImGuiTreeNodeFlags_DefaultOpen))
             {   
                 auto& meshesArray = modelComponent.model->GetMeshes();
                 ImGui::SeparatorText("List of Meshes");
@@ -225,7 +225,7 @@ namespace Tea {
         if(entity.HasComponent<MeshComponent>())
         {
             auto& meshComponent = entity.GetComponent<MeshComponent>();
-            if(ImGui::CollapsingHeader("Mesh"))
+            if(ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
             {
             }
         }
@@ -233,7 +233,7 @@ namespace Tea {
         if(entity.HasComponent<MaterialComponent>())
         {
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
-            if(ImGui::CollapsingHeader("Material"))
+            if(ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
             {
             }
         }
