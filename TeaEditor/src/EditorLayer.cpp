@@ -7,6 +7,8 @@
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Scene.h"
 #include "Panels/SceneTreePanel.h"
+#include "TeaEngine/Scene/SceneTree.h"
+#include "entt/entity/entity.hpp"
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
@@ -158,6 +160,26 @@ namespace Tea {
 
         if(selectedEntity and m_GizmoType != -1)
         {
+            ImGuizmo::SetGizmoSizeClipSpace(0.2);
+
+            auto& style = ImGuizmo::GetStyle();
+
+            // Customize ImGuizmo style to be more similar to Godot
+            style.TranslationLineThickness = 4.0f;
+            style.TranslationLineArrowSize = 10.0f;
+            style.RotationLineThickness = 4.0f;
+            style.RotationOuterLineThickness = 6.0f;
+            style.ScaleLineThickness = 4.0f;
+            style.ScaleLineCircleSize = 6.0f;
+
+            // Set colors
+            style.Colors[ImGuizmo::DIRECTION_X] = ImVec4(0.918f, 0.196f, 0.310f, 1.0f);
+            style.Colors[ImGuizmo::DIRECTION_Y] = ImVec4(0.153f, 0.525f, 0.918f, 1.0f);
+            style.Colors[ImGuizmo::DIRECTION_Z] = ImVec4(0.502f, 0.800f, 0.051f, 1.0f);
+            style.Colors[ImGuizmo::PLANE_X] = ImVec4(0.918f, 0.196f, 0.310f, 1.0f);
+            style.Colors[ImGuizmo::PLANE_Y] = ImVec4(0.153f, 0.525f, 0.918f, 1.0f);
+            style.Colors[ImGuizmo::PLANE_Z] = ImVec4(0.502f, 0.800f, 0.051f, 1.0f);
+
             ImGuizmo::SetOrthographic(false);
             ImGuizmo::SetDrawlist();
 
@@ -168,25 +190,30 @@ namespace Tea {
 
             auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
             glm::mat4 transform = transformComponent.GetWorldTransform();
-
+            
             ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
                                 (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL,
                          glm::value_ptr(transform));
 
-            if(ImGuizmo::IsUsing())
+            if (ImGuizmo::IsUsing())
             {
-                glm::vec3 skew;
-                glm::vec4 perspective;
-                glm::quat orientation;
+              /*TODO: Revisit this bc this should work using the SetWorldTransform
+                but for this in the SetWorldTransform we should update the local 
+                transform too and for this we need the transform of the parent.*/
 
-                glm::vec3 position, rotation, scale;
+                glm::mat4 localTransform = transform;
 
-                glm::decompose(transform, scale, orientation, position, skew, perspective);
-                rotation = glm::eulerAngles(orientation);
+                auto& parentEntity = selectedEntity.GetComponent<HierarchyComponent>().m_Parent;
+                if(parentEntity != entt::null)
+                {
+                    Entity e{parentEntity, m_ActiveScene.get()};
+                    glm::mat4 parentGlobalTransform = e.GetComponent<TransformComponent>().GetWorldTransform();
+                    glm::mat4 inverseParentGlobalTransform = glm::inverse(parentGlobalTransform);
+                    localTransform = inverseParentGlobalTransform * transform;
+                }
 
-                transformComponent.Position = position;
-                transformComponent.Rotation = rotation;
-                transformComponent.Scale = scale;
+                // Update the local transform component
+                transformComponent.SetLocalTransform(localTransform);
             }
         }
 
