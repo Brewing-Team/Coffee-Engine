@@ -109,10 +109,8 @@ namespace Tea {
             Ref<Mesh> mesh = meshComponent.GetMesh();
             if(!mesh) mesh = defaultModel->GetMeshes()[0];
             Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : standardMaterial;
-
-            material->Use();
             
-            Renderer::Submit(material->GetShader(), mesh->GetVertexArray(), transformComponent.GetWorldTransform());
+            Renderer::Submit(material, mesh, transformComponent.GetWorldTransform());
         }
 
         Renderer::EndScene();

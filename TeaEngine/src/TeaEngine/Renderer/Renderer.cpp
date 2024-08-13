@@ -39,4 +39,17 @@ namespace Tea {
 
         RendererAPI::DrawIndexed(vertexArray);
     }
+
+    void Renderer::Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform)
+    {
+        material->Use();
+
+        Ref<Shader> shader = material->GetShader();
+        shader->Bind();
+        shader->setMat4("view", s_SceneViewMatrix);
+        shader->setMat4("projection", s_SceneProjectionMatrix);
+        shader->setMat4("model", transform);
+        
+        RendererAPI::DrawIndexed(mesh->GetVertexArray());
+    }
 }
