@@ -11,6 +11,7 @@ namespace Tea {
     {
         glm::mat4 projection;
         glm::mat4 view;
+        glm::vec3 position;
     }cameraData;
 
     Ref<UniformBuffer> Renderer::s_CameraUniformBuffer;
@@ -32,6 +33,7 @@ namespace Tea {
     {
         cameraData.view = camera.GetViewMatrix();
         cameraData.projection = camera.GetProjection();
+        cameraData.position = camera.GetPosition();
         s_CameraUniformBuffer->SetData(&cameraData, sizeof(CameraData));
     }
 
