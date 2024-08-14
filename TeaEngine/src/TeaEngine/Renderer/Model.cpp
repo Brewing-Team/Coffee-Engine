@@ -41,7 +41,7 @@ namespace Tea {
     void Model::LoadModel(const std::string& path)
     {
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
         // check for errors
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
         {
@@ -79,6 +79,7 @@ namespace Tea {
                 vector.x = mesh->mNormals[i].x;
                 vector.y = mesh->mNormals[i].y;
                 vector.z = mesh->mNormals[i].z;
+
                 vertex.Normals = vector;
             }
 
@@ -89,7 +90,7 @@ namespace Tea {
                 // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
                 // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
                 vec.x = mesh->mTextureCoords[0][i].x;
-                vec.y = 1 - mesh->mTextureCoords[0][i].y;
+                vec.y = mesh->mTextureCoords[0][i].y;
                 vertex.TexCoords = vec;
 
                 // tangent
