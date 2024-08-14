@@ -85,7 +85,12 @@ namespace Tea {
     {
         Ref<Mesh> mesh;
 
-        MeshComponent() = default;
+        MeshComponent()
+        {
+            //TEMPORAL! In the future use for example MeshComponent() : mesh(MeshFactory(PrimitiveType::MeshText))
+            Ref<Model> m = CreateRef<Model>("assets/models/MissingMesh.glb");
+            mesh = m->GetMeshes()[0];
+        }
         MeshComponent(const MeshComponent&) = default;
         MeshComponent(Ref<Mesh> mesh)
             : mesh(mesh) {}
@@ -97,7 +102,8 @@ namespace Tea {
     {
         Ref<Material> material;
 
-        MaterialComponent() = default;
+        MaterialComponent()
+            : material(CreateRef<Material>()) {}
         MaterialComponent(const MaterialComponent&) = default;
         MaterialComponent(Ref<Material> material)
             : material(material) {}

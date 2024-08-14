@@ -20,9 +20,7 @@
 namespace Tea {
 
     //TEMPORAL
-    static MaterialTextures mTextures;
-    static Ref<Material> standardMaterial;
-    static Ref<Model> defaultModel;
+    static Ref<Material> missingMaterial;
 
     Scene::Scene()
     {
@@ -74,12 +72,10 @@ namespace Tea {
             }
         } */
 
-        //AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/survival_guitar_backpack/scene.gltf"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/sceneTreeImportingTest.glb"));
 
-        mTextures.albedo = Texture::Load("assets/textures/UVMap-Grid.jpg");
-        standardMaterial = CreateRef<Material>(mTextures);
-
-        defaultModel = CreateRef<Model>("assets/models/MissingMesh.glb");
+        Ref<Shader> missingShader = CreateRef<Shader>("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
+        missingMaterial = CreateRef<Material>(missingShader);
     }
 
     void Scene::OnUpdate()
@@ -107,8 +103,7 @@ namespace Tea {
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
-            if(!mesh) mesh = defaultModel->GetMeshes()[0];
-            Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : standardMaterial;
+            Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : missingMaterial;
             
             Renderer::Submit(material, mesh, transformComponent.GetWorldTransform());
         }

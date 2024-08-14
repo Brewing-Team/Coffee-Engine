@@ -122,15 +122,31 @@ namespace Tea {
 
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
+        Ref<Material> meshMaterial;
 
-        //This needs an urgent optimization, I need the Libraries of this Resources for reuse this Textures and Materials.
-        MaterialTextures matTextures;
-        aiString textureName;
-        material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName);
-        std::string texturePath = directory + std::string(textureName.C_Str());
-        matTextures.albedo = Texture::Load(texturePath);
 
-        Ref<Material> meshMaterial = CreateRef<Material>(matTextures);
+        //The next code is rushed, please Hugo of the future refactor this ;_;
+        if(material)
+        {
+            //This needs an urgent optimization, I need the Libraries of this Resources for reuse this Textures and Materials.
+            aiString textureName;
+            material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName);
+            std::string texturePath = directory + std::string(textureName.C_Str());
+            if(texturePath != directory)
+            {
+                MaterialTextures matTextures;
+                matTextures.albedo = Texture::Load(texturePath);
+                meshMaterial = CreateRef<Material>(matTextures);
+            }
+            else
+            {
+                meshMaterial = CreateRef<Material>();
+            }
+        }
+        else
+        {
+            meshMaterial = CreateRef<Material>();
+        }
 
         Ref<Mesh> resultMesh = CreateRef<Mesh>(indices, vertices);
         resultMesh->SetName(mesh->mName.C_Str());

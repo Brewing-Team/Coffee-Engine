@@ -16,6 +16,7 @@ namespace Tea {
     {
     public:
         Material();
+        Material(Ref<Shader> shader);
         Material(std::string& path); //For the future when the material yaml exists
         Material(MaterialTextures& materialTextures);
         ~Material() = default;
