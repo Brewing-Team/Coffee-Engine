@@ -1,9 +1,13 @@
 #version 450 core
 layout (location = 0) in vec3 aPosition;
 
+layout (std140, binding = 0) uniform camera
+{
+    mat4 projection;
+    mat4 view;
+};
+
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
 
 void main()
 {

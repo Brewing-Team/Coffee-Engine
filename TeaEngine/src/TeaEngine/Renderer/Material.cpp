@@ -41,28 +41,4 @@ namespace Tea {
         m_Shader->Bind();
         if(textures.albedo)textures.albedo->Bind(0);
     }
-
-    void Material::SetModelMatrix(const glm::mat4& modelMatrix)
-    {
-        m_Shader->Bind();
-        m_Shader->setMat4("model", modelMatrix);
-        m_Shader->Unbind();
-    }
-
-    //Temporal
-    void Material::SetViewMatrix(const glm::mat4& viewMatrix)
-    {
-        m_Shader->Bind();
-        m_Shader->setMat4("view", viewMatrix);
-        m_Shader->Unbind();
-    }
-
-    //Temporal
-    void Material::SetProjectionMatrix(const glm::mat4& projectionMatrix)
-    {
-        m_Shader->Bind();
-        m_Shader->setMat4("projection", projectionMatrix);
-        m_Shader->Unbind();
-    }
-
 }

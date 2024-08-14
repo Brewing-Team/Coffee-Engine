@@ -23,12 +23,6 @@ namespace Tea {
 
         void Use();
 
-        void SetModelMatrix(const glm::mat4& modelMatrix);
-
-        //Temporal
-        void SetViewMatrix(const glm::mat4& viewMatrix);
-        void SetProjectionMatrix(const glm::mat4& projectionMatrix);
-
         Ref<Shader> GetShader() { return m_Shader; }
     private:
         MaterialTextures textures;

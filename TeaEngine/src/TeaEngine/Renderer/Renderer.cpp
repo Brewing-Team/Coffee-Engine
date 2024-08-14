@@ -1,18 +1,27 @@
 #include "Renderer.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
+#include "TeaEngine/Renderer/UniformBuffer.h"
+#include <glm/fwd.hpp>
 #include <tracy/Tracy.hpp>
 
 namespace Tea {
 
-    glm::mat4 Tea::Renderer::s_SceneViewMatrix;
-    glm::mat4 Tea::Renderer::s_SceneProjectionMatrix;
+    struct CameraData
+    {
+        glm::mat4 projection;
+        glm::mat4 view;
+    }cameraData;
+
+    Ref<UniformBuffer> Renderer::s_CameraUniformBuffer;
 
     void Renderer::Init()
     {
         ZoneScoped;
 
         RendererAPI::Init();
+
+        s_CameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0);
     }
 
     void Renderer::Shutdown()
@@ -21,8 +30,9 @@ namespace Tea {
 
     void Renderer::BeginScene(EditorCamera& camera)
     {
-        s_SceneViewMatrix = camera.GetViewMatrix();
-        s_SceneProjectionMatrix = camera.GetProjection();
+        cameraData.view = camera.GetViewMatrix();
+        cameraData.projection = camera.GetProjection();
+        s_CameraUniformBuffer->SetData(&cameraData, sizeof(CameraData));
     }
 
     void Renderer::EndScene()
@@ -33,8 +43,6 @@ namespace Tea {
     void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
     {
         shader->Bind();
-        shader->setMat4("view", s_SceneViewMatrix);
-        shader->setMat4("projection", s_SceneProjectionMatrix);
         shader->setMat4("model", transform);
 
         RendererAPI::DrawIndexed(vertexArray);
@@ -46,8 +54,6 @@ namespace Tea {
 
         Ref<Shader> shader = material->GetShader();
         shader->Bind();
-        shader->setMat4("view", s_SceneViewMatrix);
-        shader->setMat4("projection", s_SceneProjectionMatrix);
         shader->setMat4("model", transform);
         
         RendererAPI::DrawIndexed(mesh->GetVertexArray());
