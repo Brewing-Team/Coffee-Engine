@@ -17,7 +17,7 @@ namespace Tea {
         static void Init();
         static void Shutdown();
 
-        static void DrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec4 color = glm::vec4(1.0f));
+        static void DrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
     private:
         static Ref<VertexArray> m_LineVertexArray;
         static Ref<VertexBuffer> m_LineVertexBuffer;

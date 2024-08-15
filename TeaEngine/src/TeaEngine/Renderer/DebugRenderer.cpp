@@ -25,7 +25,7 @@ namespace Tea {
     {
     }
 
-    void DebugRenderer::DrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec4 color)
+    void DebugRenderer::DrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec4 color, float lineWidth)
     {
         LineVertex vertices[2] = {
             {start, color},
@@ -36,7 +36,7 @@ namespace Tea {
 
         m_LineShader->Bind();
 
-        RendererAPI::DrawLines(m_LineVertexArray, 2);
+        RendererAPI::DrawLines(m_LineVertexArray, 2, lineWidth);
     }
 
 }
