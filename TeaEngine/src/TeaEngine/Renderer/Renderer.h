@@ -10,7 +10,7 @@
 #include <glm/fwd.hpp>
 namespace Tea {
 
-    class Renderer
+    class Renderer //The 3d Renderer
     {
     public:
         static void Init();

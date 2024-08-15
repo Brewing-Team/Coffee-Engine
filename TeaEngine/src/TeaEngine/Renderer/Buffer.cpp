@@ -5,6 +5,15 @@
 
 namespace Tea {
 
+    VertexBuffer::VertexBuffer(uint32_t size)
+    {
+        ZoneScoped;
+
+        glGenBuffers(1, &m_vboID);
+        glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+        glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
+    }
+
     VertexBuffer::VertexBuffer(float* vertices, uint32_t size)
     {
         ZoneScoped;
@@ -33,6 +42,17 @@ namespace Tea {
         ZoneScoped;
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    void VertexBuffer::SetData(void* data, uint32_t size)
+    {
+        glBindBuffer(GL_ARRAY_BUFFER, m_vboID);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, size, data);
+    }
+
+    Ref<VertexBuffer> VertexBuffer::Create(uint32_t size)
+    {
+        return CreateRef<VertexBuffer>(size);
     }
 
     Ref<VertexBuffer> VertexBuffer::Create(float* vertices, u_int32_t size)

@@ -17,6 +17,8 @@ namespace Tea {
 
         static void DrawIndexed(const Ref<VertexArray>& vertexArray);
 
+        static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount, float lineWidth = 1.0f);
+
         static Scope<RendererAPI> Create();
 
         private:

@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "TeaEngine/Renderer/DebugRenderer.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
 #include "TeaEngine/Renderer/UniformBuffer.h"
@@ -22,6 +23,7 @@ namespace Tea {
         ZoneScoped;
 
         RendererAPI::Init();
+        DebugRenderer::Init();
 
         s_CameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0);
     }

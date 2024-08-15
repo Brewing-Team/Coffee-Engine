@@ -69,6 +69,15 @@ namespace Tea {
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
 
+	void RendererAPI::DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount, float lineWidth)
+	{
+		ZoneScoped;
+
+		vertexArray->Bind();
+		glLineWidth(lineWidth);
+		glDrawArrays(GL_LINES, 0, vertexCount);
+	}
+
     Scope<RendererAPI> RendererAPI::Create()
     {
         return CreateScope<RendererAPI>();
