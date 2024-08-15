@@ -10,6 +10,10 @@ namespace Tea {
     struct MaterialTextures //Temporal
     {
         Ref<Texture> albedo;
+        Ref<Texture> normal;
+        Ref<Texture> metallic;
+        Ref<Texture> roughness;
+        Ref<Texture> ao;
     };
 
     class Material
