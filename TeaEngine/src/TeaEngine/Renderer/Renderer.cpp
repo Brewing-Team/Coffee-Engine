@@ -3,6 +3,7 @@
 #include "TeaEngine/Renderer/RendererAPI.h"
 #include "TeaEngine/Renderer/UniformBuffer.h"
 #include <glm/fwd.hpp>
+#include <glm/matrix.hpp>
 #include <tracy/Tracy.hpp>
 
 namespace Tea {
@@ -46,6 +47,7 @@ namespace Tea {
     {
         shader->Bind();
         shader->setMat4("model", transform);
+        shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
 
         RendererAPI::DrawIndexed(vertexArray);
     }
@@ -53,11 +55,8 @@ namespace Tea {
     void Renderer::Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform)
     {
         material->Use();
-
         Ref<Shader> shader = material->GetShader();
-        shader->Bind();
-        shader->setMat4("model", transform);
-        
-        RendererAPI::DrawIndexed(mesh->GetVertexArray());
+
+        Renderer::Submit(shader, mesh->GetVertexArray(), transform);
     }
 }

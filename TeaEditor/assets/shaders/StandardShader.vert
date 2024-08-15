@@ -15,15 +15,17 @@ layout (std140, binding = 0) uniform camera
 out vec2 TexCoord;
 out vec3 Normal;
 out vec3 FragPos;
-out vec3 viewPos;
+out vec3 camPos;
 
 uniform mat4 model;
+uniform mat3 normalMatrix;
 
 void main()
 {
-    gl_Position = projection * view * model * vec4(aPosition, 1.0);
     FragPos = vec3(model * vec4(aPosition, 1.0));
-    Normal = mat3(transpose(inverse(model))) * aNormals; //TODO: inversion is costly for shaders, move this to the CPU and send it like the uniform model
-    viewPos = cameraPos;
+    Normal = normalMatrix * aNormals;
+    camPos = cameraPos;
     TexCoord = aTexCoord;
+
+    gl_Position = projection * view * vec4(FragPos, 1.0);
 }

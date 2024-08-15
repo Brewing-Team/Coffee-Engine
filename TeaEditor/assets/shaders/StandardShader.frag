@@ -3,9 +3,9 @@ out vec4 FragColor;
 
 in vec2 TexCoord;
 in vec3 Normal;
-in vec3 FragPos;
 
-in vec3 viewPos;
+in vec3 FragPos;
+in vec3 camPos;
 
 uniform sampler2D albedo;
 
@@ -13,7 +13,7 @@ void main()
 {
     vec3 norm = normalize(Normal);
 
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 viewDir = normalize(camPos - FragPos);
 
     float diff = max(dot(norm, viewDir), 0.0);
 
