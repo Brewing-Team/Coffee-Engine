@@ -69,7 +69,7 @@ namespace Tea {
         }
     };
 
-    struct ModelComponent
+    struct ModelComponent //Deprectated
     {
         Ref<Model> model;
 
@@ -107,5 +107,14 @@ namespace Tea {
         MaterialComponent(const MaterialComponent&) = default;
         MaterialComponent(Ref<Material> material)
             : material(material) {}
+    };
+
+    struct LightComponent //Do it well, this was only to experiment
+    {
+        glm::vec3 color = {1.0f, 1.0f, 1.0f};
+        float intensity = 1.0f;
+        glm::vec3 direction = {0.0f, -1.0f, 0.0f};
+
+        LightComponent() = default;
     };
 }
