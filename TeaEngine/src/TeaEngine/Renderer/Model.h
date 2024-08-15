@@ -1,7 +1,9 @@
 #pragma once
 
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Renderer/Material.h"
 #include "TeaEngine/Renderer/Mesh.h"
+#include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Scene/Scene.h"
 #include <assimp/scene.h>
 #include <glm/fwd.hpp>
@@ -29,6 +31,8 @@ namespace Tea {
     private:
         Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene);
         void processNode(aiNode* node, const aiScene* scene);
+        Ref<Texture> LoadTexture(aiMaterial* material, aiTextureType type);
+        MaterialTextures LoadMaterialTextures(aiMaterial* material);
     private:
         std::vector<Ref<Mesh>> m_Meshes;
 

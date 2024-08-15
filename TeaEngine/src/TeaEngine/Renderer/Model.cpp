@@ -118,31 +118,16 @@ namespace Tea {
             for(unsigned int j = 0; j < face.mNumIndices; j++)
                 indices.push_back(face.mIndices[j]);
         }
-        
-        std::string directory = m_FilePath.substr(0, m_FilePath.find_last_of('/') + 1);
 
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
         Ref<Material> meshMaterial;
 
-
         //The next code is rushed, please Hugo of the future refactor this ;_;
         if(material)
         {
-            //This needs an urgent optimization, I need the Libraries of this Resources for reuse this Textures and Materials.
-            aiString textureName;
-            material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName);
-            std::string texturePath = directory + std::string(textureName.C_Str());
-            if(texturePath != directory)
-            {
-                MaterialTextures matTextures;
-                matTextures.albedo = Texture::Load(texturePath);
-                meshMaterial = CreateRef<Material>(matTextures);
-            }
-            else
-            {
-                meshMaterial = CreateRef<Material>();
-            }
+            MaterialTextures matTextures = LoadMaterialTextures(material);
+            meshMaterial = CreateRef<Material>(matTextures);
         }
         else
         {
@@ -180,6 +165,35 @@ namespace Tea {
 
             child->processNode(node->mChildren[i], scene);
         }
+    }
+
+    Ref<Texture> Model::LoadTexture(aiMaterial* material, aiTextureType type)
+    {
+        aiString textureName;
+        material->GetTexture(type, 0, &textureName);
+
+        if(textureName.length == 0)
+        {
+            return nullptr;
+        }
+
+        std::string directory = m_FilePath.substr(0, m_FilePath.find_last_of('/') + 1);
+        std::string texturePath = directory + std::string(textureName.C_Str());
+
+        return Texture::Load(texturePath);
+    }
+
+    MaterialTextures Model::LoadMaterialTextures(aiMaterial* material)
+    {
+        MaterialTextures matTextures;
+
+        matTextures.albedo = LoadTexture(material, aiTextureType_DIFFUSE);
+        matTextures.normal = LoadTexture(material, aiTextureType_NORMALS);
+        matTextures.metallic = LoadTexture(material, aiTextureType_METALNESS);
+        matTextures.roughness = LoadTexture(material, aiTextureType_DIFFUSE_ROUGHNESS);
+        matTextures.ao = LoadTexture(material, aiTextureType_AMBIENT_OCCLUSION);
+
+        return matTextures;
     }
 
 }
