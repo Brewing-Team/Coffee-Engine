@@ -72,7 +72,7 @@ namespace Tea {
             }
         } */
 
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/sceneTreeImportingTest.glb"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
         Ref<Shader> missingShader = CreateRef<Shader>("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
         missingMaterial = CreateRef<Material>(missingShader);
