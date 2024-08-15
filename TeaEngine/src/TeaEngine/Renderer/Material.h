@@ -7,6 +7,11 @@
 #include <string>
 namespace Tea {
 
+    struct MaterialProperties
+    {
+
+    };
+
     struct MaterialTextures //Temporal
     {
         Ref<Texture> albedo;
@@ -29,9 +34,11 @@ namespace Tea {
 
         Ref<Shader> GetShader() { return m_Shader; }
     private:
-        MaterialTextures textures;
+        MaterialTextures m_MaterialTextures;
 
         Ref<Shader> m_Shader;
+
+        static Ref<Texture> s_MissingTexture;
     };
 
 }
