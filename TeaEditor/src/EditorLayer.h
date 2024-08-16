@@ -28,6 +28,8 @@ namespace Tea {
 
         void OnImGuiRender() override;
     private:
+        void OnOverlayRender();
+    private:
         Ref<Scene> m_EditorScene;
         Ref<Scene> m_ActiveScene;
 
