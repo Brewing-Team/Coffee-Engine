@@ -23,6 +23,8 @@
 
 namespace Tea {
 
+    static RendererStats s_RendererData;
+
     EditorLayer::EditorLayer() : Layer("Example")
     {
 
@@ -63,6 +65,9 @@ namespace Tea {
 
         m_ActiveScene->OnUpdate();
         m_ActiveScene->OnUpdateEditor(m_EditorCamera);
+
+        //TEMPORAL idk if this is the best place to get the stats or in the scene
+        s_RendererData = Renderer::GetStats();
 
         OnOverlayRender();
 
@@ -245,13 +250,27 @@ namespace Tea {
             m_GizmoType = ImGuizmo::OPERATION::TRANSLATE;
         }
 
+        //transparent overlay displaying fps draw calls etc
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | /*ImGuiWindowFlags_AlwaysAutoResize |*/ ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
+        
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x - 150, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 100));
+
+        ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+        
+        ImGui::Begin("Renderer Stats", NULL, window_flags);
+        ImGui::Text("Size: %.0f x %.0f (%0.1fMP)", m_ViewportSize.x, m_ViewportSize.y, m_ViewportSize.x * m_ViewportSize.y / 1000000.0f);
+        ImGui::Text("Draw Calls: %d", s_RendererData.DrawCalls);
+        ImGui::Text("Vertex Count: %d", s_RendererData.VertexCount);
+        ImGui::Text("Index Count: %d", s_RendererData.IndexCount);
+        ImGui::End();
+
         ImGui::End();
         ImGui::PopStyleVar();
     }
 
     void EditorLayer::OnOverlayRender()
     {
-        Renderer::BeginScene(m_EditorCamera);
+        Renderer::BeginScene(m_EditorCamera); //This resets the draw calls, vertex count and index count
 
         Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
 
