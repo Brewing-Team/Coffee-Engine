@@ -11,6 +11,7 @@ namespace Tea {
 
     RendererData Renderer::s_RendererData;
     RendererStats Renderer::s_Stats;
+    RenderSettings Renderer::s_RenderSettings;
 
     void Renderer::Init()
     {
@@ -40,7 +41,10 @@ namespace Tea {
 
     void Renderer::EndScene()
     {
-
+        if(s_RenderSettings.PostProcessing)
+        {
+            //Render All the fancy effects :D
+        }
     }
 
     void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
