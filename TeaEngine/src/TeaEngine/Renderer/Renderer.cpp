@@ -9,14 +9,8 @@
 
 namespace Tea {
 
-    struct CameraData
-    {
-        glm::mat4 projection;
-        glm::mat4 view;
-        glm::vec3 position;
-    }cameraData;
-
-    Ref<UniformBuffer> Renderer::s_CameraUniformBuffer;
+    RendererData Renderer::s_RendererData;
+    RendererStats Renderer::s_Stats;
 
     void Renderer::Init()
     {
@@ -25,7 +19,7 @@ namespace Tea {
         RendererAPI::Init();
         DebugRenderer::Init();
 
-        s_CameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0);
+        s_RendererData.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
     }
 
     void Renderer::Shutdown()
@@ -34,10 +28,14 @@ namespace Tea {
 
     void Renderer::BeginScene(EditorCamera& camera)
     {
-        cameraData.view = camera.GetViewMatrix();
-        cameraData.projection = camera.GetProjection();
-        cameraData.position = camera.GetPosition();
-        s_CameraUniformBuffer->SetData(&cameraData, sizeof(CameraData));
+        s_Stats.DrawCalls = 0;
+        s_Stats.VertexCount = 0;
+        s_Stats.IndexCount = 0;
+
+        s_RendererData.cameraData.view = camera.GetViewMatrix();
+        s_RendererData.cameraData.projection = camera.GetProjection();
+        s_RendererData.cameraData.position = camera.GetPosition();
+        s_RendererData.CameraUniformBuffer->SetData(&s_RendererData.cameraData, sizeof(RendererData::CameraData));
     }
 
     void Renderer::EndScene()
@@ -52,6 +50,8 @@ namespace Tea {
         shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
 
         RendererAPI::DrawIndexed(vertexArray);
+
+        s_Stats.DrawCalls++;
     }
 
     void Renderer::Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform)
@@ -60,5 +60,8 @@ namespace Tea {
         Ref<Shader> shader = material->GetShader();
 
         Renderer::Submit(shader, mesh->GetVertexArray(), transform);
+
+        s_Stats.VertexCount += mesh->GetVertices().size();
+        s_Stats.IndexCount += mesh->GetIndices().size();
     }
 }

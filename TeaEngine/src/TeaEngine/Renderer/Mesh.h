@@ -36,6 +36,9 @@ namespace Tea {
 
         void SetMaterial(Ref<Material>& material) { m_Material = material; };
         const Ref<Material>& GetMaterial() const { return m_Material; }
+
+        const std::vector<Vertex>& GetVertices() const { return m_Vertices; }
+        const std::vector<uint32_t>& GetIndices() const { return m_Indices; }
     private:
         Ref<VertexArray> m_VertexArray;
         Ref<VertexBuffer> m_VertexBuffer;
