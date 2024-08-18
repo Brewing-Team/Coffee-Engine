@@ -34,8 +34,6 @@ namespace Tea {
     {
         ZoneScoped;
 
-        m_Framebuffer = Framebuffer::Create(1280, 720, {ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8});
-
         m_EditorScene = CreateRef<Scene>();
         m_ActiveScene = m_EditorScene;
 
@@ -50,28 +48,12 @@ namespace Tea {
     {
         ZoneScoped;
 
-        if((m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f) &&
-           (m_Framebuffer->GetWidth() != m_ViewportSize.x || m_Framebuffer->GetHeight() != m_ViewportSize.y))
-        {
-            m_Framebuffer->Resize((uint32_t)m_ViewportSize.x,(uint32_t)m_ViewportSize.y);
-            m_EditorCamera.SetViewportSize(m_ViewportSize.x, m_ViewportSize.y);
-        }
-
-        m_Framebuffer->Bind();
-        RendererAPI::SetClearColor({.1f,.1f,.1f,1});
-        RendererAPI::Clear();
-
         m_EditorCamera.OnUpdate();
 
         m_ActiveScene->OnUpdate();
         m_ActiveScene->OnUpdateEditor(m_EditorCamera);
 
-        //TEMPORAL idk if this is the best place to get the stats or in the scene
-        s_RendererData = Renderer::GetStats();
-
         OnOverlayRender();
-
-        m_Framebuffer->UnBind();
     }
 
     void EditorLayer::OnEvent(Tea::Event& event)
@@ -177,9 +159,9 @@ namespace Tea {
         Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-        m_ViewportSize = { viewportPanelSize.x, viewportPanelSize.y };
+        ResizeViewport(viewportPanelSize.x, viewportPanelSize.y);
 
-        uint32_t textureID = m_Framebuffer->GetColorAttachmentID();
+        uint32_t textureID = Renderer::GetRenderTexture()->GetID();
         ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, {0, 1}, {1, 0});
 
         //Guizmo
@@ -259,9 +241,9 @@ namespace Tea {
         
         ImGui::Begin("Renderer Stats", NULL, window_flags);
         ImGui::Text("Size: %.0f x %.0f (%0.1fMP)", m_ViewportSize.x, m_ViewportSize.y, m_ViewportSize.x * m_ViewportSize.y / 1000000.0f);
-        ImGui::Text("Draw Calls: %d", s_RendererData.DrawCalls);
-        ImGui::Text("Vertex Count: %d", s_RendererData.VertexCount);
-        ImGui::Text("Index Count: %d", s_RendererData.IndexCount);
+        ImGui::Text("Draw Calls: %d", Renderer::GetStats().DrawCalls);
+        ImGui::Text("Vertex Count: %d", Renderer::GetStats().VertexCount);
+        ImGui::Text("Index Count: %d", Renderer::GetStats().IndexCount);
         ImGui::End();
 
         ImGui::End();
@@ -270,7 +252,7 @@ namespace Tea {
 
     void EditorLayer::OnOverlayRender()
     {
-        Renderer::BeginScene(m_EditorCamera); //This resets the draw calls, vertex count and index count
+        Renderer::BeginOverlay(m_EditorCamera); //This resets the draw calls, vertex count and index count
 
         Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
 
@@ -297,6 +279,18 @@ namespace Tea {
         Renderer::Submit(gridShader, gridPlane->GetVertexArray());
 
         Renderer::EndScene();
+    }
+
+    void EditorLayer::ResizeViewport(float width, float height)
+    {
+        if((m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f) &&
+           (width != m_ViewportSize.x || height != m_ViewportSize.y))
+        {
+            m_EditorCamera.SetViewportSize(width, height);
+            Renderer::OnResize((uint32_t)width, (uint32_t)height);
+        }
+
+        m_ViewportSize = { width, height };
     }
 
 }

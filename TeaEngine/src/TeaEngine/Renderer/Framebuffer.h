@@ -27,6 +27,9 @@ namespace Tea {
         void AttachColorTexture(Ref<Texture>& texture);
         void AttachDepthTexture(Ref<Texture>& texture);
 
+        const Ref<Texture>& GetColorTexture(uint32_t index = 0) const { return m_ColorTextures[index]; }
+        const Ref<Texture>& GetDepthTexture() const { return m_DepthTexture; }
+
         uint32_t GetColorAttachmentID (uint32_t index = 0) const { return m_ColorTextures[index]->GetID(); }
         
         static Ref<Framebuffer> Create(uint32_t width, uint32_t height, std::initializer_list<ImageFormat> attachments);

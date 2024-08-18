@@ -29,13 +29,12 @@ namespace Tea {
         void OnImGuiRender() override;
     private:
         void OnOverlayRender();
+        void ResizeViewport(float width, float height);
     private:
         Ref<Scene> m_EditorScene;
         Ref<Scene> m_ActiveScene;
 
         EditorCamera m_EditorCamera;
-        
-        Ref<Framebuffer> m_Framebuffer;
 
         bool m_ViewportFocused = false, m_ViewportHovered = false;
 		glm::vec2 m_ViewportSize = { 0.0f, 0.0f };
