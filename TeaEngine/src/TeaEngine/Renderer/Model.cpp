@@ -180,7 +180,9 @@ namespace Tea {
         std::string directory = m_FilePath.substr(0, m_FilePath.find_last_of('/') + 1);
         std::string texturePath = directory + std::string(textureName.C_Str());
 
-        return Texture::Load(texturePath);
+        bool srgb = (type == aiTextureType_DIFFUSE || type == aiTextureType_EMISSIVE);
+
+        return Texture::Load(texturePath, srgb);
     }
 
     MaterialTextures Model::LoadMaterialTextures(aiMaterial* material)

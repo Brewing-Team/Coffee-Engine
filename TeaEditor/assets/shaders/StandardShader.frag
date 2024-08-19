@@ -6,7 +6,7 @@ uniform sampler2D normal;
 uniform sampler2D metallic;
 uniform sampler2D roughness;
 uniform sampler2D ao;
-uniform sampler2D emission;
+uniform sampler2D emissive;
 
 #define MAX_LIGHTS 4
 
@@ -65,9 +65,6 @@ void main()
 
             // Calculate final shading
             shading += diff * lights[i].color * albedo;
-
-            vec3 ambient = 0.15 * albedo;
-            shading += ambient;
         }
         else if(lights[i].type == 1)
         {
@@ -89,11 +86,10 @@ void main()
 
             // Calculate final shading
             shading += diff * lights[i].color * albedo;
-
-            vec3 ambient = 0.15 * albedo;
-            shading += ambient;
         }
     }
 
-    FragColor = vec4(shading, 1.0f);
+    float gamma = 2.2;
+    
+    FragColor = vec4(pow(shading, vec3(1.0 / gamma)), 1.0);
 }

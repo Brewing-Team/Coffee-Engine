@@ -19,7 +19,9 @@ namespace Tea {
             case ImageFormat::R8: return GL_R8; break;
             case ImageFormat::RG8: return GL_RG8; break;
             case ImageFormat::RGB8: return GL_RGB8; break;
+            case ImageFormat::SRGB8: return GL_SRGB8; break;
             case ImageFormat::RGBA8: return GL_RGBA8; break;
+            case ImageFormat::SRGBA8: return GL_SRGB8_ALPHA8; break;
             case ImageFormat::DEPTH24STENCIL8: return GL_DEPTH24_STENCIL8; break;
         }
     }
@@ -31,18 +33,28 @@ namespace Tea {
             case ImageFormat::R8: return GL_RED; break;
             case ImageFormat::RG8: return GL_RG; break;
             case ImageFormat::RGB8: return GL_RGB; break;
+            case ImageFormat::SRGB8: return GL_RGB; break;
             case ImageFormat::RGBA8: return GL_RGBA; break;
+            case ImageFormat::SRGBA8: return GL_RGBA; break;
             case ImageFormat::DEPTH24STENCIL8: return GL_DEPTH_STENCIL; break;
         }
     }
 
-    Texture::Texture(uint32_t width, uint32_t height, ImageFormat imageFormat)
-        : m_Width(width), m_Height(height), m_Format(imageFormat)
+    Texture::Texture(const TextureProperties& properties)
+        : m_Properties(properties), m_Width(properties.Width), m_Height(properties.Height)
     {
         ZoneScoped;
 
-        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Format);
-        GLenum format = ImageFormatToOpenGLFormat(m_Format);
+        Texture(m_Width, m_Height, m_Properties.Format);
+    }
+
+    Texture::Texture(uint32_t width, uint32_t height, ImageFormat imageFormat)
+        : m_Width(width), m_Height(height), m_Properties({ imageFormat, width, height })
+    {
+        ZoneScoped;
+
+        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
         glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
@@ -56,32 +68,37 @@ namespace Tea {
 
     }
 
-    Texture::Texture(const std::string& path)
+    Texture::Texture(const std::string& path, bool srgb)
     {
         ZoneScoped;
 
         m_FilePath = path;
 
+        m_Properties.srgb = srgb;
+
         int nrComponents;
         stbi_set_flip_vertically_on_load(true);
         unsigned char* m_Data = stbi_load(m_FilePath.c_str(), &m_Width, &m_Height, &nrComponents, 0);
+        
+        m_Properties.Width = m_Width, m_Properties.Height = m_Height;
+        
         if(m_Data)
         {
             switch (nrComponents)
             {
                 case 1:
-                    m_Format = ImageFormat::R8;
+                    m_Properties.Format = ImageFormat::R8;
                 break;
                 case 3:
-                    m_Format = ImageFormat::RGB8;
+                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGB8 : ImageFormat::RGB8;
                 break;
                 case 4:
-                    m_Format = ImageFormat::RGBA8;
+                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGBA8 : ImageFormat::RGBA8;
                 break;
             }
 
-            GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Format);
-            GLenum format = ImageFormatToOpenGLFormat(m_Format);
+            GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
+            GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
 
             glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
             glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
@@ -128,8 +145,8 @@ namespace Tea {
 
         glDeleteTextures(1, &m_textureID);
 
-        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Format);
-        GLenum format = ImageFormatToOpenGLFormat(m_Format);
+        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
         glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
@@ -146,11 +163,11 @@ namespace Tea {
     {
         ZoneScoped;
 
-        GLenum format = ImageFormatToOpenGLFormat(m_Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
         glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, data);
     }
 
-    Ref<Texture> Texture::Load(const std::string& path)
+    Ref<Texture> Texture::Load(const std::string& path, bool srgb)
     {
         std::filesystem::path filePath(path);
         std::string fileName = filePath.filename().string();
@@ -161,7 +178,7 @@ namespace Tea {
         }
         else
         {
-            Ref<Texture> texture = CreateRef<Texture>(path);
+            Ref<Texture> texture = CreateRef<Texture>(path, srgb);
             TextureLibrary::Add(fileName, texture);
             return texture;
         }
