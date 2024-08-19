@@ -9,7 +9,9 @@
 #include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Renderer/UniformBuffer.h"
 #include "TeaEngine/Renderer/VertexArray.h"
+#include "TeaEngine/Scene/Components.h"
 #include <glm/fwd.hpp>
+#include <vector>
 namespace Tea {
 
     struct RendererData
@@ -21,9 +23,18 @@ namespace Tea {
             glm::vec3 position;
         };
 
+        struct RenderData
+        {
+            LightComponent lights[4];
+
+            int lightCount = 0;
+        };
+
         CameraData cameraData;
+        RenderData renderData;
 
         Ref<UniformBuffer> CameraUniformBuffer;
+        Ref<UniformBuffer> RenderDataUniformBuffer;
 
         Ref<Texture> RenderTexture;
     };
@@ -58,6 +69,7 @@ namespace Tea {
 
         static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
         static void Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f));
+        static void Submit(const LightComponent& light);
 
         static void OnResize(uint32_t width, uint32_t height);
 

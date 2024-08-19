@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Renderer/DebugRenderer.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Framebuffer.h"
@@ -28,6 +29,7 @@ namespace Tea {
         DebugRenderer::Init();
 
         s_RendererData.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
+        s_RendererData.RenderDataUniformBuffer = UniformBuffer::Create(sizeof(RendererData::RenderData), 1);
 
         s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8 });
 
@@ -49,6 +51,13 @@ namespace Tea {
         s_RendererData.cameraData.projection = camera.GetProjection();
         s_RendererData.cameraData.position = camera.GetPosition();
         s_RendererData.CameraUniformBuffer->SetData(&s_RendererData.cameraData, sizeof(RendererData::CameraData));
+
+        //This is setting the light information from the previous frame :(
+        s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
+        s_RendererData.renderData.lightCount = 0;
+        /* for (int i = 0; i < 4; i++) {
+            s_RendererData.renderData.lights[i] = {};
+        } */
 
         s_MainFramebuffer->Bind();
 
@@ -105,6 +114,12 @@ namespace Tea {
 
         s_Stats.VertexCount += mesh->GetVertices().size();
         s_Stats.IndexCount += mesh->GetIndices().size();
+    }
+
+    void Renderer::Submit(const LightComponent& light)
+    {
+        s_RendererData.renderData.lights[s_RendererData.renderData.lightCount] = light;
+        s_RendererData.renderData.lightCount++;
     }
 
     void Renderer::OnResize(uint32_t width, uint32_t height)

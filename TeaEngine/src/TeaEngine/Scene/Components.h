@@ -111,10 +111,18 @@ namespace Tea {
 
     struct LightComponent //Do it well, this was only to experiment
     {
-        glm::vec3 color = {1.0f, 1.0f, 1.0f};
-        float intensity = 1.0f;
-        glm::vec3 direction = {0.0f, -1.0f, 0.0f};
+        enum class Type
+        {
+            DirectionalLight = 0
+        };
+
+        alignas(16) glm::vec3 color = {1.0f, 1.0f, 1.0f};
+        alignas(16) glm::vec3 direction = {0.0f, -1.0f, 0.0f};
+        alignas(16) glm::vec3 position = {0.0f, 0.0f, 0.0f};
+
+        Type type = Type::DirectionalLight;
 
         LightComponent() = default;
+        LightComponent(const LightComponent&) = default;
     };
 }

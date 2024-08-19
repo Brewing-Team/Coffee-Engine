@@ -254,7 +254,7 @@ namespace Tea {
     {
         Renderer::BeginOverlay(m_EditorCamera); //This resets the draw calls, vertex count and index count
 
-        Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
+       /*  Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
 
         if(selectedEntity)
         {
@@ -267,7 +267,7 @@ namespace Tea {
             Ref<Shader> selectedShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
 
             Renderer::Submit(selectedShader, meshComponent.mesh->GetVertexArray(), transform);
-        }
+        } */
 
         DebugRenderer::DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);
         DebugRenderer::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);

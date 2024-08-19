@@ -1,19 +1,14 @@
 #include "Scene.h"
 #include "TeaEngine/Core/Base.h"
-#include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Material.h"
 #include "TeaEngine/Renderer/Renderer.h"
-#include "TeaEngine/Renderer/RendererAPI.h"
-#include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Renderer/Shader.h"
 #include "TeaEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
-#include <cstddef>
-#include <cstdint>
 #include <string>
 #include <tracy/Tracy.hpp>
 
@@ -72,6 +67,9 @@ namespace Tea {
             }
         } */
 
+        Entity light = CreateEntity("Light");
+        light.AddComponent<LightComponent>();
+
         AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
         Ref<Shader> missingShader = CreateRef<Shader>("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
@@ -95,7 +93,7 @@ namespace Tea {
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
         // Loop through each entity with the specified components
-        for (auto entity : view)
+        for (auto& entity : view)
         {
             // Get the ModelComponent and TransformComponent for the current entity
             auto& meshComponent = view.get<MeshComponent>(entity);
@@ -106,6 +104,21 @@ namespace Tea {
             Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : missingMaterial;
             
             Renderer::Submit(material, mesh, transformComponent.GetWorldTransform());
+        }
+
+        //Get all entities with LightComponent and TransformComponent
+        auto lightView = m_Registry.view<LightComponent, TransformComponent>();
+
+        //Loop through each entity with the specified components
+        for(auto& entity : lightView)
+        {
+            auto& lightComponent = lightView.get<LightComponent>(entity);
+            auto& transformComponent = lightView.get<TransformComponent>(entity);
+
+            lightComponent.position = transformComponent.GetWorldTransform()[3];
+            lightComponent.direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
+
+            Renderer::Submit(lightComponent);
         }
 
         Renderer::EndScene();
