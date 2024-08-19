@@ -128,7 +128,7 @@ namespace Tea {
 
         float Angle = 45.0f;
 
-        int type = static_cast<int>(Type::PointLight);
+        int type = static_cast<int>(Type::DirectionalLight);
 
         LightComponent() = default;
         LightComponent(const LightComponent&) = default;

@@ -34,13 +34,19 @@ layout (std140, binding = 1) uniform RenderData
 
 in vec2 TexCoord;
 in vec3 Normal;
+in mat3 TBN;
 
 in vec3 FragPos;
 in vec3 camPos;
 
 void main()
 {
-    vec3 norm = normalize(Normal);
+    vec3 norm /* = normalize(Normal) */;
+
+    norm = texture(normal, TexCoord).rgb;
+    norm = norm * 2.0 - 1.0;
+    norm = normalize(TBN * norm);
+
     vec3 viewDir = normalize(camPos - FragPos);
 
     vec3 shading;
@@ -53,11 +59,16 @@ void main()
             vec3 lightDir = normalize(-lights[i].direction);
             float diff = max(dot(norm, lightDir), 0.0);
 
+            diff *= lights[i].intensity;
+
             // Sample the albedo texture
             vec3 albedo = texture(albedo, TexCoord).rgb;
 
             // Calculate final shading
-            shading += diff * lights[i].color/*  * albedo */;
+            shading += diff * lights[i].color * albedo;
+
+            vec3 ambient = 0.15 * albedo;
+            shading += ambient;
         }
         else if(lights[i].type == 1)
         {
@@ -78,10 +89,12 @@ void main()
             vec3 albedo = texture(albedo, TexCoord).rgb;
 
             // Calculate final shading
-            shading += diff * lights[i].color/*  * albedo */;
+            shading += diff * lights[i].color * albedo;
+
+            vec3 ambient = 0.15 * albedo;
+            shading += ambient;
         }
     }
 
     FragColor = vec4(shading, 1.0f);
-    FragColor = texture(emission, TexCoord);
 }
