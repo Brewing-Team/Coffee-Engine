@@ -3,6 +3,7 @@
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Framebuffer.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
+#include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Renderer/UniformBuffer.h"
 #include <cstdint>
 #include <glm/fwd.hpp>
@@ -15,6 +16,9 @@ namespace Tea {
     RendererStats Renderer::s_Stats;
     RenderSettings Renderer::s_RenderSettings;
     Ref<Framebuffer> Renderer::s_MainFramebuffer;
+    Ref<Texture> Renderer::s_MainRenderTexture;
+    Ref<Texture> Renderer::s_DepthTexture;
+
 
     void Renderer::Init()
     {
@@ -25,7 +29,10 @@ namespace Tea {
 
         s_RendererData.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
 
-        s_MainFramebuffer = Framebuffer::Create(1280, 720, {ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8});
+        s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8 });
+
+        s_MainRenderTexture = s_MainFramebuffer->GetColorTexture(0);
+        s_DepthTexture = s_MainFramebuffer->GetDepthTexture();
     }
 
     void Renderer::Shutdown()
@@ -57,11 +64,12 @@ namespace Tea {
         }
 
         //Final Pass
-        s_RendererData.RenderTexture = s_MainFramebuffer->GetColorTexture();
+        s_RendererData.RenderTexture = s_MainRenderTexture;
 
         s_MainFramebuffer->UnBind();
     }
 
+    //TEMPORAL, I will think of a better way to handle this bc i want that the grid and the lines be tonemapped like in Godot
     void Renderer::BeginOverlay(EditorCamera& camera)
     {
         s_RendererData.cameraData.view = camera.GetViewMatrix();

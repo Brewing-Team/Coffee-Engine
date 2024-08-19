@@ -72,6 +72,10 @@ namespace Tea {
         static RendererStats s_Stats;
         static RenderSettings s_RenderSettings;
 
+        //Textures
+        static Ref<Texture> s_MainRenderTexture;
+        static Ref<Texture> s_DepthTexture;
+
         //Framebuffers
         static Ref<Framebuffer> s_MainFramebuffer;
     };
