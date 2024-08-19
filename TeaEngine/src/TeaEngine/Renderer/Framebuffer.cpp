@@ -54,13 +54,9 @@ namespace Tea {
         if(m_fboID)
         {
             glDeleteFramebuffers(1, &m_fboID);
-            /* for (auto& texture : m_ColorTextures)
-            {
-                texture.reset();
-            } */
-            m_ColorTextures.clear();
-            //m_DepthTexture = nullptr;
-            m_DepthTexture.reset();
+
+            //m_ColorTextures.clear();
+            //m_DepthTexture.reset();
 
             glCreateFramebuffers(1, &m_fboID);
             glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
@@ -71,15 +67,33 @@ namespace Tea {
 
                 if(imageFormat == ImageFormat::DEPTH24STENCIL8)
                 {
-                    //m_DepthTexture = new Texture(m_Width, m_Height, imageFormat);
-                    Ref<Texture> depthTexture = Texture::Create(m_Width, m_Height, imageFormat);
-                    AttachDepthTexture(depthTexture);
+                    if(m_DepthTexture)
+                    {
+                        m_DepthTexture->Resize(m_Width, m_Height);
+                        glNamedFramebufferTexture(m_fboID, GL_DEPTH_STENCIL_ATTACHMENT, m_DepthTexture->GetID(), 0);
+                        continue;
+                    }
+                    else
+                    {
+                        Ref<Texture> depthTexture = Texture::Create(m_Width, m_Height, imageFormat);
+                        m_DepthTexture = depthTexture;
+                        glNamedFramebufferTexture(m_fboID, GL_DEPTH_STENCIL_ATTACHMENT, depthTexture->GetID(), 0);
+                    }
                 }
                 else
                 {
-                    //m_ColorTextures.push_back(new Texture(m_Width, m_Height, imageFormat));
-                    Ref<Texture> colorTexture = Texture::Create(m_Width, m_Height, imageFormat);
-                    AttachColorTexture(colorTexture);
+                    if(m_ColorTextures.size() > i)
+                    {
+                        m_ColorTextures[i]->Resize(m_Width, m_Height);
+                        glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + i, m_ColorTextures[i]->GetID(), 0);
+                        continue;
+                    }
+                    else
+                    {
+                        Ref<Texture> colorTexture = Texture::Create(m_Width, m_Height, imageFormat);
+                        m_ColorTextures.push_back(colorTexture);
+                        glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + m_ColorTextures.size() - 1, colorTexture->GetID(), 0);
+                    }
                 }
             }
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -101,11 +115,46 @@ namespace Tea {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    void Framebuffer::SetDrawBuffers(std::initializer_list<Ref<Texture>> colorAttachments)
+    {
+        ZoneScoped;
+
+        //TODO: Improve this code, double for loop is not efficient at all a map would be better i think
+        std::vector<GLenum> drawBuffers;
+        for (int i = 0; i < colorAttachments.size(); i++)
+        {
+            for (int j = 0; j < m_ColorTextures.size(); j++)
+            {
+                if(colorAttachments.begin()[i]->GetID() == m_ColorTextures[j]->GetID())
+                {
+                    drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + j);
+                    break;
+                }
+            }
+        }
+
+        glNamedFramebufferDrawBuffers(m_fboID, drawBuffers.size(), drawBuffers.data());
+    }
+
+    void Framebuffer::SetDrawBuffers(std::initializer_list<uint32_t> colorAttachments)
+    {
+        ZoneScoped;
+
+        std::vector<GLenum> drawBuffers;
+        for (int i = 0; i < colorAttachments.size(); i++)
+        {
+            drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + colorAttachments.begin()[i]);
+        }
+
+        glNamedFramebufferDrawBuffers(m_fboID, drawBuffers.size(), drawBuffers.data());
+    }
+
     void Framebuffer::AttachColorTexture(Ref<Texture>& texture)
     {
         ZoneScoped;
 
         m_ColorTextures.push_back(texture);
+        m_Attachments.push_back(texture->GetImageFormat());
         glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + m_ColorTextures.size() - 1, texture->GetID(), 0);
     }
 

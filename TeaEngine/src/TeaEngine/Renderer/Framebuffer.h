@@ -19,6 +19,10 @@ namespace Tea {
         void Bind();
         void UnBind();
 
+        //do not use this function, does not work, is slow and is not finished
+        void SetDrawBuffers(std::initializer_list<Ref<Texture>> colorAttachments);
+        void SetDrawBuffers(std::initializer_list<uint32_t> colorAttachments);
+
         void Resize(uint32_t width, uint32_t height);
 
         const uint32_t GetWidth() const { return m_Width; }
@@ -29,8 +33,6 @@ namespace Tea {
 
         const Ref<Texture>& GetColorTexture(uint32_t index = 0) const { return m_ColorTextures[index]; }
         const Ref<Texture>& GetDepthTexture() const { return m_DepthTexture; }
-
-        uint32_t GetColorAttachmentID (uint32_t index = 0) const { return m_ColorTextures[index]->GetID(); }
         
         static Ref<Framebuffer> Create(uint32_t width, uint32_t height, std::initializer_list<ImageFormat> attachments);
 
