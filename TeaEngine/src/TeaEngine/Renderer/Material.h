@@ -19,6 +19,7 @@ namespace Tea {
         Ref<Texture> metallic;
         Ref<Texture> roughness;
         Ref<Texture> ao;
+        Ref<Texture> emissive;
     };
 
     class Material

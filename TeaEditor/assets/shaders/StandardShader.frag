@@ -3,6 +3,14 @@ out vec4 FragColor;
 
 #define MAX_LIGHTS 4
 
+uniform sampler2D albedo;
+uniform sampler2D normal;
+uniform sampler2D metallic;
+uniform sampler2D roughness;
+uniform sampler2D ao;
+uniform sampler2D emission;
+
+
 struct Light
 {
     vec3 color;
@@ -29,8 +37,6 @@ in vec3 Normal;
 
 in vec3 FragPos;
 in vec3 camPos;
-
-uniform sampler2D albedo;
 
 void main()
 {
@@ -77,4 +83,5 @@ void main()
     }
 
     FragColor = vec4(shading, 1.0f);
+    FragColor = texture(emission, TexCoord);
 }

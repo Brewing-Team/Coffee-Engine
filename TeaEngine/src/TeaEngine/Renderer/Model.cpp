@@ -191,7 +191,11 @@ namespace Tea {
         matTextures.normal = LoadTexture(material, aiTextureType_NORMALS);
         matTextures.metallic = LoadTexture(material, aiTextureType_METALNESS);
         matTextures.roughness = LoadTexture(material, aiTextureType_DIFFUSE_ROUGHNESS);
-        matTextures.ao = LoadTexture(material, aiTextureType_AMBIENT_OCCLUSION);
+        matTextures.ao = LoadTexture(material, aiTextureType_AMBIENT);
+
+        if(matTextures.ao == nullptr) matTextures.ao = LoadTexture(material, aiTextureType_LIGHTMAP);
+
+        matTextures.emissive = LoadTexture(material, aiTextureType_EMISSIVE);
 
         return matTextures;
     }

@@ -34,6 +34,7 @@ namespace Tea {
         m_MaterialTextures.metallic = materialTextures.metallic;
         m_MaterialTextures.roughness = materialTextures.roughness;
         m_MaterialTextures.ao = materialTextures.ao;
+        m_MaterialTextures.emissive = materialTextures.emissive;
 
         m_Shader = Tea::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
 
@@ -43,6 +44,7 @@ namespace Tea {
         m_Shader->setInt("metallic", 2);
         m_Shader->setInt("roughness", 3);
         m_Shader->setInt("ao", 4);
+        m_Shader->setInt("emissive", 5);
         m_Shader->Unbind();
     }
 
@@ -56,5 +58,6 @@ namespace Tea {
         if(m_MaterialTextures.metallic)m_MaterialTextures.metallic->Bind(2);
         if(m_MaterialTextures.roughness)m_MaterialTextures.roughness->Bind(3);
         if(m_MaterialTextures.ao)m_MaterialTextures.ao->Bind(4);
+        if(m_MaterialTextures.emissive)m_MaterialTextures.emissive->Bind(5);
     }
 }
