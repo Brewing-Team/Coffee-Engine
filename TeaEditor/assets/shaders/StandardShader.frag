@@ -1,8 +1,6 @@
 #version 450 core
 out vec4 FragColor;
 
-#define MAX_LIGHTS 4
-
 uniform sampler2D albedo;
 uniform sampler2D normal;
 uniform sampler2D metallic;
@@ -10,6 +8,7 @@ uniform sampler2D roughness;
 uniform sampler2D ao;
 uniform sampler2D emission;
 
+#define MAX_LIGHTS 4
 
 struct Light
 {

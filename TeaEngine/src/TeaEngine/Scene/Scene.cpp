@@ -71,6 +71,7 @@ namespace Tea {
         light.AddComponent<LightComponent>();
 
         AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
+        AddModelToTheSceneTree(this, CreateRef<Model>("/home/hugo/Documentos/GitHub/Tea-Engine/bin/Tea-Editor/Debug/assets/models/plane.glb"));
 
         Ref<Shader> missingShader = CreateRef<Shader>("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
         missingMaterial = CreateRef<Material>(missingShader);

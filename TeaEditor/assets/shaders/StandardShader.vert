@@ -36,4 +36,8 @@ void main()
     vec3 N = normalize(vec3(model * vec4(aNormals, 0.0)));
 
     TBN = mat3(T, B, N);
+
+    //There is other way that is more efficient that is converting the lightPos and viewPos to tangent space in the vertex shader
+    //and then pass them to the fragment shader. But this way is more simple and easy to understand + for PBR is better to transform
+    //the normal map to view space + im lazy to move the lights to the vertex shader
 }
