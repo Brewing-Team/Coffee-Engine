@@ -194,6 +194,34 @@ namespace Tea {
             }
         }
 
+        if(entity.HasComponent<LightComponent>())
+        {
+            auto& lightComponent = entity.GetComponent<LightComponent>();
+            if(ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Text("Light Type");
+                ImGui::Combo("##Light Type", (int*)&lightComponent.type, "Directional\0Point\0Spot\0");
+
+                ImGui::Text("Color");
+                ImGui::ColorEdit3("##Color", glm::value_ptr(lightComponent.Color));
+
+                ImGui::Text("Intensity");
+                ImGui::DragFloat("##Intensity", &lightComponent.Intensity, 0.1f);
+
+                if(lightComponent.type == LightComponent::Type::PointLight || lightComponent.type == LightComponent::Type::SpotLight)
+                {
+                    ImGui::Text("Range");
+                    ImGui::DragFloat("##Range", &lightComponent.Range, 0.1f);
+                }
+
+                if(lightComponent.type == LightComponent::Type::PointLight)
+                {
+                    ImGui::Text("Attenuation");
+                    ImGui::DragFloat("##Attenuation", &lightComponent.Attenuation, 0.1f);
+                }
+            }
+        }
+
         if(entity.HasComponent<ModelComponent>())
         {
             auto& modelComponent = entity.GetComponent<ModelComponent>();

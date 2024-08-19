@@ -115,8 +115,8 @@ namespace Tea {
             auto& lightComponent = lightView.get<LightComponent>(entity);
             auto& transformComponent = lightView.get<TransformComponent>(entity);
 
-            lightComponent.position = transformComponent.GetWorldTransform()[3];
-            lightComponent.direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
+            lightComponent.Position = transformComponent.GetWorldTransform()[3];
+            lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
             Renderer::Submit(lightComponent);
         }
