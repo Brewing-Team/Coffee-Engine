@@ -115,6 +115,29 @@ namespace Tea {
         glBindTextureUnit(slot, m_textureID);
     }
 
+    void Texture::Resize(uint32_t width, uint32_t height)
+    {
+        ZoneScoped;
+
+        m_Width = width;
+        m_Height = height;
+
+        glDeleteTextures(1, &m_textureID);
+
+        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Format);
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
+        glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
+
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    }
+
     void Texture::SetData(void* data, uint32_t size)
     {
         ZoneScoped;

@@ -31,6 +31,8 @@ namespace Tea {
 
         void Bind(uint32_t slot);
 
+        void Resize(uint32_t width, uint32_t height);
+
         std::pair<uint32_t, uint32_t> GetSize() { return std::make_pair(m_Width, m_Height); };
         uint32_t GetWidth() { return m_Width; };
         uint32_t GetHeight() { return m_Width; };
