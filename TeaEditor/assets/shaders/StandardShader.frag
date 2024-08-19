@@ -43,22 +43,36 @@ void main()
     {
         if(lights[i].type == 0)
         {
-            //Directional Light
+            // Directional Light
             vec3 lightDir = normalize(-lights[i].direction);
             float diff = max(dot(norm, lightDir), 0.0);
-            shading += diff * lights[i].color;
+
+            // Sample the albedo texture
+            vec3 albedo = texture(albedo, TexCoord).rgb;
+
+            // Calculate final shading
+            shading += diff * lights[i].color/*  * albedo */;
         }
         else if(lights[i].type == 1)
         {
             //PointLight
+
             vec3 lightDir = normalize(lights[i].position - FragPos);
             float diff = max(dot(norm, lightDir), 0.0);
             float distance = length(lights[i].position - FragPos);
-            //Revise this function bc it should be like in godot but I doubt it
-            float a = 1 / (1 + lights[i].attenuation * pow(distance / lights[i].range, 2));
-            a *= lights[i].intensity;
-            diff *= a;
-            shading += diff * lights[i].color;
+
+            // Calculate attenuation (Revise this function bc it should be like in godot but I doubt it)
+            float attenuation = 1.0 / (1.0 + lights[i].attenuation * pow(distance / lights[i].range, 2));
+            attenuation *= lights[i].intensity;
+
+            // Apply attenuation to diffuse component
+            diff *= attenuation;
+
+            // Sample the albedo texture
+            vec3 albedo = texture(albedo, TexCoord).rgb;
+
+            // Calculate final shading
+            shading += diff * lights[i].color/*  * albedo */;
         }
     }
 
