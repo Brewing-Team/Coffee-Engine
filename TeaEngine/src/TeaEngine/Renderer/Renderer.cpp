@@ -79,7 +79,7 @@ namespace Tea {
 
         s_MainFramebuffer->Bind();
 
-        RendererAPI::SetClearColor({0.06f,0.06f,0.06f,1.0});
+        RendererAPI::SetClearColor({0.03f,0.03f,0.03f,1.0});
         RendererAPI::Clear();
     }
 
