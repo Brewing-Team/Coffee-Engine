@@ -94,6 +94,7 @@ namespace Tea {
 
             s_ToneMappingShader->Bind();
             s_ToneMappingShader->setInt("screenTexture", 0);
+            s_ToneMappingShader->setFloat("exposure", s_RenderSettings.Exposure);
             s_MainRenderTexture->Bind(0);
 
             RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());

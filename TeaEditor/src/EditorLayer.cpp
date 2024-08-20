@@ -248,6 +248,15 @@ namespace Tea {
 
         ImGui::End();
         ImGui::PopStyleVar();
+
+        //---------TESTING---------
+        ImGui::Begin("Render Settings");
+
+        ImGui::Checkbox("Post Processing", &Renderer::GetRenderSettings().PostProcessing);
+
+        ImGui::SliderFloat("Exposure", &Renderer::GetRenderSettings().Exposure, 0.001f, 100.0f);
+
+        ImGui::End();
     }
 
     void EditorLayer::OnOverlayRender()

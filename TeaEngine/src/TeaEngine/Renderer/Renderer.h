@@ -53,6 +53,8 @@ namespace Tea {
         bool SSAO = false;
         bool Bloom = false;
         bool FXAA = false;
+
+        float Exposure = 1.0f;
     };
 
     class Renderer //The 3d Renderer
@@ -77,7 +79,7 @@ namespace Tea {
 
         static const RendererData& GetData() { return s_RendererData; }
         static const RendererStats& GetStats() { return s_Stats; }
-        static const RenderSettings& GetRenderSettings() { return s_RenderSettings; }
+        static RenderSettings& GetRenderSettings() { return s_RenderSettings; }
     private:
 
         static RendererData s_RendererData;
