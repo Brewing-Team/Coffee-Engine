@@ -12,32 +12,20 @@ layout (std140, binding = 0) uniform camera
     vec3 cameraPos;
 };
 
-out vec2 TexCoord;
+out vec2 TexCoords;
 out vec3 Normal;
-out vec3 FragPos;
+out vec3 WorldPos;
 out vec3 camPos;
-out mat3 TBN;
 
 uniform mat4 model;
 uniform mat3 normalMatrix;
 
 void main()
 {
-    FragPos = vec3(model * vec4(aPosition, 1.0));
+    WorldPos = vec3(model * vec4(aPosition, 1.0));
     Normal = normalMatrix * aNormals;
     camPos = cameraPos;
-    TexCoord = aTexCoord;
+    TexCoords = aTexCoord;
 
-    gl_Position = projection * view * vec4(FragPos, 1.0);
-
-    // Tangent space matrix
-    vec3 T = normalize(vec3(model * vec4(aTangent, 0.0)));
-    vec3 B = normalize(vec3(model * vec4(aBitangent, 0.0)));
-    vec3 N = normalize(vec3(model * vec4(aNormals, 0.0)));
-
-    TBN = mat3(T, B, N);
-
-    //There is other way that is more efficient that is converting the lightPos and viewPos to tangent space in the vertex shader
-    //and then pass them to the fragment shader. But this way is more simple and easy to understand + for PBR is better to transform
-    //the normal map to view space + im lazy to move the lights to the vertex shader
+    gl_Position = projection * view * vec4(WorldPos, 1.0);
 }

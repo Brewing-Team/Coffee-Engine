@@ -19,7 +19,7 @@ namespace Tea {
 
         m_Shader->Bind();
         m_MaterialTextures.albedo->Bind(0);
-        m_Shader->setInt("albedo", 0);
+        m_Shader->setInt("albedoMap", 0);
         m_Shader->Unbind();
     }
 
@@ -39,12 +39,12 @@ namespace Tea {
         m_Shader = Tea::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
 
         m_Shader->Bind();
-        m_Shader->setInt("albedo", 0);
-        m_Shader->setInt("normal", 1);
-        m_Shader->setInt("metallic", 2);
-        m_Shader->setInt("roughness", 3);
-        m_Shader->setInt("ao", 4);
-        m_Shader->setInt("emissive", 5);
+        m_Shader->setInt("albedoMap", 0);
+        m_Shader->setInt("normalMap", 1);
+        m_Shader->setInt("metallicMap", 2);
+        m_Shader->setInt("roughnessMap", 3);
+        m_Shader->setInt("aoMap", 4);
+        m_Shader->setInt("emissiveMap", 5);
         m_Shader->Unbind();
     }
 

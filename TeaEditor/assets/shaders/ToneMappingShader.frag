@@ -54,6 +54,9 @@ void main()
     //ACES tone mapping
     //color = tonemap_aces(color, exposure);
 
+	//linear tone mapping
+	//toneMappedColor = clamp(hdrColor, 0., 1.);
+
     toneMappedColor = pow(toneMappedColor, vec3(1.0 / gamma));
     
     FragColor = vec4(toneMappedColor, 1.0);

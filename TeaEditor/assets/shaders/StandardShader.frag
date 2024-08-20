@@ -1,12 +1,12 @@
 #version 450 core
 out vec4 FragColor;
 
-uniform sampler2D albedo;
-uniform sampler2D normal;
-uniform sampler2D metallic;
-uniform sampler2D roughness;
-uniform sampler2D ao;
-uniform sampler2D emissive;
+uniform sampler2D albedoMap;
+uniform sampler2D normalMap;
+uniform sampler2D metallicMap;
+uniform sampler2D roughnessMap;
+uniform sampler2D aoMap;
+uniform sampler2D emissiveMap;
 
 #define MAX_LIGHTS 32
 
@@ -31,89 +31,124 @@ layout (std140, binding = 1) uniform RenderData
     int lightCount;
 };
 
-in vec2 TexCoord;
+in vec2 TexCoords;
+in vec3 WorldPos;
 in vec3 Normal;
-in mat3 TBN;
 
-in vec3 FragPos;
 in vec3 camPos;
 
-//https://github.com/godotengine/godot/blob/da5f39889f155658cef7f7ec3cc1abb94e17d815/modules/lightmapper_rd/lm_compute.glsl#L388
-float getOmniAttenuation(float distance, float inv_range, float decay) {
-	float nd = distance * inv_range;
-	nd *= nd;
-	nd *= nd; // nd^4
-	nd = max(1.0 - nd, 0.0);
-	nd *= nd; // nd^2
-	return nd * pow(max(distance, 0.0001), -decay);
+const float PI = 3.14159265359;
+
+/* vec3 albedo = vec3(0.5f, 0.0f, 0.0f);
+float metallic = 0.2;
+float roughness = 0.5;
+float ao = 1.0f; */
+
+//REMOVE this is for testing purposes;
+vec3 getNormalFromMap()
+{
+    vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
+
+    vec3 Q1  = dFdx(WorldPos);
+    vec3 Q2  = dFdy(WorldPos);
+    vec2 st1 = dFdx(TexCoords);
+    vec2 st2 = dFdy(TexCoords);
+
+    vec3 N   = normalize(Normal);
+    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
+    vec3 B  = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
 }
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0);
+float DistributionGGX(vec3 N, vec3 H, float roughness);
+float GeometrySchlickGGX(float NdotV, float roughness);
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 
 void main()
 {
-    vec3 norm /* = normalize(Normal) */;
+    vec3 albedo = texture(albedoMap, TexCoords).rgb;
+    //vec3 normal = 
+    float metallic = texture(metallicMap, TexCoords).r;
+    float roughness = texture(roughnessMap, TexCoords).g;
+    float ao = texture(aoMap, TexCoords).r;
 
-    norm = texture(normal, TexCoord).rgb;
-    norm = norm * 2.0 - 1.0;
-    norm = normalize(TBN * norm);
+    //vec3 N = normalize(Normal);
+    vec3 N = getNormalFromMap();
+    vec3 V = normalize(camPos - WorldPos);
 
-    vec3 viewDir = normalize(camPos - FragPos);
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, albedo, metallic);
 
-    vec3 shading;
-
+    vec3 Lo = vec3(0.0);
     for(int i = 0; i < lightCount; i++)
     {
-        if(lights[i].type == 0)
-        {
-            // Directional Light
-            vec3 lightDir = normalize(-lights[i].direction);
-            float diff = max(dot(norm, lightDir), 0.0);
+        vec3 L = normalize(lights[i].position - WorldPos);
+        vec3 H = normalize(V + L);
+        float distance = length(lights[i].position - WorldPos);
+        float attenuation = 1.0 / (distance * distance);
+        vec3 radiance = lights[i].color * attenuation;
 
-            diff *= lights[i].intensity;
+        float NDF = DistributionGGX(N, H, roughness);
+        float G = GeometrySmith(N, V, L, roughness);
+        vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
 
-            // Sample the albedo texture
-            vec3 albedo = texture(albedo, TexCoord).rgb;
+        vec3 kS = F;
+        vec3 kD = vec3(1.0) - kS;
+        kD *= 1.0 - metallic;
 
-            // Calculate final shading
-            shading += diff * lights[i].color * albedo;
-        }
-        else if(lights[i].type == 1)
-        {
-            //PointLight
+        vec3 numerator = NDF * G * F;
+        float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;
+        vec3 specular = numerator / denominator;
 
-            //Thanks Godot for the PointLight math
-
-            vec3 lightDir = normalize(lights[i].position - FragPos);
-            //float diff = max(dot(norm, lightDir), 0.0);
-            float distance = distance(FragPos, lights[i].position);
-
-            if(distance > lights[i].range)
-                continue;
-
-            // Calculate attenuation (Revise this function bc it should be like in godot but I doubt it)
-            //float attenuation = 1.0 / (1.0 + lights[i].attenuation * pow(distance / lights[i].range, 2))
-            //float attenuation = lights[i].range / (distance * distance + lights[i].attenuation);
-            //float attenuation = 1 / (distance * distance);
-            //For now this is the winner!!!
-            //float attenuation = lights[i].intensity / (1.0 + lights[i].attenuation * pow(distance / lights[i].range, 2));
-
-            float attenuation = getOmniAttenuation(distance, 1.0 / lights[i].range, lights[i].attenuation);
-
-            attenuation *= max(0.0, dot(norm, lightDir));
-
-            if(attenuation <= 0.0001)
-                continue;
-
-            // Apply attenuation to diffuse component
-            //diff *= attenuation;
-
-            // Sample the albedo texture
-            vec3 albedo = texture(albedo, TexCoord).rgb;
-
-            // Calculate final shading
-            //shading += diff * lights[i].color * albedo;
-            shading += lights[i].color * lights[i].intensity * albedo * attenuation;
-        }
+        float NdotL = max(dot(N, L), 0.0);
+        Lo += (kD * albedo / PI + specular) * radiance * NdotL;
     }
 
-    FragColor = vec4(shading, 1.0);
+    vec3 ambient = vec3(0.03) * albedo * ao;
+    vec3 color = ambient + Lo;
+
+    FragColor = vec4(vec3(color), 1.0);
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a = roughness*roughness;
+    float a2 = a*a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+
+    float num = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+
+    return num / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
+
+    float num = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return num / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1 = GeometrySchlickGGX(NdotL, roughness);
+
+    return ggx1 * ggx2;
 }
