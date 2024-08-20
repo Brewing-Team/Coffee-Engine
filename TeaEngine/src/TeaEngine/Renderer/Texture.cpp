@@ -22,6 +22,7 @@ namespace Tea {
             case ImageFormat::SRGB8: return GL_SRGB8; break;
             case ImageFormat::RGBA8: return GL_RGBA8; break;
             case ImageFormat::SRGBA8: return GL_SRGB8_ALPHA8; break;
+            case ImageFormat::RGBA32F: return GL_RGBA32F; break;
             case ImageFormat::DEPTH24STENCIL8: return GL_DEPTH24_STENCIL8; break;
         }
     }
@@ -36,6 +37,7 @@ namespace Tea {
             case ImageFormat::SRGB8: return GL_RGB; break;
             case ImageFormat::RGBA8: return GL_RGBA; break;
             case ImageFormat::SRGBA8: return GL_RGBA; break;
+            case ImageFormat::RGBA32F: return GL_RGBA; break;
             case ImageFormat::DEPTH24STENCIL8: return GL_DEPTH_STENCIL; break;
         }
     }

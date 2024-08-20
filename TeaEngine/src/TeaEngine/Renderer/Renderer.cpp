@@ -13,6 +13,7 @@
 #include <glm/fwd.hpp>
 #include <glm/matrix.hpp>
 #include <tracy/Tracy.hpp>
+#include <utility>
 
 namespace Tea {
 
@@ -39,7 +40,7 @@ namespace Tea {
         s_RendererData.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
         s_RendererData.RenderDataUniformBuffer = UniformBuffer::Create(sizeof(RendererData::RenderData), 1);
 
-        s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8 });
+        s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA32F, ImageFormat::DEPTH24STENCIL8 });
         s_PostProcessingFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8 });
 
         s_MainRenderTexture = s_MainFramebuffer->GetColorTexture(0);
@@ -100,10 +101,12 @@ namespace Tea {
             s_ToneMappingShader->Unbind();
 
             s_PostProcessingFramebuffer->UnBind();
+
+            std::swap(s_PostProcessingTexture, s_MainRenderTexture);
         }
 
         //Final Pass
-        s_RendererData.RenderTexture = s_PostProcessingTexture;
+        s_RendererData.RenderTexture = s_MainRenderTexture;
 
         s_MainFramebuffer->UnBind();
     }

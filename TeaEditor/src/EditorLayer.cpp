@@ -278,7 +278,7 @@ namespace Tea {
 
         Renderer::Submit(gridShader, gridPlane->GetVertexArray());
 
-        Renderer::EndScene();
+        Renderer::EndOverlay();
     }
 
     void EditorLayer::ResizeViewport(float width, float height)
