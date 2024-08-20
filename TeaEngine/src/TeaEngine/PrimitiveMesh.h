@@ -18,6 +18,8 @@ namespace Tea {
         static Ref<Mesh> Create(Args&&... args);
 
     //private:
+        static Ref<Mesh> CreateQuad();
+
         static Ref<Mesh> CreatePlane(const glm::vec2& size, const glm::vec3& normal = { 0.0f, 1.0f, 0.0f });
     };
 

@@ -115,7 +115,5 @@ void main()
         }
     }
 
-    float gamma = 2.2;
-    
-    FragColor = vec4(pow(shading, vec3(1.0 / gamma)), 1.0);
+    FragColor = vec4(shading, 1.0);
 }

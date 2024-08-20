@@ -48,7 +48,7 @@ namespace Tea {
 
     struct RenderSettings
     {
-        bool PostProcessing = false;
+        bool PostProcessing = true;
 
         bool SSAO = false;
         bool Bloom = false;
@@ -86,10 +86,16 @@ namespace Tea {
 
         //Textures
         static Ref<Texture> s_MainRenderTexture;
+        static Ref<Texture> s_PostProcessingTexture;
         static Ref<Texture> s_DepthTexture;
 
         //Framebuffers
         static Ref<Framebuffer> s_MainFramebuffer;
+        static Ref<Framebuffer> s_PostProcessingFramebuffer;
+
+        static Ref<Mesh> s_ScreenQuad;
+
+        static Ref<Shader> s_ToneMappingShader;
     };
 
 }

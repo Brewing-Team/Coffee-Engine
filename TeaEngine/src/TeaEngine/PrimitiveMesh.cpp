@@ -16,6 +16,29 @@ namespace Tea {
         }
     }
 
+    Ref<Mesh> PrimitiveMesh::CreateQuad()
+    {
+        std::vector<Vertex> data(4);
+
+        data[0].Position  = glm::vec3(-1.0f, -1.0f, 0.0f);
+        data[0].TexCoords = glm::vec2(0.0f, 0.0f);
+
+        data[1].Position  = glm::vec3(1.0f, -1.0f, 0.0f);
+        data[1].TexCoords = glm::vec2(1.0f, 0.0f);
+
+        data[2].Position  = glm::vec3(1.0f, 1.0f, 0.0f);
+        data[2].TexCoords = glm::vec2(1.0f, 1.0f);
+
+        data[3].Position  = glm::vec3(-1.0f, 1.0f, 0.0f);
+        data[3].TexCoords = glm::vec2(0.0f, 1.0f);
+
+        std::vector<uint32_t> indices = {
+            0,1,2,2,3,0,
+        };
+
+        return CreateRef<Mesh>(indices, data);
+    }
+
     Ref<Mesh> PrimitiveMesh::CreatePlane(const glm::vec2& size, const glm::vec3& normal)
     {
         std::vector<Vertex> vertices(4);

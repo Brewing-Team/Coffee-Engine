@@ -1,9 +1,12 @@
 #include "Renderer.h"
 #include "TeaEngine/Core/Log.h"
+#include "TeaEngine/PrimitiveMesh.h"
 #include "TeaEngine/Renderer/DebugRenderer.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Framebuffer.h"
+#include "TeaEngine/Renderer/Mesh.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
+#include "TeaEngine/Renderer/Shader.h"
 #include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Renderer/UniformBuffer.h"
 #include <cstdint>
@@ -17,9 +20,14 @@ namespace Tea {
     RendererStats Renderer::s_Stats;
     RenderSettings Renderer::s_RenderSettings;
     Ref<Framebuffer> Renderer::s_MainFramebuffer;
+    Ref<Framebuffer> Renderer::s_PostProcessingFramebuffer;
     Ref<Texture> Renderer::s_MainRenderTexture;
+    Ref<Texture> Renderer::s_PostProcessingTexture;
     Ref<Texture> Renderer::s_DepthTexture;
 
+    Ref<Mesh> Renderer::s_ScreenQuad;
+
+    Ref<Shader> Renderer::s_ToneMappingShader;
 
     void Renderer::Init()
     {
@@ -32,9 +40,16 @@ namespace Tea {
         s_RendererData.RenderDataUniformBuffer = UniformBuffer::Create(sizeof(RendererData::RenderData), 1);
 
         s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8 });
+        s_PostProcessingFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8 });
 
         s_MainRenderTexture = s_MainFramebuffer->GetColorTexture(0);
         s_DepthTexture = s_MainFramebuffer->GetDepthTexture();
+
+        s_PostProcessingTexture = s_PostProcessingFramebuffer->GetColorTexture(0);
+
+        s_ScreenQuad = PrimitiveMesh::CreateQuad();
+
+        s_ToneMappingShader = Shader::Create("assets/shaders/ToneMappingShader.vert", "assets/shaders/ToneMappingShader.frag");
     }
 
     void Renderer::Shutdown()
@@ -61,7 +76,7 @@ namespace Tea {
 
         s_MainFramebuffer->Bind();
 
-        RendererAPI::SetClearColor({.1f,.1f,.1f,1});
+        RendererAPI::SetClearColor({0.006f,0.006f,0.006f,1.0});
         RendererAPI::Clear();
     }
 
@@ -70,10 +85,25 @@ namespace Tea {
         if(s_RenderSettings.PostProcessing)
         {
             //Render All the fancy effects :D
+
+            //ToneMapping
+            s_PostProcessingFramebuffer->Bind();
+            RendererAPI::SetClearColor({.1f,.1f,.1f,1.0});
+            RendererAPI::Clear();
+
+            s_ToneMappingShader->Bind();
+            s_ToneMappingShader->setInt("screenTexture", 0);
+            s_MainRenderTexture->Bind(0);
+
+            RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
+
+            s_ToneMappingShader->Unbind();
+
+            s_PostProcessingFramebuffer->UnBind();
         }
 
         //Final Pass
-        s_RendererData.RenderTexture = s_MainRenderTexture;
+        s_RendererData.RenderTexture = s_PostProcessingTexture;
 
         s_MainFramebuffer->UnBind();
     }
@@ -125,5 +155,6 @@ namespace Tea {
     void Renderer::OnResize(uint32_t width, uint32_t height)
     {
         s_MainFramebuffer->Resize(width, height);
+        s_PostProcessingFramebuffer->Resize(width, height);
     }
 }
