@@ -8,7 +8,7 @@ uniform sampler2D roughness;
 uniform sampler2D ao;
 uniform sampler2D emissive;
 
-#define MAX_LIGHTS 4
+#define MAX_LIGHTS 32
 
 struct Light
 {

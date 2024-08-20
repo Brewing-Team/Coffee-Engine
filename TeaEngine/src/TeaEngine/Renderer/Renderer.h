@@ -25,7 +25,7 @@ namespace Tea {
 
         struct RenderData
         {
-            LightComponent lights[4];
+            LightComponent lights[32];
 
             int lightCount = 0;
         };
