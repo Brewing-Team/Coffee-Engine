@@ -55,19 +55,22 @@ namespace Tea {
     {
         ZoneScoped;
 
+        int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
+
         GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
         GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
-        glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
+        glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
 
         glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-        glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-
+        //Add an option to choose the anisotropic filtering level
+        glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     }
 
     Texture::Texture(const std::string& path, bool srgb)
@@ -99,11 +102,13 @@ namespace Tea {
                 break;
             }
 
+            int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
+
             GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
             GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
 
             glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
-            glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
+            glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
 
             glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -111,9 +116,12 @@ namespace Tea {
             glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+            //Add an option to choose the anisotropic filtering level
+            glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+
             glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data);
 
-            glGenerateMipmap(GL_TEXTURE_2D);
+            glGenerateTextureMipmap(m_textureID);
 
             stbi_image_free(m_Data);
         }
@@ -147,11 +155,13 @@ namespace Tea {
 
         glDeleteTextures(1, &m_textureID);
 
+        int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
+
         GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
         GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
 
         glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
-        glTextureStorage2D(m_textureID, 1, internalFormat, m_Width, m_Height);
+        glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
 
         glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -159,6 +169,12 @@ namespace Tea {
         glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+        //Add an option to choose the anisotropic filtering level
+        glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+
+
+        //Te code above is the same as the constructor but for some reason it doesn't work
+        //Texture(m_Width, m_Height, m_Properties.Format);
     }
 
     void Texture::SetData(void* data, uint32_t size)
@@ -167,6 +183,7 @@ namespace Tea {
 
         GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
         glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, data);
+        glGenerateTextureMipmap(m_textureID);
     }
 
     Ref<Texture> Texture::Load(const std::string& path, bool srgb)
