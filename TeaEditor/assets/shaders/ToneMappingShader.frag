@@ -48,11 +48,11 @@ void main()
     toneMappedColor = vec3(1.0) - exp(-hdrColor * exposure);
 
     //Filmic tone mapping
-    /* color = max(vec3(0.), color - vec3(0.004));
-	color = (color * (6.2 * color + .5)) / (color * (6.2 * color + 1.7) + 0.06); */
+    /* hdrColor = max(vec3(0.), hdrColor - vec3(0.004));
+	hdrColor = (hdrColor * (6.2 * hdrColor + .5)) / (hdrColor * (6.2 * hdrColor + 1.7) + 0.06); */
 
     //ACES tone mapping
-    //color = tonemap_aces(color, exposure);
+    hdrColor = tonemapAces(hdrColor, exposure);
 
 	//linear tone mapping
 	//toneMappedColor = clamp(hdrColor, 0., 1.);
