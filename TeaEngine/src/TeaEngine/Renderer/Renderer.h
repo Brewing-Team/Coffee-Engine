@@ -98,6 +98,7 @@ namespace Tea {
         static Ref<Mesh> s_ScreenQuad;
 
         static Ref<Shader> s_ToneMappingShader;
+        static Ref<Shader> s_FinalPassShader;
     };
 
 }

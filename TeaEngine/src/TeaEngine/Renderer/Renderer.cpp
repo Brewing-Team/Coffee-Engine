@@ -29,6 +29,7 @@ namespace Tea {
     Ref<Mesh> Renderer::s_ScreenQuad;
 
     Ref<Shader> Renderer::s_ToneMappingShader;
+    Ref<Shader> Renderer::s_FinalPassShader;
 
     void Renderer::Init()
     {
@@ -41,7 +42,7 @@ namespace Tea {
         s_RendererData.RenderDataUniformBuffer = UniformBuffer::Create(sizeof(RendererData::RenderData), 1);
 
         s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA32F, ImageFormat::DEPTH24STENCIL8 });
-        s_PostProcessingFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8, ImageFormat::DEPTH24STENCIL8 });
+        s_PostProcessingFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8 });
 
         s_MainRenderTexture = s_MainFramebuffer->GetColorTexture(0);
         s_DepthTexture = s_MainFramebuffer->GetDepthTexture();
@@ -51,6 +52,7 @@ namespace Tea {
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
 
         s_ToneMappingShader = Shader::Create("assets/shaders/ToneMappingShader.vert", "assets/shaders/ToneMappingShader.frag");
+        s_FinalPassShader = Shader::Create("assets/shaders/FinalPassShader.vert", "assets/shaders/FinalPassShader.frag");
     }
 
     void Renderer::Shutdown()
@@ -77,6 +79,7 @@ namespace Tea {
 
         s_MainFramebuffer->Bind();
 
+        glDepthMask(GL_TRUE);
         RendererAPI::SetClearColor({0.006f,0.006f,0.006f,1.0});
         RendererAPI::Clear();
     }
@@ -89,8 +92,9 @@ namespace Tea {
 
             //ToneMapping
             s_PostProcessingFramebuffer->Bind();
-            RendererAPI::SetClearColor({.1f,.1f,.1f,1.0});
-            RendererAPI::Clear();
+            //RendererAPI::SetClearColor({.1f,.1f,.1f,1.0});
+            //RendererAPI::Clear();
+            //glClear(GL_COLOR_BUFFER_BIT);
 
             s_ToneMappingShader->Bind();
             s_ToneMappingShader->setInt("screenTexture", 0);
@@ -101,9 +105,22 @@ namespace Tea {
 
             s_ToneMappingShader->Unbind();
 
-            s_PostProcessingFramebuffer->UnBind();
+            //s_PostProcessingFramebuffer->UnBind();
 
-            std::swap(s_PostProcessingTexture, s_MainRenderTexture);
+            glDepthMask(GL_FALSE);
+
+            //Final Pass
+            s_MainFramebuffer->Bind();
+            
+            s_FinalPassShader->Bind();
+            s_FinalPassShader->setInt("screenTexture", 0);
+            s_PostProcessingTexture->Bind(0);
+
+            RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
+
+            s_FinalPassShader->Unbind();
+
+            //std::swap(s_PostProcessingTexture, s_MainRenderTexture);
         }
 
         //Final Pass
