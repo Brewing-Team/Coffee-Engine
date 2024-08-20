@@ -58,6 +58,13 @@ namespace Tea {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
+	void RendererAPI::SetDepthMask(bool enabled)
+	{
+		ZoneScoped;
+
+		glDepthMask(enabled);
+	}
+
     void RendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)
     {
         ZoneScoped;

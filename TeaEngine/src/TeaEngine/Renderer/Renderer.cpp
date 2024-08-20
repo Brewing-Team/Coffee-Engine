@@ -79,7 +79,6 @@ namespace Tea {
 
         s_MainFramebuffer->Bind();
 
-        glDepthMask(GL_TRUE);
         RendererAPI::SetClearColor({0.006f,0.006f,0.006f,1.0});
         RendererAPI::Clear();
     }
@@ -107,7 +106,8 @@ namespace Tea {
 
             //s_PostProcessingFramebuffer->UnBind();
 
-            glDepthMask(GL_FALSE);
+            //This has to be set because the s_ScreenQuad overwrites the depth buffer
+            RendererAPI::SetDepthMask(false);
 
             //Final Pass
             s_MainFramebuffer->Bind();
@@ -119,6 +119,8 @@ namespace Tea {
             RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
 
             s_FinalPassShader->Unbind();
+
+            RendererAPI::SetDepthMask(true);
 
             //std::swap(s_PostProcessingTexture, s_MainRenderTexture);
         }
