@@ -67,8 +67,36 @@ namespace Tea {
             }
         } */
 
-        Entity light = CreateEntity("Light");
-        light.AddComponent<LightComponent>();
+        /* for(int i = 0; i < 4; i++)
+        {
+            Entity light = CreateEntity("Light");
+            light.AddComponent<LightComponent>();
+            light.GetComponent<TransformComponent>().Position = glm::vec3(rand () % 10, rand () % 10, rand () % 10);
+        } */
+        for(int i = 0; i < 4; i++)
+        {
+            Entity light = CreateEntity("Light");
+            light.AddComponent<LightComponent>();
+
+            glm::vec3 position;
+            switch (i)
+            {
+                case 0:
+                    position = glm::vec3(-5.0f, 5.0f, -5.0f); // Top-left
+                    break;
+                case 1:
+                    position = glm::vec3(5.0f, 5.0f, -5.0f); // Top-right
+                    break;
+                case 2:
+                    position = glm::vec3(-5.0f, 5.0f, 5.0f); // Bottom-left
+                    break;
+                case 3:
+                    position = glm::vec3(5.0f, 5.0f, 5.0f); // Bottom-right
+                    break;
+            }
+
+            light.GetComponent<TransformComponent>().Position = position;
+        }
 
         AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
