@@ -118,7 +118,7 @@ namespace Tea {
             SpotLight = 2
         };
         
-        alignas(16) glm::vec3 Color = {1.0f, 1.0f, 1.0f};
+        alignas(16) glm::vec3 Color = {150.0f, 150.0f, 150.0f};
         alignas(16) glm::vec3 Direction = {0.0f, -1.0f, 0.0f};
         alignas(16) glm::vec3 Position = {0.0f, 0.0f, 0.0f};
 
