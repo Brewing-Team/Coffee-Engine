@@ -247,14 +247,16 @@ void main()
 		toneMappedColor = (hdrColor * (6.2 * hdrColor + .5)) / (hdrColor * (6.2 * hdrColor + 1.7) + 0.06);
 	} */
 
-	if(gl_FragCoord.x < 559)
+/* 	if(gl_FragCoord.x < 559)
 	{
 		toneMappedColor = toneMapAgx(hdrColor, 1.0);
 	}
 	else
 	{
 		toneMappedColor = tonemapAces(hdrColor, 1.0);
-	}
+	} */
+
+	toneMappedColor = toneMapAgx(hdrColor, exposure);
 
     toneMappedColor = pow(toneMappedColor, vec3(1.0 / gamma));
     
