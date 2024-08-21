@@ -165,7 +165,7 @@ vec3 agx(vec3 val) {
   const float min_ev = -12.47393f;
   const float max_ev = 4.026069f;
 
-  // Input transform (inset)
+  // Input transform
   val = agx_mat * val;
   
   // Log2 space encoding
@@ -184,12 +184,10 @@ vec3 agxEotf(vec3 val) {
     -0.0980208811401368, 1.15190312990417, -0.0980434501171241,
     -0.0990297440797205, -0.0989611768448433, 1.15107367264116);
     
-  // Inverse input transform (outset)
+  // Undo input transform
   val = agx_mat_inv * val;
   
   // sRGB IEC 61966-2-1 2.2 Exponent Reference EOTF Display
-  // NOTE: We're linearizing the output here. Comment/adjust when
-  // *not* using a sRGB render target
   //val = pow(val, vec3(2.2));
 
   return val;
@@ -231,22 +229,32 @@ void main()
     vec3 hdrColor = texture(screenTexture, TexCoord).rgb;
     vec3 toneMappedColor;
 
-    //Reinhard tone mapping
-	//hdrColor *= exposure/(1. + hdrColor / exposure);
-    //toneMappedColor = vec3(1.0) - exp(-hdrColor * exposure);
+/*     if(gl_FragCoord.x < 559 && gl_FragCoord.y < 300) // Bottom left
+	{
+		toneMappedColor = toneMapAgx(hdrColor, 1.0);
 
-    //Filmic tone mapping
-    /* hdrColor = max(vec3(0.), hdrColor - vec3(0.004));
-	hdrColor = (hdrColor * (6.2 * hdrColor + .5)) / (hdrColor * (6.2 * hdrColor + 1.7) + 0.06); */
+	}
+	else if(gl_FragCoord.x < 559 && gl_FragCoord.y > 300) // Top left
+	{
+		toneMappedColor = agxLook(hdrColor);
+	}
+	else if(gl_FragCoord.x > 559 && gl_FragCoord.y < 300) // Bottom right
+	{
+		toneMappedColor = tonemapAces(hdrColor, 1.0);
+	}
+	else if(gl_FragCoord.x > 559 && gl_FragCoord.y > 300) // Top right
+	{
+		toneMappedColor = (hdrColor * (6.2 * hdrColor + .5)) / (hdrColor * (6.2 * hdrColor + 1.7) + 0.06);
+	} */
 
-    //ACES tone mapping
-    //toneMappedColor = tonemapAces(hdrColor, exposure);
-	
-	//linear tone mapping
-	//toneMappedColor = clamp(hdrColor, 0., 1.);
-
-	//Agx tone mapping
-	toneMappedColor = toneMapAgx(hdrColor, exposure);
+	if(gl_FragCoord.x < 559)
+	{
+		toneMappedColor = toneMapAgx(hdrColor, 1.0);
+	}
+	else
+	{
+		toneMappedColor = tonemapAces(hdrColor, 1.0);
+	}
 
     toneMappedColor = pow(toneMappedColor, vec3(1.0 / gamma));
     

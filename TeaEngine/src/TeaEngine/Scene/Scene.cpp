@@ -73,7 +73,7 @@ namespace Tea {
             light.AddComponent<LightComponent>();
             light.GetComponent<TransformComponent>().Position = glm::vec3(rand () % 10, rand () % 10, rand () % 10);
         } */
-        for(int i = 0; i < 4; i++)
+/*         for(int i = 0; i < 4; i++)
         {
             Entity light = CreateEntity("Light");
             light.AddComponent<LightComponent>();
@@ -96,7 +96,12 @@ namespace Tea {
             }
 
             light.GetComponent<TransformComponent>().Position = position;
-        }
+        } */
+        
+        Entity light = CreateEntity("Light");
+        light.AddComponent<LightComponent>().Color = {1.0f, 0.0f, 0.0f};
+        light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f};
+
 
         AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
