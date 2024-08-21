@@ -254,16 +254,16 @@ namespace Tea {
 
         ImGui::Checkbox("Post Processing", &Renderer::GetRenderSettings().PostProcessing);
 
-        ImGui::SliderFloat("Exposure", &Renderer::GetRenderSettings().Exposure, 0.001f, 100.0f);
+        ImGui::DragFloat("Exposure", &Renderer::GetRenderSettings().Exposure, 0.001f, 100.0f);
 
         ImGui::End();
     }
 
     void EditorLayer::OnOverlayRender()
     {
-        Renderer::BeginOverlay(m_EditorCamera); //This resets the draw calls, vertex count and index count
+        Renderer::BeginOverlay(m_EditorCamera);
 
-       /*  Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
+        Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
 
         if(selectedEntity)
         {
@@ -276,7 +276,7 @@ namespace Tea {
             Ref<Shader> selectedShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
 
             Renderer::Submit(selectedShader, meshComponent.mesh->GetVertexArray(), transform);
-        } */
+        }
 
         DebugRenderer::DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);
         DebugRenderer::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);
