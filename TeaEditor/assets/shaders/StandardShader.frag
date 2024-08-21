@@ -124,7 +124,7 @@ void main()
         vec3 H = normalize(V + L);
         float distance = length(lights[i].position - WorldPos);
         float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lights[i].color * attenuation;
+        vec3 radiance = lights[i].color * attenuation * lights[i].intensity;
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
