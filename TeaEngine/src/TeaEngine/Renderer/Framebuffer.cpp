@@ -96,6 +96,15 @@ namespace Tea {
                     }
                 }
             }
+            //Set all the render buffers to be drawn to (Wrap it in a function)
+            std::vector<GLenum> drawBuffers;
+            for (size_t i = 0; i < m_ColorTextures.size(); ++i)
+            {
+                drawBuffers.push_back(GL_COLOR_ATTACHMENT0 + i);
+            }
+
+            glNamedFramebufferDrawBuffers(m_fboID, drawBuffers.size(), drawBuffers.data());
+
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
     }
