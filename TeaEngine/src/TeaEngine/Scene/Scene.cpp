@@ -183,6 +183,7 @@ namespace Tea {
             cameraTransform = glm::mat4(1.0f);
         }
 
+        //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::BeginScene(*camera, cameraTransform);
         
         // Get all entities with ModelComponent and TransformComponent
