@@ -9,12 +9,6 @@
 
 namespace Tea {
 
-    enum class ProjectionType
-    {
-        PERSPECTIVE,
-        ORTHOGRAPHIC
-    };
-
     class EditorCamera : public Camera
     {
     public:
@@ -37,9 +31,6 @@ namespace Tea {
 		glm::quat GetOrientation() const;
 
     private:
-        glm::mat4 ProjectionTypeToMat4(ProjectionType projection);
-
-        void UpdateProjection();
         void UpdateView();
 
         bool OnMouseScroll(MouseScrolledEvent& event);
@@ -51,10 +42,6 @@ namespace Tea {
         void MouseZoom(float delta);
 
     private:
-        float m_FOV = 45.0f, m_AspectRatio = 1.778, m_NearClip = 0.1f, m_FarClip = 1000.0f;
-
-        ProjectionType m_ProjectionType = ProjectionType::PERSPECTIVE;
-
         glm::mat4 m_ViewMatrix;
 
         glm::vec3 m_Position = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -65,7 +52,5 @@ namespace Tea {
         float m_Pitch = 0.0f, m_Yaw = 0.0f;
 
         glm::vec2 m_InitialMousePosition = glm::vec2(0.0f, 0.0f);
-
-        float m_ViewportWidth = 1280, m_ViewportHeight = 720;
     };
 }

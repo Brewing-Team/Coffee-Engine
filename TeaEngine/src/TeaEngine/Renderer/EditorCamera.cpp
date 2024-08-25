@@ -1,7 +1,6 @@
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/KeyCodes.h"
-#include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Core/Input.h"
 #include "TeaEngine/Core/MouseCodes.h"
 #include "TeaEngine/Events/Event.h"
@@ -14,23 +13,14 @@
 
 namespace Tea {
 
-    glm::mat4 EditorCamera::ProjectionTypeToMat4(ProjectionType projection)
-    {
-        switch (projection) {
-            case ProjectionType::PERSPECTIVE:
-                return glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
-            break;
-            case ProjectionType::ORTHOGRAPHIC:
-                float orthoHeight = 10.0f; // Define the height of the orthographic view
-                float orthoWidth = orthoHeight * m_AspectRatio; // Calculate width based on aspect ratio
-                return glm::ortho(-orthoWidth / 2, orthoWidth / 2, -orthoHeight / 2, orthoHeight / 2, m_NearClip, m_FarClip);
-            break;
-        }
-    }
-
     EditorCamera::EditorCamera(float fov, ProjectionType projection, float aspectRatio, float nearClip, float farClip)
-        : m_FOV(fov), m_ProjectionType(projection), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip)
-    {
+    {   
+        m_FOV = fov;
+        m_ProjectionType = projection;
+        m_AspectRatio = aspectRatio;
+        m_NearClip = nearClip;
+        m_FarClip = farClip;
+
         UpdateView();
         UpdateProjection();
     }
@@ -93,12 +83,6 @@ namespace Tea {
         MouseZoom(delta);
         UpdateView();
         return false;
-    }
-
-    void EditorCamera::UpdateProjection()
-    {
-        m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-        m_Projection = ProjectionTypeToMat4(m_ProjectionType);
     }
 
     void EditorCamera::UpdateView()

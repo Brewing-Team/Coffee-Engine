@@ -4,6 +4,7 @@
 #include "TeaEngine/Renderer/Material.h"
 #include "TeaEngine/Renderer/Mesh.h"
 #include "TeaEngine/Renderer/Model.h"
+#include "TeaEngine/Scene/SceneCamera.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
@@ -67,6 +68,14 @@ namespace Tea {
         {
             worldMatrix = transform * GetLocalTransform();
         }
+    };
+
+    struct CameraComponent
+    {
+        SceneCamera Camera;
+
+        CameraComponent() = default;
+        CameraComponent(const CameraComponent&) = default;
     };
 
     struct ModelComponent //Deprectated
