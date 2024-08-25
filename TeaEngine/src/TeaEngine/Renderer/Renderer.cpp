@@ -83,6 +83,30 @@ namespace Tea {
         RendererAPI::Clear();
     }
 
+    void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
+    {
+        s_Stats.DrawCalls = 0;
+        s_Stats.VertexCount = 0;
+        s_Stats.IndexCount = 0;
+
+        s_RendererData.cameraData.view = glm::inverse(transform);
+        s_RendererData.cameraData.projection = camera.GetProjection();
+        s_RendererData.cameraData.position = transform[3];
+        s_RendererData.CameraUniformBuffer->SetData(&s_RendererData.cameraData, sizeof(RendererData::CameraData));
+
+        //This is setting the light information from the previous frame :(
+        s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
+        s_RendererData.renderData.lightCount = 0;
+        /* for (int i = 0; i < 4; i++) {
+            s_RendererData.renderData.lights[i] = {};
+        } */
+
+        s_MainFramebuffer->Bind();
+
+        RendererAPI::SetClearColor({0.03f,0.03f,0.03f,1.0});
+        RendererAPI::Clear();
+    }
+
     void Renderer::EndScene()
     {
         if(s_RenderSettings.PostProcessing)

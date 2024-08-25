@@ -21,9 +21,9 @@ namespace Tea {
         Entity CreateEntity(const std::string& name = std::string());
         void DestroyEntity(Entity entity);
 
-        void OnInit();
-        void OnUpdate();
-        void OnUpdateEditor(EditorCamera& camera); //IS TEMPORAL, I DONT LIKE THE NAME AND I FEEL THAT ITS A DUPLICATED OF ONUPDATE
+        void OnInit();//add diferentation between editor and game
+        void OnUpdateEditor(EditorCamera& camera, float dt);
+        void OnUpdateRuntime(float dt);
         void OnEvent(Event& e);
         void OnExit();
     private:

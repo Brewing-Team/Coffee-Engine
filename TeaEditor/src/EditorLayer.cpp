@@ -48,12 +48,20 @@ namespace Tea {
     {
         ZoneScoped;
 
-        m_EditorCamera.OnUpdate();
-
-        m_ActiveScene->OnUpdate();
-        m_ActiveScene->OnUpdateEditor(m_EditorCamera);
-
-        OnOverlayRender();
+        switch (m_SceneState)
+        {
+            case SceneState::Edit:
+                m_EditorCamera.OnUpdate();
+                m_ActiveScene->OnUpdateEditor(m_EditorCamera, dt);
+                OnOverlayRender();
+                TEA_INFO("Editing");
+            break;
+            case SceneState::Play:
+                m_ActiveScene->OnUpdateRuntime(dt);
+                TEA_INFO("Playing");
+            break;
+        
+        }
     }
 
     void EditorLayer::OnEvent(Tea::Event& event)
@@ -136,6 +144,25 @@ namespace Tea {
                 ImGui::EndMenu();
             }
 
+            //Play and Stop buttons
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() * 0.5f - 50);
+
+            switch (m_SceneState)
+            {
+                case SceneState::Edit:
+                    if(ImGui::Button("Play"))
+                    {
+                        m_SceneState = SceneState::Play;
+                    }
+                break;
+                case SceneState::Play:
+                    if(ImGui::Button("Stop"))
+                    {
+                        m_SceneState = SceneState::Edit;
+                    }
+                break;
+            }
+
             //set the fps counter in the right side of the menu bar
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 75);
             ImGui::TextDisabled("FPS: %.1f", ImGui::GetIO().Framerate);
@@ -167,7 +194,7 @@ namespace Tea {
         //Guizmo
         Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
 
-        if(selectedEntity and m_GizmoType != -1)
+        if(selectedEntity and m_GizmoType != -1 and m_SceneState == SceneState::Edit)
         {
             ImGuizmo::SetGizmoSizeClipSpace(0.2);
 
@@ -263,7 +290,7 @@ namespace Tea {
     {
         Renderer::BeginOverlay(m_EditorCamera);
 
-        Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
+        /* Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
 
         if(selectedEntity)
         {
@@ -276,7 +303,7 @@ namespace Tea {
             Ref<Shader> selectedShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
 
             Renderer::Submit(selectedShader, meshComponent.mesh->GetVertexArray(), transform);
-        }
+        } */
 
         DebugRenderer::DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);
         DebugRenderer::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);

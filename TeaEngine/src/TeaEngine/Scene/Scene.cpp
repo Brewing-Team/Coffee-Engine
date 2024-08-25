@@ -6,6 +6,7 @@
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Renderer/Shader.h"
+#include "TeaEngine/Scene/SceneCamera.h"
 #include "TeaEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
@@ -101,7 +102,9 @@ namespace Tea {
         Entity light = CreateEntity("Light");
         light.AddComponent<LightComponent>().Color = {1.0f, 0.0f, 0.0f};
         light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f};
-
+        
+        Entity camera = CreateEntity("Camera");
+        camera.AddComponent<CameraComponent>();
 
         AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
@@ -109,12 +112,7 @@ namespace Tea {
         missingMaterial = CreateRef<Material>(missingShader);
     }
 
-    void Scene::OnUpdate()
-    {
-        ZoneScoped;
-    }
-
-    void Scene::OnUpdateEditor(EditorCamera& camera)
+    void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
     {
         ZoneScoped;
 
@@ -155,6 +153,64 @@ namespace Tea {
         }
 
         Renderer::EndScene();
+    }
+
+    void Scene::OnUpdateRuntime(float dt)
+    {
+        ZoneScoped;
+
+        m_SceneTree->Update();
+
+        Camera* camera = nullptr;
+        glm::mat4 cameraTransform;
+        auto view = m_Registry.view<TransformComponent, CameraComponent>();
+        for(auto entity : view)
+        {
+            auto [transform, cameraComponent] = view.get<TransformComponent, CameraComponent>(entity);
+            
+            camera = &cameraComponent.Camera;
+            cameraTransform = transform.GetWorldTransform();
+        }
+
+        if(camera)
+        {
+            Renderer::BeginScene(*camera, cameraTransform);
+
+            
+            // Get all entities with ModelComponent and TransformComponent
+            auto view = m_Registry.view<MeshComponent, TransformComponent>();
+
+            // Loop through each entity with the specified components
+            for (auto& entity : view)
+            {
+                // Get the ModelComponent and TransformComponent for the current entity
+                auto& meshComponent = view.get<MeshComponent>(entity);
+                auto& transformComponent = view.get<TransformComponent>(entity);
+                auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+
+                Ref<Mesh> mesh = meshComponent.GetMesh();
+                Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : missingMaterial;
+                
+                Renderer::Submit(material, mesh, transformComponent.GetWorldTransform());
+            }
+
+            //Get all entities with LightComponent and TransformComponent
+            auto lightView = m_Registry.view<LightComponent, TransformComponent>();
+
+            //Loop through each entity with the specified components
+            for(auto& entity : lightView)
+            {
+                auto& lightComponent = lightView.get<LightComponent>(entity);
+                auto& transformComponent = lightView.get<TransformComponent>(entity);
+
+                lightComponent.Position = transformComponent.GetWorldTransform()[3];
+                lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
+
+                Renderer::Submit(lightComponent);
+            }
+
+            Renderer::EndScene();
+        }
     }
 
     void Scene::OnEvent(Event& e)
