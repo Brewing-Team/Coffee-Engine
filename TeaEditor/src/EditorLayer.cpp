@@ -54,11 +54,9 @@ namespace Tea {
                 m_EditorCamera.OnUpdate();
                 m_ActiveScene->OnUpdateEditor(m_EditorCamera, dt);
                 OnOverlayRender();
-                TEA_INFO("Editing");
             break;
             case SceneState::Play:
                 m_ActiveScene->OnUpdateRuntime(dt);
-                TEA_INFO("Playing");
             break;
         
         }
