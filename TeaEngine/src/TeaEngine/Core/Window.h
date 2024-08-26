@@ -44,6 +44,11 @@ namespace Tea {
 		void SetVSync(bool enabled);
 		bool IsVSync() const;
 
+		void SetTitle(const std::string& title);
+		const std::string& GetTitle() const { return m_Data.Title; }
+
+		void SetIcon(const std::string& path);
+
 		virtual void* GetNativeWindow() const { return m_Window; }
 
         static Scope<Window> Create(const WindowProps& props = WindowProps()) {return CreateScope<Window>(props);}

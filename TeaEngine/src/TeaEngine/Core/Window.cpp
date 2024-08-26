@@ -10,6 +10,8 @@
 
 #include <tracy/Tracy.hpp>
 
+#include <stb_image.h>
+
 #include <cstddef>
 
 namespace Tea {
@@ -195,5 +197,22 @@ namespace Tea {
 	{
 		return m_Data.VSync;
 	}
+
+    void Window::SetTitle(const std::string& title)
+    {
+        m_Data.Title = title;
+        glfwSetWindowTitle(m_Window, title.c_str());
+    }
+
+    void Window::SetIcon(const std::string& path)
+    {
+        GLFWimage icon;
+        icon.pixels = stbi_load(path.c_str(), &icon.width, &icon.height, 0, 4);
+        if (icon.pixels)
+        {
+            glfwSetWindowIcon(m_Window, 1, &icon);
+            stbi_image_free(icon.pixels);
+        }
+    }
 
 }
