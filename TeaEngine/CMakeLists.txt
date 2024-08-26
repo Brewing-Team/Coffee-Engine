@@ -10,6 +10,7 @@ find_package(fmt REQUIRED)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 find_package(assimp REQUIRED)
+find_package(cereal REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 add_library(tea-engine ALIAS ${PROJECT_NAME})
