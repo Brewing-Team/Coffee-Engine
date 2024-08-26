@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <filesystem>
 namespace Tea {
 
     struct FileDialogArgs {
@@ -16,8 +17,8 @@ namespace Tea {
 
     class FileDialog {
     public:
-        static std::string OpenFile(const FileDialogArgs& args = {});
-        static std::string SaveFile(const FileDialogArgs& args = {});
+        static const std::filesystem::path OpenFile(const FileDialogArgs& args = {});
+        static const std::filesystem::path SaveFile(const FileDialogArgs& args = {});
     };
 
 }

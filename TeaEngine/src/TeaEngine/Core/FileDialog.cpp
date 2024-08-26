@@ -4,7 +4,7 @@
 
 namespace Tea {
 
-    std::string FileDialog::OpenFile(const FileDialogArgs& args)
+    const std::filesystem::path FileDialog::OpenFile(const FileDialogArgs& args)
     {
         NFD_Init();
 
@@ -23,7 +23,7 @@ namespace Tea {
         nfdresult_t result = NFD_OpenDialogU8_With(&outPath, &nfdArgs);
         if (result == NFD_OKAY)
         {
-            return std::string(outPath);
+            return std::filesystem::path(outPath);
         }
         else if (result == NFD_CANCEL)
         {
@@ -39,7 +39,7 @@ namespace Tea {
         NFD_Quit();
     }
 
-    std::string FileDialog::SaveFile(const FileDialogArgs& args)
+    const std::filesystem::path FileDialog::SaveFile(const FileDialogArgs& args)
     {
         NFD_Init();
 
@@ -54,7 +54,7 @@ namespace Tea {
         nfdresult_t result = NFD_SaveDialogU8_With(&outPath, &nfdArgs);
         if (result == NFD_OKAY)
         {
-            return std::string(outPath);
+            return std::filesystem::path(outPath);
         }
         else if (result == NFD_CANCEL)
         {
