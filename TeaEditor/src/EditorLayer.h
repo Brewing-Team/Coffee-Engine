@@ -30,6 +30,11 @@ namespace Tea {
     private:
         void OnOverlayRender();
         void ResizeViewport(float width, float height);
+
+        //Project Management
+        void NewProject();
+        void SaveProject();
+        void SaveProjectAs();
     private:
         Ref<Scene> m_EditorScene;
         Ref<Scene> m_ActiveScene;

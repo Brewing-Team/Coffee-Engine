@@ -4,6 +4,7 @@
 #include "TeaEngine/Core/Application.h"
 #include "TeaEngine/Events/KeyEvent.h"
 #include "TeaEngine/PrimitiveMesh.h"
+#include "TeaEngine/Project/Project.h"
 #include "TeaEngine/Renderer/DebugRenderer.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Renderer.h"
@@ -116,11 +117,17 @@ namespace Tea {
 
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
+        std::string mainMenuAction = "";
         if (ImGui::BeginMainMenuBar()) {
 
             if (ImGui::BeginMenu("File"))
             {
+                if (ImGui::MenuItem("New Project...", "Ctrl+N")) 
+                {
+                    NewProject();
+                }
                 if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { }
+                if (ImGui::MenuItem("Save Project", "Ctrl+S")) { SaveProject(); }
                 if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
 
                 ImGui::EndMenu();
@@ -325,6 +332,36 @@ namespace Tea {
         }
 
         m_ViewportSize = { width, height };
+    }
+
+    void EditorLayer::NewProject()
+    {
+        Project::New();
+    }
+
+    void EditorLayer::SaveProject()
+    {
+        const Ref<Project>& activeProject = Project::GetActive();
+
+        if(activeProject->GetProjectDirectory().empty())
+        {
+            SaveProjectAs();
+            return;
+        }
+        
+        Project::SaveActive(activeProject->GetProjectDirectory());
+    }
+
+    void EditorLayer::SaveProjectAs()
+    {
+/*         if (!path.empty())
+        {
+            Project::SaveActive(path);
+        }
+        else
+        {
+            std::cerr << "No file selected.\n";
+        } */
     }
 
 }
