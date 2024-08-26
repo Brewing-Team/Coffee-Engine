@@ -344,11 +344,12 @@ namespace Tea {
     {
         FileDialogArgs args;
         args.Filters = {{"Tea Project", "*.TeaProject"}};
-        std::string path = FileDialog::OpenFile(args);
+        const std::filesystem::path& path = FileDialog::OpenFile(args);
 
         if (!path.empty())
         {
             Project::Load(path);
+            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - TeaEngine");
         }
         else
         {
@@ -374,11 +375,12 @@ namespace Tea {
         FileDialogArgs args;
         args.Filters = {{"Tea Project", "*.TeaProject"}};
         args.DefaultName = "Untitled.TeaProject";
-        std::string path = FileDialog::SaveFile(args);
+        const std::filesystem::path& path = FileDialog::SaveFile(args);
 
         if (!path.empty())
         {
             Project::SaveActive(path);
+            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - TeaEngine");
         }
         else
         {
