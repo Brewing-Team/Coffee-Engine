@@ -32,7 +32,7 @@ namespace Tea {
         std::ofstream projectFile(path);
         cereal::JSONOutputArchive archive(projectFile);
 
-        archive(*s_ActiveProject);
+        archive(cereal::make_nvp("Project", *s_ActiveProject));
         s_ActiveProject->m_ProjectDirectory = path;
     }
 

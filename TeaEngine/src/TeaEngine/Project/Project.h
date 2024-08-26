@@ -16,7 +16,7 @@ namespace Tea {
         static const std::filesystem::path& GetProjectDirectory() { return s_ActiveProject->m_ProjectDirectory; }
 
         template<class Archive>
-        void serialize(Archive& archive) { archive(CEREAL_NVP(m_Name), CEREAL_NVP(m_StartScenePath.string())); }
+        void serialize(Archive& archive) { archive(cereal::make_nvp("Name", m_Name), cereal::make_nvp("StartScene", m_StartScenePath.string())); }
 
     private:
         std::string m_Name = "Untitled";
