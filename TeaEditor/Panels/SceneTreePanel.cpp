@@ -286,7 +286,7 @@ namespace Tea {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -339,6 +339,12 @@ namespace Tea {
                 {
                     if(!entity.HasComponent<LightComponent>())
                         entity.AddComponent<LightComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Camera Component")
+                {
+                    if(!entity.HasComponent<CameraComponent>())
+                        entity.AddComponent<CameraComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else
