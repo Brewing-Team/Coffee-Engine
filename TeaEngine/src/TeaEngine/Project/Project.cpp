@@ -29,11 +29,13 @@ namespace Tea {
 
     void Project::SaveActive(const std::filesystem::path& path)
     {
+        s_ActiveProject->m_ProjectDirectory = path;
+        s_ActiveProject->m_Name = path.stem().string();
+
         std::ofstream projectFile(path);
         cereal::JSONOutputArchive archive(projectFile);
 
         archive(cereal::make_nvp("Project", *s_ActiveProject));
-        s_ActiveProject->m_ProjectDirectory = path;
     }
 
 }
