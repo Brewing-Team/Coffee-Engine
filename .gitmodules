@@ -11,3 +11,6 @@
 [submodule "TeaEngine/vendor/ImGuizmo"]
 	path = TeaEngine/vendor/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo.git
+[submodule "TeaEngine/vendor/nativefiledialog-extended"]
+	path = TeaEngine/vendor/nativefiledialog-extended
+	url = https://github.com/btzy/nativefiledialog-extended.git
