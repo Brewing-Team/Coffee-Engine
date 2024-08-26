@@ -1,5 +1,6 @@
 #include "EditorLayer.h"
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Core/FileDialog.h"
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Core/Application.h"
 #include "TeaEngine/Events/KeyEvent.h"
@@ -43,6 +44,9 @@ namespace Tea {
         m_ActiveScene->OnInit();
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
+
+        //For now we are going to create a new project when the editor is attached
+        Project::New();
     }
 
     void EditorLayer::OnUpdate(float dt)
@@ -122,11 +126,8 @@ namespace Tea {
 
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("New Project...", "Ctrl+N")) 
-                {
-                    NewProject();
-                }
-                if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { }
+                if (ImGui::MenuItem("New Project...", "Ctrl+N")) { NewProject(); }
+                if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { OpenProject(); }
                 if (ImGui::MenuItem("Save Project", "Ctrl+S")) { SaveProject(); }
                 if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
 
@@ -339,6 +340,22 @@ namespace Tea {
         Project::New();
     }
 
+    void EditorLayer::OpenProject()
+    {
+        FileDialogArgs args;
+        args.Filters = {{"Tea Project", "*.TeaProject"}};
+        std::string path = FileDialog::OpenFile(args);
+
+        if (!path.empty())
+        {
+            Project::Load(path);
+        }
+        else
+        {
+            TEA_CORE_WARN("Open Project: No file selected");
+        }
+    }
+
     void EditorLayer::SaveProject()
     {
         const Ref<Project>& activeProject = Project::GetActive();
@@ -354,14 +371,19 @@ namespace Tea {
 
     void EditorLayer::SaveProjectAs()
     {
-/*         if (!path.empty())
+        FileDialogArgs args;
+        args.Filters = {{"Tea Project", "*.TeaProject"}};
+        args.DefaultName = "Untitled.TeaProject";
+        std::string path = FileDialog::SaveFile(args);
+
+        if (!path.empty())
         {
             Project::SaveActive(path);
         }
         else
         {
-            std::cerr << "No file selected.\n";
-        } */
+            TEA_CORE_WARN("Save Project As: No file selected");
+        }
     }
 
 }

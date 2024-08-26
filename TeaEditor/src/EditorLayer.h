@@ -33,6 +33,7 @@ namespace Tea {
 
         //Project Management
         void NewProject();
+        void OpenProject();
         void SaveProject();
         void SaveProjectAs();
     private:
