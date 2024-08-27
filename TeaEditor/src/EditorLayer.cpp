@@ -126,15 +126,18 @@ namespace Tea {
 
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("New Project...", "Ctrl+N")) { NewProject(); }
-                if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { OpenProject(); }
-                if (ImGui::MenuItem("Save Project", "Ctrl+S")) { SaveProject(); }
-                if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
-
+                if (ImGui::MenuItem("New Scene", "Ctrl+N")) { NewScene(); }
+                if (ImGui::MenuItem("Open Scene...", "Ctrl+O")) { OpenScene(); }
+                if (ImGui::MenuItem("Save Scene", "Ctrl+S")) { SaveScene(); }
+                if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S")) { SaveSceneAs(); }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Project"))
             {
+                if (ImGui::MenuItem("New Project...", "Ctrl+N")) { NewProject(); }
+                if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { OpenProject(); }
+                if (ImGui::MenuItem("Save Project", "Ctrl+S")) { SaveProject(); }
+                if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Editor"))
@@ -387,5 +390,41 @@ namespace Tea {
             TEA_CORE_WARN("Save Project As: No file selected");
         }
     }
+
+    void EditorLayer::NewScene()
+    {
+        m_ActiveScene = CreateRef<Scene>();
+        m_ActiveScene->OnInit();
+
+        m_SceneTreePanel = SceneTreePanel();
+
+        m_SceneTreePanel.SetContext(m_ActiveScene);
+    }
+
+    void EditorLayer::OpenScene()
+    {
+        FileDialogArgs args;
+        args.Filters = {{"Tea Scene", "*.TeaScene"}};
+        const std::filesystem::path& path = FileDialog::OpenFile(args);
+
+        if (!path.empty())
+        {
+            m_ActiveScene = Scene::Load(path);
+            m_ActiveScene->OnInit();
+
+            m_SceneTreePanel = SceneTreePanel();
+
+            m_SceneTreePanel.SetContext(m_ActiveScene);
+        }
+        else
+        {
+            TEA_CORE_WARN("Open Scene: No file selected");
+        }
+    }
+    void EditorLayer::SaveScene()
+    {
+        Scene::Save(Project::GetActive()->GetProjectDirectory() / "Untitled.TeaScene", m_ActiveScene);
+    }
+    void EditorLayer::SaveSceneAs() {}
 
 }

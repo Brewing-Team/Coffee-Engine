@@ -36,6 +36,12 @@ namespace Tea {
         void OpenProject();
         void SaveProject();
         void SaveProjectAs();
+
+        //Scene Management
+        void NewScene();
+        void OpenScene();
+        void SaveScene();
+        void SaveSceneAs();
     private:
         Ref<Scene> m_EditorScene;
         Ref<Scene> m_ActiveScene;

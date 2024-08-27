@@ -5,6 +5,7 @@
 #include "TeaEngine/Renderer/Mesh.h"
 #include "TeaEngine/Renderer/Model.h"
 #include "TeaEngine/Scene/SceneCamera.h"
+#include <cereal/cereal.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
@@ -15,6 +16,27 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
+//TEMPORAL
+namespace cereal {
+    template<class Archive>
+    void serialize(Archive& archive, glm::vec3& vec)
+    {
+        archive(cereal::make_nvp("x", vec.x), cereal::make_nvp("y", vec.y), cereal::make_nvp("z", vec.z));
+    }
+
+    template<class Archive>
+    void serialize(Archive& archive, glm::vec4& vec)
+    {
+        archive(cereal::make_nvp("x", vec.x), cereal::make_nvp("y", vec.y), cereal::make_nvp("z", vec.z), cereal::make_nvp("w", vec.w));
+    }
+
+    template<class Archive>
+    void serialize(Archive& archive, glm::quat& quat)
+    {
+        archive(cereal::make_nvp("x", quat.x), cereal::make_nvp("y", quat.y), cereal::make_nvp("z", quat.z), cereal::make_nvp("w", quat.w));
+    }
+}
+
 namespace Tea {
     struct TagComponent
     {
@@ -24,6 +46,12 @@ namespace Tea {
 		TagComponent(const TagComponent&) = default;
 		TagComponent(const std::string& tag)
 			: Tag(tag) {}
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Tag", Tag));
+        }
     };
 
     struct TransformComponent
@@ -68,6 +96,12 @@ namespace Tea {
         {
             worldMatrix = transform * GetLocalTransform();
         }
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Position", Position), cereal::make_nvp("Rotation", Rotation), cereal::make_nvp("Scale", Scale));
+        }
     };
 
     struct CameraComponent
@@ -76,6 +110,12 @@ namespace Tea {
 
         CameraComponent() = default;
         CameraComponent(const CameraComponent&) = default;
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Camera", Camera));
+        }
     };
 
     struct ModelComponent //Deprectated
@@ -105,6 +145,12 @@ namespace Tea {
             : mesh(mesh) {}
 
         const Ref<Mesh>& GetMesh() const {return mesh; };
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Mesh", *mesh));
+        }
     };
 
     struct MaterialComponent
@@ -116,6 +162,12 @@ namespace Tea {
         MaterialComponent(const MaterialComponent&) = default;
         MaterialComponent(Ref<Material> material)
             : material(material) {}
+        
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Material", *material));
+        }
     };
 
     struct LightComponent //Do it well, this was only to experiment
@@ -141,5 +193,11 @@ namespace Tea {
 
         LightComponent() = default;
         LightComponent(const LightComponent&) = default;
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
+        }
     };
 }

@@ -2,6 +2,7 @@
 
 #include "TeaEngine/Core/Base.h"
 #include "entt/entity/fwd.hpp"
+#include <cereal/cereal.hpp>
 #include <entt/entt.hpp>
 
 namespace Tea {
@@ -24,6 +25,12 @@ namespace Tea {
         entt::entity m_First;
         entt::entity m_Next;
         entt::entity m_Prev;
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Parent", m_Parent), cereal::make_nvp("First", m_First), cereal::make_nvp("Next", m_Next), cereal::make_nvp("Prev", m_Prev));
+        }
     };
 
     class SceneTree

@@ -24,6 +24,10 @@ namespace Tea {
 
         archive(*project);
 
+        project->m_ProjectDirectory = path.parent_path();
+
+        s_ActiveProject = project;
+
         return project;
     }
 

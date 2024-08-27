@@ -3,6 +3,7 @@
 #include "TeaEngine/Events/Event.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Scene/SceneTree.h"
+#include "entt/entity/fwd.hpp"
 
 #include <entt/entt.hpp>
 #include <string>
@@ -26,6 +27,10 @@ namespace Tea {
         void OnUpdateRuntime(float dt);
         void OnEvent(Event& e);
         void OnExit();
+
+        //TEMPORAL!! MOVE TO OTHER PLACE
+        static Ref<Scene> Load(const std::filesystem::path& path);
+        static void Save(const std::filesystem::path& path, Ref<Scene> scene);
     private:
         entt::registry m_Registry;
 

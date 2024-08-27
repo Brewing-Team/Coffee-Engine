@@ -10,8 +10,12 @@
 #include "TeaEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
+#include "entt/entity/snapshot.hpp"
 #include <string>
 #include <tracy/Tracy.hpp>
+
+#include <cereal/archives/json.hpp>
+#include <fstream>
 
 namespace Tea {
 
@@ -99,14 +103,14 @@ namespace Tea {
             light.GetComponent<TransformComponent>().Position = position;
         } */
         
-        Entity light = CreateEntity("Light");
+        /* Entity light = CreateEntity("Light");
         light.AddComponent<LightComponent>().Color = {1.0f, 0.0f, 0.0f};
-        light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f};
+        light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f}; */
         
         /* Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>(); */
 
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
+        //AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
         Ref<Shader> missingShader = CreateRef<Shader>("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
         missingMaterial = CreateRef<Material>(missingShader);
@@ -229,6 +233,49 @@ namespace Tea {
     void Scene::OnExit()
     {
         ZoneScoped;
+    }
+
+    Ref<Scene> Scene::Load(const std::filesystem::path& path)
+    {
+        ZoneScoped;
+
+        Ref<Scene> scene = CreateRef<Scene>();
+
+        std::ifstream sceneFile(path);
+        cereal::JSONInputArchive archive(sceneFile);
+
+        entt::snapshot_loader{scene->m_Registry}
+            .get<entt::entity>(archive)
+            .get<TagComponent>(archive)
+            .get<TransformComponent>(archive)
+            .get<HierarchyComponent>(archive)
+            //.get<CameraComponent>(archive)
+            //.get<MeshComponent>(archive)
+            //.get<MaterialComponent>(archive)
+            .get<LightComponent>(archive);
+
+        return scene;
+    }
+
+    void Scene::Save(const std::filesystem::path& path, Ref<Scene> scene)
+    {
+        ZoneScoped;
+
+        std::ofstream sceneFile(path);
+        cereal::JSONOutputArchive archive(sceneFile);
+
+        //archive(*scene);
+
+        //TEMPORAL
+        entt::snapshot{scene->m_Registry}
+            .get<entt::entity>(archive)
+            .get<TagComponent>(archive)
+            .get<TransformComponent>(archive)
+            .get<HierarchyComponent>(archive)
+            //.get<CameraComponent>(archive)
+            //.get<MeshComponent>(archive)
+            //.get<MaterialComponent>(archive)
+            .get<LightComponent>(archive);
     }
 
     void AddModelToTheSceneTree(Scene* scene, Ref<Model> model)
