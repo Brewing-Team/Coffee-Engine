@@ -9,7 +9,7 @@ namespace Tea {
     UniformBuffer::UniformBuffer(uint32_t size, uint32_t binding)
     {
         glCreateBuffers(1, &m_uboID);
-        glNamedBufferData(m_uboID, size, nullptr, GL_STATIC_DRAW); //or GL_DYNAMIC_DRAW? Search what are the differences
+        glNamedBufferData(m_uboID, size, nullptr, GL_DYNAMIC_DRAW); //or GL_DYNAMIC_DRAW? Search what are the differences
         glBindBufferBase(GL_UNIFORM_BUFFER, binding, m_uboID);
     }
 
