@@ -6,6 +6,7 @@
 #include "TeaEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <glm/gtc/type_ptr.hpp>
@@ -43,17 +44,17 @@ namespace Tea {
         }
         ImGui::SameLine();
 
-        char searchBuffer[1024];
-        ImGui::InputTextWithHint("##searchbar", "Search by name:",searchBuffer, 1024);
+        static std::array<char, 256> searchBuffer;
+        ImGui::InputTextWithHint("##searchbar", "Search by name:",searchBuffer.begin(), searchBuffer.size());
 
         ImGui::BeginChild("entity tree", {0,0}, ImGuiChildFlags_Border);
-        
+
         auto view = m_Context->m_Registry.view<entt::entity>();
         for(auto entityID: view)
         {
             Entity entity{ entityID, m_Context.get()};
             auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
-            
+
             if(hierarchyComponent.m_Parent == entt::null)
             {
                 DrawEntityNode(entity);
@@ -87,7 +88,7 @@ namespace Tea {
         ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
                                    ((hierarchyComponent.m_First == entt::null) ? ImGuiTreeNodeFlags_Leaf : 0) |
                                    ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
-        
+
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityNameTag.c_str());
 
         if(ImGui::IsItemClicked())
@@ -109,7 +110,7 @@ namespace Tea {
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
 
-        if (ImGui::BeginPopup("EntityPopup"/*, ImGuiWindowFlags_NoBackground*/)) 
+        if (ImGui::BeginPopup("EntityPopup"/*, ImGuiWindowFlags_NoBackground*/))
         {
             auto buff = entity.GetComponent<TagComponent>().Tag.c_str();
             ImGui::SetNextItemWidth(itemSize.x - ImGui::GetStyle().IndentSpacing);
@@ -168,7 +169,7 @@ namespace Tea {
             char buffer[256];
             memset(buffer, 0, sizeof(buffer));
             strcpy(buffer, entityNameTag.c_str());
-            
+
             if(ImGui::InputText("##", buffer, sizeof(buffer)))
             {
                 entityNameTag = std::string(buffer);
@@ -182,10 +183,10 @@ namespace Tea {
             auto& transformComponent = entity.GetComponent<TransformComponent>();
 
             if(ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
-            {   
+            {
                 ImGui::Text("Position");
                 ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.Position), 0.1f);
-                
+
                 ImGui::Text("Rotation");
                 ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.Rotation),  0.1f);
 
@@ -226,7 +227,7 @@ namespace Tea {
         {
             auto& modelComponent = entity.GetComponent<ModelComponent>();
             if(ImGui::CollapsingHeader("Model", ImGuiTreeNodeFlags_DefaultOpen))
-            {   
+            {
                 auto& meshesArray = modelComponent.model->GetMeshes();
                 ImGui::SeparatorText("List of Meshes");
 
@@ -303,10 +304,10 @@ namespace Tea {
                 }
                 ImGui::EndListBox();
             }
-            
+
             ImGui::Text("Description");
             ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur.");
-            
+
             ImGui::Button("Cancel");
             ImGui::SameLine();
             if(ImGui::Button("Add Component"))
