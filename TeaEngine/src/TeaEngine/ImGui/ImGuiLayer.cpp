@@ -39,7 +39,7 @@ namespace Tea {
 		/* float fontSize = 16.0f;
         io.FontDefault = io.Fonts->AddFontFromFileTTF("/home/hugo/.fonts/iosevka-nerd-font.ttf", fontSize); */
 
-		StyleColorsTea();
+		SetTeaColorStyle();
 
         Application& app = Application::Get();
         GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
@@ -103,7 +103,7 @@ namespace Tea {
         ImGui::ShowDemoWindow(&show);
     }
 
-	void ImGuiLayer::StyleColorsTea()
+	void ImGuiLayer::SetTeaColorStyle()
 	{
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.FrameRounding = 1;
@@ -156,7 +156,7 @@ namespace Tea {
 
 
 
-		
+
 
 
 
@@ -224,32 +224,35 @@ namespace Tea {
 		colors[ImGuiCol_Tab]                    = ImVec4(0.14f, 0.20f, 0.15f, 1.00f);
 		colors[ImGuiCol_TabSelected]            = ImVec4(0.21f, 0.29f, 0.22f, 1.00f);
 		colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.11f, 0.16f, 0.12f, 1.00f); */
+	}
 
-		/* GODOT THEME
-		ImVec4* colors = ImGui::GetStyle().Colors;
-		colors[ImGuiCol_Text]                   = ImVec4(0.92f, 0.93f, 0.95f, 1.00f);
-		colors[ImGuiCol_TextDisabled]           = ImVec4(0.39f, 0.40f, 0.43f, 1.00f);
-		colors[ImGuiCol_WindowBg]               = ImVec4(0.13f, 0.15f, 0.18f, 1.00f);
-		colors[ImGuiCol_PopupBg]                = ImVec4(0.21f, 0.24f, 0.29f, 1.00f);
-		colors[ImGuiCol_FrameBg]                = ImVec4(0.11f, 0.13f, 0.16f, 1.00f);
-		colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.15f, 0.18f, 0.21f, 1.00f);
-		colors[ImGuiCol_FrameBgActive]          = ImVec4(0.22f, 0.24f, 0.27f, 1.00f);
-		colors[ImGuiCol_TitleBg]                = ImVec4(0.14f, 0.16f, 0.20f, 1.00f);
-		colors[ImGuiCol_TitleBgActive]          = ImVec4(0.21f, 0.24f, 0.29f, 1.00f);
-		colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.14f, 0.16f, 0.20f, 1.00f);
-		colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.24f, 0.26f, 0.29f, 1.00f);
-		colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.42f, 0.44f, 0.46f, 1.00f);
-		colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.60f, 0.61f, 0.65f, 1.00f);
-		colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.48f, 0.49f, 0.52f, 1.00f);
-		colors[ImGuiCol_Button]                 = ImVec4(0.21f, 0.24f, 0.29f, 1.00f);
-		colors[ImGuiCol_ButtonHovered]          = ImVec4(0.36f, 0.40f, 0.48f, 1.00f);
-		colors[ImGuiCol_ButtonActive]           = ImVec4(0.22f, 0.31f, 0.40f, 1.00f);
-		colors[ImGuiCol_Header]                 = ImVec4(0.15f, 0.18f, 0.21f, 1.00f);
-		colors[ImGuiCol_HeaderHovered]          = ImVec4(0.22f, 0.24f, 0.27f, 1.00f);
-		colors[ImGuiCol_HeaderActive]           = ImVec4(0.15f, 0.18f, 0.21f, 1.00f);
-		colors[ImGuiCol_TabHovered]             = ImVec4(0.17f, 0.20f, 0.24f, 1.00f);
-		colors[ImGuiCol_Tab]                    = ImVec4(0.14f, 0.16f, 0.20f, 1.00f);
-		colors[ImGuiCol_TabSelected]            = ImVec4(0.21f, 0.24f, 0.29f, 1.00f);
-		colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.11f, 0.13f, 0.16f, 1.00f); */
+	void ImGuiLayer::SetGodotColorStyle()
+	{
+    	//GODOT THEME
+    	ImVec4* colors = ImGui::GetStyle().Colors;
+    	colors[ImGuiCol_Text]                   = ImVec4(0.92f, 0.93f, 0.95f, 1.00f);
+    	colors[ImGuiCol_TextDisabled]           = ImVec4(0.39f, 0.40f, 0.43f, 1.00f);
+    	colors[ImGuiCol_WindowBg]               = ImVec4(0.13f, 0.15f, 0.18f, 1.00f);
+    	colors[ImGuiCol_PopupBg]                = ImVec4(0.21f, 0.24f, 0.29f, 1.00f);
+    	colors[ImGuiCol_FrameBg]                = ImVec4(0.11f, 0.13f, 0.16f, 1.00f);
+    	colors[ImGuiCol_FrameBgHovered]         = ImVec4(0.15f, 0.18f, 0.21f, 1.00f);
+    	colors[ImGuiCol_FrameBgActive]          = ImVec4(0.22f, 0.24f, 0.27f, 1.00f);
+    	colors[ImGuiCol_TitleBg]                = ImVec4(0.14f, 0.16f, 0.20f, 1.00f);
+    	colors[ImGuiCol_TitleBgActive]          = ImVec4(0.21f, 0.24f, 0.29f, 1.00f);
+    	colors[ImGuiCol_TitleBgCollapsed]       = ImVec4(0.14f, 0.16f, 0.20f, 1.00f);
+    	colors[ImGuiCol_ScrollbarBg]            = ImVec4(0.24f, 0.26f, 0.29f, 1.00f);
+    	colors[ImGuiCol_ScrollbarGrab]          = ImVec4(0.42f, 0.44f, 0.46f, 1.00f);
+    	colors[ImGuiCol_ScrollbarGrabHovered]   = ImVec4(0.60f, 0.61f, 0.65f, 1.00f);
+    	colors[ImGuiCol_ScrollbarGrabActive]    = ImVec4(0.48f, 0.49f, 0.52f, 1.00f);
+    	colors[ImGuiCol_Button]                 = ImVec4(0.21f, 0.24f, 0.29f, 1.00f);
+    	colors[ImGuiCol_ButtonHovered]          = ImVec4(0.36f, 0.40f, 0.48f, 1.00f);
+    	colors[ImGuiCol_ButtonActive]           = ImVec4(0.22f, 0.31f, 0.40f, 1.00f);
+    	colors[ImGuiCol_Header]                 = ImVec4(0.15f, 0.18f, 0.21f, 1.00f);
+    	colors[ImGuiCol_HeaderHovered]          = ImVec4(0.22f, 0.24f, 0.27f, 1.00f);
+    	colors[ImGuiCol_HeaderActive]           = ImVec4(0.15f, 0.18f, 0.21f, 1.00f);
+    	colors[ImGuiCol_TabHovered]             = ImVec4(0.17f, 0.20f, 0.24f, 1.00f);
+    	colors[ImGuiCol_Tab]                    = ImVec4(0.14f, 0.16f, 0.20f, 1.00f);
+    	colors[ImGuiCol_TabSelected]            = ImVec4(0.21f, 0.24f, 0.29f, 1.00f);
+    	colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.11f, 0.13f, 0.16f, 1.00f);
 	}
 }

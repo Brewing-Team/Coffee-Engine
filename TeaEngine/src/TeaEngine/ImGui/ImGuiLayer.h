@@ -7,7 +7,7 @@ namespace Tea {
     {
     public:
         ImGuiLayer();
-        /// @brief 
+        /// @brief
         ~ImGuiLayer();
 
         void OnAttach() override;
@@ -21,7 +21,8 @@ namespace Tea {
 
         void BlockEvents(bool block) { m_BlockEvents = block; }
 
-        void StyleColorsTea();
+        void SetTeaColorStyle();
+        void SetGodotColorStyle();
     private:
     	bool m_BlockEvents = true;
     };
