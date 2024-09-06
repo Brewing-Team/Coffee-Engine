@@ -39,6 +39,18 @@ namespace Tea {
 
         const std::vector<Vertex>& GetVertices() const { return m_Vertices; }
         const std::vector<uint32_t>& GetIndices() const { return m_Indices; }
+
+        template<class Archive>
+        void save(Archive& archive)
+        {
+            archive(m_Name, m_Vertices, m_Indices);
+        }
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(m_Name, m_Vertices, m_Indices);
+            Mesh(m_Indices, m_Vertices);
+        }
     private:
         Ref<VertexArray> m_VertexArray;
         Ref<VertexBuffer> m_VertexBuffer;

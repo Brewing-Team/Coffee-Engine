@@ -74,7 +74,7 @@ namespace Tea {
         TransformComponent(const glm::vec3& position)
             : Position(position) {}
 
-        glm::mat4 GetLocalTransform() const 
+        glm::mat4 GetLocalTransform() const
         {
             glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
 
@@ -153,9 +153,15 @@ namespace Tea {
         const Ref<Mesh>& GetMesh() const {return mesh; };
 
         template<class Archive>
-        void serialize(Archive& archive)
+        void save(Archive& archive)
         {
             archive(cereal::make_nvp("Mesh", *mesh));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(*mesh);
         }
     };
 
@@ -168,7 +174,7 @@ namespace Tea {
         MaterialComponent(const MaterialComponent&) = default;
         MaterialComponent(Ref<Material> material)
             : material(material) {}
-        
+
         template<class Archive>
         void serialize(Archive& archive)
         {
@@ -184,7 +190,7 @@ namespace Tea {
             PointLight = 1,
             SpotLight = 2
         };
-        
+
         alignas(16) glm::vec3 Color = {150.0f, 150.0f, 150.0f};
         alignas(16) glm::vec3 Direction = {0.0f, -1.0f, 0.0f};
         alignas(16) glm::vec3 Position = {0.0f, 0.0f, 0.0f};
