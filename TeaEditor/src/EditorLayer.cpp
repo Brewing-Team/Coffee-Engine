@@ -63,7 +63,7 @@ namespace Tea {
             case SceneState::Play:
                 m_ActiveScene->OnUpdateRuntime(dt);
             break;
-        
+
         }
     }
 
@@ -99,7 +99,7 @@ namespace Tea {
                 if(m_SceneTreePanel.GetSelectedEntity())
                 {
                     glm::mat4 worldTransform = m_SceneTreePanel.GetSelectedEntity().GetComponent<TransformComponent>().GetWorldTransform();
-                    
+
                     m_EditorCamera.SetFocusPoint(glm::vec3(worldTransform[3]));
                 }
             break;
@@ -142,12 +142,24 @@ namespace Tea {
             }
             if (ImGui::BeginMenu("Editor"))
             {
+                if(ImGui::BeginMenu("Color Theme"))
+                {
+                    if(ImGui::MenuItem("Tea"))
+                    {
+                        Application::Get().GetImGuiLayer()->SetTeaColorStyle();
+                    }
+                    if(ImGui::MenuItem("Godot"))
+                    {
+                        Application::Get().GetImGuiLayer()->SetGodotColorStyle();
+                    }
+                    ImGui::EndMenu();
+                }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("About"))
             {
                 if(ImGui::MenuItem("About TeaEngine"))
-                { 
+                {
                     ImGui::OpenPopup("About TeaEngine");
                 }
                 ImGui::EndMenu();
@@ -237,7 +249,7 @@ namespace Tea {
 
             auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            
+
             ImGuizmo::Manipulate(glm::value_ptr(cameraView), glm::value_ptr(cameraProjection),
                                 (ImGuizmo::OPERATION)m_GizmoType, ImGuizmo::LOCAL,
                          glm::value_ptr(transform));
@@ -245,7 +257,7 @@ namespace Tea {
             if (ImGuizmo::IsUsing())
             {
               /*TODO: Revisit this bc this should work using the SetWorldTransform
-                but for this in the SetWorldTransform we should update the local 
+                but for this in the SetWorldTransform we should update the local
                 transform too and for this we need the transform of the parent.*/
 
                 glm::mat4 localTransform = transform;
@@ -270,11 +282,11 @@ namespace Tea {
 
         //transparent overlay displaying fps draw calls etc
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | /*ImGuiWindowFlags_AlwaysAutoResize |*/ ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
-        
+
         ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x - 150, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 100));
 
         ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
-        
+
         ImGui::Begin("Renderer Stats", NULL, window_flags);
         ImGui::Text("Size: %.0f x %.0f (%0.1fMP)", m_ViewportSize.x, m_ViewportSize.y, m_ViewportSize.x * m_ViewportSize.y / 1000000.0f);
         ImGui::Text("Draw Calls: %d", Renderer::GetStats().DrawCalls);
@@ -369,7 +381,7 @@ namespace Tea {
             SaveProjectAs();
             return;
         }
-        
+
         Project::SaveActive(activeProject->GetProjectDirectory());
     }
 
