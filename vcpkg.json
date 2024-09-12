@@ -1,8 +1,24 @@
 {
-    "dependencies": [
-      "fmt",
-      "spdlog",
-      "glfw",
-      "glm"
-    ]
-  }
+  "name" : "tea-engine",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "576379156e82da642f8d1834220876759f13534d",
+  "dependencies" : [ {
+    "name" : "glfw3",
+    "version>=" : "3.4"
+  }, {
+    "name" : "cereal",
+    "version>=" : "1.3.2#1"
+  }, {
+    "name" : "fmt",
+    "version>=" : "10.2.1#2"
+  }, {
+    "name" : "spdlog",
+    "version>=" : "1.14.1"
+  }, {
+    "name" : "glm",
+    "version>=" : "1.0.1#3"
+  }, {
+    "name" : "assimp",
+    "version>=" : "5.4.0#1"
+  } ]
+}

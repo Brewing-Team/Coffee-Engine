@@ -17,3 +17,5 @@ bin
 *.kdev4
 *.kate-swp
 /traces
+/.idea
+/cmake-build-debug
