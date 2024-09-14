@@ -6,21 +6,54 @@
 namespace Tea {
 
 	class Layer
-	{
-	public:
-		
-	    Layer(const std::string& name = "Layer") : m_DebugName(name) {}
-		virtual ~Layer() = default;
+{
+public:
+    /**
+     * Constructor for the Layer class.
+     * @param name The name of the layer, default is "Layer".
+     */
+    Layer(const std::string& name = "Layer") : m_DebugName(name) {}
 
-	    virtual void OnAttach() {}
-		virtual void OnDetach() {}
-		virtual void OnUpdate(float dt) {}
-		virtual void OnImGuiRender() {}
-		virtual void OnEvent(Event& event) {}
+    /**
+     * Virtual destructor for the Layer class.
+     */
+    virtual ~Layer() = default;
 
-		const std::string& GetName() const { return m_DebugName; }
-	protected:
-		std::string m_DebugName;
-	};
+    /**
+     * Called when the layer is attached.
+     */
+    virtual void OnAttach() {}
+
+    /**
+     * Called when the layer is detached.
+     */
+    virtual void OnDetach() {}
+
+    /**
+     * Called every frame to update the layer.
+     * @param dt Delta time since the last frame.
+     */
+    virtual void OnUpdate(float dt) {}
+
+    /**
+     * Called to render ImGui elements.
+     */
+    virtual void OnImGuiRender() {}
+
+    /**
+     * Called when an event occurs.
+     * @param event The event that occurred.
+     */
+    virtual void OnEvent(Event& event) {}
+
+    /**
+     * Gets the name of the layer.
+     * @return The name of the layer.
+     */
+    const std::string& GetName() const { return m_DebugName; }
+
+protected:
+    std::string m_DebugName;
+};
 
 }
