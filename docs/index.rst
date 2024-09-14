@@ -1,5 +1,5 @@
 Welcome to Tea's Engine documentation!
-=====================================
+=========================================
 
 .. toctree::
    :caption: Contents:
@@ -7,3 +7,4 @@ Welcome to Tea's Engine documentation!
 
    Input
    Layer
+   Classes
