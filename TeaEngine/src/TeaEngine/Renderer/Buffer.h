@@ -102,8 +102,8 @@ namespace Tea {
     class VertexBuffer
     {
     public:
-        VertexBuffer(u_int32_t size);
-        VertexBuffer(float* vertices, u_int32_t size);
+        VertexBuffer(uint32_t size);
+        VertexBuffer(float* vertices, uint32_t size);
         virtual ~VertexBuffer();
 
         void Bind();

@@ -55,7 +55,7 @@ namespace Tea {
         return CreateRef<VertexBuffer>(size);
     }
 
-    Ref<VertexBuffer> VertexBuffer::Create(float* vertices, u_int32_t size)
+    Ref<VertexBuffer> VertexBuffer::Create(float* vertices, uint32_t size)
     {
         return CreateRef<VertexBuffer>(vertices, size);
     }
