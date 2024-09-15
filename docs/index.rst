@@ -2,9 +2,8 @@ Welcome to Tea's Engine documentation!
 =========================================
 
 .. toctree::
-   :caption: Contents:
-   :maxdepth: 2
+   :hidden:
+   :maxdepth: 1
+   :caption: Class reference:
 
-   Input
-   Layer
-   Classes
+   classes/index

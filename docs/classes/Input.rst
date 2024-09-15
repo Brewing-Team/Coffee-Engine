@@ -1,6 +1,6 @@
 …
 
-Input Class Documentation
+Input Class
 ==========================
 
 .. doxygenclass:: Tea::Input

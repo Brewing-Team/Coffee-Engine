@@ -1,6 +1,6 @@
 …
 
-Layer Class Documentation
+Layer Class
 ==========================
 
 .. doxygenclass:: Tea::Layer

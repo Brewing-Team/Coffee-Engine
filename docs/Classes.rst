@@ -1,7 +1,0 @@
-…
-
-Classes
-=======
-
-.. doxygenindex::
-   :project: TeaEngine
