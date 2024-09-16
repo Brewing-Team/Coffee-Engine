@@ -6,76 +6,76 @@ namespace Tea {
 
     /**
      * @defgroup imgui ImGui
-     * @brief ImGui components of the TeaEngine.
      * @{
      */
 
     /**
-     * @brief The ImGuiLayer class is responsible for managing the ImGui layer in the application.
+     * @brief Layer for ImGui integration.
+     * @ingroup imgui
      */
     class ImGuiLayer : public Layer
     {
     public:
         /**
-         * @brief Constructs the ImGuiLayer object.
+         * @brief Constructor for ImGuiLayer.
          */
         ImGuiLayer();
 
         /**
-         * @brief Destroys the ImGuiLayer object.
+         * @brief Destructor for ImGuiLayer.
          */
         ~ImGuiLayer();
 
         /**
-         * @brief Attaches the ImGui layer to the application.
+         * @brief Called when the layer is attached.
          */
         void OnAttach() override;
 
         /**
-         * @brief Detaches the ImGui layer from the application.
+         * @brief Called when the layer is detached.
          */
         void OnDetach() override;
 
         /**
-         * @brief Handles events for the ImGui layer.
-         * @param e The event to handle.
+         * @brief Called when an event occurs.
+         * @param e The event.
          */
         void OnEvent(Event& e) override;
 
         /**
-         * @brief Begins a new ImGui frame.
+         * @brief Begin ImGui frame.
          */
         void Begin();
 
         /**
-         * @brief Ends the current ImGui frame.
+         * @brief End ImGui frame.
          */
         void End();
 
         /**
-         * @brief Renders ImGui elements.
+         * @brief Called to render ImGui.
          */
         void OnImGuiRender() override;
 
         /**
-         * @brief Blocks or unblocks events from being handled by the ImGui layer.
-         * @param block True to block events, false to unblock.
+         * @brief Block or unblock events.
+         * @param block Whether to block events.
          */
         void BlockEvents(bool block) { m_BlockEvents = block; }
 
         /**
-         * @brief Sets the Tea color style for ImGui.
+         * @brief Set the Tea color style for ImGui.
          */
         void SetTeaColorStyle();
 
         /**
-         * @brief Sets the Godot color style for ImGui.
+         * @brief Set the Godot color style for ImGui.
          */
         void SetGodotColorStyle();
 
     private:
-        bool m_BlockEvents = true; ///< Indicates whether events are blocked.
+        bool m_BlockEvents = true;
     };
 
-    /** @} */
+    /** @} */ // end of imgui group
 }
