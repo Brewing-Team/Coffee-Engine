@@ -3,8 +3,12 @@
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Events/Event.h"
 
-namespace Tea {
 
+namespace Tea {
+    /**
+     * @defgroup core Core
+     * @{
+     */
 	class Layer
 {
 public:
@@ -55,5 +59,5 @@ public:
 protected:
     std::string m_DebugName;
 };
-
+    /** @} */
 }

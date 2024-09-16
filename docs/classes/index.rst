@@ -5,11 +5,9 @@ All classes
 Core
 ====
 
-.. toctree::
-   :maxdepth: 1
-
-   Input
-   Layer
+.. doxygengroup:: core
+   :project: TeaEngine
+   :members:
 
 Events
 ======

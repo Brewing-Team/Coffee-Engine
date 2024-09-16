@@ -6,7 +6,10 @@
 #include <glm/glm.hpp>
 
 namespace Tea {
-    
+    /**
+     * @defgroup core Core
+     * @{
+     */
 	class Input
 	{
 	public:
@@ -44,4 +47,5 @@ namespace Tea {
 		 */
 		static float GetMouseY();
 	};
+    /** @} */
 }
