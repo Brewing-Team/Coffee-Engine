@@ -5,50 +5,92 @@
 
 namespace Tea
 {
+    /**
+     * @defgroup renderer Renderer
+     * @brief Renderer components of the TeaEngine.
+     * @{
+     */
+
+    /**
+     * @brief The Camera class is responsible for managing the camera's projection matrix.
+     */
     class Camera
-	{
-	public:
-		Camera() = default;
-		Camera(const glm::mat4& projection)
-			: m_Projection(projection) {}
+    {
+    public:
+        /**
+         * @brief Default constructor for the Camera class.
+         */
+        Camera() = default;
 
-		virtual ~Camera() = default;
+        /**
+         * @brief Constructs a Camera object with the specified projection matrix.
+         * @param projection The projection matrix.
+         */
+        Camera(const glm::mat4& projection)
+            : m_Projection(projection) {}
 
-		const glm::mat4& GetProjection() const { return m_Projection; }
-	protected:
-		enum class ProjectionType
-		{
-			PERSPECTIVE,
-			ORTHOGRAPHIC
-		};
+        /**
+         * @brief Virtual destructor for the Camera class.
+         */
+        virtual ~Camera() = default;
 
-		glm::mat4 ProjectionTypeToMat4(ProjectionType projection)
-		{
-			switch (projection) {
-				case ProjectionType::PERSPECTIVE:
-					return glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
-				break;
-				case ProjectionType::ORTHOGRAPHIC:
-					float orthoHeight = 10.0f; // Define the height of the orthographic view
-					float orthoWidth = orthoHeight * m_AspectRatio; // Calculate width based on aspect ratio
-					return glm::ortho(-orthoWidth / 2, orthoWidth / 2, -orthoHeight / 2, orthoHeight / 2, m_NearClip, m_FarClip);
-				break;
-			}
-		}
+        /**
+         * @brief Gets the projection matrix of the camera.
+         * @return The projection matrix.
+         */
+        const glm::mat4& GetProjection() const { return m_Projection; }
 
-		void UpdateProjection()
-		{
-			m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
-			m_Projection = ProjectionTypeToMat4(m_ProjectionType);
-		}
-	protected:
-	    float m_FOV = 45.0f, m_AspectRatio = 1.778, m_NearClip = 0.1f, m_FarClip = 1000.0f;
+    protected:
+        /**
+         * @brief Enum class representing the type of projection.
+         */
+        enum class ProjectionType
+        {
+            PERSPECTIVE, ///< Perspective projection.
+            ORTHOGRAPHIC ///< Orthographic projection.
+        };
 
-		glm::mat4 m_Projection = glm::mat4(1.0f);
+        /**
+         * @brief Converts the projection type to a projection matrix.
+         * @param projection The type of projection.
+         * @return The projection matrix.
+         */
+        glm::mat4 ProjectionTypeToMat4(ProjectionType projection)
+        {
+            switch (projection) {
+                case ProjectionType::PERSPECTIVE:
+                    return glm::perspective(glm::radians(m_FOV), m_AspectRatio, m_NearClip, m_FarClip);
+                break;
+                case ProjectionType::ORTHOGRAPHIC:
+                    float orthoHeight = 10.0f; // Define the height of the orthographic view
+                    float orthoWidth = orthoHeight * m_AspectRatio; // Calculate width based on aspect ratio
+                    return glm::ortho(-orthoWidth / 2, orthoWidth / 2, -orthoHeight / 2, orthoHeight / 2, m_NearClip, m_FarClip);
+                break;
+            }
+        }
 
-        ProjectionType m_ProjectionType = ProjectionType::PERSPECTIVE;
+        /**
+         * @brief Updates the projection matrix based on the current viewport dimensions and projection type.
+         */
+        void UpdateProjection()
+        {
+            m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
+            m_Projection = ProjectionTypeToMat4(m_ProjectionType);
+        }
 
-		float m_ViewportWidth = 1280, m_ViewportHeight = 720;
-	};
+    protected:
+        float m_FOV = 45.0f; ///< The field of view for the perspective projection.
+        float m_AspectRatio = 1.778; ///< The aspect ratio of the viewport.
+        float m_NearClip = 0.1f; ///< The near clipping plane distance.
+        float m_FarClip = 1000.0f; ///< The far clipping plane distance.
 
+        glm::mat4 m_Projection = glm::mat4(1.0f); ///< The projection matrix.
+
+        ProjectionType m_ProjectionType = ProjectionType::PERSPECTIVE; ///< The type of projection.
+
+        float m_ViewportWidth = 1280; ///< The width of the viewport.
+        float m_ViewportHeight = 720; ///< The height of the viewport.
+    };
+
+    /** @} */
 }
