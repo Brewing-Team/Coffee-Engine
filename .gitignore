@@ -19,3 +19,4 @@ bin
 /traces
 /.idea
 /cmake-build-debug
+/.vs
