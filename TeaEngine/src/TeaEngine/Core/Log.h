@@ -5,18 +5,40 @@
 
 namespace Tea
 {
+    /**
+     * @defgroup core Core
+     * @brief Core components of the TeaEngine.
+     * @{
+     */
+
+    /**
+     * @brief The Log class is responsible for initializing and providing access to the core and client loggers.
+     */
     class Log
     {
       public:
+        /**
+         * @brief Initializes the logging system.
+         */
         static void Init();
 
+        /**
+         * @brief Gets the core logger.
+         * @return A shared pointer to the core logger.
+         */
         inline static std::shared_ptr<spdlog::logger>& GetCoreLogger() { return s_CoreLogger; }
+
+        /**
+         * @brief Gets the client logger.
+         * @return A shared pointer to the client logger.
+         */
         inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 
       private:
-        static std::shared_ptr<spdlog::logger> s_CoreLogger;
-        static std::shared_ptr<spdlog::logger> s_ClientLogger;
+        static std::shared_ptr<spdlog::logger> s_CoreLogger; ///< The core logger.
+        static std::shared_ptr<spdlog::logger> s_ClientLogger; ///< The client logger.
     };
+    /** @} */
 } // namespace Tea
 
 // Core log macros

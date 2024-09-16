@@ -8,6 +8,7 @@
 namespace Tea {
     /**
      * @defgroup core Core
+     * @brief Core components of the TeaEngine.
      * @{
      */
 	class Input
