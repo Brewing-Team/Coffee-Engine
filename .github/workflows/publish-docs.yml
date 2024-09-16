@@ -2,8 +2,8 @@ name: Publish Documentation
 
 on:
   push:
-    tags:
-      - doc
+    branches:
+      - main
 
 jobs:
   build-docs:
