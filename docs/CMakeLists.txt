@@ -1,7 +1,7 @@
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/docs/cmake" ${CMAKE_MODULE_PATH})
 
-find_package(Doxygen REQUIRED)
-find_package(Sphinx REQUIRED)
+find_package(Doxygen)
+find_package(Sphinx)
 
 # Find all the public headers
 get_target_property(TEA_ENGINE_PUBLIC_HEADER_DIR TeaEngine INTERFACE_INCLUDE_DIRECTORIES)
