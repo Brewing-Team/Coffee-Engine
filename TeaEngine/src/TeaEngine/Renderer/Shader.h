@@ -1,6 +1,7 @@
 #pragma once
 
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/IO/Resource.h"
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -10,16 +11,7 @@
 
 namespace Tea {
 
-    /**
-     * @defgroup renderer Renderer
-     * @brief Renderer components of the TeaEngine.
-     * @{
-     */
-
-    /**
-     * @brief Class representing a shader program.
-     */
-    class Shader
+    class Shader : public Resource
     {
     public:
         /**
@@ -125,36 +117,4 @@ namespace Tea {
     private:
         unsigned int m_ShaderID; ///< The ID of the shader program.
     };
-
-    /**
-     * @brief Class representing a library of shaders.
-     */
-    class ShaderLibrary
-    {
-    public:
-        /**
-         * @brief Adds a shader to the library.
-         * @param name The name of the shader.
-         * @param shader A reference to the shader.
-         */
-        static void Add(const std::string& name, const Ref<Shader>& shader) { m_Shaders[name] = shader; }
-
-        /**
-         * @brief Gets a shader from the library by name.
-         * @param name The name of the shader.
-         * @return A reference to the shader.
-         */
-        static Ref<Shader> Get(const std::string& name) { return m_Shaders[name]; }
-
-        /**
-         * @brief Checks if a shader exists in the library by name.
-         * @param name The name of the shader.
-         * @return True if the shader exists, false otherwise.
-         */
-        static bool Exists(const std::string& name) { return m_Shaders[name] ? true : false; }
-    private:
-        static std::unordered_map<std::string, Ref<Shader>> m_Shaders; ///< The map of shaders.
-    };
-
-    /** @} */
 }

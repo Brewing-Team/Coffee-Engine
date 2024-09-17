@@ -1,4 +1,5 @@
 #include "TeaEngine/Renderer/Shader.h"
+#include "TeaEngine/IO/ResourceRegistry.h"
 
 #include <fstream>
 #include <sstream>
@@ -6,8 +7,6 @@
 #include <tracy/Tracy.hpp>
 
 namespace Tea {
-
-    std::unordered_map<std::string, Ref<Shader>> ShaderLibrary::m_Shaders;
 
     Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
     {
@@ -166,14 +165,14 @@ namespace Tea {
         std::filesystem::path filePath(vertexPath);
         std::string fileName = filePath.stem().string();
 
-        if(ShaderLibrary::Exists(fileName))
+        if(ResourceRegistry::Exists(fileName))
         {
-            return ShaderLibrary::Get(fileName);
+            return ResourceRegistry::Get<Shader>(fileName);
         }
         else
         {
             Ref<Shader> shader = CreateRef<Shader>(vertexPath, fragmentPath);
-            ShaderLibrary::Add(fileName, shader);
+            ResourceRegistry::Add(fileName, shader);
             return shader;
         }
     }

@@ -12,8 +12,6 @@
 
 namespace Tea {
 
-    //std::unordered_map<std::string, Ref<Texture>> TextureLibrary::m_Textures;
-
     GLenum ImageFormatToOpenGLInternalFormat(ImageFormat format)
     {
         switch(format)
