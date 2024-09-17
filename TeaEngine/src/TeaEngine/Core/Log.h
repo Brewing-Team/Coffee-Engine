@@ -46,11 +46,11 @@ namespace Tea
 #define TEA_CORE_INFO(...)  ::Tea::Log::GetCoreLogger()->info(__VA_ARGS__)
 #define TEA_CORE_WARN(...)  ::Tea::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define TEA_CORE_ERROR(...) ::Tea::Log::GetCoreLogger()->error(__VA_ARGS__)
-#define TEA_CORE_FATAL(...) ::Tea::Log::GetCoreLogger()->fatal(__VA_ARGS__)
+#define TEA_CORE_CRITICAL(...) ::Tea::Log::GetCoreLogger()->critical(__VA_ARGS__)
 
 // Client log macros
 #define TEA_TRACE(...)      ::Tea::Log::GetClientLogger()->trace(__VA_ARGS__)
 #define TEA_INFO(...)       ::Tea::Log::GetClientLogger()->info(__VA_ARGS__)
 #define TEA_WARN(...)       ::Tea::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define TEA_ERROR(...)      ::Tea::Log::GetClientLogger()->error(__VA_ARGS__)
-#define TEA_FATAL(...)      ::Tea::Log::GetClientLogger()->fatal(__VA_ARGS__)
+#define TEA_CRITICAL(...)      ::Tea::Log::GetClientLogger()->critical(__VA_ARGS__)
