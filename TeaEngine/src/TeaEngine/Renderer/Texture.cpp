@@ -1,6 +1,8 @@
 #include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
+#include "TeaEngine/IO/Resource.h"
+#include "TeaEngine/IO/ResourceRegistry.h"
 #include "TeaEngine/Renderer/Image.h"
 
 #include <cstdint>
@@ -10,7 +12,7 @@
 
 namespace Tea {
 
-    std::unordered_map<std::string, Ref<Texture>> TextureLibrary::m_Textures;
+    //std::unordered_map<std::string, Ref<Texture>> TextureLibrary::m_Textures;
 
     GLenum ImageFormatToOpenGLInternalFormat(ImageFormat format)
     {
@@ -73,11 +75,12 @@ namespace Tea {
         glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     }
 
-    Texture::Texture(const std::string& path, bool srgb)
+    Texture::Texture(const std::filesystem::path& path, bool srgb)
     {
         ZoneScoped;
 
         m_FilePath = path;
+        m_Name = path.filename();
 
         m_Properties.srgb = srgb;
 
@@ -127,7 +130,7 @@ namespace Tea {
         }
         else
         {
-            TEA_CORE_ERROR("Failed to load texture: {0} (REASON: {1})", m_FilePath, stbi_failure_reason());
+            TEA_CORE_ERROR("Failed to load texture: {0} (REASON: {1})", m_FilePath.string(), stbi_failure_reason());
             m_textureID = 0; // Set texture ID to 0 to indicate failure
         }
     }
@@ -186,19 +189,19 @@ namespace Tea {
         glGenerateTextureMipmap(m_textureID);
     }
 
-    Ref<Texture> Texture::Load(const std::string& path, bool srgb)
+    Ref<Texture> Texture::Load(const std::filesystem::path& path, bool srgb)
     {
         std::filesystem::path filePath(path);
         std::string fileName = filePath.filename().string();
 
-        if(TextureLibrary::Exists(fileName))
+        if(ResourceRegistry::Exists(fileName))
         {
-            return TextureLibrary::Get(fileName);
+            return ResourceRegistry::Get<Texture>(fileName);
         }
         else
         {
             Ref<Texture> texture = CreateRef<Texture>(path, srgb);
-            TextureLibrary::Add(fileName, texture);
+            ResourceRegistry::Add(fileName, texture);
             return texture;
         }
     }
