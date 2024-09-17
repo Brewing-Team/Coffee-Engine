@@ -4,15 +4,14 @@
 #include "TeaEngine/Scene/Scene.h"
 #include "TeaEngine/Scene/Entity.h"
 #include "Panel.h"
-#include "entt/entity/fwd.hpp"
 
 namespace Tea {
 
-    class SceneTreePanel : public Panel
+    class ContentBrowserPanel : public Panel
     {
     public:
-        SceneTreePanel() = default;
-        SceneTreePanel(const Ref<Scene>& scene);
+        ContentBrowserPanel() = default;
+        ContentBrowserPanel(const Ref<Scene>& scene);
 
         void SetContext(const Ref<Scene>& scene);
 

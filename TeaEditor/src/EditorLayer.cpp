@@ -9,7 +9,6 @@
 #include "TeaEngine/Renderer/DebugRenderer.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Renderer.h"
-#include "TeaEngine/Renderer/RendererAPI.h"
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Scene.h"
 #include "Panels/SceneTreePanel.h"
@@ -44,6 +43,12 @@ namespace Tea {
         m_ActiveScene->OnInit();
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
+        m_ContentBrowserPanel.SetContext(m_ActiveScene);
+
+        // Panels
+        m_Panels.push_back(std::make_shared<SceneTreePanel>(m_ActiveScene));
+        m_Panels.push_back(std::make_shared<ContentBrowserPanel>(m_ActiveScene));
+
 
         //For now we are going to create a new project when the editor is attached
         Project::New();
@@ -191,7 +196,10 @@ namespace Tea {
             ImGui::EndMainMenuBar();
         }
 
-        m_SceneTreePanel.OnImGuiRender();
+        for (const auto& panel : m_Panels)
+        {
+            panel->OnImGuiRender();
+        }
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
