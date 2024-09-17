@@ -49,7 +49,6 @@ namespace Tea {
         m_Panels.push_back(std::make_shared<SceneTreePanel>(m_ActiveScene));
         m_Panels.push_back(std::make_shared<ContentBrowserPanel>(m_ActiveScene));
 
-
         //For now we are going to create a new project when the editor is attached
         Project::New();
     }
@@ -196,6 +195,7 @@ namespace Tea {
             ImGui::EndMainMenuBar();
         }
 
+        // Iterate over all panels and render them
         for (const auto& panel : m_Panels)
         {
             panel->OnImGuiRender();
