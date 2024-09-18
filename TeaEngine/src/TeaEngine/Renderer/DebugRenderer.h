@@ -46,7 +46,9 @@ namespace Tea {
          */
         static void DrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
-        static void DrawCircle(const glm::vec3& center, float radius, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        static void DrawCircle(const glm::vec3& position, float radius, const glm::quat& rotation, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
+
+        static void DrawSphere(const glm::vec3& position, float radius, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
 
     private:

@@ -2,6 +2,11 @@
 #include "TeaEngine/Renderer/Buffer.h"
 #include "TeaEngine/Renderer/RendererAPI.h"
 #include "TeaEngine/Renderer/VertexArray.h"
+#include <glm/ext/quaternion_trigonometric.hpp>
+#include <glm/fwd.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 namespace Tea {
 
@@ -51,20 +56,26 @@ namespace Tea {
         RendererAPI::DrawLines(m_LineVertexArray, 2, lineWidth);
     }
 
-    void DebugRenderer::DrawCircle(const glm::vec3& center, float radius, glm::vec4 color, float lineWidth)
+    void DebugRenderer::DrawCircle(const glm::vec3& position, float radius, const glm::quat& rotation, glm::vec4 color, float lineWidth)
     {
         const int segments = 32;
-        const float angleIncrement = 2.0f * 3.14159f / segments;
+        const float angleStep = 2.0f * 3.14159f / segments;
 
         DebugVertex vertices[segments * 2];
 
         for(int i = 0; i < segments; i++)
         {
-            float angle = i * angleIncrement;
-            vertices[i] = {glm::vec3(center.x + radius * cos(angle), center.y + radius * sin(angle), center.z), color};
+            float cx = cos(i * angleStep) * radius;
+            float cy = sin(i * angleStep) * radius;
+            glm::vec3 p0 = position + glm::toMat3(rotation) * glm::vec3(cx, cy, 0.0f);
 
-            angle = (i + 1) * angleIncrement;
-            vertices[i + segments] = {glm::vec3(center.x + radius * cos(angle), center.y + radius * sin(angle), center.z), color};
+            vertices[i] = { p0, color };
+
+            cx = cos((i + 1) * angleStep) * radius;
+            cy = sin((i + 1) * angleStep) * radius;
+            glm::vec3 p1 = position + glm::toMat3(rotation) * glm::vec3(cx, cy, 0.0f);
+
+            vertices[i + segments] = { p1, color };
         }
 
         m_CircleVertexBuffer->SetData(vertices, sizeof(vertices));
@@ -72,6 +83,13 @@ namespace Tea {
         m_DebugShader->Bind();
 
         RendererAPI::DrawLines(m_CircleVertexArray, segments * 2, lineWidth);
+    }
+
+    void DebugRenderer::DrawSphere(const glm::vec3& position, float radius, glm::vec4 color, float lineWidth)
+    {
+        DrawCircle(position, radius, glm::quat(), color, lineWidth);
+        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), color, lineWidth);
+        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), color, lineWidth);
     }
 
 }
