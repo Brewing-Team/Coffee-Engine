@@ -1,6 +1,17 @@
 #version 450 core
 out vec4 FragColor;
 
+struct VertexData
+{
+    vec2 TexCoords;
+    vec3 Normal;
+    vec3 WorldPos;
+    vec3 camPos;
+    mat3 TBN;
+};
+
+layout (location = 0) in VertexData VertexInput;
+
 uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
@@ -31,12 +42,6 @@ layout (std140, binding = 1) uniform RenderData
     int lightCount;
 };
 
-in vec2 TexCoords;
-in vec3 WorldPos;
-in vec3 Normal;
-
-in vec3 camPos;
-
 const float PI = 3.14159265359;
 
 /* vec3 albedo = vec3(0.5f, 0.0f, 0.0f);
@@ -44,10 +49,9 @@ float metallic = 0.2;
 float roughness = 0.5;
 float ao = 1.0f; */
 
-//REMOVE this is for testing purposes;
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
+/*     vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(WorldPos);
     vec3 Q2  = dFdy(WorldPos);
@@ -59,7 +63,10 @@ vec3 getNormalFromMap()
     vec3 B  = -normalize(cross(N, T));
     mat3 TBN = mat3(T, B, N);
 
-    return normalize(TBN * tangentNormal);
+    return normalize(TBN * tangentNormal); */
+
+    vec3 normal = texture(normalMap, VertexInput.TexCoords).rgb * 2.0 - 1.0;
+        return normalize(VertexInput.TBN * normal);
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
@@ -105,14 +112,14 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main()
 {
-    vec3 albedo = texture(albedoMap, TexCoords).rgb;
-    float metallic = texture(metallicMap, TexCoords).b;
-    float roughness = texture(roughnessMap, TexCoords).g;
-    float ao = texture(aoMap, TexCoords).r;
+    vec3 albedo = texture(albedoMap, VertexInput.TexCoords).rgb;
+    float metallic = texture(metallicMap, VertexInput.TexCoords).b;
+    float roughness = texture(roughnessMap, VertexInput.TexCoords).g;
+    float ao = texture(aoMap, VertexInput.TexCoords).r;
 
     //vec3 N = normalize(Normal);
     vec3 N = getNormalFromMap();
-    vec3 V = normalize(camPos - WorldPos);
+    vec3 V = normalize(VertexInput.camPos - VertexInput.WorldPos);
 
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, albedo, metallic);
@@ -135,8 +142,8 @@ void main()
         {
             /*====Point Light====*/
 
-            L = normalize(lights[i].position - WorldPos);
-            float distance = length(lights[i].position - WorldPos);
+            L = normalize(lights[i].position - VertexInput.WorldPos);
+            float distance = length(lights[i].position - VertexInput.WorldPos);
             float attenuation = 1.0 / (distance * distance);
             radiance = lights[i].color * attenuation * lights[i].intensity;
         }
