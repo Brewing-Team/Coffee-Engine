@@ -120,11 +120,33 @@ void main()
     vec3 Lo = vec3(0.0);
     for(int i = 0; i < lightCount; i++)
     {
-        vec3 L = normalize(lights[i].position - WorldPos);
+        vec3 L = vec3(0.0);
+
+        vec3 radiance = vec3(0.0);
+
+        if(lights[i].type == 0)
+        {
+            /*====Directional Light====*/
+
+            L = normalize(-lights[i].direction);
+            radiance = lights[i].color * lights[i].intensity;
+        }
+        else if(lights[i].type == 1)
+        {
+            /*====Point Light====*/
+
+            L = normalize(lights[i].position - WorldPos);
+            float distance = length(lights[i].position - WorldPos);
+            float attenuation = 1.0 / (distance * distance);
+            radiance = lights[i].color * attenuation * lights[i].intensity;
+        }
+        else if(lights[i].type == 2)
+        {
+            /*====Spot Light====*/
+            
+        }
+
         vec3 H = normalize(V + L);
-        float distance = length(lights[i].position - WorldPos);
-        float attenuation = 1.0 / (distance * distance);
-        vec3 radiance = lights[i].color * attenuation * lights[i].intensity;
 
         float NDF = DistributionGGX(N, H, roughness);
         float G = GeometrySmith(N, V, L, roughness);
