@@ -92,4 +92,99 @@ namespace Tea {
         DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), color, lineWidth);
     }
 
+    void DebugRenderer::DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength, glm::vec4 color, float lineWidth)
+    {
+        //===============ARROW TRANSLATION FROM ARROW GIZMO GODOT=============
+/*         const int arrow_points = 7;
+        const float arrow_length = 1.5f;
+
+        glm::vec3 arrow[arrow_points] = {
+            glm::vec3(0, 0, -1),
+            glm::vec3(0, 0.8f, 0),
+            glm::vec3(0, 0.3f, 0),
+            glm::vec3(0, 0.3f, arrow_length),
+            glm::vec3(0, -0.3f, arrow_length),
+            glm::vec3(0, -0.3f, 0),
+            glm::vec3(0, -0.8f, 0)
+        };
+
+        const int arrow_sides = 2;
+
+        std::vector<DebugVertex> vertices;
+
+        for (int i = 0; i < arrow_sides; i++) {
+            for (int j = 0; j < arrow_points; j++) {
+                glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::pi<float>() * i / arrow_sides, glm::vec3(0, 0, 1));
+
+                glm::vec3 v1 = arrow[j] - glm::vec3(0, 0, arrow_length);
+                glm::vec3 v2 = arrow[(j + 1) % arrow_points] - glm::vec3(0, 0, arrow_length);
+
+                glm::vec3 transformed_v1 = glm::vec3(rotation * glm::vec4(v1, 1.0f));
+                glm::vec3 transformed_v2 = glm::vec3(rotation * glm::vec4(v2, 1.0f));
+
+                vertices.push_back({transformed_v1, color});
+                vertices.push_back({transformed_v2, color});
+            }
+        } */
+
+        //====================================================================
+
+        const int arrow_points = 7;
+        const float arrow_length = fixedLength ? 1.5f : glm::length(end - start);
+
+        glm::vec3 arrow[arrow_points] = {
+            glm::vec3(0, 0, -1),
+            glm::vec3(0, 0.8f, 0),
+            glm::vec3(0, 0.3f, 0),
+            glm::vec3(0, 0.3f, arrow_length),
+            glm::vec3(0, -0.3f, arrow_length),
+            glm::vec3(0, -0.3f, 0),
+            glm::vec3(0, -0.8f, 0)
+        };
+
+        const int arrow_sides = 2;
+
+        std::vector<DebugVertex> vertices;
+
+        glm::vec3 direction = glm::normalize(end - start);
+        glm::vec3 up = glm::vec3(0, 1, 0);
+        if (glm::abs(glm::dot(direction, up)) > 0.99f) {
+            up = glm::vec3(1, 0, 0);
+        }
+        glm::vec3 right = glm::normalize(glm::cross(up, direction));
+        up = glm::cross(direction, right);
+
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform[0] = glm::vec4(right, 0.0f);
+        transform[1] = glm::vec4(up, 0.0f);
+        transform[2] = glm::vec4(direction, 0.0f);
+        transform[3] = glm::vec4(start, 1.0f);
+
+        for (int i = 0; i < arrow_sides; i++) {
+            for (int j = 0; j < arrow_points; j++) {
+                glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::pi<float>() * i / arrow_sides, glm::vec3(0, 0, 1));
+
+                glm::vec3 v1 = arrow[j] - glm::vec3(0, 0, arrow_length);
+                glm::vec3 v2 = arrow[(j + 1) % arrow_points] - glm::vec3(0, 0, arrow_length);
+
+                glm::vec3 transformed_v1 = glm::vec3(transform * rotation * glm::vec4(v1, 1.0f));
+                glm::vec3 transformed_v2 = glm::vec3(transform * rotation * glm::vec4(v2, 1.0f));
+
+                vertices.push_back({transformed_v1, color});
+                vertices.push_back({transformed_v2, color});
+            }
+        }
+
+        m_CircleVertexBuffer->SetData(vertices.data(), vertices.size() * sizeof(DebugVertex));
+
+        m_DebugShader->Bind();
+
+        RendererAPI::DrawLines(m_CircleVertexArray, vertices.size(), lineWidth);
+    }
+
+    void DebugRenderer::DrawArrow(const glm::vec3& origin, const glm::vec3& direction, float length, glm::vec4 color, float lineWidth)
+    {
+        glm::vec3 end = origin - direction * length;
+        DrawArrow(origin, end, false, color, lineWidth);
+    }
 }

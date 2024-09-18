@@ -50,6 +50,8 @@ namespace Tea {
 
         static void DrawSphere(const glm::vec3& position, float radius, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
+        static void DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength = true, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        static void DrawArrow(const glm::vec3& origin, const glm::vec3& direction, float length = 1.5f, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
     private:
         static Ref<VertexArray> m_LineVertexArray; ///< The vertex array for the line.
