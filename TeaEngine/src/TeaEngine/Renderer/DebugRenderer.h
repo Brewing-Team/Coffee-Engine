@@ -15,7 +15,7 @@ namespace Tea {
     /**
      * @brief Structure representing a vertex in a line.
      */
-    struct LineVertex
+    struct DebugVertex
     {
         glm::vec3 Position; ///< The position of the vertex.
         glm::vec4 Color; ///< The color of the vertex.
@@ -46,10 +46,17 @@ namespace Tea {
          */
         static void DrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
+        static void DrawCircle(const glm::vec3& center, float radius, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
+
+
     private:
         static Ref<VertexArray> m_LineVertexArray; ///< The vertex array for the line.
         static Ref<VertexBuffer> m_LineVertexBuffer; ///< The vertex buffer for the line.
-        static Ref<Shader> m_LineShader; ///< The shader used for rendering the line.
+
+        static Ref<VertexArray> m_CircleVertexArray; ///< The vertex array for the circle.
+        static Ref<VertexBuffer> m_CircleVertexBuffer; ///< The vertex buffer for the circle.
+
+        static Ref<Shader> m_DebugShader; ///< The shader used for rendering the debug shapes.
     };
 
     /** @} */
