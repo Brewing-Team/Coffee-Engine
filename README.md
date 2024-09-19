@@ -80,7 +80,10 @@ cd ../bin/TeaEditor/Release
 
 # Screenshots
 
-![Tea-Engine Screenshot-1.png](/Resources/Screenshot-1.png?raw=true)
+
+![Tea-Engine Screenshot-1.png](/Resources/Captura de pantalla_20240820_212911.png?raw=true)
+![Tea-Engine Screenshot-2.png](/Resources/vlcsnap-2024-09-19-11h51m05s268.png?raw=true)
+![Tea-Engine Screenshot-3.png](/Resources/Captura de pantalla_20240806_153839.png?raw=true)
 
 ---
 
