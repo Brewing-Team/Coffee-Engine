@@ -17,6 +17,9 @@
 
 namespace Tea {
 
+    static bool s_viewportResized = false;
+    static uint32_t s_viewportWidth = 0, s_viewportHeight = 0;
+
     RendererData Renderer::s_RendererData;
     RendererStats Renderer::s_Stats;
     RenderSettings Renderer::s_RenderSettings;
@@ -64,6 +67,13 @@ namespace Tea {
         s_Stats.DrawCalls = 0;
         s_Stats.VertexCount = 0;
         s_Stats.IndexCount = 0;
+
+        //I think if a render queue is implemented this is not necessary. The OnResize would work.
+        if(s_viewportResized)
+        {
+            ResizeFramebuffers();
+            s_viewportResized = false;
+        }
 
         s_RendererData.cameraData.view = camera.GetViewMatrix();
         s_RendererData.cameraData.projection = camera.GetProjection();
@@ -201,7 +211,15 @@ namespace Tea {
 
     void Renderer::OnResize(uint32_t width, uint32_t height)
     {
-        s_MainFramebuffer->Resize(width, height);
-        s_PostProcessingFramebuffer->Resize(width, height);
+        s_viewportWidth = width;
+        s_viewportHeight = height;
+
+        s_viewportResized = true;
+    }
+
+    void Renderer::ResizeFramebuffers()
+    {
+        s_MainFramebuffer->Resize(s_viewportWidth, s_viewportHeight);
+        s_PostProcessingFramebuffer->Resize(s_viewportWidth, s_viewportHeight);
     }
 }

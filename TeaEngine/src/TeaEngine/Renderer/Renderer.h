@@ -175,6 +175,10 @@ namespace Tea {
         static RenderSettings& GetRenderSettings() { return s_RenderSettings; }
 
     private:
+
+        static void ResizeFramebuffers();
+
+    private:
         static RendererData s_RendererData; ///< Renderer data.
         static RendererStats s_Stats; ///< Renderer statistics.
         static RenderSettings s_RenderSettings; ///< Render settings.
