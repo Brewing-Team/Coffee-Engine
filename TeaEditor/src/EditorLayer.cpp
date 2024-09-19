@@ -334,6 +334,30 @@ namespace Tea {
             Renderer::Submit(selectedShader, meshComponent.mesh->GetVertexArray(), transform);
         } */
 
+        auto view = m_ActiveScene->GetAllEntitiesWithComponents<LightComponent, TransformComponent>();
+
+        for(auto entity : view)
+        {
+            auto& lightComponent = view.get<LightComponent>(entity);
+            auto& transformComponent = view.get<TransformComponent>(entity);
+
+            switch (lightComponent.type) {
+                case LightComponent::Type::DirectionalLight:
+                    //DebugRenderer::DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, lightComponent.Intensity);
+                    DebugRenderer::DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, 1.5f);
+                break;
+
+                case LightComponent::Type::PointLight:
+                    glm::vec3 worldPosition = transformComponent.GetWorldTransform()[3];
+                    float radius = lightComponent.Range;
+                    DebugRenderer::DrawSphere(worldPosition, radius);
+                break;
+
+                /* case LightComponent::Type::SpotLight:
+                break;    */         
+            }
+        }
+
         DebugRenderer::DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);
         DebugRenderer::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);
         DebugRenderer::DrawLine({0.0f, 0.0f, -1000.0f}, {0.0f, 0.0f, 1000.0f}, {0.153f, 0.525f, 0.918f, 1.0f}, 2);

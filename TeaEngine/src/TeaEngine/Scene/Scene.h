@@ -77,6 +77,12 @@ namespace Tea {
          */
         void OnExit();
 
+        template<typename... Components>
+        auto GetAllEntitiesWithComponents()
+        {
+            return m_Registry.view<Components...>();
+        }
+
         /**
          * @brief Load a scene from a file.
          * @param path The path to the file.
