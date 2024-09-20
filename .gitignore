@@ -19,3 +19,5 @@ bin
 /.idea
 /cmake-build-debug
 /.vs
+/cmake-build-debug-event-trace
+/cmake-build-debug-visual-studio
