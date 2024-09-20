@@ -1,12 +1,16 @@
 #include "ImGuiLayer.h"
+
 #include "TeaEngine/Core/Application.h"
 #include "TeaEngine/Core/Window.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
 
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
+//Previously this was in a specific file called ImGuiBuild.cpp but on Windows Platform using MSVC was not linking
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+#include <imgui_impl_opengl3.cpp>
+#include <imgui_impl_glfw.cpp>
+
 #include <GLFW/glfw3.h>
 #include <tracy/Tracy.hpp>
 
