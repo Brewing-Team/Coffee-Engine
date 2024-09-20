@@ -37,8 +37,8 @@ namespace Tea {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; //Comment this for disable the detached imgui windows from the main window
 
-        float fontSize = 18.0f;
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/OpenSans-SemiBold.ttf", fontSize);
+        /*float fontSize = 18.0f;
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("/usr/share/fonts/TTF/OpenSans-SemiBold.ttf", fontSize);*/
 
 		/* float fontSize = 16.0f;
         io.FontDefault = io.Fonts->AddFontFromFileTTF("/home/hugo/.fonts/iosevka-nerd-font.ttf", fontSize); */

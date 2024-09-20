@@ -44,8 +44,8 @@ namespace Tea {
         }
         ImGui::SameLine();
 
-        static std::array<char, 256> searchBuffer;
-        ImGui::InputTextWithHint("##searchbar", "Search by name:",searchBuffer.begin(), searchBuffer.size());
+        /*static std::array<char, 256> searchBuffer;
+        ImGui::InputTextWithHint("##searchbar", "Search by name:",searchBuffer.begin(), searchBuffer.size());*/
 
         ImGui::BeginChild("entity tree", {0,0}, ImGuiChildFlags_Border);
 
