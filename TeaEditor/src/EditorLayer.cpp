@@ -43,7 +43,6 @@ namespace Tea {
         m_ActiveScene->OnInit();
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
-        m_ContentBrowserPanel.SetContext(m_ActiveScene);
 
         // Panels
         m_Panels.push_back(std::make_shared<SceneTreePanel>(m_ActiveScene));
@@ -135,6 +134,7 @@ namespace Tea {
                 if (ImGui::MenuItem("Open Scene...", "Ctrl+O")) { OpenScene(); }
                 if (ImGui::MenuItem("Save Scene", "Ctrl+S")) { SaveScene(); }
                 if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S")) { SaveSceneAs(); }
+                if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Project"))
@@ -142,7 +142,6 @@ namespace Tea {
                 if (ImGui::MenuItem("New Project...", "Ctrl+N")) { NewProject(); }
                 if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { OpenProject(); }
                 if (ImGui::MenuItem("Save Project", "Ctrl+S")) { SaveProject(); }
-                if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Editor"))
