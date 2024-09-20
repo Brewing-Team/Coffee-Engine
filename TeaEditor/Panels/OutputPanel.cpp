@@ -1,8 +1,6 @@
-//
-// Created by mdoradom on 20/09/24.
-//
-
 #include "OutputPanel.h"
+
+#include "TeaEngine/Core/Application.h"
 
 #include <imgui.h>
 
@@ -11,7 +9,11 @@ namespace Tea {
     void OutputPanel::OnImGuiRender()
     {
         ImGui::Begin("Output");
-        ImGui::Text("Hello from Output Panel");
+        const auto& logBuffer = Tea::Log::GetLogBuffer();
+        for (const auto& log : logBuffer)
+        {
+            ImGui::TextUnformatted(log.c_str());
+        }
         ImGui::End();
     }
 
