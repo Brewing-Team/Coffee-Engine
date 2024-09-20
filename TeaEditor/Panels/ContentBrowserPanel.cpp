@@ -40,7 +40,10 @@ namespace Tea {
                 auto relativePath = std::filesystem::relative(path, s_AssetPath);
                 std::string filenameString = relativePath.filename().string();
 
-                ImGui::Indent(depth * 10.0f); // Indent based on depth
+                if (depth > 0) // Only indent if not at the root level
+                {
+                    ImGui::Indent(10.0f); // Indent based on depth
+                }
 
                 if (directoryEntry.is_directory())
                 {
@@ -54,7 +57,10 @@ namespace Tea {
                     ImGui::Text(filenameString.c_str());
                 }
 
-                ImGui::Unindent(depth * 10.0f); // Unindent after processing
+                if (depth > 0) // Only unindent if not at the root level
+                {
+                    ImGui::Unindent(10.0f); // Unindent after processing
+                }
             }
         };
 
