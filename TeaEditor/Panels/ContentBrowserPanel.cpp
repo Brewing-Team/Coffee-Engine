@@ -31,26 +31,35 @@ namespace Tea {
             }
         }
 
-        for (auto& directoryEntry : std::filesystem::directory_iterator(m_CurrentDirectory) )
+        std::function<void(const std::filesystem::path&, int)> displayDirectoryContents;
+        displayDirectoryContents = [&](const std::filesystem::path& directory, int depth)
         {
-            const auto& path = directoryEntry.path();
-            auto relativePath = std::filesystem::relative(path, s_AssetPath);
-            std::string filenameString = relativePath.filename().string();
-            
-            if (directoryEntry.is_directory())
+            for (auto& directoryEntry : std::filesystem::directory_iterator(directory))
             {
-                if (ImGui::Button(filenameString.c_str()))
-                {
-                    m_CurrentDirectory /= path.filename();
+                const auto& path = directoryEntry.path();
+                auto relativePath = std::filesystem::relative(path, s_AssetPath);
+                std::string filenameString = relativePath.filename().string();
 
-                    TEA_INFO(m_CurrentDirectory.string());
+                ImGui::Indent(depth * 10.0f); // Indent based on depth
+
+                if (directoryEntry.is_directory())
+                {
+                    if (ImGui::CollapsingHeader(filenameString.c_str()))
+                    {
+                        displayDirectoryContents(path, depth + 1);
+                    }
                 }
+                else
+                {
+                    ImGui::Text(filenameString.c_str());
+                }
+
+                ImGui::Unindent(depth * 10.0f); // Unindent after processing
             }
-            else
-            {
-                ImGui::Text(directoryEntry.path().filename().string().c_str());
-            }
-        }
+        };
+
+        displayDirectoryContents(m_CurrentDirectory, 0);
+
         ImGui::End();
     }
 
