@@ -15,34 +15,6 @@ namespace Tea {
 
         ImGui::Begin("Content Browser");
 
-        std::function<void(const std::filesystem::path&, int)> displayDirectoryContents;
-        displayDirectoryContents = [&](const std::filesystem::path& directory, int depth)
-        {
-            for (auto& directoryEntry : std::filesystem::directory_iterator(directory))
-            {
-                const auto& path = directoryEntry.path();
-                auto relativePath = std::filesystem::relative(path, m_CurrentDirectory);
-                std::string filenameString = relativePath.filename().string();
-
-                ImGuiTreeNodeFlags flags = ((m_SelectedDirectory == path) ? ImGuiTreeNodeFlags_Selected : 0) |
-                                (directoryEntry.is_directory() ? 0 : ImGuiTreeNodeFlags_Leaf) |
-                                ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
-
-                if (ImGui::TreeNodeEx(filenameString.c_str(), flags))
-                {
-                    if (ImGui::IsItemClicked())
-                    {
-                        m_SelectedDirectory = path;
-                    }
-
-                    if(directoryEntry.is_directory())
-                        displayDirectoryContents(path, depth + 1);
-
-                    ImGui::TreePop();
-                }
-            }
-        };
-
         if(!Project::GetActive()->GetProjectDirectory().empty())
         {
             if(m_CurrentDirectory != Project::GetActive()->GetProjectDirectory())
@@ -50,7 +22,7 @@ namespace Tea {
                 m_CurrentDirectory = Project::GetActive()->GetProjectDirectory();
             }
 
-            displayDirectoryContents(m_CurrentDirectory, 0);
+            DisplayDirectoryContents(m_CurrentDirectory, 0);
         }
         else
         {
@@ -61,5 +33,32 @@ namespace Tea {
 
         ImGui::End();
     }
+
+    void ContentBrowserPanel::DisplayDirectoryContents(const std::filesystem::path& directory, int depth)
+    {
+        for (auto& directoryEntry : std::filesystem::directory_iterator(directory))
+        {
+            const auto& path = directoryEntry.path();
+            auto relativePath = std::filesystem::relative(path, m_CurrentDirectory);
+            std::string filenameString = relativePath.filename().string();
+
+            ImGuiTreeNodeFlags flags = ((m_SelectedDirectory == path) ? ImGuiTreeNodeFlags_Selected : 0) |
+                            (directoryEntry.is_directory() ? 0 : ImGuiTreeNodeFlags_Leaf) |
+                            ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
+
+            if (ImGui::TreeNodeEx(filenameString.c_str(), flags))
+            {
+                if (ImGui::IsItemClicked())
+                {
+                    m_SelectedDirectory = path;
+                }
+
+                if(directoryEntry.is_directory())
+                    DisplayDirectoryContents(path, depth + 1);
+
+                ImGui::TreePop();
+            }
+        }
+    };
 
 }

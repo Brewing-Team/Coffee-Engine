@@ -14,7 +14,9 @@ namespace Tea {
         ContentBrowserPanel(const Ref<Scene>& scene);
 
         void OnImGuiRender() override;
-
+    
+    private:
+        void DisplayDirectoryContents(const std::filesystem::path& directory, int depth);
     private:
         std::filesystem::path m_CurrentDirectory;
 
