@@ -4,6 +4,7 @@
 #include "TeaEngine/Core/Log.h"
 #include "TeaEngine/Core/Application.h"
 #include "TeaEngine/Events/KeyEvent.h"
+#include "TeaEngine/IO/ResourceRegistry.h"
 #include "TeaEngine/PrimitiveMesh.h"
 #include "TeaEngine/Project/Project.h"
 #include "TeaEngine/Renderer/DebugRenderer.h"
@@ -310,6 +311,20 @@ namespace Tea {
         ImGui::Checkbox("Post Processing", &Renderer::GetRenderSettings().PostProcessing);
 
         ImGui::DragFloat("Exposure", &Renderer::GetRenderSettings().Exposure, 0.001f, 100.0f);
+
+        ImGui::End();
+
+        //Debug Window for testing the ResourceRegistry
+        ImGui::Begin("Resource Registry");
+
+        auto& resources = ResourceRegistry::GetResourceRegistry();
+
+        for(auto& resource : resources)
+        {
+            ImGui::Text(resource.first.c_str());
+            ImGui::SameLine();
+            ImGui::Text("Use Count: %ld", resource.second.use_count() - 1);
+        }
 
         ImGui::End();
     }

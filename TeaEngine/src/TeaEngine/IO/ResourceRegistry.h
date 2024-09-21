@@ -21,6 +21,9 @@ namespace Tea {
             return std::static_pointer_cast<T>(m_Resources[name]);
         }
         static bool Exists(const std::string& name) { return m_Resources.find(name) != m_Resources.end(); }
+
+        //For debugging purposes only
+        static const std::unordered_map<std::string, Ref<Resource>>& GetResourceRegistry() { return m_Resources; }
     private:
         static std::unordered_map<std::string, Ref<Resource>> m_Resources;
     };

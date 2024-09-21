@@ -1,5 +1,6 @@
 #include "Project.h"
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/IO/ResourceLoader.h"
 
 #include <cereal/archives/json.hpp>
 
@@ -27,6 +28,8 @@ namespace Tea {
         project->m_ProjectDirectory = path.parent_path();
 
         s_ActiveProject = project;
+
+        ResourceLoader::LoadResources(project->m_ProjectDirectory);
 
         return project;
     }
