@@ -6,6 +6,7 @@
 #include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Scene/Scene.h"
 #include <assimp/scene.h>
+#include <filesystem>
 #include <glm/fwd.hpp>
 #include <string>
 #include <vector>
@@ -21,7 +22,7 @@ namespace Tea {
     /**
      * @brief Class representing a 3D model.
      */
-    class Model
+    class Model : public Resource
     {
     public:
         /**
@@ -33,13 +34,7 @@ namespace Tea {
          * @brief Constructs a Model from a file path.
          * @param filePath The file path to the model.
          */
-        Model(const std::string& filePath);
-
-        /**
-         * @brief Loads a model from the specified path.
-         * @param path The path to the model file.
-         */
-        void LoadModel(const std::string& path);
+        Model(const std::filesystem::path& path);
 
         /**
          * @brief Gets the meshes of the model.
@@ -77,6 +72,13 @@ namespace Tea {
          */
         const glm::mat4 GetTransform() const { return m_Transform; }
 
+        /**
+        * Loads a model from the specified file path.
+        *
+        * @param path The path to the model file.
+        */
+        static Ref<Model> Load(const std::filesystem::path& path);
+
     private:
         /**
          * @brief Processes a mesh from the Assimp mesh and scene.
@@ -113,9 +115,6 @@ namespace Tea {
 
         Model* m_Parent; ///< The parent model.
         std::vector<Ref<Model>> m_Children; ///< The children models.
-
-        std::string m_FilePath; ///< The file path to the model.
-        std::string m_Name; ///< The name of the model.
 
         glm::mat4 m_Transform; ///< The transformation matrix of the model.
     };

@@ -110,9 +110,9 @@ namespace Tea {
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
+        AddModelToTheSceneTree(this, Model::Load("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
 
-        Ref<Shader> missingShader = CreateRef<Shader>("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
+        Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
         missingMaterial = CreateRef<Material>(missingShader);
     }
 

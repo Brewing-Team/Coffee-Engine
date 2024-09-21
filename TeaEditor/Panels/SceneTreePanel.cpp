@@ -223,34 +223,6 @@ namespace Tea {
             }
         }
 
-        if(entity.HasComponent<ModelComponent>())
-        {
-            auto& modelComponent = entity.GetComponent<ModelComponent>();
-            if(ImGui::CollapsingHeader("Model", ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                auto& meshesArray = modelComponent.model->GetMeshes();
-                ImGui::SeparatorText("List of Meshes");
-
-                ImGui::Text("Meshes");
-                ImGui::SameLine();
-                static bool show;
-                if(ImGui::Button(("Vector (size " + std::to_string(meshesArray.size()) + ")").c_str()))
-                {
-                    show = !show;
-                }
-
-                if(show)
-                {
-                    ImGui::BeginListBox("##Test");
-                    for (const auto& mesh : meshesArray)
-                    {
-                        ImGui::Text("Mesh");
-                    }
-                    ImGui::EndListBox();
-                }
-            }
-        }
-
         if(entity.HasComponent<MeshComponent>())
         {
             auto& meshComponent = entity.GetComponent<MeshComponent>();

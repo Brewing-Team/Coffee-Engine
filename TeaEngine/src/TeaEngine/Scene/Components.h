@@ -124,18 +124,6 @@ namespace Tea {
         }
     };
 
-    struct ModelComponent //Deprectated
-    {
-        Ref<Model> model;
-
-        ModelComponent() = default;
-        ModelComponent(const ModelComponent&) = default;
-        ModelComponent(Ref<Model> model)
-            : model(model) {}
-        ModelComponent(const std::string& path)
-            :model(CreateRef<Model>(path)) {}
-    };
-
     struct MeshComponent
     {
         Ref<Mesh> mesh;
@@ -143,7 +131,7 @@ namespace Tea {
         MeshComponent()
         {
             //TEMPORAL! In the future use for example MeshComponent() : mesh(MeshFactory(PrimitiveType::MeshText))
-            Ref<Model> m = CreateRef<Model>("assets/models/MissingMesh.glb");
+            Ref<Model> m = Model::Load("assets/models/MissingMesh.glb");
             mesh = m->GetMeshes()[0];
         }
         MeshComponent(const MeshComponent&) = default;

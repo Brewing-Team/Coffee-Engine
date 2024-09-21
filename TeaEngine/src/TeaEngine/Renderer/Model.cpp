@@ -1,6 +1,7 @@
 #include "TeaEngine/Renderer/Model.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Log.h"
+#include "TeaEngine/IO/ResourceRegistry.h"
 #include "TeaEngine/Renderer/Material.h"
 #include "TeaEngine/Renderer/Mesh.h"
 #include "TeaEngine/Renderer/Texture.h"
@@ -12,6 +13,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/types.h>
 #include <cstdint>
+#include <filesystem>
 #include <string>
 #include <tracy/Tracy.hpp>
 #include <vector>
@@ -29,19 +31,14 @@ namespace Tea {
         return glmMat;
     }
 
-    Model::Model(const std::string& filePath)
+    Model::Model(const std::filesystem::path& path)
     {
         ZoneScoped;
 
-        m_FilePath = filePath;
+        m_FilePath = path;
 
-        LoadModel(m_FilePath);
-    }
-
-    void Model::LoadModel(const std::string& path)
-    {
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+        const aiScene* scene = importer.ReadFile(m_FilePath, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
         // check for errors
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
         {
@@ -52,6 +49,22 @@ namespace Tea {
         m_Name = scene->mRootNode->mName.C_Str();
 
         processNode(scene->mRootNode, scene);
+    }
+
+    Ref<Model> Model::Load(const std::filesystem::path& path)
+    {
+        std::string fileName = path.filename().string();
+
+        if(ResourceRegistry::Exists(fileName))
+        {
+            return ResourceRegistry::Get<Model>(fileName);
+        }
+        else
+        {
+            Ref<Model> model = CreateRef<Model>(path);
+            ResourceRegistry::Add(fileName, model);
+            return model;
+        }
     }
 
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)
@@ -177,8 +190,8 @@ namespace Tea {
             return nullptr;
         }
 
-        std::string directory = m_FilePath.substr(0, m_FilePath.find_last_of('/') + 1);
-        std::string texturePath = directory + std::string(textureName.C_Str());
+        std::string directory = m_FilePath.parent_path();
+        std::string texturePath = directory + "/" + std::string(textureName.C_Str());
 
         bool srgb = (type == aiTextureType_DIFFUSE || type == aiTextureType_EMISSIVE);
 

@@ -53,7 +53,7 @@ namespace Tea {
         }
         else if(extension == ".glb" || extension == ".gltf" || extension == ".fbx" || extension == ".obj")
         {
-            //return CreateRef<Model>(path);
+            return Model::Load(path);
         }
         //When the frag and vert shaders are merged into a single file called .glsl change this to .glsl
         //FIXME: The shader class does not add the Shader to the registry
