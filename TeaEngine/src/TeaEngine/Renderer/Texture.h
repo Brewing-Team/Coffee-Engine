@@ -42,7 +42,9 @@ namespace Tea {
         bool GenerateMipmaps = true; ///< Whether to generate mipmaps.
         bool srgb = true; ///< Whether the texture is in sRGB format.
     };
-
+    /**
+     * @brief Class representing a texture.
+     */
     class Texture : public Resource
     {
     public:
@@ -59,7 +61,17 @@ namespace Tea {
          * @param imageFormat The format of the image.
          */
         Texture(uint32_t width, uint32_t height, ImageFormat imageFormat);
+
+        /**
+         * @brief Constructs a Texture from a file path.
+         * @param path The file path to the texture.
+         * @param srgb Whether the texture is in sRGB format.
+         */
         Texture(const std::filesystem::path& path, bool srgb = true);
+
+        /**
+         * @brief Destructor for the Texture class.
+         */
         ~Texture();
 
         /**
@@ -107,7 +119,21 @@ namespace Tea {
          */
         ImageFormat GetImageFormat() { return m_Properties.Format; };
 
+        /**
+         * @brief Loads a texture from a file path.
+         * @param path The file path to the texture.
+         * @param srgb Whether the texture is in sRGB format.
+         * @return A reference to the loaded texture.
+         */
         static Ref<Texture> Load(const std::filesystem::path& path, bool srgb = true);
+
+        /**
+         * @brief Creates a texture with the specified width, height, and format.
+         * @param width The width of the texture.
+         * @param height The height of the texture.
+         * @param format The format of the texture.
+         * @return A reference to the created texture.
+         */
         static Ref<Texture> Create(uint32_t width, uint32_t height, ImageFormat format);
     private:
         TextureProperties m_Properties; ///< The properties of the texture.

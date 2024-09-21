@@ -11,6 +11,15 @@
 
 namespace Tea {
 
+    /**
+     * @defgroup renderer Renderer
+     * @brief Renderer components of the TeaEngine.
+     * @{
+     */
+
+    /**
+     * @brief Class representing a shader program.
+     */
     class Shader : public Resource
     {
     public:
@@ -117,4 +126,6 @@ namespace Tea {
     private:
         unsigned int m_ShaderID; ///< The ID of the shader program.
     };
+
+    /** @} */
 }

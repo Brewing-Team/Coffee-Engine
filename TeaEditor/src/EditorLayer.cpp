@@ -47,7 +47,6 @@ namespace Tea {
         // Panels
         m_Panels.push_back(std::make_shared<SceneTreePanel>(m_ActiveScene));
         m_Panels.push_back(std::make_shared<ContentBrowserPanel>(m_ActiveScene));
-        m_Panels.push_back(std::make_shared<OutputPanel>());
 
         //For now we are going to create a new project when the editor is attached
         Project::New();
