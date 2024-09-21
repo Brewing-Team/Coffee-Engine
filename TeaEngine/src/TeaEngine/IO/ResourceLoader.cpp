@@ -56,17 +56,18 @@ namespace Tea {
             //return CreateRef<Model>(path);
         }
         //When the frag and vert shaders are merged into a single file called .glsl change this to .glsl
+        //FIXME: The shader class does not add the Shader to the registry
         else if(extension == ".frag" || extension == ".vert")
         {
             if(extension == ".frag")
             {
                 auto vertPath = path.parent_path() / (path.stem().string() + ".vert");
-                return CreateRef<Shader>(vertPath, path);
+                return Shader::Create(vertPath, path);
             }
             else if(extension == ".vert")
             {
                 auto fragPath = path.parent_path() / (path.stem().string() + ".frag");
-                return CreateRef<Shader>(path, fragPath);
+                return Shader::Create(path, fragPath);
             }
         }
         
