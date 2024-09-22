@@ -16,10 +16,15 @@ namespace Tea
         auto imgui_sink = std::make_shared<LogSink<std::mutex>>();
         imgui_sink->set_level(spdlog::level::trace);
 
-        s_CoreLogger = std::make_shared<spdlog::logger>("CORE", imgui_sink);
+        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console_sink->set_level(spdlog::level::trace);
+
+        std::vector<spdlog::sink_ptr> sinks { imgui_sink, console_sink };
+
+        s_CoreLogger = std::make_shared<spdlog::logger>("CORE", sinks.begin(), sinks.end());
         s_CoreLogger->set_level(spdlog::level::trace);
 
-        s_ClientLogger = std::make_shared<spdlog::logger>("APP", imgui_sink);
+        s_ClientLogger = std::make_shared<spdlog::logger>("APP", sinks.begin(), sinks.end());
         s_ClientLogger->set_level(spdlog::level::trace);
 
         spdlog::register_logger(s_CoreLogger);
