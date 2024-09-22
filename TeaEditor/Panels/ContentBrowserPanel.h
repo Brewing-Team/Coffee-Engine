@@ -13,6 +13,8 @@ namespace Tea {
         ContentBrowserPanel() = default;
         ContentBrowserPanel(const Ref<Scene>& scene);
 
+        void SetContext(const Ref<Scene>& scene);
+
         void OnImGuiRender() override;
     
     private:
@@ -21,6 +23,8 @@ namespace Tea {
         std::filesystem::path m_CurrentDirectory;
 
         std::filesystem::path m_SelectedDirectory;
+
+        Ref<Scene> m_Context;
     };
 
 }

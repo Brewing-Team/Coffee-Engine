@@ -65,7 +65,6 @@ namespace Tea {
         //Panels
         SceneTreePanel m_SceneTreePanel;
         ContentBrowserPanel m_ContentBrowserPanel;
-        std::vector<std::shared_ptr<Panel>> m_Panels; // List of panels
     };
 
 }

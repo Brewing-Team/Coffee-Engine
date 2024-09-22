@@ -1,5 +1,8 @@
 #include "ContentBrowserPanel.h"
+#include "TeaEngine/IO/ResourceRegistry.h"
 #include "TeaEngine/Project/Project.h"
+#include "TeaEngine/Renderer/Model.h"
+#include "TeaEngine/Scene/Scene.h"
 
 #include <imgui.h>
 #include <filesystem>
@@ -8,6 +11,12 @@ namespace Tea {
 
     ContentBrowserPanel::ContentBrowserPanel(const Ref<Scene>& scene)
     {
+        m_Context = scene;
+    }
+
+    void ContentBrowserPanel::SetContext(const Ref<Scene>& scene)
+    {
+        m_Context = scene;
     }
 
     void ContentBrowserPanel::OnImGuiRender()
