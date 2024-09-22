@@ -22,6 +22,8 @@ namespace Tea {
         }
         static bool Exists(const std::string& name) { return m_Resources.find(name) != m_Resources.end(); }
 
+        static void Clear() { m_Resources.clear(); }
+
         //For debugging purposes only
         static const std::unordered_map<std::string, Ref<Resource>>& GetResourceRegistry() { return m_Resources; }
     private:
