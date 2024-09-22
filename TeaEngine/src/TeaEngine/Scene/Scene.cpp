@@ -103,14 +103,14 @@ namespace Tea {
             light.GetComponent<TransformComponent>().Position = position;
         } */
         
-        Entity light = CreateEntity("Light");
-        light.AddComponent<LightComponent>().Color = {1.0f, 0.0f, 0.0f};
+        Entity light = CreateEntity("Directional Light");
+        light.AddComponent<LightComponent>().Color = {1.0f, 0.9f, 0.85f};
         light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f};
         
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        AddModelToTheSceneTree(this, Model::Load("assets/models/DamagedHelmet/DamagedHelmet.gltf"));
+        /* AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf")); */
 
         Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
         missingMaterial = CreateRef<Material>(missingShader);
