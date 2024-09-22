@@ -1,14 +1,16 @@
 #pragma once
 
+#include "Panels/ContentBrowserPanel.h"
 #include "Panels/Panel.h"
+#include "Panels/SceneTreePanel.h"
 #include "TeaEngine/Core/Base.h"
 #include "TeaEngine/Core/Layer.h"
 #include "TeaEngine/Events/KeyEvent.h"
 #include "TeaEngine/Renderer/EditorCamera.h"
 #include "TeaEngine/Renderer/Framebuffer.h"
 #include "TeaEngine/Scene/Scene.h"
-#include "Panels/ContentBrowserPanel.h"
-#include "Panels/SceneTreePanel.h"
+
+#include <Panels/OutputPanel.h>
 
 namespace Tea {
 
@@ -65,6 +67,7 @@ namespace Tea {
         //Panels
         SceneTreePanel m_SceneTreePanel;
         ContentBrowserPanel m_ContentBrowserPanel;
+        OutputPanel m_OutputPanel;
     };
 
 }

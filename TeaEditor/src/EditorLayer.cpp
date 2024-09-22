@@ -192,8 +192,10 @@ namespace Tea {
             ImGui::EndMainMenuBar();
         }
 
+        // Render the panels
         m_SceneTreePanel.OnImGuiRender();
         m_ContentBrowserPanel.OnImGuiRender();
+        m_OutputPanel.OnImGuiRender();
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
