@@ -81,6 +81,12 @@ namespace Tea {
          */
         Ref<Shader> GetShader() { return m_Shader; }
 
+        const MaterialTextures& GetMaterialTextures() const { return m_MaterialTextures; }
+
+        //For testing purposes is not definitive
+
+        void SetAlbedoTexture(Ref<Texture> texture) { m_MaterialTextures.albedo = texture; }
+
     private:
         MaterialTextures m_MaterialTextures; ///< The textures used in the material.
         Ref<Shader> m_Shader; ///< The shader used with the material.

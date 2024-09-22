@@ -1,5 +1,7 @@
 #include "SceneTreePanel.h"
 #include "TeaEngine/Core/Base.h"
+#include "TeaEngine/Renderer/Material.h"
+#include "TeaEngine/Renderer/Texture.h"
 #include "TeaEngine/Scene/Components.h"
 #include "TeaEngine/Scene/Entity.h"
 #include "TeaEngine/Core/Log.h"
@@ -44,8 +46,8 @@ namespace Tea {
         }
         ImGui::SameLine();
 
-        /*static std::array<char, 256> searchBuffer;
-        ImGui::InputTextWithHint("##searchbar", "Search by name:",searchBuffer.begin(), searchBuffer.size());*/
+        static std::array<char, 256> searchBuffer;
+        ImGui::InputTextWithHint("##searchbar", "Search by name:",searchBuffer.begin(), searchBuffer.size());
 
         ImGui::BeginChild("entity tree", {0,0}, ImGuiChildFlags_Border);
 
@@ -236,6 +238,41 @@ namespace Tea {
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
             if(ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
             {
+                const MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
+
+                ImGui::Text("Albedo");
+                uint32_t textureID = materialTextures.albedo ? materialTextures.albedo->GetID() : 0;
+                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+                if(ImGui::BeginDragDropTarget())
+                {
+                    if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+                    {
+                        const char* path = (const char*)payload->Data;
+                        Ref<Texture> texture = Texture::Load(path);
+                        materialComponent.material->SetAlbedoTexture(texture);
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+
+                ImGui::Text("Normal");
+                textureID = materialTextures.normal ? materialTextures.normal->GetID() : 0;
+                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+
+                ImGui::Text("Metallic");
+                textureID = materialTextures.metallic ? materialTextures.metallic->GetID() : 0;
+                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+
+                ImGui::Text("Roughness");
+                textureID = materialTextures.roughness ? materialTextures.roughness->GetID() : 0;
+                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+
+                ImGui::Text("AO");
+                textureID = materialTextures.ao ? materialTextures.ao->GetID() : 0;
+                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+
+                ImGui::Text("Emissive");
+                textureID = materialTextures.emissive ? materialTextures.emissive->GetID() : 0;
+                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
             }
         }
 
