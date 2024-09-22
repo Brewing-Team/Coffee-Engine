@@ -57,9 +57,24 @@ namespace Tea {
 
             if (ImGui::TreeNodeEx(filenameString.c_str(), flags))
             {
-                if (ImGui::IsItemClicked())
+                if(ImGui::BeginDragDropSource())
+                {
+                    std::string pathString = path.string();
+                    ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", pathString.c_str(), pathString.size() + 1);
+                    ImGui::Text("%s", filenameString.c_str());
+                    ImGui::EndDragDropSource();
+                }
+
+                if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
                 {
                     m_SelectedDirectory = path;
+                }
+                if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
+                {
+                    if(relativePath.extension() == ".glb" || relativePath.extension() == ".gltf" || relativePath.extension() == ".obj")
+                    {
+                        AddModelToTheSceneTree(m_Context.get(), ResourceRegistry::Get<Model>(path.filename().string()));
+                    }
                 }
 
                 if(directoryEntry.is_directory())
