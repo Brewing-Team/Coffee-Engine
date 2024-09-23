@@ -62,12 +62,12 @@ namespace Tea {
             if(extension == ".frag")
             {
                 auto vertPath = path.parent_path() / (path.stem().string() + ".vert");
-                return Shader::Create(vertPath, path);
+                return Shader::Create(vertPath.string(), path.string());
             }
             else if(extension == ".vert")
             {
                 auto fragPath = path.parent_path() / (path.stem().string() + ".frag");
-                return Shader::Create(path, fragPath);
+                return Shader::Create(path.string(), fragPath.string());
             }
         }
         

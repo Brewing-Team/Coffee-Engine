@@ -78,13 +78,13 @@ namespace Tea {
         ZoneScoped;
 
         m_FilePath = path;
-        m_Name = path.filename();
+        m_Name = path.filename().string();
 
         m_Properties.srgb = srgb;
 
         int nrComponents;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* m_Data = stbi_load(m_FilePath.c_str(), &m_Width, &m_Height, &nrComponents, 0);
+        unsigned char* m_Data = stbi_load(m_FilePath.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
         
         m_Properties.Width = m_Width, m_Properties.Height = m_Height;
         

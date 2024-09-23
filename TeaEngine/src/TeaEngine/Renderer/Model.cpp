@@ -38,7 +38,7 @@ namespace Tea {
         m_FilePath = path;
 
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(m_FilePath, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+        const aiScene* scene = importer.ReadFile(m_FilePath.string(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
         // check for errors
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
         {
@@ -190,7 +190,7 @@ namespace Tea {
             return nullptr;
         }
 
-        std::string directory = m_FilePath.parent_path();
+        std::string directory = m_FilePath.parent_path().string();
         std::string texturePath = directory + "/" + std::string(textureName.C_Str());
 
         bool srgb = (type == aiTextureType_DIFFUSE || type == aiTextureType_EMISSIVE);
