@@ -39,7 +39,7 @@ namespace Tea {
 
     void Project::SaveActive(const std::filesystem::path& path)
     {
-        s_ActiveProject->m_ProjectDirectory = path;
+        s_ActiveProject->m_ProjectDirectory = path.parent_path();
         s_ActiveProject->m_Name = path.stem().string();
 
         std::ofstream projectFile(path);
