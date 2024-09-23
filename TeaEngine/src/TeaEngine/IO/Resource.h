@@ -13,7 +13,7 @@ namespace Tea {
         virtual ~Resource() = default;
 
         const std::string& GetName() const { return m_Name; }
-        const std::string& GetPath() { TEA_CORE_ASSERT(m_FilePath.empty(), "This Texture does not exist on disk!") return m_FilePath; };
+        const std::filesystem::path& GetPath() { TEA_CORE_ASSERT(m_FilePath.empty(), "This Texture does not exist on disk!") return m_FilePath; };
     protected:
         std::string m_Name;
         std::filesystem::path m_FilePath;
