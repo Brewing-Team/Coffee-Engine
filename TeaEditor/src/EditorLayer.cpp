@@ -400,7 +400,7 @@ namespace Tea {
     void EditorLayer::OpenProject()
     {
         FileDialogArgs args;
-        args.Filters = {{"Tea Project", "*.TeaProject"}};
+        args.Filters = {{"Tea Project", "TeaProject"}};
         const std::filesystem::path& path = FileDialog::OpenFile(args);
 
         if (!path.empty())
@@ -430,7 +430,7 @@ namespace Tea {
     void EditorLayer::SaveProjectAs()
     {
         FileDialogArgs args;
-        args.Filters = {{"Tea Project", "*.TeaProject"}};
+        args.Filters = {{"Tea Project", "TeaProject"}};
         args.DefaultName = "Untitled.TeaProject";
         const std::filesystem::path& path = FileDialog::SaveFile(args);
 
@@ -459,7 +459,7 @@ namespace Tea {
     void EditorLayer::OpenScene()
     {
         FileDialogArgs args;
-        args.Filters = {{"Tea Scene", "*.TeaScene"}};
+        args.Filters = {{"Tea Scene", "TeaScene"}};
         const std::filesystem::path& path = FileDialog::OpenFile(args);
 
         if (!path.empty())
