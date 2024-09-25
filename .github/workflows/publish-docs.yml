@@ -33,7 +33,7 @@ jobs:
       run: |
         cd docs
         make html
-        cd @DOXYGEN_OUTPUT_DIR@
+        cd xml
         ls
 
     - name: Upload documentation artifact
