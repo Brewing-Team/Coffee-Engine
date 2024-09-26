@@ -1,7 +1,12 @@
 #include "CoffeeEngine/Core/Log.h"
 
+#include <memory>
+#include <mutex>
+#include <spdlog/logger.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
+#include <string>
+#include <vector>
 
 namespace Coffee
 {
@@ -13,22 +18,16 @@ namespace Coffee
     {
         spdlog::set_pattern("%^[%T] %n: %v%$");
 
-        auto imgui_sink = std::make_shared<LogSink<std::mutex>>();
-        imgui_sink->set_level(spdlog::level::trace);
+        auto imGuiSink = std::make_shared<LogSink<std::mutex>>();
+        imGuiSink->set_level(spdlog::level::trace);
 
-        auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-        console_sink->set_level(spdlog::level::trace);
-
-        std::vector<spdlog::sink_ptr> sinks { imgui_sink, console_sink };
-
-        s_CoreLogger = std::make_shared<spdlog::logger>("CORE", sinks.begin(), sinks.end());
+        s_CoreLogger = spdlog::stdout_color_mt("CORE");
         s_CoreLogger->set_level(spdlog::level::trace);
+        s_CoreLogger.get()->sinks().push_back(imGuiSink);
 
-        s_ClientLogger = std::make_shared<spdlog::logger>("APP", sinks.begin(), sinks.end());
+        s_ClientLogger = spdlog::stdout_color_mt("APP");
         s_ClientLogger->set_level(spdlog::level::trace);
-
-        spdlog::register_logger(s_CoreLogger);
-        spdlog::register_logger(s_ClientLogger);
+        s_ClientLogger.get()->sinks().push_back(imGuiSink);
     }
 
 } // namespace Coffee

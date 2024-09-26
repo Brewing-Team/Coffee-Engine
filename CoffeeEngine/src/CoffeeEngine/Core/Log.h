@@ -39,6 +39,7 @@ namespace Coffee
         inline static std::shared_ptr<spdlog::logger>& GetClientLogger() { return s_ClientLogger; }
 
         static const std::vector<std::string>& GetLogBuffer() { return s_LogBuffer; }
+        static void ClearLogBuffer() { s_LogBuffer.clear(); }
 
       private:
         static std::shared_ptr<spdlog::logger> s_CoreLogger; ///< The core logger.
@@ -51,6 +52,11 @@ namespace Coffee
         protected:
             void sink_it_(const spdlog::details::log_msg& msg) override
             {
+                if(s_LogBuffer.size() > 1024)
+                {
+                    s_LogBuffer.erase(s_LogBuffer.begin());
+                }
+
                 spdlog::memory_buf_t formatted;
                 this->formatter_->format(msg, formatted);
                 s_LogBuffer.push_back(fmt::to_string(formatted));
@@ -63,15 +69,15 @@ namespace Coffee
 } // namespace Coffee
 
 // Core log macros
-#define COFFEE_CORE_TRACE(...) ::Coffee::Log::GetCoreLogger()->trace(__VA_ARGS__)
-#define COFFEE_CORE_INFO(...)  ::Coffee::Log::GetCoreLogger()->info(__VA_ARGS__)
-#define COFFEE_CORE_WARN(...)  ::Coffee::Log::GetCoreLogger()->warn(__VA_ARGS__)
-#define COFFEE_CORE_ERROR(...) ::Coffee::Log::GetCoreLogger()->error(__VA_ARGS__)
+#define COFFEE_CORE_TRACE(...)    ::Coffee::Log::GetCoreLogger()->trace(__VA_ARGS__)
+#define COFFEE_CORE_INFO(...)     ::Coffee::Log::GetCoreLogger()->info(__VA_ARGS__)
+#define COFFEE_CORE_WARN(...)     ::Coffee::Log::GetCoreLogger()->warn(__VA_ARGS__)
+#define COFFEE_CORE_ERROR(...)    ::Coffee::Log::GetCoreLogger()->error(__VA_ARGS__)
 #define COFFEE_CORE_CRITICAL(...) ::Coffee::Log::GetCoreLogger()->critical(__VA_ARGS__)
 
 // Client log macros
-#define COFFEE_TRACE(...)      ::Coffee::Log::GetClientLogger()->trace(__VA_ARGS__)
-#define COFFEE_INFO(...)       ::Coffee::Log::GetClientLogger()->info(__VA_ARGS__)
-#define COFFEE_WARN(...)       ::Coffee::Log::GetClientLogger()->warn(__VA_ARGS__)
-#define COFFEE_ERROR(...)      ::Coffee::Log::GetClientLogger()->error(__VA_ARGS__)
+#define COFFEE_TRACE(...)         ::Coffee::Log::GetClientLogger()->trace(__VA_ARGS__)
+#define COFFEE_INFO(...)          ::Coffee::Log::GetClientLogger()->info(__VA_ARGS__)
+#define COFFEE_WARN(...)          ::Coffee::Log::GetClientLogger()->warn(__VA_ARGS__)
+#define COFFEE_ERROR(...)         ::Coffee::Log::GetClientLogger()->error(__VA_ARGS__)
 #define COFFEE_CRITICAL(...)      ::Coffee::Log::GetClientLogger()->critical(__VA_ARGS__)

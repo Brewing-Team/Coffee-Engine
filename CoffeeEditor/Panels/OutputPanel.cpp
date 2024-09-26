@@ -1,21 +1,38 @@
 #include "OutputPanel.h"
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Log.h"
+#include <cstdlib>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
+#include <string>
+#include <vector>
 
 namespace Coffee {
 
     void OutputPanel::OnImGuiRender()
     {
-        ImGui::Begin("Output");
-        const auto& logBuffer = Coffee::Log::GetLogBuffer();
-        for (const auto& log : logBuffer)
+        ImGui::Begin("Output", nullptr, ImGuiWindowFlags_HorizontalScrollbar);
+        const std::vector<std::string>& logBuffer = Coffee::Log::GetLogBuffer();
+        /* for (const auto& log : logBuffer)
         {
             auto [before_level, level_str, after_level] = ParseLogMessage(log);
             spdlog::level::level_enum level = spdlog::level::from_str(level_str);
             RenderLogMessage(before_level, level_str, after_level, level);
+        } */
+
+        for (const std::string& log : logBuffer)
+        {
+            auto [before_level, level_str, after_level] = ParseLogMessage(log);
+            spdlog::level::level_enum level = spdlog::level::from_str(level_str);
+            
+            ImGui::PushStyleColor(ImGuiCol_Text, GetLogLevelColor(level));
+            ImGui::TextUnformatted(after_level.c_str());
+            ImGui::PopStyleColor();
         }
+
+        if (ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+                ImGui::SetScrollHereY(1.0f);
+
         ImGui::End();
     }
 
