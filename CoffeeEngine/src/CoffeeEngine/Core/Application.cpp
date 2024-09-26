@@ -5,8 +5,9 @@
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
+#include "SDL3/SDL_timer.h"
 
-#include <GLFW/glfw3.h>
+#include <SDL3/SDL.h>
 #include <tracy/Tracy.hpp>
 
 namespace Coffee
@@ -76,12 +77,16 @@ namespace Coffee
     {
         ZoneScoped;
 
+        Uint64 frequency = SDL_GetPerformanceFrequency();
+
         while (m_Running)
         {   
             ZoneScopedN("RunLoop");
+            
 
-            float time = (float)glfwGetTime();
-            float deltaTime = time - m_LastFrameTime;
+            //TODO: Improve precision using double instead of float
+            float time = (float)SDL_GetPerformanceCounter();
+            float deltaTime = (time - m_LastFrameTime) / frequency;
             m_LastFrameTime = time;
 
             {
