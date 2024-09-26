@@ -1,31 +1,27 @@
 #include "CoffeeEngine/Core/Input.h"
-#include "CoffeeEngine/Core/Application.h"
-
-#include <GLFW/glfw3.h>
+#include "SDL3/SDL_keyboard.h"
+#include "SDL3/SDL_mouse.h"
 
 namespace Coffee {
 
 	bool Input::IsKeyPressed(const KeyCode key)
 	{
-		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		auto state = glfwGetKey(window, static_cast<int32_t>(key));
-		return state == GLFW_PRESS;
+		const bool* state = SDL_GetKeyboardState(nullptr);
+
+		return state[key];
 	}
 
 	bool Input::IsMouseButtonPressed(const MouseCode button)
 	{
-		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		auto state = glfwGetMouseButton(window, static_cast<int32_t>(button));
-		return state == GLFW_PRESS;
+		return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(button);
 	}
 
 	glm::vec2 Input::GetMousePosition()
 	{
-		auto* window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
+		float x, y;
+		SDL_GetMouseState(&x, &y);
 
-		return { (float)xpos, (float)ypos };
+		return { x, y };
 	}
 
 	float Input::GetMouseX()
