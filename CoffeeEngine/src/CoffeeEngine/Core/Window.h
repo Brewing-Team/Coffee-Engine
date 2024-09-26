@@ -1,14 +1,10 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Renderer/GraphicsContext.h"
+#include "SDL3/SDL_video.h"
 
 #include <cstdint>
-#include <functional>
-#include <sstream>
-
-struct GLFWwindow;
 
 namespace Coffee {
 
@@ -47,8 +43,6 @@ namespace Coffee {
     class Window
     {
     public:
-        using EventCallbackFn = std::function<void(Event&)>; ///< Type definition for event callback function.
-
         /**
          * @brief Constructs a Window object with the specified properties.
          * @param props The properties of the window.
@@ -76,12 +70,6 @@ namespace Coffee {
          * @return The height of the window.
          */
         unsigned int GetHeight() const { return m_Data.Height; }
-
-        /**
-         * @brief Sets the event callback function.
-         * @param callback The event callback function.
-         */
-        void SetEventCallback(const EventCallbackFn& callback) { m_Data.EventCallback = callback; }
 
         /**
          * @brief Enables or disables VSync.
@@ -139,7 +127,7 @@ namespace Coffee {
         virtual void Shutdown();
 
     private:
-        GLFWwindow* m_Window; ///< Pointer to the GLFW window.
+        SDL_Window* m_Window; ///< Pointer to the SDL window.
         Scope<GraphicsContext> m_Context; ///< Scoped pointer to the graphics context.
 
         /**
@@ -150,8 +138,6 @@ namespace Coffee {
             std::string Title; ///< The title of the window.
             unsigned int Width, Height; ///< The width and height of the window.
             bool VSync; ///< Indicates whether VSync is enabled.
-
-            EventCallbackFn EventCallback; ///< The event callback function.
         };
 
         WindowData m_Data; ///< The window data.

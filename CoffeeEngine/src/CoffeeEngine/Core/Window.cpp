@@ -2,26 +2,20 @@
 #include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/Events/ApplicationEvent.h"
-#include "CoffeeEngine/Events/KeyEvent.h"
-#include "CoffeeEngine/Events/MouseEvent.h"
+#include "SDL3/SDL_init.h"
+#include "SDL3/SDL_pixels.h"
+#include "SDL3/SDL_surface.h"
+#include "SDL3/SDL_video.h"
 
-#include <GLFW/glfw3.h>
+#include <SDL3/SDL.h>
 
 #include <tracy/Tracy.hpp>
 
 #include <stb_image.h>
 
-#include <cstddef>
-
 namespace Coffee {
 
-	static uint8_t s_GLFWWindowCount = 0;
-
-	static void GLFWErrorCallback(int error, const char* description)
-	{
-		COFFEE_CORE_ERROR("GLFW Error ({0}): {1}", error, description);
-	}
+	static uint8_t s_SDLWindowCount = 0;
 
 	Window::Window(const WindowProps& props)
 	{
@@ -45,131 +39,62 @@ namespace Coffee {
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
 
-        //glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);//TEMPORAL FOR GLFW VIEWPORTS SUPPORT. TODO: BE ABLE TO CONFIGURE THIS IN CONFIG
-
 		COFFEE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
-        if (s_GLFWWindowCount == 0)
+        if (s_SDLWindowCount == 0)
 		{
-            ZoneScopedN("gltfInit");
-			int success = glfwInit();
-			COFFEE_CORE_ASSERT(success, "Could not initialize GLFW!");
-			glfwSetErrorCallback(GLFWErrorCallback);
+            ZoneScopedN("SDL3 Init");
+			int success = SDL_Init(SDL_INIT_VIDEO);
+			COFFEE_CORE_ASSERT(success, "Could not initialize SDL!");
 		}
 
-        //Set Window Hints before creation
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            const char* glsl_version = "#version 450";
+
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+            SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+
+            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+            SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
         {
-            ZoneScopedN("glfwCreateWindow");
-		#if defined(COFFEE_DEBUG)
-			glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);
-		#endif
-			m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-			++s_GLFWWindowCount;
+            ZoneScopedN("SDLCreateWindow");
+
+            #if defined(COFFEE_DEBUG)
+			SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+		    #endif
+
+            Uint32 windowFlags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIDDEN;
+
+			m_Window = SDL_CreateWindow(m_Data.Title.c_str(), (int)props.Width, (int)props.Height, windowFlags);
+
+            COFFEE_CORE_ASSERT(m_Window, "Failed to create the window! Error: " + std::string(SDL_GetError()));
+
+            SDL_SetWindowPosition(m_Window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
+
+			++s_SDLWindowCount;
         }
 		//Create OpenGL Context
 		m_Context = GraphicsContext::Create(m_Window);
 		m_Context->Init();
 
-		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
 
-        glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-            data.Width = width;
-            data.Height = height;
-
-            WindowResizeEvent event(width, height);
-            data.EventCallback(event);
-        });
-
-        glfwSetWindowCloseCallback(m_Window, [](GLFWwindow* window)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-            WindowCloseEvent event;
-            data.EventCallback(event);
-        });
-
-        glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int modes)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-            switch (action)
-            {
-                case GLFW_PRESS:
-                {
-                    KeyPressedEvent event(key, 0);
-                    data.EventCallback(event);
-                    break;
-                }
-                case GLFW_RELEASE:
-                {
-                    KeyReleasedEvent event(key);
-                    data.EventCallback(event);
-                    break;
-                }
-                case GLFW_REPEAT:
-                {
-                    KeyPressedEvent event(key,1);
-                    data.EventCallback(event);
-                    break;
-                }
-            }
-        });
-
-        glfwSetMouseButtonCallback(m_Window, [](GLFWwindow* window, int button, int action, int modes)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-            switch (action)
-            {
-                case GLFW_PRESS:
-                {
-                    MouseButtonPressedEvent event(button);
-                    data.EventCallback(event);
-                    break;
-                }
-                case GLFW_RELEASE:
-                {
-                    MouseButtonReleasedEvent event(button);
-                    data.EventCallback(event);
-                    break;
-                }
-            }
-        });
-
-        glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset)
-        {
-           WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-           MouseScrolledEvent event((float)xOffset, (float)yOffset);
-           data.EventCallback(event);
-        });
-
-        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos)
-        {
-            WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-
-            MouseMovedEvent event((float)xPos, (float)yPos);
-            data.EventCallback(event);
-        });
+        SDL_ShowWindow(m_Window);
     }
 
 	void Window::Shutdown()
 	{
         ZoneScoped;
+        
+        m_Context->Shutdown();
+		SDL_DestroyWindow(m_Window);
+		--s_SDLWindowCount;
 
-		glfwDestroyWindow(m_Window);
-		--s_GLFWWindowCount;
-
-		if (s_GLFWWindowCount == 0)
+		if (s_SDLWindowCount == 0)
 		{
-			glfwTerminate();
+			SDL_Quit();
 		}
 	}
 
@@ -177,8 +102,7 @@ namespace Coffee {
 	{
         ZoneScoped;
 
-		glfwPollEvents();
-		m_Context->SwapBuffers();
+        m_Context->SwapBuffers();
 	}
 
 	void Window::SetVSync(bool enabled)
@@ -186,9 +110,9 @@ namespace Coffee {
         ZoneScoped;
 
 		if (enabled)
-			glfwSwapInterval(1);
+			m_Context->SwapInterval(1);
 		else
-			glfwSwapInterval(0);
+			m_Context->SwapInterval(0);
 
 		m_Data.VSync = enabled;
 	}
@@ -201,18 +125,31 @@ namespace Coffee {
     void Window::SetTitle(const std::string& title)
     {
         m_Data.Title = title;
-        glfwSetWindowTitle(m_Window, title.c_str());
+        SDL_SetWindowTitle(m_Window, title.c_str());
     }
 
     void Window::SetIcon(const std::string& path)
     {
-        GLFWimage icon;
-        icon.pixels = stbi_load(path.c_str(), &icon.width, &icon.height, 0, 4);
-        if (icon.pixels)
+        int width, height, channels;
+        unsigned char* pixels = stbi_load(path.c_str(), &width, &height, &channels, 4);
+        if (!pixels)
         {
-            glfwSetWindowIcon(m_Window, 1, &icon);
-            stbi_image_free(icon.pixels);
+            COFFEE_CORE_ERROR("Failed to load icon image: {0}", path);
+            return;
         }
+        
+        SDL_Surface* icon = SDL_CreateSurfaceFrom(
+            width, height, SDL_PIXELFORMAT_RGBA8888, pixels, width * 4);
+        
+        if(!icon)
+        {
+            COFFEE_CORE_ERROR("Failed to create icon surface: {0}", path);
+            return;
+        }
+
+        SDL_SetWindowIcon(m_Window, icon);
+
+        stbi_image_free(pixels);
     }
 
 }
