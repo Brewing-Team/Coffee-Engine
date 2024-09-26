@@ -1,8 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-
-class GLFWwindow;
+#include "SDL3/SDL_video.h"
 
 namespace Coffee {
 
@@ -20,9 +19,9 @@ namespace Coffee {
     public:
         /**
          * @brief Constructs a GraphicsContext with the specified window handle.
-         * @param windowHandle The handle to the GLFW window.
+         * @param windowHandle The handle to the SDL window.
          */
-        GraphicsContext(GLFWwindow* windowHandle);
+        GraphicsContext(SDL_Window* windowHandle);
 
         /**
          * @brief Virtual destructor for the GraphicsContext class.
@@ -41,12 +40,12 @@ namespace Coffee {
 
         /**
          * @brief Creates a graphics context for the specified window.
-         * @param window The handle to the GLFW window.
+         * @param window The handle to the SDL window.
          * @return A scope pointer to the created graphics context.
          */
-        static Scope<GraphicsContext> Create(GLFWwindow* window);
+        static Scope<GraphicsContext> Create(SDL_Window* window);
     private:
-        GLFWwindow* m_WindowHandle; ///< The handle to the GLFW window.
+        SDL_Window* m_WindowHandle; ///< The handle to the SDL window.
     };
 
     /** @} */
