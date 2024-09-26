@@ -8,8 +8,8 @@
 
 //Previously this was in a specific file called ImGuiBuild.cpp but on Windows Platform using MSVC was not linking
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
-#include <imgui_impl_opengl3.cpp>
-#include <imgui_impl_glfw.cpp>
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
 
 #include <GLFW/glfw3.h>
 #include <tracy/Tracy.hpp>

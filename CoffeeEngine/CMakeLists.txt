@@ -31,12 +31,12 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     glm::glm
     GLAD
     imgui::imgui
-    ImGuizmo
+    imguizmo::imguizmo
     stb_image
     assimp::assimp
     EnTT::EnTT
     Tracy::TracyClient
-    nfd
+    nfd::nfd
     )
 
 # Set this in a profile like (Release + Profile)
