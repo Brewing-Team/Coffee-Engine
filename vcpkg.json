@@ -1,7 +1,7 @@
 {
   "name" : "coffee-engine",
   "version-string" : "1.0.0",
-  "builtin-baseline" : "576379156e82da642f8d1834220876759f13534d",
+  "builtin-baseline" : "3d89599850c8168fa4b560367b06c1be52645b20",
   "dependencies" : [ {
     "name" : "glfw3",
     "version>=" : "3.4"
