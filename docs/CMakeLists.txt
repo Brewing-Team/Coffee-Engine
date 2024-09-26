@@ -8,7 +8,7 @@ get_target_property(COFFEE_ENGINE_PUBLIC_HEADER_DIR Coffee-Engine INTERFACE_INCL
 file(GLOB_RECURSE COFFEE_ENGINE_PUBLIC_HEADERS ${COFFEE_ENGINE_PUBLIC_HEADER_DIR}/*.h)
 
 # This will be the main output of our command
-set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/TeaEngine/src/TeaEngine)
+set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/CoffeeEngine/src/CoffeeEngine)
 set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/docs/doxygen)
 set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/html/index.html)
 set(DOXYFILE_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
@@ -44,7 +44,7 @@ add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
         COMMAND
         ${SPHINX_EXECUTABLE} -b html
         # Tell Breathe where to find the Doxygen output
-        -Dbreathe_projects.TeaEngine=${DOXYGEN_OUTPUT_DIR}/xml
+        -Dbreathe_projects.CoffeeEngine=${DOXYGEN_OUTPUT_DIR}/xml
         ${SPHINX_SOURCE} ${SPHINX_BUILD}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         DEPENDS

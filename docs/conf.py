@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Tea Engine'
+project = 'Coffee Engine'
 copyright = '2024, Hugo Planell Moreno, Mario Dorado Martínez'
 author = 'Hugo Planell Moreno, Mario Dorado Martínez'
 release = '0.1.0'
@@ -30,10 +30,10 @@ html_static_path = [] # Do not include static files in the build directory (_sta
 
 # Breathe Configuration
 breathe_projects = {
-    "TeaEngine": "./xml"
+    "CoffeeEngine": "./xml"
 }
 
-breathe_default_project = "TeaEngine"
+breathe_default_project = "CoffeeEngine"
 
 html_theme_options = {
     "sidebar_hide_name": False,  # Mostrar el nombre del proyecto en la barra lateral

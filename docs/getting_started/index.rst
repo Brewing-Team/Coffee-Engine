@@ -12,8 +12,8 @@ Building
 
 ::
 
-   git clone --recursive https://github.com/HugoPlacer/Tea-Engine.git
-   cd Tea-Engine
+   git clone --recursive https://github.com/HugoPlacer/Coffee-Engine.git
+   cd Coffee-Engine
 
 2. Compilation
 ~~~~~~~~~~~~~~
@@ -81,7 +81,7 @@ Linux
 
    mkdir build && cd build
    cmake .. -DCMAKE_BUILD_TYPE=Release
-   make -j $(nproc) TeaEditor
+   make -j $(nproc) CoffeeEditor
 
 3. Enjoy!
 ^^^^^^^^^

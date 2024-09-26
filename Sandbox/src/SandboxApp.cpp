@@ -1,8 +1,8 @@
-#include <Tea.h>
+#include <Coffee.h>
 
 #include "ExampleLayer.h"
 
-class Sandbox : public Tea::Application
+class Sandbox : public Coffee::Application
 {
   public:
     Sandbox()
@@ -15,7 +15,7 @@ class Sandbox : public Tea::Application
     }
 };
 
-Tea::Application* Tea::CreateApplication()
+Coffee::Application* Coffee::CreateApplication()
 {
     return new Sandbox();
 }

@@ -49,12 +49,12 @@ sudo apt-get install libspdlog-dev libfmt-dev libglfw3-dev libglm-dev libassimp-
 ```
 mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j $(nproc) TeaEditor
+make -j $(nproc) CoffeeEditor
 ```
 #### 3. Enjoy!
 ```
-cd ../bin/TeaEditor/Release
-./TeaEditor
+cd ../bin/CoffeeEditor/Release
+./CoffeeEditor
 ```
 </details>
 

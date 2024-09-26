@@ -1,35 +1,35 @@
 #pragma once
 
-#include "TeaEngine/Renderer/Camera.h"
-#include "TeaEngine/Renderer/EditorCamera.h"
-#include "TeaEngine/Renderer/Model.h"
-#include <TeaEngine/Renderer/RendererAPI.h>
-#include <TeaEngine/Renderer/Shader.h>
-#include <TeaEngine/Renderer/Texture.h>
-#include <TeaEngine/Core/Layer.h>
+#include "CoffeeEngine/Renderer/Camera.h"
+#include "CoffeeEngine/Renderer/EditorCamera.h"
+#include "CoffeeEngine/Renderer/Model.h"
+#include <CoffeeEngine/Renderer/RendererAPI.h>
+#include <CoffeeEngine/Renderer/Shader.h>
+#include <CoffeeEngine/Renderer/Texture.h>
+#include <CoffeeEngine/Core/Layer.h>
 
-class ExampleLayer : public Tea::Layer
+class ExampleLayer : public Coffee::Layer
 {
 public:
     ExampleLayer();
 
     void OnUpdate(float dt) override;
 
-    void OnEvent(Tea::Event& event);
+    void OnEvent(Coffee::Event& event);
 
     void OnImGuiRender();
 private:
-    Tea::Ref<Tea::VertexArray> m_VertexArray;
-    Tea::Ref<Tea::VertexBuffer> m_VertexBuffer;
-    Tea::Ref<Tea::IndexBuffer> m_IndexBuffer;
-    Tea::Scope<Tea::RendererAPI> m_RendererAPI;
+    Coffee::Ref<Coffee::VertexArray> m_VertexArray;
+    Coffee::Ref<Coffee::VertexBuffer> m_VertexBuffer;
+    Coffee::Ref<Coffee::IndexBuffer> m_IndexBuffer;
+    Coffee::Scope<Coffee::RendererAPI> m_RendererAPI;
 
-    Tea::Ref<Tea::Shader> m_defaultShader;
-    Tea::Ref<Tea::Texture> m_Texture;
+    Coffee::Ref<Coffee::Shader> m_defaultShader;
+    Coffee::Ref<Coffee::Texture> m_Texture;
 
-    Tea::Model helmet;
-    Tea::Model plane;
+    Coffee::Model helmet;
+    Coffee::Model plane;
 
-    Tea::EditorCamera m_EditorCamera;
+    Coffee::EditorCamera m_EditorCamera;
 
 };

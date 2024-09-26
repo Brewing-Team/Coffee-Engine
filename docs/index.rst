@@ -1,4 +1,4 @@
-Welcome to Tea's Engine documentation!
+Welcome to Coffee's Engine documentation!
 =========================================
 
 .. toctree::

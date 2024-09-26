@@ -1,11 +1,11 @@
 #include "ExampleLayer.h"
-#include "TeaEngine/Core/Application.h"
-#include "TeaEngine/Core/Base.h"
-#include "TeaEngine/Renderer/Buffer.h"
-#include "TeaEngine/Renderer/EditorCamera.h"
-#include "TeaEngine/Renderer/Model.h"
-#include "TeaEngine/Renderer/RendererAPI.h"
-#include "TeaEngine/Renderer/VertexArray.h"
+#include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Renderer/Buffer.h"
+#include "CoffeeEngine/Renderer/EditorCamera.h"
+#include "CoffeeEngine/Renderer/Model.h"
+#include "CoffeeEngine/Renderer/RendererAPI.h"
+#include "CoffeeEngine/Renderer/VertexArray.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/trigonometric.hpp>
@@ -93,25 +93,25 @@ ExampleLayer::ExampleLayer() : Layer("Example")
             22, 23, 20
         };
 
-        m_VertexArray = Tea::VertexArray::Create();
+        m_VertexArray = Coffee::VertexArray::Create();
         m_VertexArray->Bind();
 
-        m_VertexBuffer = Tea::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices)); //el size no estoy muy seguro
-        Tea::BufferLayout layout = {
-            {Tea::ShaderDataType::Vec3, "a_Position"},
-            {Tea::ShaderDataType::Vec2, "a_TexCoord"}
+        m_VertexBuffer = Coffee::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices)); //el size no estoy muy seguro
+        Coffee::BufferLayout layout = {
+            {Coffee::ShaderDataType::Vec3, "a_Position"},
+            {Coffee::ShaderDataType::Vec2, "a_TexCoord"}
         };
 
         m_VertexBuffer->SetLayout(layout);
 
-        m_IndexBuffer = Tea::IndexBuffer::Create(cubeIndices, 36);
+        m_IndexBuffer = Coffee::IndexBuffer::Create(cubeIndices, 36);
 
         m_VertexArray->AddVertexBuffer(m_VertexBuffer);
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
         
-        m_defaultShader = Tea::Shader::Create("assets/shaders/FaceIndexShader.vert", "assets/shaders/FaceIndexShader.frag");
+        m_defaultShader = Coffee::Shader::Create("assets/shaders/FaceIndexShader.vert", "assets/shaders/FaceIndexShader.frag");
 
-        m_Texture = Tea::Texture::Load("assets/textures/test.jpg");
+        m_Texture = Coffee::Texture::Load("assets/textures/test.jpg");
 
         m_Texture->Bind(0);
 
@@ -119,23 +119,23 @@ ExampleLayer::ExampleLayer() : Layer("Example")
         m_defaultShader->setInt("tex", 0);
         
 
-        helmet = Tea::Model("assets/models/DamagedHelmet.glb");
-        plane = Tea::Model("assets/models/plane.glb");
+        helmet = Coffee::Model("assets/models/DamagedHelmet.glb");
+        plane = Coffee::Model("assets/models/plane.glb");
 
-        m_EditorCamera = Tea::EditorCamera(45.0f);
+        m_EditorCamera = Coffee::EditorCamera(45.0f);
 
-        Tea::Application::Get().GetWindow().SetVSync(false);
+        Coffee::Application::Get().GetWindow().SetVSync(false);
 
     }
 
 void ExampleLayer::OnUpdate(float dt)
 {
-    //TEA_INFO("ExampleLayer::Update");
+    //COFFEE_INFO("ExampleLayer::Update");
 
     m_EditorCamera.OnUpdate();
     
-    Tea::RendererAPI::SetClearColor({.2f,.2f,.2f,1});
-    Tea::RendererAPI::Clear();
+    Coffee::RendererAPI::SetClearColor({.2f,.2f,.2f,1});
+    Coffee::RendererAPI::Clear();
 
     m_defaultShader->Bind();
 
@@ -155,13 +155,13 @@ void ExampleLayer::OnUpdate(float dt)
     //m_RendererAPI->DrawIndexed(m_VertexArray);
 
     for (auto& mesh : helmet.GetMeshes()) {
-        Tea::Ref<Tea::VertexBuffer> vb = mesh->GetVertexBuffer();
-        Tea::Ref<Tea::IndexBuffer> ib = mesh->GetIndexBuffer();
+        Coffee::Ref<Coffee::VertexBuffer> vb = mesh->GetVertexBuffer();
+        Coffee::Ref<Coffee::IndexBuffer> ib = mesh->GetIndexBuffer();
 
-        Tea::Ref<Tea::VertexArray> va = Tea::VertexArray::Create();
+        Coffee::Ref<Coffee::VertexArray> va = Coffee::VertexArray::Create();
         va->AddVertexBuffer(vb);
         va->SetIndexBuffer(ib);
-        Tea::RendererAPI::DrawIndexed(va);
+        Coffee::RendererAPI::DrawIndexed(va);
     }
 
     glm::mat4 model = glm::mat4(1.0f);
@@ -171,21 +171,21 @@ void ExampleLayer::OnUpdate(float dt)
     m_defaultShader->setMat4("model", model);
 
     for (auto& mesh : plane.GetMeshes()) {
-        Tea::Ref<Tea::VertexBuffer> vb = mesh->GetVertexBuffer();
-        Tea::Ref<Tea::IndexBuffer> ib = mesh->GetIndexBuffer();
+        Coffee::Ref<Coffee::VertexBuffer> vb = mesh->GetVertexBuffer();
+        Coffee::Ref<Coffee::IndexBuffer> ib = mesh->GetIndexBuffer();
 
-        Tea::Ref<Tea::VertexArray> va = Tea::VertexArray::Create();
+        Coffee::Ref<Coffee::VertexArray> va = Coffee::VertexArray::Create();
         va->AddVertexBuffer(vb);
         va->SetIndexBuffer(ib);
-        Tea::RendererAPI::DrawIndexed(va);
+        Coffee::RendererAPI::DrawIndexed(va);
     }
 
     model = glm::mat4(1.0f);
 }
 
-void ExampleLayer::OnEvent(Tea::Event& event)
+void ExampleLayer::OnEvent(Coffee::Event& event)
 {
-    //TEA_TRACE("{0}", event);
+    //COFFEE_TRACE("{0}", event);
     m_EditorCamera.OnEvent(event);
 }
 

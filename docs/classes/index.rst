@@ -2,14 +2,14 @@ Core
 ====
 
 .. doxygengroup:: core
-   :project: TeaEngine
+   :project: CoffeeEngine
    :members:
 
 Events
 ======
 
 .. doxygengroup:: events
-   :project: TeaEngine
+   :project: CoffeeEngine
    :members:
 
 
@@ -17,7 +17,7 @@ ImGui
 =====
 
 .. doxygengroup:: imgui
-   :project: TeaEngine
+   :project: CoffeeEngine
    :members:
 
 
@@ -25,7 +25,7 @@ Project
 =======
 
 .. doxygengroup:: project
-   :project: TeaEngine
+   :project: CoffeeEngine
    :members:
 
 
@@ -33,12 +33,12 @@ Renderer
 ========
 
 .. doxygengroup:: renderer
-   :project: TeaEngine
+   :project: CoffeeEngine
    :members:
 
 Scene
 =====
 
 .. doxygengroup:: scene
-   :project: TeaEngine
+   :project: CoffeeEngine
    :members:
