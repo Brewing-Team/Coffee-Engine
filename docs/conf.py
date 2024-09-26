@@ -30,7 +30,7 @@ html_static_path = [] # Do not include static files in the build directory (_sta
 
 # Breathe Configuration
 breathe_projects = {
-    "CoffeeEngine": "./xml"
+    "CoffeeEngine": "../docs/@DOXYGEN_OUTPUT_DIR@/xml"
 }
 
 breathe_default_project = "CoffeeEngine"
