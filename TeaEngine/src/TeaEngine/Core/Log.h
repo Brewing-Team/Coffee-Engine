@@ -43,6 +43,21 @@ namespace Tea
       private:
         static std::shared_ptr<spdlog::logger> s_CoreLogger; ///< The core logger.
         static std::shared_ptr<spdlog::logger> s_ClientLogger; ///< The client logger.
+        static std::vector<std::string> s_LogBuffer; ///< The log buffer.
+
+        template <typename Mutex>
+        class LogSink : public spdlog::sinks::base_sink<Mutex>
+        {
+        protected:
+            void sink_it_(const spdlog::details::log_msg& msg) override
+            {
+                spdlog::memory_buf_t formatted;
+                this->formatter_->format(msg, formatted);
+                s_LogBuffer.push_back(fmt::to_string(formatted));
+            }
+
+            void flush_() override {}
+        };
     };
     /** @} */
 } // namespace Tea
