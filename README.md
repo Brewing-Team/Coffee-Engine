@@ -4,7 +4,7 @@
     <img src="/Resources/temporal-logo.webp?raw=true">
 </p>
 
-**Tea Engine is a Beautiful(not yet but it will be) and Cross-platform 3D Game Engine written in C++ using OpenGL and GLFW.** </br> 
+**Coffee Engine is a Beautiful(not yet but it will be) and Cross-platform 3D Game Engine written in C++ using OpenGL and GLFW.** </br> 
 
 > [!WARNING]
 > This is a personal project for learning how to make a 3D game engine.
