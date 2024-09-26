@@ -11,6 +11,11 @@ find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(cereal REQUIRED)
+find_package(EnTT CONFIG REQUIRED)
+find_package(Tracy CONFIG REQUIRED)
+find_package(imgui REQUIRED)
+find_package(ImGuizmo REQUIRED)
+find_package(nfd REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 add_library(coffee-engine ALIAS ${PROJECT_NAME})
@@ -25,7 +30,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     glfw
     glm::glm
     GLAD
-    ImGui
+    imgui::imgui
     ImGuizmo
     stb_image
     assimp::assimp
@@ -42,12 +47,7 @@ option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on
 option(NFD_PORTAL "Use xdg-desktop-portal instead of GTK" ON)
 
 add_subdirectory(vendor/GLAD)
-add_subdirectory(vendor/imgui)
-add_subdirectory(vendor/ImGuizmo)
 add_subdirectory(vendor/stb_image)
-add_subdirectory(vendor/entt)
-add_subdirectory(vendor/tracy)
-add_subdirectory(vendor/nativefiledialog-extended)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=1)
