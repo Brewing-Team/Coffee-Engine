@@ -1,4 +1,4 @@
-project(TeaEngine VERSION 0.1.0 LANGUAGES C CXX)
+project(Coffee-Engine VERSION 0.1.0 LANGUAGES C CXX)
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -13,7 +13,7 @@ find_package(assimp CONFIG REQUIRED)
 find_package(cereal REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
-add_library(tea-engine ALIAS ${PROJECT_NAME})
+add_library(coffee-engine ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${INCLUDE_DIRS}

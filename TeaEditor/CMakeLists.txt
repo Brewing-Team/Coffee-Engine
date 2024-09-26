@@ -18,7 +18,7 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME}
-    tea-engine)
+    coffee-engine)
 
 
 # Copy Assets folder

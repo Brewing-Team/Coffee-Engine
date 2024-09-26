@@ -4,8 +4,8 @@ find_package(Doxygen)
 find_package(Sphinx)
 
 # Find all the public headers
-get_target_property(TEA_ENGINE_PUBLIC_HEADER_DIR TeaEngine INTERFACE_INCLUDE_DIRECTORIES)
-file(GLOB_RECURSE TEA_ENGINE_PUBLIC_HEADERS ${TEA_ENGINE_PUBLIC_HEADER_DIR}/*.h)
+get_target_property(COFFEE_ENGINE_PUBLIC_HEADER_DIR Coffee-Engine INTERFACE_INCLUDE_DIRECTORIES)
+file(GLOB_RECURSE COFFEE_ENGINE_PUBLIC_HEADERS ${COFFEE_ENGINE_PUBLIC_HEADER_DIR}/*.h)
 
 # This will be the main output of our command
 set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/TeaEngine/src/TeaEngine)
@@ -23,7 +23,7 @@ configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
 file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR}) # Doxygen won't create this for us
 
 add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
-    DEPENDS ${TEA_ENGINE_PUBLIC_HEADERS}
+    DEPENDS ${COFFEE_ENGINE_PUBLIC_HEADERS}
     COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
     MAIN_DEPENDENCY ${DOXYFILE_OUT} ${DOXYFILE_IN}
     COMMENT "Generating docs"
