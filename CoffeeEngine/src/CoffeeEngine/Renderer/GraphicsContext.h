@@ -33,10 +33,14 @@ namespace Coffee {
          */
         void Init();
 
+        void Shutdown();
+
         /**
          * @brief Swaps the front and back buffers.
          */
         void SwapBuffers();
+
+        bool SwapInterval(int interval);
 
         /**
          * @brief Creates a graphics context for the specified window.
@@ -46,6 +50,8 @@ namespace Coffee {
         static Scope<GraphicsContext> Create(SDL_Window* window);
     private:
         SDL_Window* m_WindowHandle; ///< The handle to the SDL window.
+
+        SDL_GLContext m_Context;
     };
 
     /** @} */

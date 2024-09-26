@@ -20,8 +20,8 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        SDL_GLContext context = SDL_GL_CreateContext(m_WindowHandle);
-        SDL_GL_MakeCurrent(m_WindowHandle, context);
+        m_Context = SDL_GL_CreateContext(m_WindowHandle);
+        SDL_GL_MakeCurrent(m_WindowHandle, m_Context);
         int status = gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress);
 		COFFEE_CORE_ASSERT(status, "Failed to initialize Glad!");
 
@@ -33,6 +33,13 @@ namespace Coffee {
 		COFFEE_CORE_ASSERT(GLVersion.major > 4 || (GLVersion.major == 4 && GLVersion.minor >= 5), "Coffee Engine requires at least OpenGL version 4.5!");
 	}
 
+    void GraphicsContext::Shutdown()
+    {
+        ZoneScoped;
+
+        SDL_GL_DestroyContext(m_Context);
+    }
+
     void GraphicsContext::SwapBuffers()
     {
         ZoneScoped;
@@ -40,6 +47,13 @@ namespace Coffee {
         SDL_GL_SwapWindow(m_WindowHandle);
 
         FrameMark;
+    }
+
+    bool SwapInterval(int interval)
+    {
+        ZoneScoped;
+
+        return SDL_GL_SetSwapInterval(interval);
     }
 
     Scope<GraphicsContext> GraphicsContext::Create(SDL_Window* window)
