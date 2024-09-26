@@ -159,9 +159,9 @@ namespace Coffee {
             }
             if (ImGui::BeginMenu("About"))
             {
-                if(ImGui::MenuItem("About CoffeeEngine"))
+                if(ImGui::MenuItem("About Coffee Engine"))
                 {
-                    ImGui::OpenPopup("About CoffeeEngine");
+                    ImGui::OpenPopup("About Coffee Engine");
                 }
                 ImGui::EndMenu();
             }
@@ -406,7 +406,7 @@ namespace Coffee {
         if (!path.empty())
         {
             Project::Load(path);
-            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - CoffeeEngine");
+            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - Coffee Engine");
         }
         else
         {
@@ -437,7 +437,7 @@ namespace Coffee {
         if (!path.empty())
         {
             Project::SaveActive(path);
-            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - CoffeeEngine");
+            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - Coffee Engine");
         }
         else
         {
