@@ -73,7 +73,12 @@ namespace Coffee {
          */
         void SetGodotColorStyle();
 
-    private:
+        /**
+         * @brief Sets the Coffee color style for ImGui.
+         */
+        void SetCoffeeColorStyle();
+
+      private:
         bool m_BlockEvents = true; ///< Indicates whether events are blocked.
     };
 

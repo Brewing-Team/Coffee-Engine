@@ -147,11 +147,15 @@ namespace Coffee {
                 {
                     if(ImGui::MenuItem("Coffee"))
                     {
-                        Application::Get().GetImGuiLayer()->SetTeaColorStyle();
+                        Application::Get().GetImGuiLayer()->SetCoffeeColorStyle();
                     }
                     if(ImGui::MenuItem("Godot"))
                     {
                         Application::Get().GetImGuiLayer()->SetGodotColorStyle();
+                    }
+                    if(ImGui::MenuItem("Tea"))
+                    {
+                        Application::Get().GetImGuiLayer()->SetTeaColorStyle();
                     }
                     ImGui::EndMenu();
                 }
