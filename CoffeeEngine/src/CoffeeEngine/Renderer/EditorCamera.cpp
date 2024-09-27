@@ -33,9 +33,9 @@ namespace Coffee {
 
         m_InitialMousePosition = mousePos;
         
-        if(Input::IsMouseButtonPressed(Mouse::ButtonMiddle))
+        if(Input::IsMouseButtonPressed(Mouse::BUTTON_MIDDLE))
         {
-            if(Input::IsKeyPressed(Key::LeftShift))
+            if(Input::IsKeyPressed(Key::LSHIFT))
             {
                 MousePan(delta);
             }

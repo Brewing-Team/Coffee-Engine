@@ -13,7 +13,7 @@ find_package(assimp CONFIG REQUIRED)
 find_package(cereal REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(Tracy CONFIG REQUIRED)
-find_package(imgui REQUIRED)
+#find_package(imgui REQUIRED)
 find_package(ImGuizmo REQUIRED)
 find_package(nfd REQUIRED)
 
@@ -31,7 +31,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     SDL3::SDL3
     glm::glm
     GLAD
-    imgui::imgui
+    imgui
     imguizmo::imguizmo
     stb_image
     assimp::assimp
@@ -48,6 +48,7 @@ option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on
 option(NFD_PORTAL "Use xdg-desktop-portal instead of GTK" ON)
 
 add_subdirectory(vendor/SDL3)
+add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)
 

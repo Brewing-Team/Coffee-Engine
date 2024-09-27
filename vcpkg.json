@@ -24,10 +24,6 @@
     "name" : "entt",
     "version>=" : "3.13.2"
   }, {
-    "name" : "imgui",
-    "version>=" : "1.91.0",
-    "features" : [ "docking-experimental", "glfw-binding", "opengl3-binding" ]
-  }, {
     "name" : "imguizmo",
     "version>=" : "2024-05-29#1"
   }, {

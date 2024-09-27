@@ -2,14 +2,15 @@
 
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Window.h"
+#include "SDL3/SDL_video.h"
 
 #include <imgui.h>
 #include <imgui_internal.h>
 
 //Previously this was in a specific file called ImGuiBuild.cpp but on Windows Platform using MSVC was not linking
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl3.cpp"
+#include "imgui_impl_opengl3.cpp"
 
 #include <GLFW/glfw3.h>
 #include <tracy/Tracy.hpp>
@@ -46,9 +47,9 @@ namespace Coffee {
 		SetTeaColorStyle();
 
         Application& app = Application::Get();
-        GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
+        SDL_Window* window = static_cast<SDL_Window*>(app.GetWindow().GetNativeWindow());
 
-        ImGui_ImplGlfw_InitForOpenGL(window, true);
+        ImGui_ImplSDL3_InitForOpenGL(window, SDL_GL_GetCurrentContext());
         ImGui_ImplOpenGL3_Init("#version 410");
     }
 
@@ -57,7 +58,7 @@ namespace Coffee {
         ZoneScoped;
 
         ImGui:ImGui_ImplOpenGL3_Shutdown();
-        ImGui_ImplGlfw_Shutdown();
+        ImGui_ImplSDL3_Shutdown();
         ImGui::DestroyContext();
     }
 
@@ -76,7 +77,7 @@ namespace Coffee {
         ZoneScoped;
 
 		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 	}
 
