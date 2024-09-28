@@ -235,7 +235,7 @@ namespace Coffee {
 
         if(entity.HasComponent<MaterialComponent>())
         {
-            auto& materialComponent = entity.GetComponent<MaterialComponent>();
+            /* auto& materialComponent = entity.GetComponent<MaterialComponent>();
             if(ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 const MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
@@ -273,7 +273,7 @@ namespace Coffee {
                 ImGui::Text("Emissive");
                 textureID = materialTextures.emissive ? materialTextures.emissive->GetID() : 0;
                 ImGui::ImageButton((ImTextureID)textureID, {64, 64});
-            }
+            } */
         }
 
         ImGui::Separator();

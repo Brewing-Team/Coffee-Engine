@@ -115,6 +115,7 @@ namespace Coffee
         SDL_Event event;
         while(SDL_PollEvent(&event))
         {
+            m_ImGuiLayer->OnEvent(event);
             switch (event.type)
             {
                 case SDL_EVENT_QUIT:
