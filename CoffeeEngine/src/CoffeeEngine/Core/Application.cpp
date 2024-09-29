@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "SDL3/SDL_timer.h"
+#include "imgui_impl_sdl3.h"
 
 #include <SDL3/SDL.h>
 #include <tracy/Tracy.hpp>
@@ -115,7 +116,7 @@ namespace Coffee
         SDL_Event event;
         while(SDL_PollEvent(&event))
         {
-            m_ImGuiLayer->OnEvent(event);
+            ImGui_ImplSDL3_ProcessEvent(&event);
             switch (event.type)
             {
                 case SDL_EVENT_QUIT:
