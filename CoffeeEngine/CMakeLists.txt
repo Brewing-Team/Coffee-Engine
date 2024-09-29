@@ -47,6 +47,11 @@ option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on
 
 option(NFD_PORTAL "Use xdg-desktop-portal instead of GTK" ON)
 
+if (UNIX)
+    option(SDL_SHARED "Use shared SDL" OFF)
+    option(SDL_STATIC "Use static SDL" ON)
+endif()
+
 add_subdirectory(vendor/SDL3)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/GLAD)
