@@ -1,9 +1,8 @@
 #include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Layer.h"
-#include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "SDL3/SDL_timer.h"
-#include "imgui_impl_sdl3.h"
 
 #include <SDL3/SDL.h>
 #include <tracy/Tracy.hpp>
@@ -20,7 +19,7 @@ namespace Coffee
 		s_Instance = this;
 
         m_Window = Window::Create(WindowProps("Coffee Engine"));
-        SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
+        Input::SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
 
         //TODO: Create The Renderer Instance and remove the RendererAPI Instance
         Renderer::Init();
@@ -87,7 +86,7 @@ namespace Coffee
             m_LastFrameTime = time;         
 
             //Poll and handle events
-            PollEvents();
+            Input::ProcessEvents();
 
             //Update and render
             {
@@ -108,81 +107,6 @@ namespace Coffee
             m_ImGuiLayer->End();
 
             m_Window->OnUpdate();
-        }
-    }
-
-    void Application::PollEvents()
-    {
-        SDL_Event event;
-        while(SDL_PollEvent(&event))
-        {
-            ImGui_ImplSDL3_ProcessEvent(&event);
-            switch (event.type)
-            {
-                case SDL_EVENT_QUIT:
-                {
-                    WindowCloseEvent e;
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_WINDOW_RESIZED:
-                {
-                    WindowResizeEvent e(event.window.data1, event.window.data2);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
-                {
-                    WindowCloseEvent e;
-                    m_EventCallback(e);
-                    break;
-                }
-                    break;
-                case SDL_EVENT_KEY_DOWN:
-                {
-                    if(event.key.repeat)
-                    {
-                        KeyPressedEvent e(event.key.scancode, 1);
-                        m_EventCallback(e);
-                    }
-                    else
-                    {
-                        KeyPressedEvent e(event.key.scancode, 0);
-                        m_EventCallback(e);
-                    }
-                    break;
-                }
-                case SDL_EVENT_KEY_UP:
-                {
-                    KeyReleasedEvent e(event.key.scancode);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_MOUSE_BUTTON_DOWN:
-                {
-                    MouseButtonPressedEvent e(event.button.button);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_MOUSE_BUTTON_UP:
-                {
-                    MouseButtonReleasedEvent e(event.button.button);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_MOUSE_MOTION:
-                {
-                    MouseMovedEvent e(event.motion.x, event.motion.y);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_MOUSE_WHEEL:
-                {
-                    MouseScrolledEvent e(event.wheel.x, event.wheel.y);
-                    m_EventCallback(e);
-                    break;
-                }
-            }
         }
     }
 
