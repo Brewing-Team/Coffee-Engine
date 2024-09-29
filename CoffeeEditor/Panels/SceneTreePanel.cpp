@@ -235,14 +235,14 @@ namespace Coffee {
 
         if(entity.HasComponent<MaterialComponent>())
         {
-            /* auto& materialComponent = entity.GetComponent<MaterialComponent>();
+            auto& materialComponent = entity.GetComponent<MaterialComponent>();
             if(ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
             {
                 const MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
 
                 ImGui::Text("Albedo");
                 uint32_t textureID = materialTextures.albedo ? materialTextures.albedo->GetID() : 0;
-                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+                ImGui::ImageButton("##Albedo", (ImTextureID)textureID, {64, 64});
                 if(ImGui::BeginDragDropTarget())
                 {
                     if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
@@ -256,24 +256,24 @@ namespace Coffee {
 
                 ImGui::Text("Normal");
                 textureID = materialTextures.normal ? materialTextures.normal->GetID() : 0;
-                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+                ImGui::ImageButton("##Normal",(ImTextureID)textureID, {64, 64});
 
                 ImGui::Text("Metallic");
                 textureID = materialTextures.metallic ? materialTextures.metallic->GetID() : 0;
-                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+                ImGui::ImageButton("##Metallic", (ImTextureID)textureID, {64, 64});
 
                 ImGui::Text("Roughness");
                 textureID = materialTextures.roughness ? materialTextures.roughness->GetID() : 0;
-                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+                ImGui::ImageButton("##Roughness", (ImTextureID)textureID, {64, 64});
 
                 ImGui::Text("AO");
                 textureID = materialTextures.ao ? materialTextures.ao->GetID() : 0;
-                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
+                ImGui::ImageButton("##AO",(ImTextureID)textureID, {64, 64});
 
                 ImGui::Text("Emissive");
                 textureID = materialTextures.emissive ? materialTextures.emissive->GetID() : 0;
-                ImGui::ImageButton((ImTextureID)textureID, {64, 64});
-            } */
+                ImGui::ImageButton("##Emissive", (ImTextureID)textureID, {64, 64});
+            }
         }
 
         ImGui::Separator();

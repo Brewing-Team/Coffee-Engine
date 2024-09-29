@@ -49,7 +49,7 @@ namespace Coffee {
         FrameMark;
     }
 
-    bool SwapInterval(int interval)
+    bool GraphicsContext::SwapInterval(int interval)
     {
         ZoneScoped;
 

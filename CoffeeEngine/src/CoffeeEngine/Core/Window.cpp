@@ -110,9 +110,9 @@ namespace Coffee {
         ZoneScoped;
 
 		if (enabled)
-			//m_Context->SwapInterval(1);
-		//else
-			//m_Context->SwapInterval(0);
+			m_Context->SwapInterval(1);
+		else
+			m_Context->SwapInterval(0);
 
 		m_Data.VSync = enabled;
 	}
