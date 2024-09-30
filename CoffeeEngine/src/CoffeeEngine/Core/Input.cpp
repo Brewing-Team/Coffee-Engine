@@ -2,10 +2,10 @@
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_keyboard.h"
-#include "SDL3/SDL_mouse.h"
-#include "imgui_impl_sdl3.h"
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_mouse.h>
+#include <imgui_impl_sdl3.h>
 
 namespace Coffee {
 
