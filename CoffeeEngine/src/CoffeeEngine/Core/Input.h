@@ -2,9 +2,7 @@
 
 #include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
-#include "CoffeeEngine/Events/Event.h"
 
-#include <functional>
 #include <glm/glm.hpp>
 
 namespace Coffee {
@@ -49,23 +47,6 @@ namespace Coffee {
 		 * @return The y-coordinate of the mouse cursor.
 		 */
 		static float GetMouseY();
-
-				using EventCallbackFn = std::function<void(Event&)>; ///< Type definition for event callback function.
-		/**
-         * @brief Polls and processes events.
-         * 
-         * This function retrieves and handles events such as input from the keyboard,
-         * mouse, window, and other devices.
-         */
-        static void ProcessEvents();
-
-		/**
-         * @brief Sets the event callback function.
-         * @param callback The event callback function.
-         */
-        static void SetEventCallback(const EventCallbackFn& callback) { m_EventCallback = callback; }
-	private:
-		static EventCallbackFn m_EventCallback; ///< The event callback function.
 	};
     /** @} */
 }

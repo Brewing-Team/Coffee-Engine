@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Layer.h"
+#include <SDL3/SDL_events.h>
 
 namespace Coffee {
 
@@ -62,6 +63,8 @@ namespace Coffee {
          * @param block True to block events, false to unblock.
          */
         void BlockEvents(bool block) { m_BlockEvents = block; }
+
+        void ProcessEvents(const SDL_Event& event);
 
         /**
          * @brief Sets the Coffee color style for ImGui.

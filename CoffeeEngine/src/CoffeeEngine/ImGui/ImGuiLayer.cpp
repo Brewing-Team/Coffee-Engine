@@ -110,6 +110,11 @@ namespace Coffee {
         ImGui::ShowDemoWindow(&show);
     }
 
+	void ImGuiLayer::ProcessEvents(const SDL_Event& event)
+	{
+		ImGui_ImplSDL3_ProcessEvent(&event);
+	}
+
 	void ImGuiLayer::SetTeaColorStyle()
 	{
 		ImGuiStyle& style = ImGui::GetStyle();
