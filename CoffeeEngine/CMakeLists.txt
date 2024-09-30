@@ -14,7 +14,7 @@ find_package(cereal REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(Tracy CONFIG REQUIRED)
 #find_package(imgui REQUIRED)
-find_package(ImGuizmo REQUIRED)
+#find_package(ImGuizmo REQUIRED)
 find_package(nfd REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
@@ -32,7 +32,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     glm::glm
     GLAD
     imgui
-    imguizmo::imguizmo
+    #imguizmo::imguizmo
+    ImGuizmo
     stb_image
     assimp::assimp
     EnTT::EnTT
@@ -56,6 +57,7 @@ add_subdirectory(vendor/SDL3)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)
+add_subdirectory(vendor/ImGuizmo)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=1)
