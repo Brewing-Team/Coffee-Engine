@@ -6,5 +6,5 @@
 	url = https://github.com/HugoPlacer/ImGuizmo.git
 [submodule "CoffeeEngine/vendor/imgui"]
 	path = CoffeeEngine/vendor/imgui
-	url = https://github.com/ocornut/imgui.git
+	url = https://github.com/Brewing-Team/imgui.git
 	branch = docking
