@@ -1,10 +1,10 @@
 [submodule "CoffeeEngine/vendor/SDL3"]
 	path = CoffeeEngine/vendor/SDL3
 	url = https://github.com/libsdl-org/SDL.git
-[submodule "CoffeeEngine/vendor/imgui"]
-	path = CoffeeEngine/vendor/imgui
-	url = https://github.com/HugoPlacer/imgui.git
-	branch = docking
 [submodule "CoffeeEngine/vendor/ImGuizmo"]
 	path = CoffeeEngine/vendor/ImGuizmo
 	url = https://github.com/HugoPlacer/ImGuizmo.git
+[submodule "CoffeeEngine/vendor/imgui"]
+	path = CoffeeEngine/vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking
