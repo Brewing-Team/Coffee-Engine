@@ -2,6 +2,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include <cstdint>
+#include <glm/ext/scalar_constants.hpp>
 #include <vector>
 
 namespace Coffee {
@@ -61,9 +62,7 @@ namespace Coffee {
 
         std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
 
-        Ref<Mesh> mesh = CreateRef<Mesh>(indices, vertices);
-
-        return mesh;
+        return CreateRef<Mesh>(indices, vertices);
     }
 
     Ref<Mesh> PrimitiveMesh::CreateCube(const glm::vec3& size)
@@ -142,7 +141,7 @@ namespace Coffee {
         vertices[23].Position = {0.5f, 0.5f, -0.5f};
         vertices[23].Normals = {0.0f, 0.0f, -1.0f};
 
-        for(int i = 0; i < 6; i++)
+        for (int i = 0; i < 6; i++)
         {
             vertices[i * 4 + 0].TexCoords = {0.0f, 0.0f};
             vertices[i * 4 + 1].TexCoords = {1.0f, 0.0f};
@@ -150,24 +149,78 @@ namespace Coffee {
             vertices[i * 4 + 3].TexCoords = {0.0f, 1.0f};
         }
 
-        std::vector<uint32_t> indices = {
-            0, 1, 2,
-            0, 2, 3,
-            4, 5, 6,
-            4, 6, 7,
-            8, 9, 10,
-            8, 10, 11,
-            12, 13, 14,
-            12, 14, 15,
-            16, 17, 18,
-            16, 18, 19,
-            20, 21, 22,
-            20, 22, 23
-        };
+        std::vector<uint32_t> indices = {0,  1,  2,  0,  2,  3,  4,  5,  6,  4,  6,  7,  8,  9,  10, 8,  10, 11,
+                                         12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
 
-        Ref<Mesh> mesh = CreateRef<Mesh>(indices, vertices);
+        return CreateRef<Mesh>(indices, vertices);;
+    }
+    Ref<Mesh> PrimitiveMesh::CreateSphere(float radius, uint32_t rings, uint32_t sectors)
+    {
+        auto data = std::vector<Vertex>{};
 
-        return mesh;
+        float sectorCount = static_cast<float>(rings);
+        float stackCount  = static_cast<float>(sectors);
+        float sectorStep  = 2 * glm::pi<float>() / sectorCount;
+        float stackStep   = glm::pi<float>() / stackCount;
+
+        for (int i = 0; i <= stackCount; i++)
+        {
+            float stackAngle = glm::pi<float>() / 2 - i * stackStep;
+            float xy         = radius * cosf(stackAngle);
+            float z          = radius * sinf(stackAngle);
+
+            for (int j = 0; j <= sectorCount; j++)
+            {
+                float secotrAngle = j * sectorStep;
+
+                // vertex position (x, y, z)
+                float x = xy * cosf(secotrAngle);
+                float y = xy * sinf(secotrAngle);
+
+                // vertex tex coord (s, t) range between [0, 1]
+                float s = static_cast<float>(j) / sectorCount;
+                float t = static_cast<float>(i) / stackCount;
+
+                Vertex vertex;
+                vertex.Position = {x, y, z};
+                vertex.TexCoords = {s, t};
+                vertex.Normals = normalize(vertex.Position); // TODO check this
+
+                data.emplace_back(vertex);
+            }
+        }
+
+        std::vector<uint32_t> indices;
+        uint32_t k1, k2;
+
+        for (uint32_t i = 0; i < stackCount; i++)
+        {
+            k1 = i * (static_cast<uint32_t>(sectorCount) + 1U); // beginning of current stack
+            k2 = k1 + static_cast<uint32_t>(sectorCount) + 1U;  // beginning of next stack
+
+            for (uint32_t j = 0; j < sectorCount; ++j, ++k1, ++k2)
+            {
+                // 2 triangles per sector excluding first and last stacks
+                // k1 => k2 => k1+1
+                if (i != 0)
+                {
+                    indices.push_back(k1);
+                    indices.push_back(k2);
+                    indices.push_back(k1 + 1);
+                }
+
+                // k1+1 => k2 => k2+1
+                if (i != (stackCount - 1))
+                {
+                    indices.push_back(k1 + 1);
+                    indices.push_back(k2);
+                    indices.push_back(k2 + 1);
+                }
+            }
+        }
+
+        return CreateRef<Mesh>(indices, data);
+
     }
 
 } // namespace Coffee

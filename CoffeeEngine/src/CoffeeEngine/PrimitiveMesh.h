@@ -29,6 +29,8 @@ namespace Coffee {
         static Ref<Mesh> CreatePlane(const glm::vec2& size, const glm::vec3& normal = { 0.0f, 1.0f, 0.0f });
 
         static Ref<Mesh> CreateCube(const glm::vec3& size = { 1.0f, 1.0f, 1.0f });
+
+        static Ref<Mesh> CreateSphere(float radius = 1.0f, uint32_t rings = 32, uint32_t sectors = 32);
     };
 
     // Explicit specialization declaration
