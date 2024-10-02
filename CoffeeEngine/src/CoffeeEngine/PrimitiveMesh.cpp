@@ -159,15 +159,15 @@ namespace Coffee {
         auto data = std::vector<Vertex>{};
 
         float sectorCount = static_cast<float>(rings);
-        float stackCount  = static_cast<float>(sectors);
-        float sectorStep  = 2 * glm::pi<float>() / sectorCount;
-        float stackStep   = glm::pi<float>() / stackCount;
+        float stackCount = static_cast<float>(sectors);
+        float sectorStep = 2 * glm::pi<float>() / sectorCount;
+        float stackStep = glm::pi<float>() / stackCount;
 
         for (int i = 0; i <= stackCount; i++)
         {
             float stackAngle = glm::pi<float>() / 2 - i * stackStep;
-            float xy         = radius * cosf(stackAngle);
-            float z          = radius * sinf(stackAngle);
+            float xy = radius * cosf(stackAngle);
+            float z = radius * sinf(stackAngle);
 
             for (int j = 0; j <= sectorCount; j++)
             {
@@ -220,7 +220,135 @@ namespace Coffee {
         }
 
         return CreateRef<Mesh>(indices, data);
-
     }
 
+    Ref<Mesh> PrimitiveMesh::CreateCylinder(float bottomRadius, float topRadius, float height, int radialSegments, int rings)
+    {
+        int i, j, prevrow, thisrow, point = 0;
+        float x, y, z, u, v, radius;
+
+        std::vector<Vertex> data;
+        std::vector<uint32_t> indices;
+
+        thisrow = 0;
+        prevrow = 0;
+
+        for (j = 0; j <= (rings + 1); j++)
+        {
+            v = static_cast<float>(j) / (rings + 1);
+            radius = topRadius + ((bottomRadius - topRadius) * v);
+            y = height * v - (height * 0.5f);
+
+            for (i = 0; i <= radialSegments; i++)
+            {
+                u = static_cast<float>(i) / radialSegments;
+                x = sin(u * (glm::pi<float>() * 2.0f));
+                z = cos(u * (glm::pi<float>() * 2.0f));
+
+                glm::vec3 p = glm::vec3(x * radius, y, z * radius);
+
+                Vertex vertex;
+                vertex.Position = p;
+                vertex.Normals = glm::vec3(x, 0.0f, z);
+                vertex.TexCoords = glm::vec2(u, v * 0.5f);
+                data.emplace_back(vertex);
+
+                point++;
+
+                if (i > 0 && j > 0)
+                {
+                    indices.push_back(thisrow + i - 1);
+                    indices.push_back(prevrow + i);
+                    indices.push_back(prevrow + i - 1);
+
+                    indices.push_back(thisrow + i - 1);
+                    indices.push_back(thisrow + i);
+                    indices.push_back(prevrow + i);
+                }
+            }
+
+            prevrow = thisrow;
+            thisrow = point;
+        }
+
+        // Add top cap
+        if (topRadius > 0.0f)
+        {
+            y = height * 0.5f;
+
+            Vertex vertex;
+            vertex.Position = glm::vec3(0.0f, y, 0.0f);
+            vertex.Normals = glm::vec3(0.0f, 1.0f, 0.0f);
+            vertex.TexCoords = glm::vec2(0.25f, 0.75f);
+            data.emplace_back(vertex);
+            point++;
+
+            for (i = 0; i <= radialSegments; i++)
+            {
+                float r = static_cast<float>(i) / radialSegments;
+                x = sin(r * (glm::pi<float>() * 2.0f));
+                z = cos(r * (glm::pi<float>() * 2.0f));
+
+                u = (x + 1.0f) * 0.25f;
+                v = 0.5f + (z * 0.25f);
+
+                glm::vec3 p = glm::vec3(x * topRadius, y, z * topRadius);
+                Vertex vertex;
+                vertex.Position = p;
+                vertex.Normals = glm::vec3(0.0f, 1.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(u, v);
+                data.emplace_back(vertex);
+                point++;
+
+                if (i > 0)
+                {
+                    indices.push_back(point - 2);
+                    indices.push_back(point - 1);
+                    indices.push_back(thisrow);
+                }
+            }
+        }
+
+        // Add bottom cap
+        if (bottomRadius > 0.0f)
+        {
+            y = height * -0.5f;
+
+            thisrow = point;
+
+            Vertex vertex;
+            vertex.Position = glm::vec3(0.0f, y, 0.0f);
+            vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
+            vertex.TexCoords = glm::vec2(0.75f, 0.75f);
+            data.emplace_back(vertex);
+            point++;
+
+            for (i = 0; i <= radialSegments; i++)
+            {
+                float r = static_cast<float>(i) / radialSegments;
+                x = sin(r * (glm::pi<float>() * 2.0f));
+                z = cos(r * (glm::pi<float>() * 2.0f));
+
+                u = 0.5f + (x * 0.25f);
+                v = 1.0f + (z * 0.25f);
+
+                glm::vec3 p = glm::vec3(x * bottomRadius, y, z * bottomRadius);
+
+                vertex.Position = p;
+                vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(u, v);
+                data.emplace_back(vertex);
+                point++;
+
+                if (i > 0)
+                {
+                    indices.push_back(point - 1);
+                    indices.push_back(point - 2);
+                    indices.push_back(thisrow);
+                }
+            }
+        }
+
+        return CreateRef<Mesh>(indices, data);
+    }
 } // namespace Coffee

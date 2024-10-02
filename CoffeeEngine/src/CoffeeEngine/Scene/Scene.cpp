@@ -108,8 +108,11 @@ namespace Coffee {
         // Entity cube = CreateEntity("Cube test");
         // cube.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
 
-        Entity sphere = CreateEntity("Sphere test");
-        sphere.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+        // Entity sphere = CreateEntity("Sphere test");
+        // sphere.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+
+        Entity cylinder = CreateEntity("Cylinder test");
+        cylinder.AddComponent<MeshComponent>(PrimitiveMesh::CreateCylinder());
 
         Entity light = CreateEntity("Directional Light");
         light.AddComponent<LightComponent>().Color = {1.0f, 0.9f, 0.85f};

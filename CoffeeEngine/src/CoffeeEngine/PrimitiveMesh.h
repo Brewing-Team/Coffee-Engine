@@ -31,6 +31,8 @@ namespace Coffee {
         static Ref<Mesh> CreateCube(const glm::vec3& size = { 1.0f, 1.0f, 1.0f });
 
         static Ref<Mesh> CreateSphere(float radius = 1.0f, uint32_t rings = 32, uint32_t sectors = 32);
+
+        static Ref<Mesh> CreateCylinder(float bottomRadius = 1.0f, float topRadius = 1.0f, float height = 1.0f, int radialSegments = 64, int rings = 8);
     };
 
     // Explicit specialization declaration
