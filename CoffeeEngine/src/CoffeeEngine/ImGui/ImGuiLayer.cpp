@@ -12,7 +12,6 @@
 #include "imgui_impl_sdl3.cpp"
 #include "imgui_impl_opengl3.cpp"
 
-#include <GLFW/glfw3.h>
 #include <tracy/Tracy.hpp>
 
 namespace Coffee {
