@@ -1,11 +1,13 @@
 #include "Scene.h"
+
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
@@ -102,7 +104,10 @@ namespace Coffee {
 
             light.GetComponent<TransformComponent>().Position = position;
         } */
-        
+
+        Entity cube = CreateEntity("Cube test");
+        cube.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+
         Entity light = CreateEntity("Directional Light");
         light.AddComponent<LightComponent>().Color = {1.0f, 0.9f, 0.85f};
         light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f};

@@ -6,9 +6,15 @@ namespace Coffee {
 
     enum class PrimitiveType
     {
-        //Cube,
-        //Sphere,
-        Plane
+        Cube,
+        Sphere,
+        Plane,
+        Quad,
+        Cylinder,
+        Cone,
+        Torus,
+        Capsule,
+        None
     };
 
     class PrimitiveMesh
@@ -21,6 +27,8 @@ namespace Coffee {
         static Ref<Mesh> CreateQuad();
 
         static Ref<Mesh> CreatePlane(const glm::vec2& size, const glm::vec3& normal = { 0.0f, 1.0f, 0.0f });
+
+        static Ref<Mesh> CreateCube(const glm::vec3& size = { 1.0f, 1.0f, 1.0f });
     };
 
     // Explicit specialization declaration
