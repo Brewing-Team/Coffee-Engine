@@ -165,6 +165,8 @@ namespace Coffee {
          */
         static const Ref<Texture>& GetEntityIDTexture() { return s_EntityIDTexture; }
 
+        static glm::vec4 GetEntityIDAtPixel(int x, int y) { return s_MainFramebuffer->GetPixelColor(x, y, 1); }
+
         /**
          * @brief Gets the renderer data.
          * @return A reference to the renderer data.
