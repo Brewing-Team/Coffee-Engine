@@ -13,6 +13,7 @@
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Scene.h"
+#include "CoffeeEngine/Core/Input.h"
 #include "Panels/SceneTreePanel.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
@@ -118,25 +119,22 @@ namespace Coffee {
             if (m_ViewportHovered && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
             {
                 //TODO: Clean this up and wrap it in a function
-                auto[mx, my] = ImGui::GetMousePos();
-                mx -= m_ViewportBounds[0].x;
-                my -= m_ViewportBounds[0].y;
+                glm::vec2 mousePos = Input::GetMousePosition();
+                mousePos.x -= m_ViewportBounds[0].x;
+                mousePos.y -= m_ViewportBounds[0].y;
                 glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
-                my = viewportSize.y - my;
-                int mouseX = (int)mx;
-                int mouseY = (int)my;
+                mousePos.y = viewportSize.y - mousePos.y;
+                int mouseX = (int)mousePos.x;
+                int mouseY = (int)mousePos.y;
 
                 if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
                 {
                     const glm::vec4& pixelData = Renderer::GetEntityIDAtPixel(mouseX, mouseY);
 
-                    // Assuming entityIDVec3 is the glm::vec3 containing the RGB values
-                    glm::vec3 EntityIDVec3 = glm::vec3(pixelData.x, pixelData.y, pixelData.z);
-
                     /// Convert the vec3 back to uint32_t
-                    uint32_t r = static_cast<uint32_t>(EntityIDVec3.r * 255.0f);
-                    uint32_t g = static_cast<uint32_t>(EntityIDVec3.g * 255.0f);
-                    uint32_t b = static_cast<uint32_t>(EntityIDVec3.b * 255.0f);
+                    uint32_t r = static_cast<uint32_t>(pixelData.r * 255.0f);
+                    uint32_t g = static_cast<uint32_t>(pixelData.g * 255.0f);
+                    uint32_t b = static_cast<uint32_t>(pixelData.b * 255.0f);
 
                     uint32_t entityID = (r << 0) | (g << 8) | (b << 16);
 
