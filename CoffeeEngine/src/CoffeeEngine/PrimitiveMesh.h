@@ -32,13 +32,13 @@ namespace Coffee {
 
         static Ref<Mesh> CreatePlane(const glm::vec2& size, const glm::vec3& normal = { 0.0f, 1.0f, 0.0f });
 
-        static Ref<Mesh> CreateCylinder(float bottomRadius = 1.0f, float topRadius = 1.0f, float height = 3.0f, int radialSegments = 64, int rings = 8);
+        static Ref<Mesh> CreateCylinder(float bottomRadius = 1.0f, float topRadius = 0.0f, float height = 3.0f, int radialSegments = 64, int rings = 8);
 
         static Ref<Mesh> CreateCone();
 
         static Ref<Mesh> CreateTorus(float innerRadius = 0.5f, float outerRadius = 1.0f, int rings = 64, int ringSegments = 32);
 
-        static Ref<Mesh> CreateCapsule();
+        static Ref<Mesh> CreateCapsule(float radius = 1.0f, float height = 4.0f, int radialSegments = 64, int rings = 8);
 
     };
 
