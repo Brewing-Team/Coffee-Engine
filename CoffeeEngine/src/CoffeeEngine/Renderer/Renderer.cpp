@@ -88,6 +88,7 @@ namespace Coffee {
         } */
 
         s_MainFramebuffer->Bind();
+        s_MainFramebuffer->SetDrawBuffers({0, 1});
 
         RendererAPI::SetClearColor({0.03f,0.03f,0.03f,1.0});
         RendererAPI::Clear();
@@ -147,6 +148,7 @@ namespace Coffee {
 
             //Final Pass
             s_MainFramebuffer->Bind();
+            s_MainFramebuffer->SetDrawBuffers({0});
             
             s_FinalPassShader->Bind();
             s_FinalPassShader->setInt("screenTexture", 0);

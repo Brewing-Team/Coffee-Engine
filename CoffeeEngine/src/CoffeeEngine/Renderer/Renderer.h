@@ -67,7 +67,7 @@ namespace Coffee {
      */
     struct RenderSettings
     {
-        bool PostProcessing = false; ///< Enable or disable post-processing.
+        bool PostProcessing = true; ///< Enable or disable post-processing.
         bool SSAO = false; ///< Enable or disable SSAO.
         bool Bloom = false; ///< Enable or disable bloom.
         bool FXAA = false; ///< Enable or disable FXAA.
