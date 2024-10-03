@@ -226,132 +226,73 @@ namespace Coffee {
         return CreateRef<Mesh>(indices, data);
     }
 
-    Ref<Mesh> PrimitiveMesh::CreateCylinder(float bottomRadius, float topRadius, float height, int radialSegments,
-                                            int rings)
+    Ref<Mesh> PrimitiveMesh::CreateCylinder(float topRadius, float bottomRadius, float height, int radialSegments, int rings, bool capTop, bool capBottom)
     {
-        int i, j, prevrow, thisrow, point = 0;
-        float x, y, z, u, v, radius;
+        int i, j, prevrow, thisrow, point;
+        float x, y, z, u, v, radius, radiusH;
 
         std::vector<Vertex> data;
         std::vector<uint32_t> indices;
 
         thisrow = 0;
         prevrow = 0;
+        point = 0;
+
+        const float sideNormalY = (bottomRadius - topRadius) / height;
+
+        // Only used if we calculate UV2
+        float topCircumference = topRadius * glm::pi<float>() * 2.0f;
+        float bottomCircumference = bottomRadius * glm::pi<float>() * 2.0f;
+        float verticalLength = height + std::max(2.0f * topRadius, 2.0f * bottomRadius) + (2.0f * p_uv2_padding);
+        float heightV = height / verticalLength;
+        float paddingV = p_uv2_padding / verticalLength;
+
+        float horizontalLength = std::max({2.0f * (topRadius + bottomRadius + p_uv2_padding), topCircumference + p_uv2_padding, bottomCircumference + p_uv2_padding});
+        float centerH = 0.5f * (horizontalLength - p_uv2_padding) / horizontalLength;
+        float topH = topCircumference / horizontalLength;
+        float bottomH = bottomCircumference / horizontalLength;
+        float paddingH = p_uv2_padding / horizontalLength;
 
         for (j = 0; j <= (rings + 1); j++)
         {
-            v = static_cast<float>(j) / (rings + 1);
-            radius = topRadius + ((bottomRadius - topRadius) * v);
-            y = height * v - (height * 0.5f);
+            v = j;
+            v /= rings + 1;
+
+            radius = topRadius + (bottomRadius - topRadius) * v;
+            radiusH = topH + ((bottomH - topH) * v);
+
+            y = height * v;
+            y = (height * 0.5f) - y;
 
             for (i = 0; i <= radialSegments; i++)
             {
-                u = static_cast<float>(i) / radialSegments;
-                x = sin(u * (glm::pi<float>() * 2.0f));
-                z = cos(u * (glm::pi<float>() * 2.0f));
+                u = i;
+                u /= radialSegments;
 
-                glm::vec3 p = glm::vec3(x * radius, y, z * radius);
+                x = sin(u * glm::tau<float>());
+                z = cos(u * glm::tau<float>());
 
                 Vertex vertex;
-                vertex.Position = p;
-                vertex.Normals = glm::vec3(x, 0.0f, z);
+                vertex.Position = glm::vec3(x * radius, y, z * radius);
+                vertex.Normals = glm::normalize(glm::vec3(x, sideNormalY, z));
+                vertex.Tangent = glm::vec4(z, 0.0f, -x, 1.0f);
                 vertex.TexCoords = glm::vec2(u, v * 0.5f);
-                data.emplace_back(vertex);
 
                 point++;
 
-                if (i > 0 && j > 0)
-                {
-                    indices.push_back(thisrow + i - 1);
-                    indices.push_back(prevrow + i);
+                if (i > 0 && j > 0) {
                     indices.push_back(prevrow + i - 1);
-
-                    indices.push_back(thisrow + i - 1);
-                    indices.push_back(thisrow + i);
                     indices.push_back(prevrow + i);
+                    indices.push_back(thisrow + i - 1);
+
+                    indices.push_back(prevrow + i);
+                    indices.push_back(thisrow + i);
+                    indices.push_back(thisrow + i - 1);
                 }
             }
 
             prevrow = thisrow;
             thisrow = point;
-        }
-
-        // Add top cap
-        if (topRadius > 0.0f)
-        {
-            y = height * 0.5f;
-
-            Vertex vertex;
-            vertex.Position = glm::vec3(0.0f, y, 0.0f);
-            vertex.Normals = glm::vec3(0.0f, 1.0f, 0.0f);
-            vertex.TexCoords = glm::vec2(0.25f, 0.75f);
-            data.emplace_back(vertex);
-            point++;
-
-            for (i = 0; i <= radialSegments; i++)
-            {
-                float r = static_cast<float>(i) / radialSegments;
-                x = sin(r * (glm::pi<float>() * 2.0f));
-                z = cos(r * (glm::pi<float>() * 2.0f));
-
-                u = (x + 1.0f) * 0.25f;
-                v = 0.5f + (z * 0.25f);
-
-                glm::vec3 p = glm::vec3(x * topRadius, y, z * topRadius);
-                Vertex vertex;
-                vertex.Position = p;
-                vertex.Normals = glm::vec3(0.0f, 1.0f, 0.0f);
-                vertex.TexCoords = glm::vec2(u, v);
-                data.emplace_back(vertex);
-                point++;
-
-                if (i > 0)
-                {
-                    indices.push_back(point - 2);
-                    indices.push_back(point - 1);
-                    indices.push_back(thisrow);
-                }
-            }
-        }
-
-        // Add bottom cap
-        if (bottomRadius > 0.0f)
-        {
-            y = height * -0.5f;
-
-            thisrow = point;
-
-            Vertex vertex;
-            vertex.Position = glm::vec3(0.0f, y, 0.0f);
-            vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
-            vertex.TexCoords = glm::vec2(0.75f, 0.75f);
-            data.emplace_back(vertex);
-            point++;
-
-            for (i = 0; i <= radialSegments; i++)
-            {
-                float r = static_cast<float>(i) / radialSegments;
-                x = sin(r * (glm::pi<float>() * 2.0f));
-                z = cos(r * (glm::pi<float>() * 2.0f));
-
-                u = 0.5f + (x * 0.25f);
-                v = 1.0f + (z * 0.25f);
-
-                glm::vec3 p = glm::vec3(x * bottomRadius, y, z * bottomRadius);
-
-                vertex.Position = p;
-                vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
-                vertex.TexCoords = glm::vec2(u, v);
-                data.emplace_back(vertex);
-                point++;
-
-                if (i > 0)
-                {
-                    indices.push_back(point - 1);
-                    indices.push_back(point - 2);
-                    indices.push_back(thisrow);
-                }
-            }
         }
 
         return CreateRef<Mesh>(indices, data);

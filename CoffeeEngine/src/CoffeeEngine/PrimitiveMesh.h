@@ -32,7 +32,7 @@ namespace Coffee {
 
         static Ref<Mesh> CreatePlane(const glm::vec2& size, const glm::vec3& normal = { 0.0f, 1.0f, 0.0f });
 
-        static Ref<Mesh> CreateCylinder(float bottomRadius = 1.0f, float topRadius = 0.0f, float height = 3.0f, int radialSegments = 64, int rings = 8);
+        static Ref<Mesh> CreateCylinder(float topRadius = 0.5f, float bottomRadius = 0.5f, float height = 2.0f, int radialSegments = 64, int rings = 4, bool capTop = true, bool capBottom = true);
 
         static Ref<Mesh> CreateCone();
 
