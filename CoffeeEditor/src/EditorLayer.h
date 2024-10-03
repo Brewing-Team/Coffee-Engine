@@ -27,6 +27,7 @@ namespace Coffee {
         void OnEvent(Event& event) override;
 
         bool OnKeyPressed(KeyPressedEvent& event);
+        bool OnMouseButtonPressed(MouseButtonPressedEvent& event);
 
         void OnDetach() override;
 
