@@ -2,8 +2,11 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 
+#include <cstdint>
 #include <glad/glad.h>
 #include <tracy/Tracy.hpp>
+
+#include <glm/vec4.hpp>
 
 namespace Coffee {
 
@@ -122,6 +125,23 @@ namespace Coffee {
         ZoneScoped;
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
+    glm::vec4 Framebuffer::GetPixelColor(int x, int y, uint32_t attachmentIndex)
+    {
+        ZoneScoped;
+
+        COFFEE_CORE_ASSERT(attachmentIndex < m_ColorTextures.size(), "Attachment index out of bounds");
+
+        glBindFramebuffer(GL_FRAMEBUFFER, m_fboID);
+        glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
+
+        glm::vec4 result;
+        glReadPixels(x, y, 1, 1, GL_RGBA, GL_FLOAT, &result);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        return result;
     }
 
     void Framebuffer::SetDrawBuffers(std::initializer_list<Ref<Texture>> colorAttachments)

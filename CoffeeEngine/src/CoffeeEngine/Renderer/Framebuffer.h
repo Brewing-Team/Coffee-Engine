@@ -49,6 +49,8 @@ namespace Coffee {
          */
         void UnBind();
 
+        glm::vec4 GetPixelColor(int x, int y, uint32_t attachmentIndex = 0);
+
         /**
          * @brief Sets the draw buffers for the framebuffer.
          * @param colorAttachments The list of color attachments.
