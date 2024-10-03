@@ -398,7 +398,7 @@ namespace Coffee {
                 vertex.Position = glm::vec3(normali.x * normalk.x, normalk.y,  normali.y * normalk.x);
                 vertex.Normals = glm::vec3(normali.x * normalj.x, normalj.y, normali.y * normalj.x);
                 vertex.Tangent = glm::vec4(-cos(angi), 0.0f, sin(angi), 1.0f);
-                vertex.TexCoords = glm::vec2(offsetH + inci * adjH, incj * heightV);
+                vertex.TexCoords = glm::vec2(inci, incj);
                 data.emplace_back(vertex);
 
                 if (i > 0 && j > 0)
