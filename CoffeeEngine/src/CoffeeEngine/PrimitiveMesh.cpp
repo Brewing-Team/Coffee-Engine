@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include <cstdint>
 #include <glm/ext/scalar_constants.hpp>
+#include <glm/gtc/constants.hpp>
 #include <vector>
 
 namespace Coffee {
@@ -222,7 +223,8 @@ namespace Coffee {
         return CreateRef<Mesh>(indices, data);
     }
 
-    Ref<Mesh> PrimitiveMesh::CreateCylinder(float bottomRadius, float topRadius, float height, int radialSegments, int rings)
+    Ref<Mesh> PrimitiveMesh::CreateCylinder(float bottomRadius, float topRadius, float height, int radialSegments,
+                                            int rings)
     {
         int i, j, prevrow, thisrow, point = 0;
         float x, y, z, u, v, radius;
@@ -351,4 +353,68 @@ namespace Coffee {
 
         return CreateRef<Mesh>(indices, data);
     }
+
+    Ref<Mesh> PrimitiveMesh::CreateTorus(float innerRadius, float outerRadius, int rings, int ringSegments)
+    {
+        std::vector<uint32_t> indices;
+        auto data = std::vector<Vertex>{};
+        float minRadius = innerRadius;
+        float maxRadius = outerRadius;
+
+        if (minRadius > maxRadius)
+        {
+            std::swap(minRadius, maxRadius);
+        }
+
+        float radius = (maxRadius - minRadius) * 0.5f;
+
+        float horizontalTotal = maxRadius * glm::tau<float>(); // ???
+        float maxH = maxRadius * glm::tau<float>() / horizontalTotal;
+        float deltaH = (maxRadius - minRadius) * glm::tau<float>() / horizontalTotal;
+        float heightV = radius * glm::tau<float>() / (radius * glm::tau<float>());
+
+        for (int i = 0; i <= rings; i++)
+        {
+            int prevrow = (i - 1) * (ringSegments + 1);
+            int thisrow = i * (ringSegments + 1);
+            float inci = float(i) / rings;
+            float angi = inci * glm::tau<float>();
+
+            glm::vec2 normali = glm::vec2(-sin(angi), -cos(angi));
+
+            for (int j = 0; j <= ringSegments; j++)
+            {
+                float incj = float(j) / ringSegments;
+                float angj = incj * glm::tau<float>();
+
+                glm::vec2 normalj = glm::vec2(cos(angj), sin(angj));
+                glm::vec2 normalk = normalj * radius + glm::vec2(minRadius, 0.0f);
+
+                float offsetH = 0.5f * (1.0f - normalj.x) * deltaH;
+                float adjH = maxH - offsetH;
+                offsetH *= 0.5f;
+
+                Vertex vertex;
+                vertex.Position = glm::vec3(normali.x * normalk.x, normalk.y,  normali.y * normalk.x);
+                vertex.Normals = glm::vec3(normali.x * normalj.x, normalj.y, normali.y * normalj.x);
+                vertex.Tangent = glm::vec4(-cos(angi), 0.0f, sin(angi), 1.0f);
+                vertex.TexCoords = glm::vec2(offsetH + inci * adjH, incj * heightV);
+                data.emplace_back(vertex);
+
+                if (i > 0 && j > 0)
+                {
+                    indices.push_back(thisrow + j - 1);
+                    indices.push_back(prevrow + j);
+                    indices.push_back(prevrow + j - 1);
+
+                    indices.push_back(thisrow + j - 1);
+                    indices.push_back(thisrow + j);
+                    indices.push_back(prevrow + j);
+                }
+            }
+        }
+
+        return CreateRef<Mesh>(indices, data);
+    }
+
 } // namespace Coffee
