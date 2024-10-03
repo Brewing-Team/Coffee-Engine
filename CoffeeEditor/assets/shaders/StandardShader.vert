@@ -21,7 +21,7 @@ struct VertexData
     mat3 TBN;
 };
 
-layout (location = 0) out VertexData Output;
+layout (location = 2) out VertexData Output;
 
 uniform mat4 model;
 uniform mat3 normalMatrix;

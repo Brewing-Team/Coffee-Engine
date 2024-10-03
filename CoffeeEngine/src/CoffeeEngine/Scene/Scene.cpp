@@ -13,6 +13,7 @@
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
+#include <cstdint>
 #include <string>
 #include <tracy/Tracy.hpp>
 
@@ -152,7 +153,7 @@ namespace Coffee {
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : missingMaterial;
             
-            Renderer::Submit(material, mesh, transformComponent.GetWorldTransform());
+            Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
         }
 
         //Get all entities with LightComponent and TransformComponent

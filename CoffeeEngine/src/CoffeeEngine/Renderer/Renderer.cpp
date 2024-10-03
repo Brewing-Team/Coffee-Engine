@@ -1,5 +1,4 @@
 #include "Renderer.h"
-#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
@@ -13,7 +12,6 @@
 #include <glm/fwd.hpp>
 #include <glm/matrix.hpp>
 #include <tracy/Tracy.hpp>
-#include <utility>
 
 namespace Coffee {
 
@@ -26,6 +24,7 @@ namespace Coffee {
     Ref<Framebuffer> Renderer::s_MainFramebuffer;
     Ref<Framebuffer> Renderer::s_PostProcessingFramebuffer;
     Ref<Texture> Renderer::s_MainRenderTexture;
+    Ref<Texture> Renderer::s_EntityIDTexture;
     Ref<Texture> Renderer::s_PostProcessingTexture;
     Ref<Texture> Renderer::s_DepthTexture;
 
@@ -44,10 +43,11 @@ namespace Coffee {
         s_RendererData.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
         s_RendererData.RenderDataUniformBuffer = UniformBuffer::Create(sizeof(RendererData::RenderData), 1);
 
-        s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA32F, ImageFormat::DEPTH24STENCIL8 });
+        s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA32F, ImageFormat::RGB8, ImageFormat::DEPTH24STENCIL8 });
         s_PostProcessingFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8 });
 
         s_MainRenderTexture = s_MainFramebuffer->GetColorTexture(0);
+        s_EntityIDTexture = s_MainFramebuffer->GetColorTexture(1);
         s_DepthTexture = s_MainFramebuffer->GetDepthTexture();
 
         s_PostProcessingTexture = s_PostProcessingFramebuffer->GetColorTexture(0);
@@ -91,6 +91,8 @@ namespace Coffee {
 
         RendererAPI::SetClearColor({0.03f,0.03f,0.03f,1.0});
         RendererAPI::Clear();
+
+        s_EntityIDTexture->Clear({-1.0f,0.0f,0.0f,0.0f});
     }
 
     void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
@@ -181,23 +183,31 @@ namespace Coffee {
         s_MainFramebuffer->UnBind();
     }
 
-    void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform)
+    void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, uint32_t entityID)
     {
         shader->Bind();
         shader->setMat4("model", transform);
         shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
+
+        // Convert entityID to vec3
+        uint32_t r = (entityID & 0x000000FF) >> 0;
+        uint32_t g = (entityID & 0x0000FF00) >> 8;
+        uint32_t b = (entityID & 0x00FF0000) >> 16;
+        glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
+
+        shader->setVec3("entityID", entityIDVec3);
 
         RendererAPI::DrawIndexed(vertexArray);
 
         s_Stats.DrawCalls++;
     }
 
-    void Renderer::Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform)
+    void Renderer::Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform, uint32_t entityID)
     {
         material->Use();
         Ref<Shader> shader = material->GetShader();
 
-        Renderer::Submit(shader, mesh->GetVertexArray(), transform);
+        Renderer::Submit(shader, mesh->GetVertexArray(), transform, entityID);
 
         s_Stats.VertexCount += mesh->GetVertices().size();
         s_Stats.IndexCount += mesh->GetIndices().size();

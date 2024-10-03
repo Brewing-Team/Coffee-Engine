@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <glad/glad.h>
 #include <stb_image.h>
+#include <glm/vec4.hpp>
 #include <tracy/Tracy.hpp>
 
 namespace Coffee {
@@ -176,6 +177,16 @@ namespace Coffee {
 
         //Te code above is the same as the constructor but for some reason it doesn't work
         //Texture(m_Width, m_Height, m_Properties.Format);
+    }
+
+    void Texture::Clear(glm::vec4 color)
+    {
+        ZoneScoped;
+
+        glBindTexture(GL_TEXTURE_2D, m_textureID);
+
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
+        glClearTexImage(m_textureID, 0, format, GL_FLOAT, &color);
     }
 
     void Texture::SetData(void* data, uint32_t size)

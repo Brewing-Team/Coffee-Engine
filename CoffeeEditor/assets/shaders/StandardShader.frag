@@ -1,5 +1,8 @@
 #version 450 core
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 EntityID;
+
+uniform vec3 entityID;
 
 struct VertexData
 {
@@ -10,7 +13,7 @@ struct VertexData
     mat3 TBN;
 };
 
-layout (location = 0) in VertexData VertexInput;
+layout (location = 2) in VertexData VertexInput;
 
 uniform sampler2D albedoMap;
 uniform sampler2D normalMap;
@@ -175,4 +178,5 @@ void main()
     vec3 color = ambient + Lo;
 
     FragColor = vec4(vec3(color), 1.0);
+    EntityID = vec4(entityID, 1.0f); //set the alpha to 0
 }

@@ -4,14 +4,12 @@
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
-#include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Renderer/UniformBuffer.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include <glm/fwd.hpp>
-#include <vector>
 
 namespace Coffee {
 
@@ -69,7 +67,7 @@ namespace Coffee {
      */
     struct RenderSettings
     {
-        bool PostProcessing = true; ///< Enable or disable post-processing.
+        bool PostProcessing = false; ///< Enable or disable post-processing.
         bool SSAO = false; ///< Enable or disable SSAO.
         bool Bloom = false; ///< Enable or disable bloom.
         bool FXAA = false; ///< Enable or disable FXAA.
@@ -127,7 +125,7 @@ namespace Coffee {
          * @param vertexArray The vertex array.
          * @param transform The transform matrix.
          */
-        static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f));
+        static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f), uint32_t entityID = 4294967295);
 
         /**
          * @brief Submits a draw call with the specified material, mesh, and transform.
@@ -135,7 +133,7 @@ namespace Coffee {
          * @param mesh The mesh.
          * @param transform The transform matrix.
          */
-        static void Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f));
+        static void Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f), uint32_t entityID = 4294967295);
 
         /**
          * @brief Submits a light component.
@@ -155,6 +153,17 @@ namespace Coffee {
          * @return A reference to the render texture.
          */
         static const Ref<Texture>& GetRenderTexture() { return s_RendererData.RenderTexture; }
+
+        /**
+         * @brief Retrieves the texture associated with the entity ID.
+         * 
+         * This static method returns a reference to the texture that is used to 
+         * identify entities within the renderer. The texture is stored as a 
+         * static member of the class.
+         * 
+         * @return A constant reference to the entity ID texture.
+         */
+        static const Ref<Texture>& GetEntityIDTexture() { return s_EntityIDTexture; }
 
         /**
          * @brief Gets the renderer data.
@@ -184,6 +193,7 @@ namespace Coffee {
         static RenderSettings s_RenderSettings; ///< Render settings.
 
         static Ref<Texture> s_MainRenderTexture; ///< Main render texture.
+        static Ref<Texture> s_EntityIDTexture; ///< Entity ID texture.
         static Ref<Texture> s_PostProcessingTexture; ///< Post-processing texture.
         static Ref<Texture> s_DepthTexture; ///< Depth texture.
 

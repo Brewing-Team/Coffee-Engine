@@ -5,6 +5,7 @@
 #include "CoffeeEngine/Renderer/Image.h"
 
 #include <cstdint>
+#include <glm/fwd.hpp>
 #include <string>
 #include <unordered_map>
 
@@ -110,6 +111,8 @@ namespace Coffee {
          * @return The ID of the texture.
          */
         uint32_t GetID() { return m_textureID; };
+
+        void Clear(glm::vec4 color);
 
         void SetData(void* data, uint32_t size);
 
