@@ -82,35 +82,35 @@ namespace Coffee {
             light.GetComponent<TransformComponent>().Position = glm::vec3(rand () % 10, rand () % 10, rand () % 10);
         } */
 /*         for(int i = 0; i < 4; i++)
-        {
-            Entity light = CreateEntity("Light");
-            light.AddComponent<LightComponent>();
+                {
+                    Entity light = CreateEntity("Light");
+                    light.AddComponent<LightComponent>();
 
-            glm::vec3 position;
-            switch (i)
-            {
-                case 0:
-                    position = glm::vec3(-5.0f, 5.0f, -5.0f); // Top-left
-                    break;
-                case 1:
-                    position = glm::vec3(5.0f, 5.0f, -5.0f); // Top-right
-                    break;
-                case 2:
-                    position = glm::vec3(-5.0f, 5.0f, 5.0f); // Bottom-left
-                    break;
-                case 3:
-                    position = glm::vec3(5.0f, 5.0f, 5.0f); // Bottom-right
-                    break;
-            }
+                    glm::vec3 position;
+                    switch (i)
+                    {
+                        case 0:
+                            position = glm::vec3(-5.0f, 5.0f, -5.0f); // Top-left
+                            break;
+                        case 1:
+                            position = glm::vec3(5.0f, 5.0f, -5.0f); // Top-right
+                            break;
+                        case 2:
+                            position = glm::vec3(-5.0f, 5.0f, 5.0f); // Bottom-left
+                            break;
+                        case 3:
+                            position = glm::vec3(5.0f, 5.0f, 5.0f); // Bottom-right
+                            break;
+                    }
 
-            light.GetComponent<TransformComponent>().Position = position;
-        } */
+                    light.GetComponent<TransformComponent>().Position = position;
+                } */
 
-        // Entity cube = CreateEntity("Cube test");
-        // cube.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        /*Entity cube = CreateEntity("Cube test");
+        cube.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());*/
 
-        // Entity sphere = CreateEntity("Sphere test");
-        // sphere.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+        Entity sphere = CreateEntity("Sphere test");
+        sphere.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
 
         /*Entity cylinder = CreateEntity("Cylinder test");
         cylinder.AddComponent<MeshComponent>(PrimitiveMesh::CreateCylinder());*/
@@ -118,8 +118,8 @@ namespace Coffee {
         /*Entity torus = CreateEntity("Torus test");
         torus.AddComponent<MeshComponent>(PrimitiveMesh::CreateTorus());*/
 
-        Entity capsule = CreateEntity("Capsule test");
-        capsule.AddComponent<MeshComponent>(PrimitiveMesh::CreateCapsule());
+        /*Entity capsule = CreateEntity("Capsule test");
+        capsule.AddComponent<MeshComponent>(PrimitiveMesh::CreateCapsule());*/
 
         Entity light = CreateEntity("Directional Light");
         light.AddComponent<LightComponent>().Color = {1.0f, 0.9f, 0.85f};

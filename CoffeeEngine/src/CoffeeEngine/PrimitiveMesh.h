@@ -28,7 +28,7 @@ namespace Coffee {
 
         static Ref<Mesh> CreateCube(const glm::vec3& size = { 1.0f, 1.0f, 1.0f });
 
-        static Ref<Mesh> CreateSphere(float radius = 1.0f, uint32_t rings = 32, uint32_t sectors = 32);
+        static Ref<Mesh> CreateSphere(float radius = 0.5f, float height = 1.0f, int radialSegments = 64, int rings = 32, bool isHemiSphere = false);
 
         static Ref<Mesh> CreatePlane(const glm::vec2& size, const glm::vec3& normal = { 0.0f, 1.0f, 0.0f });
 

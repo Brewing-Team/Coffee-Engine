@@ -153,71 +153,74 @@ namespace Coffee {
         std::vector<uint32_t> indices = {0,  1,  2,  0,  2,  3,  4,  5,  6,  4,  6,  7,  8,  9,  10, 8,  10, 11,
                                          12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
 
-        return CreateRef<Mesh>(indices, vertices);;
+        return CreateRef<Mesh>(indices, vertices);
+        ;
     }
-    Ref<Mesh> PrimitiveMesh::CreateSphere(float radius, uint32_t rings, uint32_t sectors)
+
+    Ref<Mesh> PrimitiveMesh::CreateSphere(float radius, float height, int radialSegments, int rings, bool isHemiSphere)
     {
-        auto data = std::vector<Vertex>{};
 
-        float sectorCount = static_cast<float>(rings);
-        float stackCount = static_cast<float>(sectors);
-        float sectorStep = 2 * glm::pi<float>() / sectorCount;
-        float stackStep = glm::pi<float>() / stackCount;
+        int i, j, prevrow, thisrow, point;
+        float x, y, z;
 
-        for (int i = 0; i <= stackCount; i++)
+        std::vector<Vertex> data;
+        std::vector<uint32_t> indices;
+
+        float scale = height * (isHemiSphere ? 1.0 : 0.5);
+
+        thisrow = 0;
+        prevrow = 0;
+        for (j = 0; j <= (rings + 1); j++)
         {
-            float stackAngle = glm::pi<float>() / 2 - i * stackStep;
-            float xy = radius * cosf(stackAngle);
-            float z = radius * sinf(stackAngle);
+            float v = j;
+            float w;
 
-            for (int j = 0; j <= sectorCount; j++)
+            v /= (rings + 1);
+            w = glm::sin(glm::pi<float>() * v);
+            y = scale * cos(glm::pi<float>() * v);
+
+            for(i = 0; i <= radialSegments; i++)
             {
-                float secotrAngle = j * sectorStep;
+                float u = i;
+                u /= radialSegments;
 
-                // vertex position (x, y, z)
-                float x = xy * cosf(secotrAngle);
-                float y = xy * sinf(secotrAngle);
-
-                // vertex tex coord (s, t) range between [0, 1]
-                float s = static_cast<float>(j) / sectorCount;
-                float t = static_cast<float>(i) / stackCount;
+                x = sin(u * glm::tau<float>());
+                z = cos(u * glm::tau<float>());
 
                 Vertex vertex;
-                vertex.Position = {x, y, z};
-                vertex.TexCoords = {s, t};
-                vertex.Normals = normalize(vertex.Position); // TODO check this
+                if (isHemiSphere && y < 0.0f) {
+                    glm::vec3 p = glm::vec3(x * radius * w, 0.0f, z * radius * w);
+                    vertex.Position = p;
+                    vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
+                    vertex.Tangent = glm::vec4(z, 0.0f, -x, 1.0f);
+                    vertex.TexCoords = glm::vec2(u, v);
+                    data.emplace_back(vertex);
+                } else {
+                    glm::vec3 p = glm::vec3(x * radius * w, y, z * radius * w);
+                    glm::vec3 normal = glm::vec3(x * w * scale, radius * (y / scale), z * w * scale);
 
-                data.emplace_back(vertex);
-            }
-        }
-
-        std::vector<uint32_t> indices;
-        uint32_t k1, k2;
-
-        for (uint32_t i = 0; i < stackCount; i++)
-        {
-            k1 = i * (static_cast<uint32_t>(sectorCount) + 1U); // beginning of current stack
-            k2 = k1 + static_cast<uint32_t>(sectorCount) + 1U;  // beginning of next stack
-
-            for (uint32_t j = 0; j < sectorCount; ++j, ++k1, ++k2)
-            {
-                // 2 triangles per sector excluding first and last stacks
-                // k1 => k2 => k1+1
-                if (i != 0)
-                {
-                    indices.push_back(k1);
-                    indices.push_back(k2);
-                    indices.push_back(k1 + 1);
+                    vertex.Position = p;
+                    vertex.Normals = glm::normalize(normal);
+                    vertex.Tangent = glm::vec4(z, 0.0f, -x, 1.0f);
+                    vertex.TexCoords = glm::vec2(u, v);
+                    data.emplace_back(vertex);
                 }
 
-                // k1+1 => k2 => k2+1
-                if (i != (stackCount - 1))
-                {
-                    indices.push_back(k1 + 1);
-                    indices.push_back(k2);
-                    indices.push_back(k2 + 1);
+                point++;
+
+                if (i > 0 && j > 0) {
+                    indices.push_back(prevrow + i - 1);
+                    indices.push_back(prevrow + i);
+                    indices.push_back(thisrow + i - 1);
+
+                    indices.push_back(prevrow + i);
+                    indices.push_back(thisrow + i);
+                    indices.push_back(thisrow + i - 1);
                 }
             }
+
+            prevrow = thisrow;
+            thisrow = point;
         }
 
         return CreateRef<Mesh>(indices, data);
