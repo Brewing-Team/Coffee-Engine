@@ -34,7 +34,7 @@ namespace Coffee {
 
         static Ref<Mesh> CreateCylinder(float topRadius = 0.5f, float bottomRadius = 0.5f, float height = 2.0f, int radialSegments = 64, int rings = 4, bool capTop = true, bool capBottom = true);
 
-        static Ref<Mesh> CreateCone();
+        static Ref<Mesh> CreateCone(float radius = 0.5f, float height = 1.0f, int radialSegments = 64, int rings = 1, bool cap = true);
 
         static Ref<Mesh> CreateTorus(float innerRadius = 0.5f, float outerRadius = 1.0f, int rings = 64, int ringSegments = 32);
 

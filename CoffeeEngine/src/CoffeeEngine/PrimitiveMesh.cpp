@@ -318,7 +318,8 @@ namespace Coffee {
         return CreateRef<Mesh>(indices, data);
     }
 
-    /*Ref<Mesh> PrimitiveMesh::CreateCylinder(float topRadius, float bottomRadius, float height, int radialSegments, int rings, bool capTop, bool capBottom)
+    /*Ref<Mesh> PrimitiveMesh::CreateCylinder(float topRadius, float bottomRadius, float height, int radialSegments, int
+    rings, bool capTop, bool capBottom)
     {
         int i, j, prevrow, thisrow, point;
         float x, y, z, u, v, radius, radiusH;
@@ -339,11 +340,10 @@ namespace Coffee {
         float heightV = height / verticalLength;
         float paddingV = p_uv2_padding / verticalLength;
 
-        float horizontalLength = std::max({2.0f * (topRadius + bottomRadius + p_uv2_padding), topCircumference + p_uv2_padding, bottomCircumference + p_uv2_padding});
-        float centerH = 0.5f * (horizontalLength - p_uv2_padding) / horizontalLength;
-        float topH = topCircumference / horizontalLength;
-        float bottomH = bottomCircumference / horizontalLength;
-        float paddingH = p_uv2_padding / horizontalLength;
+        float horizontalLength = std::max({2.0f * (topRadius + bottomRadius + p_uv2_padding), topCircumference +
+    p_uv2_padding, bottomCircumference + p_uv2_padding}); float centerH = 0.5f * (horizontalLength - p_uv2_padding) /
+    horizontalLength; float topH = topCircumference / horizontalLength; float bottomH = bottomCircumference /
+    horizontalLength; float paddingH = p_uv2_padding / horizontalLength;
 
         for (j = 0; j <= (rings + 1); j++)
         {
@@ -389,6 +389,84 @@ namespace Coffee {
 
         return CreateRef<Mesh>(indices, data);
     }*/
+
+    Ref<Mesh> PrimitiveMesh::CreateCone(float radius, float height, int radialSegments, int rings, bool cap)
+    {
+        std::vector<Vertex> data;
+        std::vector<uint32_t> indices;
+
+        int point = 0;
+        float angleStep = glm::two_pi<float>() / radialSegments;
+
+        // Generate vertices and indices for the side surface
+        for (int i = 0; i <= radialSegments; ++i)
+        {
+            float angle = i * angleStep;
+            float x = radius * glm::cos(angle);
+            float z = radius * glm::sin(angle);
+
+            // Side vertex
+            Vertex vertex;
+            vertex.Position = glm::vec3(x, 0.0f, z);
+            vertex.Normals = glm::normalize(glm::vec3(x, radius / height, z));
+            vertex.TexCoords = glm::vec2(i / float(radialSegments), 1.0f);
+            data.emplace_back(vertex);
+
+            // Top vertex (apex)
+            vertex.Position = glm::vec3(0.0f, height, 0.0f);
+            vertex.Normals = glm::normalize(glm::vec3(x, radius / height, z));
+            vertex.TexCoords = glm::vec2(i / float(radialSegments), 0.0f);
+            data.emplace_back(vertex);
+
+            if (i > 0)
+            {
+                int baseIndex = (i - 1) * 2;
+                indices.push_back(baseIndex);
+                indices.push_back(baseIndex + 1);
+                indices.push_back(baseIndex + 2);
+
+                indices.push_back(baseIndex + 1);
+                indices.push_back(baseIndex + 3);
+                indices.push_back(baseIndex + 2);
+            }
+            point += 2;
+        }
+
+        // Generate vertices and indices for the base
+        if (cap)
+        {
+            int baseCenterIndex = point;
+            Vertex baseCenterVertex;
+            baseCenterVertex.Position = glm::vec3(0.0f, 0.0f, 0.0f);
+            baseCenterVertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
+            baseCenterVertex.TexCoords = glm::vec2(0.5f, 0.5f);
+            data.emplace_back(baseCenterVertex);
+            point++;
+
+            for (int i = 0; i <= radialSegments; ++i)
+            {
+                float angle = i * angleStep;
+                float x = radius * glm::cos(angle);
+                float z = radius * glm::sin(angle);
+
+                Vertex vertex;
+                vertex.Position = glm::vec3(x, 0.0f, z);
+                vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
+                vertex.TexCoords = glm::vec2((x / radius + 1.0f) * 0.5f, (z / radius + 1.0f) * 0.5f);
+                data.emplace_back(vertex);
+
+                if (i > 0)
+                {
+                    indices.push_back(baseCenterIndex);
+                    indices.push_back(point - 1);
+                    indices.push_back(point);
+                }
+                point++;
+            }
+        }
+
+        return CreateRef<Mesh>(indices, data);
+    }
 
     Ref<Mesh> PrimitiveMesh::CreateTorus(float innerRadius, float outerRadius, int rings, int ringSegments)
     {
