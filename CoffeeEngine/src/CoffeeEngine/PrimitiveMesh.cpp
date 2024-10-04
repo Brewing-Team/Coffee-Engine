@@ -66,48 +66,43 @@ namespace Coffee {
         return CreateRef<Mesh>(indices, vertices);
     }
 
-    Ref<Mesh> PrimitiveMesh::CreateCube(const glm::vec3& size, int subdivideW, int subdidiveH, int subdivideD)
+    Ref<Mesh> PrimitiveMesh::CreateCube(const glm::vec3& size, int subdivideW, int subdivideH, int subdivideD)
     {
         std::vector<Vertex> data;
         std::vector<uint32_t> indices;
 
         int i, j, prevrow, thisrow, point;
         float x, y, z;
-        float onethird = 1.0f / 3.0f;
-        float twothirds = 2.0f / 3.0f;
 
         glm::vec3 startPos = size * -0.5f;
 
         point = 0;
 
+        // Front and Back faces
         y = startPos.y;
         thisrow = point;
         prevrow = 0;
-        for (j = 0; j <= subdidiveH + 1; j++)
+        for (j = 0; j <= subdivideH + 1; j++)
         {
-            float v = j;
-            float v2 = v / (subdivideW + 1.0f);
-            v /= (2.0 * (subdidiveH + 1));
+            float v = j / float(subdivideH + 1);
 
             x = startPos.x;
             for (i = 0; i <= subdivideW + 1; i++)
             {
-                float u = i;
-                float u2 = u / (subdivideW + 1.0f);
-                u /= (3.0 * (subdivideW + 1));
+                float u = i / float(subdivideW + 1);
 
                 // Front
                 Vertex vertex;
-                vertex.Position = glm::vec3(x, -y, -startPos.z); // double negative on the Z axis
+                vertex.Position = glm::vec3(x, y, startPos.z);
                 vertex.Normals = glm::vec3(0.0f, 0.0f, 1.0f);
                 vertex.TexCoords = glm::vec2(u, v);
                 data.emplace_back(vertex);
                 point++;
 
                 // Back
-                vertex.Position = glm::vec3(-x, -y, startPos.z);
+                vertex.Position = glm::vec3(x, y, -startPos.z);
                 vertex.Normals = glm::vec3(0.0f, 0.0f, -1.0f);
-                vertex.TexCoords = glm::vec2(twothirds + u, v);
+                vertex.TexCoords = glm::vec2(1.0f - u, v);
                 data.emplace_back(vertex);
                 point++;
 
@@ -131,45 +126,39 @@ namespace Coffee {
                     indices.push_back(thisrow + i2 - 1);
                 }
 
-                x += size.x / (subdivideW + 1.0);
-
+                x += size.x / (subdivideW + 1.0f);
             }
 
-            y += size.y / (subdidiveH + 1.0);
+            y += size.y / (subdivideH + 1.0f);
             prevrow = thisrow;
             thisrow = point;
-
         }
 
-        // left and right
+        // Left and Right faces
         y = startPos.y;
         thisrow = point;
         prevrow = 0;
-        for (j = 0; j <= (subdidiveH + 1); j++)
+        for (j = 0; j <= subdivideH + 1; j++)
         {
-            float v = j;
-            float v2 = v / (subdidiveH + 1.0f);
-            v /= (2.0 * (subdidiveH + 1));
+            float v = j / float(subdivideH + 1);
 
             z = startPos.z;
-            for (i = 0; i <= (subdivideD + 1) + 1; i++)
+            for (i = 0; i <= subdivideD + 1; i++)
             {
-                float u = i;
-                float u2 = u / (subdivideD + 1);
-                u /= (3.0 * (subdivideD + 1));
+                float u = i / float(subdivideD + 1);
 
-                // right
+                // Right
                 Vertex vertex;
-                vertex.Position = glm::vec3(-startPos.x, -y, z);
-                vertex.Normals = glm::vec3(1.0f, 0.0f, 0.0f);
-                vertex.TexCoords = glm::vec2(onethird + u, v);
+                vertex.Position = glm::vec3(startPos.x, y, z);
+                vertex.Normals = glm::vec3(-1.0f, 0.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(u, v);
                 data.emplace_back(vertex);
                 point++;
 
-                // left
-                vertex.Position = glm::vec3(startPos.x, -y, z);
-                vertex.Normals = glm::vec3(-1.0f, 0.0f, 0.0f);
-                vertex.TexCoords = glm::vec2(u, 0.5 + v);
+                // Left
+                vertex.Position = glm::vec3(-startPos.x, y, z);
+                vertex.Normals = glm::vec3(1.0f, 0.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(1.0f - u, v);
                 data.emplace_back(vertex);
                 point++;
 
@@ -193,43 +182,39 @@ namespace Coffee {
                     indices.push_back(thisrow + i2 - 1);
                 }
 
-                z += size.z / (subdivideD + 1.0);
+                z += size.z / (subdivideD + 1.0f);
             }
 
-            y += size.y / (subdidiveH + 1.0);
+            y += size.y / (subdivideH + 1.0f);
             prevrow = thisrow;
             thisrow = point;
         }
 
-        // top and bottom
+        // Top and Bottom faces
         z = startPos.z;
         thisrow = point;
         prevrow = 0;
-        for (j = 0; j <= (subdivideD + 1); j++)
+        for (j = 0; j <= subdivideD + 1; j++)
         {
-            float v = j;
-            float v2 = v / (subdivideD + 1.0f);
-            v /= (2.0 * (subdivideD + 1));
+            float v = j / float(subdivideD + 1);
 
             x = startPos.x;
-            for (i = 0; i <= (subdivideW + 1); i++)
+            for (i = 0; i <= subdivideW + 1; i++)
             {
-                float u = i;
-                float u2 = u / (subdivideW + 1);
-                u /= (3.0 * (subdivideW + 1));
+                float u = i / float(subdivideW + 1);
 
-                // top
+                // Top
                 Vertex vertex;
-                vertex.Position = glm::vec3(-x, -startPos.y, -z);
+                vertex.Position = glm::vec3(x, startPos.y, z);
                 vertex.Normals = glm::vec3(0.0f, 1.0f, 0.0f);
-                vertex.TexCoords = glm::vec2(onethird + u, 0.5 + v);
+                vertex.TexCoords = glm::vec2(u, v);
                 data.emplace_back(vertex);
                 point++;
 
-                // bottom
-                vertex.Position = glm::vec3(x, startPos.y, -z);
+                // Bottom
+                vertex.Position = glm::vec3(x, -startPos.y, z);
                 vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
-                vertex.TexCoords = glm::vec2(twothirds + u, 0.5 + v);
+                vertex.TexCoords = glm::vec2(u, 1.0f - v);
                 data.emplace_back(vertex);
                 point++;
 
@@ -253,10 +238,10 @@ namespace Coffee {
                     indices.push_back(thisrow + i2 - 1);
                 }
 
-                x += size.x / (subdivideW + 1.0);
+                x += size.x / (subdivideW + 1.0f);
             }
 
-            z += size.z / (subdivideD + 1.0);
+            z += size.z / (subdivideD + 1.0f);
             prevrow = thisrow;
             thisrow = point;
         }

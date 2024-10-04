@@ -177,5 +177,5 @@ void main()
     vec3 ambient = vec3(0.03) * albedo * ao;
     vec3 color = ambient + Lo;
 
-    FragColor = vec4(vec3(VertexInput.Normal), 1.0);
+    FragColor = vec4(vec3(color), 1.0);
 }
