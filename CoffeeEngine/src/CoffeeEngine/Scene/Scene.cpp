@@ -106,14 +106,14 @@ namespace Coffee {
                     light.GetComponent<TransformComponent>().Position = position;
                 } */
 
-        /*Entity cube = CreateEntity("Cube test");
-        cube.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());*/
+        Entity cube = CreateEntity("Cube test");
+        cube.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
 
         /*Entity sphere = CreateEntity("Sphere test");
         sphere.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());*/
 
-        Entity cylinder = CreateEntity("Cylinder test");
-        cylinder.AddComponent<MeshComponent>(PrimitiveMesh::CreateCylinder());
+        /*Entity cylinder = CreateEntity("Cylinder test");
+        cylinder.AddComponent<MeshComponent>(PrimitiveMesh::CreateCylinder());*/
 
         /*Entity torus = CreateEntity("Torus test");
         torus.AddComponent<MeshComponent>(PrimitiveMesh::CreateTorus());*/

@@ -66,95 +66,202 @@ namespace Coffee {
         return CreateRef<Mesh>(indices, vertices);
     }
 
-    Ref<Mesh> PrimitiveMesh::CreateCube(const glm::vec3& size)
+    Ref<Mesh> PrimitiveMesh::CreateCube(const glm::vec3& size, int subdivideW, int subdidiveH, int subdivideD)
     {
-        std::vector<Vertex> vertices(24);
+        std::vector<Vertex> data;
+        std::vector<uint32_t> indices;
 
-        vertices[0].Position = {0.5f, 0.5f, 0.5f};
-        vertices[0].Normals = {0.0f, 0.0f, 1.0f};
+        int i, j, prevrow, thisrow, point;
+        float x, y, z;
+        float onethird = 1.0f / 3.0f;
+        float twothirds = 2.0f / 3.0f;
 
-        vertices[1].Position = {-0.5f, 0.5f, 0.5f};
-        vertices[1].Normals = {0.0f, 0.0f, 1.0f};
+        glm::vec3 startPos = size * -0.5f;
 
-        vertices[2].Position = {-0.5f, -0.5f, 0.5f};
-        vertices[2].Normals = {0.0f, 0.0f, 1.0f};
+        point = 0;
 
-        vertices[3].Position = {0.5f, -0.5f, 0.5f};
-        vertices[3].Normals = {0.0f, 0.0f, 1.0f};
-
-        vertices[4].Position = {0.5f, 0.5f, 0.5f};
-        vertices[4].Normals = {1.0f, 0.0f, 0.0f};
-
-        vertices[5].Position = {0.5f, -0.5f, 0.5f};
-        vertices[5].Normals = {1.0f, 0.0f, 0.0f};
-
-        vertices[6].Position = {0.5f, -0.5f, -0.5f};
-        vertices[6].Normals = {1.0f, 0.0f, 0.0f};
-
-        vertices[7].Position = {0.5f, 0.5f, -0.5f};
-        vertices[7].Normals = {1.0f, 0.0f, 0.0f};
-
-        vertices[8].Position = {0.5f, 0.5f, 0.5f};
-        vertices[8].Normals = {0.0f, 1.0f, 0.0f};
-
-        vertices[9].Position = {0.5f, 0.5f, -0.5f};
-        vertices[9].Normals = {0.0f, 1.0f, 0.0f};
-
-        vertices[10].Position = {-0.5f, 0.5f, -0.5f};
-        vertices[10].Normals = {0.0f, 1.0f, 0.0f};
-
-        vertices[11].Position = {-0.5f, 0.5f, 0.5f};
-        vertices[11].Normals = {0.0f, 1.0f, 0.0f};
-
-        vertices[12].Position = {-0.5f, 0.5f, 0.5f};
-        vertices[12].Normals = {-1.0f, 0.0f, 0.0f};
-
-        vertices[13].Position = {-0.5f, 0.5f, -0.5f};
-        vertices[13].Normals = {-1.0f, 0.0f, 0.0f};
-
-        vertices[14].Position = {-0.5f, -0.5f, -0.5f};
-        vertices[14].Normals = {-1.0f, 0.0f, 0.0f};
-
-        vertices[15].Position = {-0.5f, -0.5f, 0.5f};
-        vertices[15].Normals = {-1.0f, 0.0f, 0.0f};
-
-        vertices[16].Position = {-0.5f, -0.5f, -0.5f};
-        vertices[16].Normals = {0.0f, -1.0f, 0.0f};
-
-        vertices[17].Position = {0.5f, -0.5f, -0.5f};
-        vertices[17].Normals = {0.0f, -1.0f, 0.0f};
-
-        vertices[18].Position = {0.5f, -0.5f, 0.5f};
-        vertices[18].Normals = {0.0f, -1.0f, 0.0f};
-
-        vertices[19].Position = {-0.5f, -0.5f, 0.5f};
-        vertices[19].Normals = {0.0f, -1.0f, 0.0f};
-
-        vertices[20].Position = {0.5f, -0.5f, -0.5f};
-        vertices[20].Normals = {0.0f, 0.0f, -1.0f};
-
-        vertices[21].Position = {-0.5f, -0.5f, -0.5f};
-        vertices[21].Normals = {0.0f, 0.0f, -1.0f};
-
-        vertices[22].Position = {-0.5f, 0.5f, -0.5f};
-        vertices[22].Normals = {0.0f, 0.0f, -1.0f};
-
-        vertices[23].Position = {0.5f, 0.5f, -0.5f};
-        vertices[23].Normals = {0.0f, 0.0f, -1.0f};
-
-        for (int i = 0; i < 6; i++)
+        y = startPos.y;
+        thisrow = point;
+        prevrow = 0;
+        for (j = 0; j <= subdidiveH + 1; j++)
         {
-            vertices[i * 4 + 0].TexCoords = {0.0f, 0.0f};
-            vertices[i * 4 + 1].TexCoords = {1.0f, 0.0f};
-            vertices[i * 4 + 2].TexCoords = {1.0f, 1.0f};
-            vertices[i * 4 + 3].TexCoords = {0.0f, 1.0f};
+            float v = j;
+            float v2 = v / (subdivideW + 1.0f);
+            v /= (2.0 * (subdidiveH + 1));
+
+            x = startPos.x;
+            for (i = 0; i <= subdivideW + 1; i++)
+            {
+                float u = i;
+                float u2 = u / (subdivideW + 1.0f);
+                u /= (3.0 * (subdivideW + 1));
+
+                // Front
+                Vertex vertex;
+                vertex.Position = glm::vec3(x, -y, -startPos.z); // double negative on the Z axis
+                vertex.Normals = glm::vec3(0.0f, 0.0f, 1.0f);
+                vertex.TexCoords = glm::vec2(u, v);
+                data.emplace_back(vertex);
+                point++;
+
+                // Back
+                vertex.Position = glm::vec3(-x, -y, startPos.z);
+                vertex.Normals = glm::vec3(0.0f, 0.0f, -1.0f);
+                vertex.TexCoords = glm::vec2(twothirds + u, v);
+                data.emplace_back(vertex);
+                point++;
+
+                if (i > 0 && j > 0) {
+                    int i2 = i * 2;
+
+                    // front
+                    indices.push_back(prevrow + i2 - 2);
+                    indices.push_back(prevrow + i2);
+                    indices.push_back(thisrow + i2 - 2);
+                    indices.push_back(prevrow + i2);
+                    indices.push_back(thisrow + i2);
+                    indices.push_back(thisrow + i2 - 2);
+
+                    // back
+                    indices.push_back(prevrow + i2 - 1);
+                    indices.push_back(prevrow + i2 + 1);
+                    indices.push_back(thisrow + i2 - 1);
+                    indices.push_back(prevrow + i2 + 1);
+                    indices.push_back(thisrow + i2 + 1);
+                    indices.push_back(thisrow + i2 - 1);
+                }
+
+                x += size.x / (subdivideW + 1.0);
+
+            }
+
+            y += size.y / (subdidiveH + 1.0);
+            prevrow = thisrow;
+            thisrow = point;
+
         }
 
-        std::vector<uint32_t> indices = {0,  1,  2,  0,  2,  3,  4,  5,  6,  4,  6,  7,  8,  9,  10, 8,  10, 11,
-                                         12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23};
+        // left and right
+        y = startPos.y;
+        thisrow = point;
+        prevrow = 0;
+        for (j = 0; j <= (subdidiveH + 1); j++)
+        {
+            float v = j;
+            float v2 = v / (subdidiveH + 1.0f);
+            v /= (2.0 * (subdidiveH + 1));
 
-        return CreateRef<Mesh>(indices, vertices);
-        ;
+            z = startPos.z;
+            for (i = 0; i <= (subdivideD + 1) + 1; i++)
+            {
+                float u = i;
+                float u2 = u / (subdivideD + 1);
+                u /= (3.0 * (subdivideD + 1));
+
+                // right
+                Vertex vertex;
+                vertex.Position = glm::vec3(-startPos.x, -y, z);
+                vertex.Normals = glm::vec3(1.0f, 0.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(onethird + u, v);
+                data.emplace_back(vertex);
+                point++;
+
+                // left
+                vertex.Position = glm::vec3(startPos.x, -y, z);
+                vertex.Normals = glm::vec3(-1.0f, 0.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(u, 0.5 + v);
+                data.emplace_back(vertex);
+                point++;
+
+                if (i > 0 && j > 0) {
+                    int i2 = i * 2;
+
+                    // right
+                    indices.push_back(prevrow + i2 - 2);
+                    indices.push_back(prevrow + i2);
+                    indices.push_back(thisrow + i2 - 2);
+                    indices.push_back(prevrow + i2);
+                    indices.push_back(thisrow + i2);
+                    indices.push_back(thisrow + i2 - 2);
+
+                    // left
+                    indices.push_back(prevrow + i2 - 1);
+                    indices.push_back(prevrow + i2 + 1);
+                    indices.push_back(thisrow + i2 - 1);
+                    indices.push_back(prevrow + i2 + 1);
+                    indices.push_back(thisrow + i2 + 1);
+                    indices.push_back(thisrow + i2 - 1);
+                }
+
+                z += size.z / (subdivideD + 1.0);
+            }
+
+            y += size.y / (subdidiveH + 1.0);
+            prevrow = thisrow;
+            thisrow = point;
+        }
+
+        // top and bottom
+        z = startPos.z;
+        thisrow = point;
+        prevrow = 0;
+        for (j = 0; j <= (subdivideD + 1); j++)
+        {
+            float v = j;
+            float v2 = v / (subdivideD + 1.0f);
+            v /= (2.0 * (subdivideD + 1));
+
+            x = startPos.x;
+            for (i = 0; i <= (subdivideW + 1); i++)
+            {
+                float u = i;
+                float u2 = u / (subdivideW + 1);
+                u /= (3.0 * (subdivideW + 1));
+
+                // top
+                Vertex vertex;
+                vertex.Position = glm::vec3(-x, -startPos.y, -z);
+                vertex.Normals = glm::vec3(0.0f, 1.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(onethird + u, 0.5 + v);
+                data.emplace_back(vertex);
+                point++;
+
+                // bottom
+                vertex.Position = glm::vec3(x, startPos.y, -z);
+                vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
+                vertex.TexCoords = glm::vec2(twothirds + u, 0.5 + v);
+                data.emplace_back(vertex);
+                point++;
+
+                if (i > 0 && j > 0) {
+                    int i2 = i * 2;
+
+                    // top
+                    indices.push_back(prevrow + i2 - 2);
+                    indices.push_back(prevrow + i2);
+                    indices.push_back(thisrow + i2 - 2);
+                    indices.push_back(prevrow + i2);
+                    indices.push_back(thisrow + i2);
+                    indices.push_back(thisrow + i2 - 2);
+
+                    // bottom
+                    indices.push_back(prevrow + i2 - 1);
+                    indices.push_back(prevrow + i2 + 1);
+                    indices.push_back(thisrow + i2 - 1);
+                    indices.push_back(prevrow + i2 + 1);
+                    indices.push_back(thisrow + i2 + 1);
+                    indices.push_back(thisrow + i2 - 1);
+                }
+
+                x += size.x / (subdivideW + 1.0);
+            }
+
+            z += size.z / (subdivideD + 1.0);
+            prevrow = thisrow;
+            thisrow = point;
+        }
+
+        return CreateRef<Mesh>(indices, data);
     }
 
     Ref<Mesh> PrimitiveMesh::CreateSphere(float radius, float height, int radialSegments, int rings, bool isHemiSphere)
@@ -226,7 +333,7 @@ namespace Coffee {
         return CreateRef<Mesh>(indices, data);
     }
 
-    Ref<Mesh> PrimitiveMesh::CreateCylinder(float topRadius, float bottomRadius, float height, int radialSegments, int rings, bool capTop, bool capBottom)
+    /*Ref<Mesh> PrimitiveMesh::CreateCylinder(float topRadius, float bottomRadius, float height, int radialSegments, int rings, bool capTop, bool capBottom)
     {
         int i, j, prevrow, thisrow, point;
         float x, y, z, u, v, radius, radiusH;
@@ -296,7 +403,7 @@ namespace Coffee {
         }
 
         return CreateRef<Mesh>(indices, data);
-    }
+    }*/
 
     Ref<Mesh> PrimitiveMesh::CreateTorus(float innerRadius, float outerRadius, int rings, int ringSegments)
     {
