@@ -318,77 +318,121 @@ namespace Coffee {
         return CreateRef<Mesh>(indices, data);
     }
 
-    /*Ref<Mesh> PrimitiveMesh::CreateCylinder(float topRadius, float bottomRadius, float height, int radialSegments, int
-    rings, bool capTop, bool capBottom)
+    Ref<Mesh> PrimitiveMesh::CreateCylinder(float topRadius, float bottomRadius, float height, int radialSegments, int rings, bool capTop, bool capBottom)
     {
-        int i, j, prevrow, thisrow, point;
-        float x, y, z, u, v, radius, radiusH;
-
         std::vector<Vertex> data;
         std::vector<uint32_t> indices;
 
-        thisrow = 0;
-        prevrow = 0;
-        point = 0;
+        int point = 0;
+        float angleStep = glm::two_pi<float>() / radialSegments;
+        float heightStep = height / rings;
 
-        const float sideNormalY = (bottomRadius - topRadius) / height;
-
-        // Only used if we calculate UV2
-        float topCircumference = topRadius * glm::pi<float>() * 2.0f;
-        float bottomCircumference = bottomRadius * glm::pi<float>() * 2.0f;
-        float verticalLength = height + std::max(2.0f * topRadius, 2.0f * bottomRadius) + (2.0f * p_uv2_padding);
-        float heightV = height / verticalLength;
-        float paddingV = p_uv2_padding / verticalLength;
-
-        float horizontalLength = std::max({2.0f * (topRadius + bottomRadius + p_uv2_padding), topCircumference +
-    p_uv2_padding, bottomCircumference + p_uv2_padding}); float centerH = 0.5f * (horizontalLength - p_uv2_padding) /
-    horizontalLength; float topH = topCircumference / horizontalLength; float bottomH = bottomCircumference /
-    horizontalLength; float paddingH = p_uv2_padding / horizontalLength;
-
-        for (j = 0; j <= (rings + 1); j++)
+        // Generate vertices and indices for the side surface
+        for (int j = 0; j <= rings; ++j)
         {
-            v = j;
-            v /= rings + 1;
+            float v = j / float(rings);
+            float y = height * 0.5f - j * heightStep;
+            float radius = glm::mix(topRadius, bottomRadius, v);
 
-            radius = topRadius + (bottomRadius - topRadius) * v;
-            radiusH = topH + ((bottomH - topH) * v);
-
-            y = height * v;
-            y = (height * 0.5f) - y;
-
-            for (i = 0; i <= radialSegments; i++)
+            for (int i = 0; i <= radialSegments; ++i)
             {
-                u = i;
-                u /= radialSegments;
-
-                x = sin(u * glm::tau<float>());
-                z = cos(u * glm::tau<float>());
+                float angle = i * angleStep;
+                float x = radius * glm::cos(angle);
+                float z = radius * glm::sin(angle);
 
                 Vertex vertex;
-                vertex.Position = glm::vec3(x * radius, y, z * radius);
-                vertex.Normals = glm::normalize(glm::vec3(x, sideNormalY, z));
-                vertex.Tangent = glm::vec4(z, 0.0f, -x, 1.0f);
-                vertex.TexCoords = glm::vec2(u, v * 0.5f);
+                vertex.Position = glm::vec3(x, y, z);
+                vertex.Normals = glm::normalize(glm::vec3(x, 0.0f, z));
+                vertex.TexCoords = glm::vec2(i / float(radialSegments), v);
+                data.emplace_back(vertex);
 
-                point++;
+                if (i > 0 && j > 0)
+                {
+                    int a = point - 1;
+                    int b = point;
+                    int c = point - (radialSegments + 1) - 1;
+                    int d = point - (radialSegments + 1);
 
-                if (i > 0 && j > 0) {
-                    indices.push_back(prevrow + i - 1);
-                    indices.push_back(prevrow + i);
-                    indices.push_back(thisrow + i - 1);
+                    indices.push_back(a);
+                    indices.push_back(b);
+                    indices.push_back(c);
 
-                    indices.push_back(prevrow + i);
-                    indices.push_back(thisrow + i);
-                    indices.push_back(thisrow + i - 1);
+                    indices.push_back(b);
+                    indices.push_back(d);
+                    indices.push_back(c);
                 }
+                point++;
             }
+        }
 
-            prevrow = thisrow;
-            thisrow = point;
+        // Generate vertices and indices for the top cap
+        if (capTop)
+        {
+            int topCenterIndex = point;
+            Vertex topCenterVertex;
+            topCenterVertex.Position = glm::vec3(0.0f, height * 0.5f, 0.0f);
+            topCenterVertex.Normals = glm::vec3(0.0f, 1.0f, 0.0f);
+            topCenterVertex.TexCoords = glm::vec2(0.5f, 0.5f);
+            data.emplace_back(topCenterVertex);
+            point++;
+
+            for (int i = 0; i <= radialSegments; ++i)
+            {
+                float angle = i * angleStep;
+                float x = topRadius * glm::cos(angle);
+                float z = topRadius * glm::sin(angle);
+
+                Vertex vertex;
+                vertex.Position = glm::vec3(x, height * 0.5f, z);
+                vertex.Normals = glm::vec3(0.0f, 1.0f, 0.0f);
+                vertex.TexCoords = glm::vec2((x / topRadius + 1.0f) * 0.5f, (z / topRadius + 1.0f) * 0.5f);
+                data.emplace_back(vertex);
+
+                if (i > 0)
+                {
+                    indices.push_back(topCenterIndex);
+                    indices.push_back(point - 1);
+                    indices.push_back(point);
+                }
+                point++;
+            }
+        }
+
+        // Generate vertices and indices for the bottom cap
+        if (capBottom)
+        {
+            int bottomCenterIndex = point;
+            Vertex bottomCenterVertex;
+            bottomCenterVertex.Position = glm::vec3(0.0f, -height * 0.5f, 0.0f);
+            bottomCenterVertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
+            bottomCenterVertex.TexCoords = glm::vec2(0.5f, 0.5f);
+            data.emplace_back(bottomCenterVertex);
+            point++;
+
+            for (int i = 0; i <= radialSegments; ++i)
+            {
+                float angle = i * angleStep;
+                float x = bottomRadius * glm::cos(angle);
+                float z = bottomRadius * glm::sin(angle);
+
+                Vertex vertex;
+                vertex.Position = glm::vec3(x, -height * 0.5f, z);
+                vertex.Normals = glm::vec3(0.0f, -1.0f, 0.0f);
+                vertex.TexCoords = glm::vec2((x / bottomRadius + 1.0f) * 0.5f, (z / bottomRadius + 1.0f) * 0.5f);
+                data.emplace_back(vertex);
+
+                if (i > 0)
+                {
+                    indices.push_back(bottomCenterIndex);
+                    indices.push_back(point);
+                    indices.push_back(point - 1);
+                }
+                point++;
+            }
         }
 
         return CreateRef<Mesh>(indices, data);
-    }*/
+    }
 
     Ref<Mesh> PrimitiveMesh::CreateCone(float radius, float height, int radialSegments, int rings, bool cap)
     {
