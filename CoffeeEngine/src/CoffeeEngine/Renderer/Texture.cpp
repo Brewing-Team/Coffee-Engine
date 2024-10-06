@@ -225,7 +225,7 @@ namespace Coffee {
                 std::ifstream file(cachedFilePath, std::ios::binary);
                 cereal::BinaryInputArchive archive(file);
                 Ref<Texture> texture = CreateRef<Texture>();
-                archive(*texture);
+                archive(texture);
                 ResourceRegistry::Add(fileName, texture);
                 return texture;
             }
@@ -236,7 +236,7 @@ namespace Coffee {
 
                 Ref<Texture> texture = CreateRef<Texture>(path, srgb);
 
-                oArchive(*texture);
+                oArchive(texture);
 
                 ResourceRegistry::Add(fileName, texture);
                 return texture;

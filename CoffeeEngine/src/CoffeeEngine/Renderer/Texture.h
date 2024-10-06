@@ -3,7 +3,11 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Image.h"
+#include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 
+#include <cereal/access.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/binary.hpp>
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <string>
@@ -157,19 +161,31 @@ namespace Coffee {
          */
         static Ref<Texture> Create(uint32_t width, uint32_t height, ImageFormat format);
 
-        template<class Archive>
-        void save(Archive & archive) const
+    private:
+        
+        friend class cereal::access;
+
+        template <class Archive>
+        static void load_and_construct(Archive& data, cereal::construct<Texture>& construct)
         {
-            archive(m_Properties, m_Data, m_Width, m_Height);
+            TextureProperties properties;
+            data(properties);
+            construct(properties);
         }
 
         template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::base_class<Resource>(this),
+                m_Properties/* , m_Data */, m_Width, m_Height);
+        }
+
+        /* template<class Archive>
         void load(Archive & archive)
         {
             archive(m_Properties, m_Data, m_Width, m_Height);
-            *this = Texture(m_Properties);
-            SetData(m_Data.data(), m_Data.size());
-        }
+            this->SetData(m_Data.data(), m_Data.size());
+        } */
     private:
         TextureProperties m_Properties; ///< The properties of the texture.
 
@@ -179,3 +195,6 @@ namespace Coffee {
         int m_Width, m_Height;
     };
 }
+
+CEREAL_REGISTER_TYPE(Coffee::Texture);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Resource, Coffee::Texture);
