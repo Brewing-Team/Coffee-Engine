@@ -13,7 +13,7 @@ namespace Coffee {
 
 	bool Input::IsMouseButtonPressed(const MouseCode button)
 	{
-		return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON(button);
+		return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_MASK(button);
 	}
 
 	glm::vec2 Input::GetMousePosition()

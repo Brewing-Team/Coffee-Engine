@@ -8,6 +8,7 @@
 #include <glm/fwd.hpp>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace Coffee {
 
@@ -33,6 +34,15 @@ namespace Coffee {
         DEPTH24STENCIL8 ///< 24-bit Depth and 8-bit Stencil channels.
     };
 
+  /*   // Serialization function for ImageFormat
+    template<class Archive>
+    void serialize(Archive& archive, ImageFormat& format)
+    {
+        int formatInt = static_cast<int>(format);
+        archive(formatInt);
+        format = static_cast<ImageFormat>(formatInt);
+    } */
+
     /**
      * @brief Structure representing properties of a texture.
      */
@@ -42,6 +52,12 @@ namespace Coffee {
         uint32_t Width, Height; ///< The width and height of the texture.
         bool GenerateMipmaps = true; ///< Whether to generate mipmaps.
         bool srgb = true; ///< Whether the texture is in sRGB format.
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(/* Format,  */Width, Height, GenerateMipmaps, srgb);
+        } 
     };
     /**
      * @brief Class representing a texture.
@@ -49,6 +65,8 @@ namespace Coffee {
     class Texture : public Resource
     {
     public:
+
+        Texture() = default;
         /**
          * @brief Constructs a Texture with the specified properties.
          * @param properties The properties of the texture.
@@ -138,8 +156,24 @@ namespace Coffee {
          * @return A reference to the created texture.
          */
         static Ref<Texture> Create(uint32_t width, uint32_t height, ImageFormat format);
+
+        template<class Archive>
+        void save(Archive & archive) const
+        {
+            archive(m_Properties, m_Data, m_Width, m_Height);
+        }
+
+        template<class Archive>
+        void load(Archive & archive)
+        {
+            archive(m_Properties, m_Data, m_Width, m_Height);
+            *this = Texture(m_Properties);
+            SetData(m_Data.data(), m_Data.size());
+        }
     private:
         TextureProperties m_Properties; ///< The properties of the texture.
+
+        std::vector<unsigned char> m_Data; ///< The data of the texture.
 
         uint32_t m_textureID;
         int m_Width, m_Height;

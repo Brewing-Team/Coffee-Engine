@@ -1,6 +1,6 @@
 #pragma once
 #include "CoffeeEngine/Core/Assert.h"
-#include <filesystem> // Add this line to include the std::filesystem header
+#include <filesystem>
 
 namespace Coffee {
 

@@ -1,11 +1,17 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Image.h"
 
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/memory.hpp>
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 #include <glad/glad.h>
 #include <stb_image.h>
 #include <glm/vec4.hpp>
@@ -85,12 +91,15 @@ namespace Coffee {
 
         int nrComponents;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* m_Data = stbi_load(m_FilePath.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
+        unsigned char* data = stbi_load(m_FilePath.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
         
         m_Properties.Width = m_Width, m_Properties.Height = m_Height;
         
-        if(m_Data)
+        if(data)
         {
+            m_Data = std::vector<unsigned char>(data, data + m_Width * m_Height * nrComponents);
+            stbi_image_free(data);
+
             switch (nrComponents)
             {
                 case 1:
@@ -121,11 +130,9 @@ namespace Coffee {
             //Add an option to choose the anisotropic filtering level
             glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
 
-            glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data);
+            glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data.data());
 
             glGenerateTextureMipmap(m_textureID);
-
-            stbi_image_free(m_Data);
         }
         else
         {
@@ -209,9 +216,31 @@ namespace Coffee {
         }
         else
         {
-            Ref<Texture> texture = CreateRef<Texture>(path, srgb);
-            ResourceRegistry::Add(fileName, texture);
-            return texture;
+            const std::filesystem::path& projectPath = Project::GetProjectDirectory();
+            std::filesystem::path cachedPath = projectPath / (".CoffeeEngine/cache/textures/");
+            std::filesystem::create_directories(cachedPath);
+            std::filesystem::path cachedFilePath = cachedPath / (fileName + ".tex");
+            if(std::filesystem::exists(cachedFilePath))
+            {
+                std::ifstream file(cachedFilePath, std::ios::binary);
+                cereal::BinaryInputArchive archive(file);
+                Ref<Texture> texture = CreateRef<Texture>();
+                archive(*texture);
+                ResourceRegistry::Add(fileName, texture);
+                return texture;
+            }
+            else
+            {
+                std::ofstream file{cachedFilePath, std::ios::binary};
+                cereal::BinaryOutputArchive oArchive(file);
+
+                Ref<Texture> texture = CreateRef<Texture>(path, srgb);
+
+                oArchive(*texture);
+
+                ResourceRegistry::Add(fileName, texture);
+                return texture;
+            }
         }
     }
 
