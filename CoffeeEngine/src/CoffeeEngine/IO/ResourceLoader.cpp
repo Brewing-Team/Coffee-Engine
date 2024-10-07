@@ -14,7 +14,7 @@ namespace Coffee {
     template <>
     Ref<Texture> ResourceLoader::Load<Texture>(const std::filesystem::path& path)
     {
-        const Ref<Resource>& r = ResourceImporter::Import(path);
+        const Ref<Resource>& r = ResourceImporter::Import<Texture>(path);
 
         if (r->GetType() != ResourceType::Texture)
         {
