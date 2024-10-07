@@ -1,15 +1,16 @@
 #include "Scene.h"
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
-#include "CoffeeEngine/Renderer/Shader.h"
+#include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "PrimitiveMesh.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
@@ -135,6 +136,8 @@ namespace Coffee {
 
         Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
         missingMaterial = CreateRef<Material>(missingShader);
+
+        Ref<Texture> testTexture = ResourceLoader::Load<Texture>("/home/hugo/Documentos/GitHub/Coffee-Engine/bin/Coffee-Editor/Debug/Texture Test Project/test.jpg");
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
