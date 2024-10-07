@@ -1,7 +1,8 @@
 #pragma once
 
-#include "../Core/Base.h"
-#include "../Renderer/Mesh.h"
+#include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
+
 namespace Coffee {
 
     /**
