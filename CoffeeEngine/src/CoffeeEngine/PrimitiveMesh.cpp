@@ -8,6 +8,10 @@
 
 namespace Coffee {
 
+    /*
+     *
+     * FIXME - This function is currently not implemented.
+     *
     template <PrimitiveType T, typename... Args>
     Ref<Mesh> PrimitiveMesh::Create(Args&&... args)
     {
@@ -17,6 +21,7 @@ namespace Coffee {
             return CreatePlane(std::forward<Args>(args)...);
         }
     }
+    */
 
     Ref<Mesh> PrimitiveMesh::CreateQuad()
     {
