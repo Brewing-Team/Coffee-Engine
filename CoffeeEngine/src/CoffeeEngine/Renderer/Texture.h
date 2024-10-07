@@ -38,15 +38,6 @@ namespace Coffee {
         DEPTH24STENCIL8 ///< 24-bit Depth and 8-bit Stencil channels.
     };
 
-  /*   // Serialization function for ImageFormat
-    template<class Archive>
-    void serialize(Archive& archive, ImageFormat& format)
-    {
-        int formatInt = static_cast<int>(format);
-        archive(formatInt);
-        format = static_cast<ImageFormat>(formatInt);
-    } */
-
     /**
      * @brief Structure representing properties of a texture.
      */
@@ -60,7 +51,9 @@ namespace Coffee {
         template<class Archive>
         void serialize(Archive& archive)
         {
-            archive(/* Format,  */Width, Height, GenerateMipmaps, srgb);
+            int formatInt = static_cast<int>(Format);
+            archive(formatInt, Width, Height, GenerateMipmaps, srgb);
+            Format = static_cast<ImageFormat>(formatInt);
         } 
     };
     /**
@@ -165,27 +158,31 @@ namespace Coffee {
         
         friend class cereal::access;
 
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(m_Properties, m_Data, m_Width, m_Height, cereal::base_class<Resource>(this));
+        }
+
+        template <class Archive>
+        void load(Archive& archive)
+        {
+            archive(m_Properties, m_Data, m_Width, m_Height, cereal::base_class<Resource>(this));
+        }
+
         template <class Archive>
         static void load_and_construct(Archive& data, cereal::construct<Texture>& construct)
         {
             TextureProperties properties;
             data(properties);
-            construct(properties);
+            construct(properties.Width, properties.Height, properties.Format);
+
+            data(construct->m_Data, construct->m_Width, construct->m_Height,
+                 cereal::base_class<Resource>(construct.ptr()));
+            construct->m_Properties = properties;
+            construct->SetData(construct->m_Data.data(), construct->m_Data.size());
         }
 
-        template<class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(cereal::base_class<Resource>(this),
-                m_Properties/* , m_Data */, m_Width, m_Height);
-        }
-
-        /* template<class Archive>
-        void load(Archive & archive)
-        {
-            archive(m_Properties, m_Data, m_Width, m_Height);
-            this->SetData(m_Data.data(), m_Data.size());
-        } */
     private:
         TextureProperties m_Properties; ///< The properties of the texture.
 
@@ -195,6 +192,3 @@ namespace Coffee {
         int m_Width, m_Height;
     };
 }
-
-CEREAL_REGISTER_TYPE(Coffee::Texture);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Resource, Coffee::Texture);

@@ -21,8 +21,14 @@ namespace Coffee {
     private:
         friend class cereal::access;
 
-        template<class Archive>
-        void serialize(Archive& archive)
+        template <class Archive>
+        void save(Archive& archive) const
+        {
+            archive(m_Name, m_FilePath);
+        }
+
+        template <class Archive>
+        void load(Archive& archive)
         {
             archive(m_Name, m_FilePath);
         }
