@@ -63,7 +63,7 @@ namespace Coffee {
     {
     public:
 
-        Texture() = default;
+        Texture() { m_Type = ResourceType::Texture; }
         /**
          * @brief Constructs a Texture with the specified properties.
          * @param properties The properties of the texture.
