@@ -1,10 +1,12 @@
 #include "ResourceImporter.h"
+#include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Project/Project.h"
 #include <filesystem>
 #include <fstream>
 
 namespace Coffee {
 
+    template<typename T>
     Ref<Resource> ResourceImporter::Import(const std::filesystem::path& path)
     {
         const std::filesystem::path& projectPath = Project::GetProjectDirectory();
@@ -18,10 +20,14 @@ namespace Coffee {
         }
         else
         {
-            Ref<Resource> resource = CreateRef<Resource>();
-            ResourceImporter::SaveToCache(path, resource);
-            return resource;
+            return LoadFromFile<T>(path);
         }
+    }
+
+    template<typename T>
+    const Ref<Resource>& ResourceImporter::LoadFromFile(const std::filesystem::path& path)
+    {
+       return CreateRef<T>(path);
     }
 
     const Ref<Resource>& ResourceImporter::LoadFromCache(const std::filesystem::path &path)
