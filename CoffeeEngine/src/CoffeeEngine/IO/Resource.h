@@ -8,6 +8,13 @@
 
 namespace Coffee {
 
+    enum class ResourceType
+    {
+        Unknown,
+        Texture,
+        Shader
+    };
+
     class Resource
     {
     public:
@@ -18,24 +25,29 @@ namespace Coffee {
 
         const std::string& GetName() const { return m_Name; }
         const std::filesystem::path& GetPath() { COFFEE_CORE_ASSERT(m_FilePath.empty(), "This Texture does not exist on disk!") return m_FilePath; };
+        ResourceType GetType() const { return m_Type; }
     private:
         friend class cereal::access;
 
         template <class Archive>
         void save(Archive& archive) const
         {
-            archive(m_Name, m_FilePath);
+            int typeInt = static_cast<int>(m_Type);
+            archive(m_Name, m_FilePath, typeInt);
         }
 
         template <class Archive>
         void load(Archive& archive)
         {
-            archive(m_Name, m_FilePath);
+            int typeInt;
+            archive(m_Name, m_FilePath, typeInt);
+            m_Type = static_cast<ResourceType>(typeInt);
         }
     
     protected:
         std::string m_Name;
         std::filesystem::path m_FilePath;
+        ResourceType m_Type;
     };
 
 }

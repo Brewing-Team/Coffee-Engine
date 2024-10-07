@@ -1,11 +1,29 @@
 #include "ResourceLoader.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceImporter.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/IO/ResourceRegistry.h"
 #include <filesystem>
 
 namespace Coffee {
+
+    //TODO: Search how to place this at the end of the file
+    template <>
+    Ref<Texture> ResourceLoader::Load<Texture>(const std::filesystem::path& path)
+    {
+        const Ref<Resource>& r = ResourceImporter::Import(path);
+
+        if (r->GetType() != ResourceType::Texture)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Texture>: Resource is not a texture!");
+            return nullptr;
+        }
+
+        return std::static_pointer_cast<Texture>(r);
+    }
 
     void ResourceLoader::LoadResources(const std::filesystem::path& directory)
     {
@@ -37,8 +55,25 @@ namespace Coffee {
 
                 COFFEE_CORE_INFO("Loading resource {0}", entry.path().string());
 
-                ResourceLoader::LoadResource(entry.path());
-            
+                ResourceType type = GetResourceType(entry.path());
+                switch (type)
+                {
+                    case ResourceType::Texture:
+                    {
+                        auto texture = Load<Texture>(entry.path());
+                        if (texture)
+                        {
+                            std::string resourceName = entry.path().filename().string();
+                            ResourceRegistry::Add(resourceName, texture);
+                        }
+                        break;
+                    }
+                    case ResourceType::Unknown:
+                    {
+                        COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported file extension {0}", entry.path().extension().string());
+                        break;
+                    }
+                }            
             }
         }
     }
@@ -73,6 +108,29 @@ namespace Coffee {
         
         COFFEE_CORE_ERROR("ResourceLoader::LoadResource: Unsupported file extension {0}", extension.string());
         return nullptr;
+    }
+
+    template <typename T>
+    Ref<T> ResourceLoader::Load(const std::filesystem::path& path)
+    {
+        COFFEE_CORE_ERROR("ResourceLoader::Load: Unsupported type!");
+        return nullptr;
+    }
+
+    ResourceType ResourceLoader::GetResourceType(const std::filesystem::path& path)
+    {
+        auto extension = path.extension();
+
+        if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
+        {
+            return ResourceType::Texture;
+        }
+        else if(extension == ".frag" || extension == ".vert")
+        {
+            return ResourceType::Shader;
+        }
+
+        return ResourceType::Unknown;
     }
 
 }

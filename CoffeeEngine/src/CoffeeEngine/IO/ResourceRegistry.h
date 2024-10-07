@@ -7,6 +7,8 @@
 #include <unordered_map>
 namespace Coffee {
 
+    //TODO: Update the Resource Registry to use the path as key to avoid collisions.
+
     class ResourceRegistry
     {
     public:
