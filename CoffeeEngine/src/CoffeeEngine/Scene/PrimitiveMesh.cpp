@@ -1,9 +1,9 @@
-#include "PrimitiveMesh.h"
-#include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
+#include "../PrimitiveMesh.h"
+#include "../Core/Base.h"
+#include "../Renderer/Mesh.h"
+#include <../../../../cmake-build-debug-visual-studio/vcpkg_installed/x64-windows/include/glm/ext/scalar_constants.hpp>
+#include <../../../../cmake-build-debug-visual-studio/vcpkg_installed/x64-windows/include/glm/gtc/constants.hpp>
 #include <cstdint>
-#include <glm/ext/scalar_constants.hpp>
-#include <glm/gtc/constants.hpp>
 #include <vector>
 
 namespace Coffee {
