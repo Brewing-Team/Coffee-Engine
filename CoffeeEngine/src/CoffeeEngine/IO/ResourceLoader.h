@@ -18,6 +18,13 @@ namespace Coffee {
         {
             //TODO: Check if the specified type (T) is a known resource type and is equals to the resource type of the file
 
+            
+            if(GetResourceTypeFromExtension(path) == ResourceType::Unknown)
+            {
+                COFFEE_CORE_ERROR("ResourceLoader::Load: Resource is of unknown type!");
+                return nullptr;
+            }
+
             const std::string& name = path.filename().string();
 
             if(ResourceRegistry::Exists(name))

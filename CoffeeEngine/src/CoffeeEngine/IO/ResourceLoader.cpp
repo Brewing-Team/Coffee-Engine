@@ -16,28 +16,6 @@ namespace Coffee {
         {
             if (entry.is_regular_file())
             {
-                //I don't know if it's better to add the resource to the registry here or in the Load function of the resource
-            
-                //Commented implementation of adding the resource to the registry here
-
-                //------------------------------------------------------------------//
-
-                /* auto resource = LoadResource(entry.path());
-                if (resource)
-                {
-                    std::string resourceName = entry.path().filename().string();
-                    ResourceRegistry::Add(resourceName, resource);
-                } */
-
-                //------------------------------------------------------------------//
-
-                //Any Resource should be loaded using ResourceLoader::LoadResource instead of using the Load function of the resource
-            
-            
-                //==================================================================//
-
-                //Using the Load function of the resource
-
                 COFFEE_CORE_INFO("Loading resource {0}", entry.path().string());
 
                 ResourceType type = GetResourceTypeFromExtension(entry.path());
@@ -45,12 +23,7 @@ namespace Coffee {
                 {
                     case ResourceType::Texture:
                     {
-                        auto texture = Load<Texture>(entry.path());
-                        if (texture)
-                        {
-                            std::string resourceName = entry.path().filename().string();
-                            ResourceRegistry::Add(resourceName, texture);
-                        }
+                        Load<Texture>(entry.path());
                         break;
                     }
                     case ResourceType::Unknown:
@@ -95,13 +68,17 @@ namespace Coffee {
         return nullptr;
     }
 
-    ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path) //Rename it to GetResourceTypeFromExtension
+    ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)
     {
         auto extension = path.extension();
 
         if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
         {
             return ResourceType::Texture;
+        }
+        else if(extension == ".glb" || extension == ".gltf" || extension == ".fbx" || extension == ".obj")
+        {
+            return ResourceType::Model;
         }
         else if(extension == ".frag" || extension == ".vert")
         {
