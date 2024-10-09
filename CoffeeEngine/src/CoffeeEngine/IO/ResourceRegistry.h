@@ -2,7 +2,6 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
-#include <filesystem>
 #include <string>
 #include <unordered_map>
 namespace Coffee {

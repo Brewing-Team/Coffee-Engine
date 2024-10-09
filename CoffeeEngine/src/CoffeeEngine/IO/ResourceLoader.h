@@ -1,9 +1,10 @@
 #pragma once 
 
 #include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
 #include <filesystem>
+#include <string>
 namespace Coffee {
 
     class ResourceLoader
@@ -15,6 +16,15 @@ namespace Coffee {
         template <typename T, typename... Args>
         static Ref<T> Load(const std::filesystem::path& path, Args&&... args)
         {
+            //TODO: Check if the specified type (T) is a known resource type and is equals to the resource type of the file
+
+            const std::string& name = path.filename().string();
+
+            if(ResourceRegistry::Exists(name))
+            {
+                return ResourceRegistry::Get<T>(name);
+            }
+
             const Ref<T>& resource = ResourceImporter::Import<T>(path, std::forward<Args>(args)...);
 
             if (resource->GetType() != GetResourceTypeFromExtension(path))
