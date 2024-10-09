@@ -103,6 +103,7 @@ namespace Coffee {
         friend class Entity;
         friend class SceneTree;
         friend class SceneTreePanel;
+        friend class InspectorPanel;
     };
 
     /**

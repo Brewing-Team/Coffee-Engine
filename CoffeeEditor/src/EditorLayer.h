@@ -1,15 +1,16 @@
 #pragma once
 
-#include "Panels/ContentBrowserPanel.h"
-#include "Panels/Panel.h"
-#include "Panels/SceneTreePanel.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Scene/Scene.h"
+#include "Panels/ContentBrowserPanel.h"
+#include "Panels/Panel.h"
+#include "Panels/SceneTreePanel.h"
 
+#include <Panels/InspectorPanel.h>
 #include <Panels/OutputPanel.h>
 
 namespace Coffee {
@@ -69,6 +70,7 @@ namespace Coffee {
         SceneTreePanel m_SceneTreePanel;
         ContentBrowserPanel m_ContentBrowserPanel;
         OutputPanel m_OutputPanel;
+        InspectorPanel m_InspectorPanel;
     };
 
 }

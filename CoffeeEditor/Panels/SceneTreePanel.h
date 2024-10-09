@@ -19,7 +19,7 @@ namespace Coffee {
         void OnImGuiRender() override;
 
         Entity GetSelectedEntity() const { return m_SelectionContext; };
-        void SetSelectedEntity(Entity entity) { m_SelectionContext = entity; };
+        void SetSelectedEntity(const Entity& entity) { m_SelectionContext = entity; };
 
     private:
         void DrawEntityNode(Entity entity);

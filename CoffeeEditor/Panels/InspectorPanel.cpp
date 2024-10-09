@@ -1,79 +1,45 @@
-#include "SceneTreePanel.h"
+#include "InspectorPanel.h"
+#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Texture.h"
-#include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
-#include <array>
 #include <cstdint>
 #include <cstring>
-#include <glm/gtc/type_ptr.hpp>
-#include <imgui.h>
 #include <string>
-
+#include <imgui.h>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace Coffee {
 
-    SceneTreePanel::SceneTreePanel(const Ref<Scene>& scene)
+    InspectorPanel::InspectorPanel(const Ref<Scene>& scene)
     {
         m_Context = scene;
     }
 
-    void SceneTreePanel::SetContext(const Ref<Scene>& scene)
+    void InspectorPanel::SetContext(const Ref<Scene>& scene)
     {
         m_Context = scene;
     }
 
-    void SceneTreePanel::OnImGuiRender()
+    void InspectorPanel::OnImGuiRender()
     {
-        ImGui::Begin("Scene Tree");
+        ImGui::Begin("Inspector");
 
-        //delete node and all children if supr is pressed and the node is selected
-        if(ImGui::IsKeyPressed(ImGuiKey_Delete) && m_SelectionContext)
+        if (m_SelectionContext)
         {
-            m_Context->DestroyEntity(m_SelectionContext);
-            m_SelectionContext = {};
-        }
-
-        //Button for adding entities to the scene tree
-        if(ImGui::Button("+", {24,24}))
-        {
-            m_Context->CreateEntity();
-        }
-        ImGui::SameLine();
-
-        static std::array<char, 256> searchBuffer;
-        ImGui::InputTextWithHint("##searchbar", "Search by name:", searchBuffer.data(), searchBuffer.size());
-
-        ImGui::BeginChild("entity tree", {0,0}, ImGuiChildFlags_Border);
-
-        auto view = m_Context->m_Registry.view<entt::entity>();
-        for(auto entityID: view)
-        {
-            Entity entity{ entityID, m_Context.get()};
-            auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
-
-            if(hierarchyComponent.m_Parent == entt::null)
-            {
-                DrawEntityNode(entity);
-            }
-        }
-
-        ImGui::EndChild();
-
-        if(ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
-        {
-            m_SelectionContext = {};
+            DrawComponents(m_SelectionContext);
         }
 
         ImGui::End();
     }
 
-    void SceneTreePanel::DrawEntityNode(Entity entity)
+    void InspectorPanel::DrawEntityNode(Entity entity)
     {
         auto& entityNameTag = entity.GetComponent<TagComponent>().Tag;
 
@@ -151,7 +117,7 @@ namespace Coffee {
         }
     }
 
-    void SceneTreePanel::DrawComponents(Entity entity)
+    void InspectorPanel::DrawComponents(Entity entity)
     {
         if(entity.HasComponent<TagComponent>())
         {
@@ -359,4 +325,5 @@ namespace Coffee {
         }
     }
 
-}
+
+} // Coffee

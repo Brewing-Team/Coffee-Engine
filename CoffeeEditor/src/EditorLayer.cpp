@@ -47,6 +47,7 @@ namespace Coffee {
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
         m_ContentBrowserPanel.SetContext(m_ActiveScene);
+        m_InspectorPanel.SetContext(m_ActiveScene);
 
         //For now we are going to create a new project when the editor is attached
         Project::New();
@@ -61,6 +62,12 @@ namespace Coffee {
             case SceneState::Edit:
                 m_EditorCamera.OnUpdate();
                 m_ActiveScene->OnUpdateEditor(m_EditorCamera, dt);
+
+                if(m_SceneTreePanel.GetSelectedEntity())
+                {
+                    m_InspectorPanel.SetSelectedEntity(m_SceneTreePanel.GetSelectedEntity());
+                }
+
                 OnOverlayRender();
             break;
             case SceneState::Play:
@@ -106,6 +113,7 @@ namespace Coffee {
 
                     m_EditorCamera.SetFocusPoint(glm::vec3(worldTransform[3]));
                 }
+
             break;
         }
 
@@ -238,6 +246,9 @@ namespace Coffee {
         m_SceneTreePanel.OnImGuiRender();
         m_ContentBrowserPanel.OnImGuiRender();
         m_OutputPanel.OnImGuiRender();
+        m_InspectorPanel.OnImGuiRender();
+
+        static Entity selectedEntity;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
@@ -259,7 +270,6 @@ namespace Coffee {
         ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, {0, 1}, {1, 0});
 
         //Guizmo
-        Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
 
         if(selectedEntity and m_GizmoType != -1 and m_SceneState == SceneState::Edit)
         {
@@ -496,6 +506,7 @@ namespace Coffee {
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
         m_ContentBrowserPanel.SetContext(m_ActiveScene);
+        m_InspectorPanel.SetContext(m_ActiveScene);
     }
 
     void EditorLayer::OpenScene()
@@ -513,6 +524,7 @@ namespace Coffee {
 
             m_SceneTreePanel.SetContext(m_ActiveScene);
             m_ContentBrowserPanel.SetContext(m_ActiveScene);
+            m_InspectorPanel.SetContext(m_ActiveScene);
         }
         else
         {
