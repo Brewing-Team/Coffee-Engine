@@ -9,20 +9,6 @@
 #include <filesystem>
 
 namespace Coffee {
-/* 
-    template<typename T, typename... Args>
-    Ref<T> ResourceLoader::Load(const std::filesystem::path& path, Args&&... args)
-    {
-        const Ref<Resource>& r = ResourceImporter::Import<T>(path, std::forward<Args>(args)...);
-
-        if (r->GetType() != GetResourceType(path))
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::Load: Resource is not of the specified type!");
-            return nullptr;
-        }
-
-        return std::static_pointer_cast<T>(r);
-    } */
 
     void ResourceLoader::LoadResources(const std::filesystem::path& directory)
     {
@@ -54,7 +40,7 @@ namespace Coffee {
 
                 COFFEE_CORE_INFO("Loading resource {0}", entry.path().string());
 
-                ResourceType type = GetResourceType(entry.path());
+                ResourceType type = GetResourceTypeFromExtension(entry.path());
                 switch (type)
                 {
                     case ResourceType::Texture:
@@ -109,7 +95,7 @@ namespace Coffee {
         return nullptr;
     }
 
-    ResourceType ResourceLoader::GetResourceType(const std::filesystem::path& path) //Rename it to GetResourceTypeFromExtension
+    ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path) //Rename it to GetResourceTypeFromExtension
     {
         auto extension = path.extension();
 

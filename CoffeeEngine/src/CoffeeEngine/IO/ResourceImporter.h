@@ -1,7 +1,8 @@
 #pragma once
 
 #include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/Project/Project.h" // Add this line to include the Project header
+#include "CoffeeEngine/Project/Project.h"
+#include <memory>
 
 namespace Coffee {
 
@@ -9,7 +10,7 @@ namespace Coffee {
     {
     public:
         template<typename T, typename... Args>
-        static Ref<Resource> Import(const std::filesystem::path& path, Args&&... args)
+        static Ref<T> Import(const std::filesystem::path& path, Args&&... args) //TODO: Think if the return type should be Ref<T> instead of Ref<Resource>
         {
             const std::filesystem::path& projectPath = Project::GetProjectDirectory();
             std::filesystem::path cachedPath = projectPath / (".CoffeeEngine/cache/resources/");
@@ -18,7 +19,7 @@ namespace Coffee {
 
             if (std::filesystem::exists(cachedFilePath))
             {
-                return LoadFromCache(path);
+                return std::static_pointer_cast<T>(LoadFromCache(path));
             }
             else
             {

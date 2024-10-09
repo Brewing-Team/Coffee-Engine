@@ -15,18 +15,18 @@ namespace Coffee {
         template <typename T, typename... Args>
         static Ref<T> Load(const std::filesystem::path& path, Args&&... args)
         {
-            const Ref<Resource>& r = ResourceImporter::Import<T>(path, std::forward<Args>(args)...);
+            const Ref<T>& resource = ResourceImporter::Import<T>(path, std::forward<Args>(args)...);
 
-            if (r->GetType() != GetResourceType(path))
+            if (resource->GetType() != GetResourceTypeFromExtension(path))
             {
                 COFFEE_CORE_ERROR("ResourceLoader::Load: Resource is not of the specified type!");
                 return nullptr;
             }
 
-            return std::static_pointer_cast<T>(r);
+            return resource;
         }
     private:
-        static ResourceType GetResourceType(const std::filesystem::path& path);
+        static ResourceType GetResourceTypeFromExtension(const std::filesystem::path& path);
     };
 
 }
