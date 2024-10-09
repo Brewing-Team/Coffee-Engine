@@ -20,7 +20,9 @@ namespace Coffee {
     public:
        /*  Resource(const std::filesystem::path& path)
             : m_FilePath(path), m_Name(path.filename()) {} */
-        Resource() = default;
+        //Resource() = default;
+        Resource(ResourceType type = ResourceType::Unknown)
+            : m_Type(type) {}
         virtual ~Resource() = default;
 
         const std::string& GetName() const { return m_Name; }
@@ -51,3 +53,5 @@ namespace Coffee {
     };
 
 }
+
+CEREAL_REGISTER_TYPE(Coffee::Resource);

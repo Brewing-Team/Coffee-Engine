@@ -1,7 +1,7 @@
 #include "ResourceLoader.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceImporter.h"
+
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -9,21 +9,20 @@
 #include <filesystem>
 
 namespace Coffee {
-
-    //TODO: Search how to place this at the end of the file
-    template <>
-    Ref<Texture> ResourceLoader::Load<Texture>(const std::filesystem::path& path)
+/* 
+    template<typename T, typename... Args>
+    Ref<T> ResourceLoader::Load(const std::filesystem::path& path, Args&&... args)
     {
-        const Ref<Resource>& r = ResourceImporter::Import<Texture>(path);
+        const Ref<Resource>& r = ResourceImporter::Import<T>(path, std::forward<Args>(args)...);
 
-        if (r->GetType() != ResourceType::Texture)
+        if (r->GetType() != GetResourceType(path))
         {
-            COFFEE_CORE_ERROR("ResourceLoader::Load<Texture>: Resource is not a texture!");
+            COFFEE_CORE_ERROR("ResourceLoader::Load: Resource is not of the specified type!");
             return nullptr;
         }
 
-        return std::static_pointer_cast<Texture>(r);
-    }
+        return std::static_pointer_cast<T>(r);
+    } */
 
     void ResourceLoader::LoadResources(const std::filesystem::path& directory)
     {
@@ -110,14 +109,7 @@ namespace Coffee {
         return nullptr;
     }
 
-    template <typename T>
-    Ref<T> ResourceLoader::Load(const std::filesystem::path& path)
-    {
-        COFFEE_CORE_ERROR("ResourceLoader::Load: Unsupported type!");
-        return nullptr;
-    }
-
-    ResourceType ResourceLoader::GetResourceType(const std::filesystem::path& path)
+    ResourceType ResourceLoader::GetResourceType(const std::filesystem::path& path) //Rename it to GetResourceTypeFromExtension
     {
         auto extension = path.extension();
 

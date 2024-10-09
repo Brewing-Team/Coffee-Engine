@@ -8,6 +8,7 @@
 #include <cereal/access.hpp>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <string>
@@ -63,7 +64,7 @@ namespace Coffee {
     {
     public:
 
-        Texture() { m_Type = ResourceType::Texture; }
+        Texture() = default;
         /**
          * @brief Constructs a Texture with the specified properties.
          * @param properties The properties of the texture.
@@ -192,3 +193,6 @@ namespace Coffee {
         int m_Width, m_Height;
     };
 }
+
+CEREAL_REGISTER_TYPE(Coffee::Texture);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Resource, Coffee::Texture);

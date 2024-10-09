@@ -1,8 +1,8 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/Renderer/Image.h"
 
 #include <cereal/archives/binary.hpp>
@@ -58,7 +58,7 @@ namespace Coffee {
     }
 
     Texture::Texture(uint32_t width, uint32_t height, ImageFormat imageFormat)
-        : m_Width(width), m_Height(height), m_Properties({ imageFormat, width, height })
+        : Resource(ResourceType::Texture), m_Width(width), m_Height(height), m_Properties({ imageFormat, width, height })
     {
         ZoneScoped;
 
@@ -81,6 +81,7 @@ namespace Coffee {
     }
 
     Texture::Texture(const std::filesystem::path& path, bool srgb)
+        : Resource(ResourceType::Texture)
     {
         ZoneScoped;
 
@@ -207,41 +208,7 @@ namespace Coffee {
 
     Ref<Texture> Texture::Load(const std::filesystem::path& path, bool srgb)
     {
-        std::filesystem::path filePath(path);
-        std::string fileName = filePath.filename().string();
-
-        if(ResourceRegistry::Exists(fileName))
-        {
-            return ResourceRegistry::Get<Texture>(fileName);
-        }
-        else
-        {
-            const std::filesystem::path& projectPath = Project::GetProjectDirectory();
-            std::filesystem::path cachedPath = projectPath / (".CoffeeEngine/cache/textures/");
-            std::filesystem::create_directories(cachedPath);
-            std::filesystem::path cachedFilePath = cachedPath / (fileName + ".tex");
-            if(std::filesystem::exists(cachedFilePath))
-            {
-                std::ifstream file(cachedFilePath, std::ios::binary);
-                cereal::BinaryInputArchive archive(file);
-                Ref<Texture> texture = CreateRef<Texture>();
-                archive(texture);
-                ResourceRegistry::Add(fileName, texture);
-                return texture;
-            }
-            else
-            {
-                std::ofstream file{cachedFilePath, std::ios::binary};
-                cereal::BinaryOutputArchive oArchive(file);
-
-                Ref<Texture> texture = CreateRef<Texture>(path, srgb);
-
-                oArchive(texture);
-
-                ResourceRegistry::Add(fileName, texture);
-                return texture;
-            }
-        }
+        ResourceLoader::Load<Texture>(path, srgb);
     }
 
     Ref<Texture> Texture::Create(uint32_t width, uint32_t height, ImageFormat format)
