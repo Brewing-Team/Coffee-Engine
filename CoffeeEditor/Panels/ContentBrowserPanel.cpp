@@ -24,7 +24,7 @@ namespace Coffee {
 
         ImGui::Begin("Content Browser");
 
-        if(!Project::GetActive()->GetProjectDirectory().empty())
+        if(Project::GetActive() and !Project::GetActive()->GetProjectDirectory().empty())
         {
             if(m_CurrentDirectory != Project::GetActive()->GetProjectDirectory())
             {

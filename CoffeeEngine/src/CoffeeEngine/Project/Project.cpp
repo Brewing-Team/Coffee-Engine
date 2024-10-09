@@ -41,6 +41,10 @@ namespace Coffee {
     {
         s_ActiveProject->m_ProjectDirectory = path.parent_path();
         s_ActiveProject->m_Name = path.stem().string();
+        if(s_ActiveProject->m_CacheDirectory.empty())
+        {
+            s_ActiveProject->m_CacheDirectory = ".CoffeeEngine/Cache/";
+        }
 
         std::ofstream projectFile(path);
         cereal::JSONOutputArchive archive(projectFile);

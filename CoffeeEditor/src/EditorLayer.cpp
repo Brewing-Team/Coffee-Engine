@@ -38,11 +38,8 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        //For now we are going to create a new project when the editor is attached
-        Project::New();
-
         //TEMPORAL
-        Project::Load("/home/hugo/Documentos/GitHub/Coffee-Engine/bin/Coffee-Editor/Debug/Example Project/Untitled.TeaProject");
+        //Project::Load("/home/hugo/Documentos/GitHub/Coffee-Engine/bin/Coffee-Editor/Debug/Example Project/Untitled.TeaProject");
 
         m_EditorScene = CreateRef<Scene>();
         m_ActiveScene = m_EditorScene;

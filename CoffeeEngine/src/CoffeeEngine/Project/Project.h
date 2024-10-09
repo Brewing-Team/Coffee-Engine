@@ -56,16 +56,32 @@ namespace Coffee {
         static const std::string& GetProjectName() { return s_ActiveProject->m_Name; }
 
         /**
+         * @brief Retrieves the cache directory path of the active project.
+         * 
+         * This static method returns a constant reference to the cache directory path
+         * associated with the currently active project.
+         * 
+         * @return const std::filesystem::path& Reference to the cache directory path.
+         */
+        static std::filesystem::path GetCacheDirectory() { return s_ActiveProject->GetProjectDirectory() / s_ActiveProject->m_CacheDirectory; }
+
+        /**
          * @brief Serializes the project data.
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
         template<class Archive>
-        void serialize(Archive& archive) { archive(cereal::make_nvp("Name", m_Name), cereal::make_nvp("StartScene", m_StartScenePath.string())); }
+        void serialize(Archive& archive) 
+        {
+            archive(cereal::make_nvp("Name", m_Name),
+                    cereal::make_nvp("StartScene",m_StartScenePath.string()),
+                    cereal::make_nvp("CacheDirectory", m_CacheDirectory.string()));
+        }
 
     private:
         std::string m_Name = "Untitled"; ///< The name of the project.
         std::filesystem::path m_ProjectDirectory; ///< The directory of the project.
+        std::filesystem::path m_CacheDirectory; ///< The directory of the project cache.
 
         std::filesystem::path m_StartScenePath; ///< The path to the start scene.
 

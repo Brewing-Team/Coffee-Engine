@@ -8,12 +8,7 @@ namespace Coffee {
 
     Ref<Resource> ResourceImporter::LoadFromCache(const std::filesystem::path &path)
     {
-        const std::filesystem::path& projectPath = Project::GetProjectDirectory();
-        std::filesystem::path cachedPath = projectPath / (".CoffeeEngine/cache/resources/");
-        std::filesystem::create_directories(cachedPath);
-        std::filesystem::path cachedFilePath = cachedPath / (path.filename().string() + ".res");
-
-        std::ifstream file(cachedFilePath, std::ios::binary);
+        std::ifstream file(path, std::ios::binary);
         cereal::BinaryInputArchive archive(file);
         Ref<Resource> resource = CreateRef<Resource>();
         archive(resource);
@@ -22,14 +17,8 @@ namespace Coffee {
 
     void ResourceImporter::SaveToCache(const std::filesystem::path& path, Ref<Resource> resource)
     {
-        const std::filesystem::path& projectPath = Project::GetProjectDirectory();
-        std::filesystem::path cachedPath = projectPath / (".CoffeeEngine/cache/resources/");
-        std::filesystem::create_directories(cachedPath);
-        std::filesystem::path cachedFilePath = cachedPath / (path.filename().string() + ".res");
-
-        std::ofstream file{cachedFilePath, std::ios::binary};
+        std::ofstream file{path, std::ios::binary};
         cereal::BinaryOutputArchive oArchive(file);
-
         oArchive(resource);
     }
 

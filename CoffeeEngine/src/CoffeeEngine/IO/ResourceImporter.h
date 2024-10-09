@@ -12,19 +12,25 @@ namespace Coffee {
         template<typename T, typename... Args>
         static Ref<T> Import(const std::filesystem::path& path, Args&&... args) //TODO: Think if the return type should be Ref<T> instead of Ref<Resource>
         {
-            const std::filesystem::path& projectPath = Project::GetProjectDirectory();
-            std::filesystem::path cachedPath = projectPath / (".CoffeeEngine/cache/resources/");
-            std::filesystem::create_directories(cachedPath);
-            std::filesystem::path cachedFilePath = cachedPath / (path.filename().string() + ".res");
+            std::filesystem::path cachePath = ".CoffeeEngine/Cache/Resources";
+            
+            if(Project::GetActive())
+            {
+                cachePath = Project::GetActive()->GetCacheDirectory() / "Resources";
+            }
+
+            std::filesystem::create_directories(cachePath);
+
+            std::filesystem::path cachedFilePath = cachePath / (path.filename().string() + ".res");
 
             if (std::filesystem::exists(cachedFilePath))
             {
-                return std::static_pointer_cast<T>(LoadFromCache(path));
+                return std::static_pointer_cast<T>(LoadFromCache(cachedFilePath));
             }
             else
             {
                 Ref<T> resource = LoadFromFile<T>(path, std::forward<Args>(args)...);
-                SaveToCache(path, resource);
+                SaveToCache(cachedFilePath, resource);
                 return resource;
             }
         }
