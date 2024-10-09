@@ -18,7 +18,7 @@ namespace Coffee {
         {
             //TODO: Check if the specified type (T) is a known resource type and is equals to the resource type of the file
 
-            
+
             if(GetResourceTypeFromExtension(path) == ResourceType::Unknown)
             {
                 COFFEE_CORE_ERROR("ResourceLoader::Load: Resource is of unknown type!");
@@ -39,6 +39,8 @@ namespace Coffee {
                 COFFEE_CORE_ERROR("ResourceLoader::Load: Resource is not of the specified type!");
                 return nullptr;
             }
+
+            ResourceRegistry::Add(name, resource);
 
             return resource;
         }

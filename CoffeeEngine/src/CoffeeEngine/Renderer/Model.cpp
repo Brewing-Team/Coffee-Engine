@@ -1,10 +1,10 @@
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/material.h>
@@ -53,18 +53,7 @@ namespace Coffee {
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
     {
-        std::string fileName = path.filename().string();
-
-        if(ResourceRegistry::Exists(fileName))
-        {
-            return ResourceRegistry::Get<Model>(fileName);
-        }
-        else
-        {
-            Ref<Model> model = CreateRef<Model>(path);
-            ResourceRegistry::Add(fileName, model);
-            return model;
-        }
+        return ResourceLoader::Load<Model>(path);
     }
 
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)

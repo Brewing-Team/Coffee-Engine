@@ -12,6 +12,7 @@ namespace Coffee {
     {
         Unknown,
         Texture,
+        Model,
         Shader
     };
 
