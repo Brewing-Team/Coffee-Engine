@@ -16,7 +16,7 @@ namespace Coffee {
             
             if(Project::GetActive())
             {
-                cachePath = Project::GetActive()->GetCacheDirectory() / "Resources";
+                cachePath = Project::GetActive()->GetCacheDirectory() / cachePath;
             }
 
             std::filesystem::create_directories(cachePath);
