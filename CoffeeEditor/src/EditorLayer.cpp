@@ -448,7 +448,21 @@ namespace Coffee {
 
     void EditorLayer::NewProject()
     {
-        Project::New();
+        FileDialogArgs args;
+        args.Filters = {{"Coffee Project", "TeaProject"}};
+        args.DefaultName = "Untitled.TeaProject";
+        const std::filesystem::path& path = FileDialog::SaveFile(args);
+
+        if (!path.empty())
+        {
+            Project::New(path);
+            Project::SaveActive();
+            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - Coffee Engine");
+        }
+        else
+        {
+            COFFEE_CORE_ERROR("New Project: No file selected!");
+        }
     }
 
     void EditorLayer::OpenProject()
@@ -470,33 +484,7 @@ namespace Coffee {
 
     void EditorLayer::SaveProject()
     {
-        const Ref<Project>& activeProject = Project::GetActive();
-
-        if(activeProject->GetProjectDirectory().empty())
-        {
-            SaveProjectAs();
-            return;
-        }
-
-        Project::SaveActive(activeProject->GetProjectDirectory());
-    }
-
-    void EditorLayer::SaveProjectAs()
-    {
-        FileDialogArgs args;
-        args.Filters = {{"Coffee Project", "TeaProject"}};
-        args.DefaultName = "Untitled.TeaProject";
-        const std::filesystem::path& path = FileDialog::SaveFile(args);
-
-        if (!path.empty())
-        {
-            Project::SaveActive(path);
-            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - Coffee Engine");
-        }
-        else
-        {
-            COFFEE_CORE_WARN("Save Project As: No file selected");
-        }
+        Project::SaveActive();
     }
 
     void EditorLayer::NewScene()

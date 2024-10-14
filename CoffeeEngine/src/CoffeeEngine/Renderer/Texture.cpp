@@ -208,7 +208,7 @@ namespace Coffee {
 
     Ref<Texture> Texture::Load(const std::filesystem::path& path, bool srgb)
     {
-        return ResourceLoader::Load<Texture>(path, srgb);
+        return ResourceLoader::LoadTexture(path, srgb);
     }
 
     Ref<Texture> Texture::Create(uint32_t width, uint32_t height, ImageFormat format)

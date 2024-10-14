@@ -40,7 +40,6 @@ namespace Coffee {
         void NewProject();
         void OpenProject();
         void SaveProject();
-        void SaveProjectAs();
 
         //Scene Management
         void NewScene();

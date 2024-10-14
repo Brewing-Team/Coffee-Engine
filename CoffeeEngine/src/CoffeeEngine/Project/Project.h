@@ -22,7 +22,7 @@ namespace Coffee {
          * @brief Creates a new project.
          * @return A reference to the newly created project.
          */
-        static Ref<Project> New();
+        static Ref<Project> New(const std::filesystem::path& path);
 
         /**
          * @brief Loads a project from the specified path.
@@ -35,7 +35,7 @@ namespace Coffee {
          * @brief Saves the active project to the specified path.
          * @param path The path to save the project file.
          */
-        static void SaveActive(const std::filesystem::path& path);
+        static void SaveActive();
 
         /**
          * @brief Gets the active project.
@@ -75,7 +75,7 @@ namespace Coffee {
         {
             archive(cereal::make_nvp("Name", m_Name),
                     cereal::make_nvp("StartScene",m_StartScenePath.string()),
-                    cereal::make_nvp("CacheDirectory", m_CacheDirectory.string()));
+                    cereal::make_nvp("CacheDirectory", m_CacheDirectory));
         }
 
     private:

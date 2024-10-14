@@ -53,7 +53,7 @@ namespace Coffee {
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::Load<Model>(path);
+        return ResourceLoader::LoadModel(path, false);
     }
 
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)

@@ -3,9 +3,9 @@
 #include "CoffeeEngine/IO/Resource.h"
 
 #include "CoffeeEngine/Renderer/Model.h"
-#include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/IO/ResourceImporter.h"
 #include <filesystem>
 
 namespace Coffee {
@@ -23,7 +23,12 @@ namespace Coffee {
                 {
                     case ResourceType::Texture:
                     {
-                        Load<Texture>(entry.path());
+                        LoadTexture(entry.path());
+                        break;
+                    }
+                    case ResourceType::Model:
+                    {
+                        LoadModel(entry.path(), false);
                         break;
                     }
                     case ResourceType::Unknown:
@@ -36,7 +41,7 @@ namespace Coffee {
         }
     }
 
-    Ref<Resource> ResourceLoader::LoadResource(const std::filesystem::path& path)
+    /* Ref<Resource> ResourceLoader::LoadResource(const std::filesystem::path& path)
     {
         auto extension = path.extension();
 
@@ -66,6 +71,48 @@ namespace Coffee {
         
         COFFEE_CORE_ERROR("ResourceLoader::LoadResource: Unsupported file extension {0}", extension.string());
         return nullptr;
+    } */
+
+    Ref<Texture> ResourceLoader::LoadTexture(const std::filesystem::path& path, bool srgb, bool cache)
+    {
+        if(GetResourceTypeFromExtension(path) != ResourceType::Texture)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Texture>: Resource is not a texture!");
+            return nullptr;
+        }
+
+        const std::string& name = path.filename().string();
+
+        if(ResourceRegistry::Exists(name))
+        {
+            return ResourceRegistry::Get<Texture>(name);
+        }
+
+        const Ref<Texture>& texture = ResourceImporter::Import<Texture>(cache, path, srgb);
+
+        ResourceRegistry::Add(name, texture);
+        return texture;
+    }
+
+    Ref<Model> ResourceLoader::LoadModel(const std::filesystem::path& path, bool cache)
+    {
+        if(GetResourceTypeFromExtension(path) != ResourceType::Model)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Model>: Resource is not a model!");
+            return nullptr;
+        }
+
+        const std::string& name = path.filename().string();
+
+        if(ResourceRegistry::Exists(name))
+        {
+            return ResourceRegistry::Get<Model>(name);
+        }
+
+        const Ref<Model>& model = ResourceImporter::Import<Model>(cache, path);
+
+        ResourceRegistry::Add(name, model);
+        return model;
     }
 
     ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)

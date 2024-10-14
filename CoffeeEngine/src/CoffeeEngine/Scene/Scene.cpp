@@ -136,8 +136,6 @@ namespace Coffee {
 
         Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
         missingMaterial = CreateRef<Material>(missingShader);
-
-        Ref<Texture> testTexture = ResourceLoader::Load<Texture>("/home/hugo/Documentos/GitHub/Coffee-Engine/bin/Coffee-Editor/Debug/Example Project/Assets/textures/test.jpg");
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
