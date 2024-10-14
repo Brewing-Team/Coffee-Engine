@@ -88,9 +88,79 @@ namespace Coffee {
     void DebugRenderer::DrawSphere(const glm::vec3& position, float radius, glm::vec4 color, float lineWidth)
     {
         DrawCircle(position, radius, glm::quat(), color, lineWidth);
-        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), color, lineWidth);
-        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), color, lineWidth);
+        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), color,
+                   lineWidth);
+        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), color,
+                   lineWidth);
     }
+
+    // TODO fix this function, currently is not drawing the bounding box at all
+    void DebugRenderer::DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size,
+                                glm::vec4 color, const bool& isCentered, float lineWidth)
+    {
+        glm::vec3 halfSize = size * 0.5f;
+        glm::vec3 vertices[8];
+
+        if (isCentered) {
+            vertices[0] = position + rotation * glm::vec3(-halfSize.x, -halfSize.y, -halfSize.z);
+            vertices[1] = position + rotation * glm::vec3(halfSize.x, -halfSize.y, -halfSize.z);
+            vertices[2] = position + rotation * glm::vec3(halfSize.x, halfSize.y, -halfSize.z);
+            vertices[3] = position + rotation * glm::vec3(-halfSize.x, halfSize.y, -halfSize.z);
+            vertices[4] = position + rotation * glm::vec3(-halfSize.x, -halfSize.y, halfSize.z);
+            vertices[5] = position + rotation * glm::vec3(halfSize.x, -halfSize.y, halfSize.z);
+            vertices[6] = position + rotation * glm::vec3(halfSize.x, halfSize.y, halfSize.z);
+            vertices[7] = position + rotation * glm::vec3(-halfSize.x, halfSize.y, halfSize.z);
+        } else {
+            vertices[0] = position + rotation * glm::vec3(0.0f, 0.0f, 0.0f);
+            vertices[1] = position + rotation * glm::vec3(size.x, 0.0f, 0.0f);
+            vertices[2] = position + rotation * glm::vec3(size.x, size.y, 0.0f);
+            vertices[3] = position + rotation * glm::vec3(0.0f, size.y, 0.0f);
+            vertices[4] = position + rotation * glm::vec3(0.0f, 0.0f, size.z);
+            vertices[5] = position + rotation * glm::vec3(size.x, 0.0f, size.z);
+            vertices[6] = position + rotation * glm::vec3(size.x, size.y, size.z);
+            vertices[7] = position + rotation * glm::vec3(0.0f, size.y, size.z);
+        }
+
+        DrawLine(vertices[0], vertices[1], color, lineWidth);
+        DrawLine(vertices[1], vertices[2], color, lineWidth);
+        DrawLine(vertices[2], vertices[3], color, lineWidth);
+        DrawLine(vertices[3], vertices[0], color, lineWidth);
+
+        DrawLine(vertices[4], vertices[5], color, lineWidth);
+        DrawLine(vertices[5], vertices[6], color, lineWidth);
+        DrawLine(vertices[6], vertices[7], color, lineWidth);
+        DrawLine(vertices[7], vertices[4], color, lineWidth);
+
+        DrawLine(vertices[0], vertices[4], color, lineWidth);
+        DrawLine(vertices[1], vertices[5], color, lineWidth);
+        DrawLine(vertices[2], vertices[6], color, lineWidth);
+        DrawLine(vertices[3], vertices[7], color, lineWidth);
+    }
+
+    void DebugRenderer::DrawBox(const glm::vec3& min, const glm::vec3& max, glm::vec4 color, float lineWidth)
+    {
+        DrawLine(glm::vec3(min.x, min.y, min.z), glm::vec3(max.x, min.y, min.z), color, lineWidth);
+        DrawLine(glm::vec3(max.x, min.y, min.z), glm::vec3(max.x, max.y, min.z), color, lineWidth);
+        DrawLine(glm::vec3(max.x, max.y, min.z), glm::vec3(min.x, max.y, min.z), color, lineWidth);
+        DrawLine(glm::vec3(min.x, max.y, min.z), glm::vec3(min.x, min.y, min.z), color, lineWidth);
+
+        DrawLine(glm::vec3(min.x, min.y, max.z), glm::vec3(max.x, min.y, max.z), color, lineWidth);
+        DrawLine(glm::vec3(max.x, min.y, max.z), glm::vec3(max.x, max.y, max.z), color, lineWidth);
+        DrawLine(glm::vec3(max.x, max.y, max.z), glm::vec3(min.x, max.y, max.z), color, lineWidth);
+        DrawLine(glm::vec3(min.x, max.y, max.z), glm::vec3(min.x, min.y, max.z), color, lineWidth);
+
+        DrawLine(glm::vec3(min.x, min.y, min.z), glm::vec3(min.x, min.y, max.z), color, lineWidth);
+        DrawLine(glm::vec3(max.x, min.y, min.z), glm::vec3(max.x, min.y, max.z), color, lineWidth);
+        DrawLine(glm::vec3(max.x, max.y, min.z), glm::vec3(max.x, max.y, max.z), color, lineWidth);
+        DrawLine(glm::vec3(min.x, max.y, min.z), glm::vec3(min.x, max.y, max.z), color, lineWidth);
+
+    }
+
+    void DebugRenderer::DrawBox(const AABB& aabb, glm::vec4 color, float lineWidth)
+    {
+        DrawBox(aabb.min, aabb.max, color, lineWidth);
+    }
+
 
     void DebugRenderer::DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength, glm::vec4 color, float lineWidth)
     {

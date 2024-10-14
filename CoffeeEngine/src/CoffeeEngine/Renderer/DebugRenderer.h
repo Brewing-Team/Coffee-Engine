@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
+#include "Mesh.h"
 #include <glm/glm.hpp>
 
 namespace Coffee {
@@ -49,6 +50,10 @@ namespace Coffee {
         static void DrawCircle(const glm::vec3& position, float radius, const glm::quat& rotation, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
         static void DrawSphere(const glm::vec3& position, float radius, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
+
+        static void DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size, glm::vec4 color = glm::vec4(1.0f), const bool& isCentered = false, float lineWidth = 1.0f);
+        static void DrawBox(const AABB& aabb, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        static void DrawBox(const glm::vec3& min, const glm::vec3& max , glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
         static void DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength = true, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
         static void DrawArrow(const glm::vec3& origin, const glm::vec3& direction, float length = 1.5f, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);

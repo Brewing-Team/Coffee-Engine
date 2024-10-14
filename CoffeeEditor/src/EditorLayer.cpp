@@ -371,20 +371,28 @@ namespace Coffee {
     {
         Renderer::BeginOverlay(m_EditorCamera);
 
-        /* Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
+        Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
+        static Entity lastSelectedEntity;
 
         if(selectedEntity)
         {
             auto& transformComponent = selectedEntity.GetComponent<TransformComponent>();
-            auto& meshComponent = selectedEntity.GetComponent<MeshComponent>();
+            if (selectedEntity.HasComponent<MeshComponent>()) {
+                auto& meshComponent = selectedEntity.GetComponent<MeshComponent>();
 
-            glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::scale(transform, glm::vec3(1.1f));
+                glm::mat4 transform = transformComponent.GetWorldTransform();
+                const AABB& aabb = meshComponent.mesh->GetAABB();
 
-            Ref<Shader> selectedShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
+                AABB transformedAABB(transform * glm::vec4(aabb.min, 1.0f), transform * glm::vec4(aabb.max, 1.0f));
 
-            Renderer::Submit(selectedShader, meshComponent.mesh->GetVertexArray(), transform);
-        } */
+                DebugRenderer::DrawBox(transformedAABB, {1.0f, 0.0f, 0.0f, 1.0f});
+            } else if (selectedEntity != lastSelectedEntity) {
+                // TODO generate defaults bounding boxes for when the entity does not have a mesh component
+                lastSelectedEntity = selectedEntity;
+                COFFEE_CORE_WARN("Not printing bounding box: Selected entity {0} does not have a MeshComponent.", selectedEntity.GetComponent<TagComponent>().Tag);
+            }
+
+        }
 
         auto view = m_ActiveScene->GetAllEntitiesWithComponents<LightComponent, TransformComponent>();
 
@@ -418,6 +426,10 @@ namespace Coffee {
         static Ref<Shader> gridShader = Shader::Create("assets/shaders/SimpleGridShader.vert", "assets/shaders/SimpleGridShader.frag");
 
         Renderer::Submit(gridShader, gridPlane->GetVertexArray());
+
+        // TODO remove testing code
+        // const glm::vec3& position, const glm::quat& rotation, glm::vec3& size, glm::vec4 color, const bool& isCentered, float lineWidth
+        // DebugRenderer::DrawBox({0,0,0}, glm::quat({0,0,0}), {1,1,1}, {1,1,0,0}, false, 2.0f);
 
         Renderer::EndOverlay();
     }

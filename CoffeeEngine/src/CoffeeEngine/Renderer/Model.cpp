@@ -38,7 +38,7 @@ namespace Coffee {
         m_FilePath = path;
 
         Assimp::Importer importer;
-        const aiScene* scene = importer.ReadFile(m_FilePath.string(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace);
+        const aiScene* scene = importer.ReadFile(m_FilePath.string(), aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes);
         // check for errors
         if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
         {
@@ -136,9 +136,15 @@ namespace Coffee {
             meshMaterial = CreateRef<Material>();
         }
 
+        AABB aabb(
+            glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z),
+            glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z)
+            );
+
         Ref<Mesh> resultMesh = CreateRef<Mesh>(indices, vertices);
         resultMesh->SetName(mesh->mName.C_Str());
         resultMesh->SetMaterial(meshMaterial);
+        resultMesh->SetAABB(aabb);
 
         return resultMesh;
     }

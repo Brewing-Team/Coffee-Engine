@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Renderer/Buffer.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
+#include <assimp/mesh.h>
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
@@ -27,6 +28,17 @@ namespace Coffee {
         glm::vec3 Normals = glm::vec3(0.0f); ///< The normal vector of the vertex.
         glm::vec3 Tangent = glm::vec3(0.0f); ///< The tangent vector of the vertex.
         glm::vec3 Bitangent = glm::vec3(0.0f); ///< The bitangent vector of the vertex.
+    };
+
+    struct AABB {
+
+        glm::vec3 min = glm::vec3(0.0f);
+        glm::vec3 max = glm::vec3(0.0f);
+
+        AABB() = default;
+
+        AABB(const glm::vec3& min, const glm::vec3& max)
+            : min(min), max(max) {}
     };
 
     /**
@@ -79,6 +91,18 @@ namespace Coffee {
         void SetMaterial(Ref<Material>& material) { m_Material = material; }
 
         /**
+         * @brief Sets the axis-aligned bounding box (AABB) of the mesh.
+         * @param aabb The axis-aligned bounding box to set.
+         */
+        void SetAABB(const AABB aabb) { m_AABB = aabb; }
+
+        /**
+         * @brief Gets the axis-aligned bounding box (AABB) of the mesh.
+         * @return A reference to the AABB.
+         */
+        const AABB& GetAABB() { return m_AABB; }
+
+        /**
          * @brief Gets the material of the mesh.
          * @return A reference to the material.
          */
@@ -112,14 +136,13 @@ namespace Coffee {
          * @tparam Archive The type of the archive.
          * @param archive The archive to deserialize from.
          */
-        template<class Archive>
-        void load(Archive& archive)
+        template <class Archive> void load(Archive& archive)
         {
             archive(m_Name, m_Vertices, m_Indices);
             Mesh(m_Indices, m_Vertices);
         }
 
-    private:
+      private:
         Ref<VertexArray> m_VertexArray; ///< The vertex array of the mesh.
         Ref<VertexBuffer> m_VertexBuffer; ///< The vertex buffer of the mesh.
         Ref<IndexBuffer> m_IndexBuffer; ///< The index buffer of the mesh.
@@ -127,6 +150,7 @@ namespace Coffee {
         std::string m_Name; ///< The name of the mesh.
 
         Ref<Material> m_Material; ///< The material of the mesh.
+        AABB m_AABB; ///< The axis-aligned bounding box of the mesh.
 
         std::vector<uint32_t> m_Indices; ///< The indices of the mesh.
         std::vector<Vertex> m_Vertices; ///< The vertices of the mesh.
