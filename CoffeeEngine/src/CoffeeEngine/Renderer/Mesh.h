@@ -4,6 +4,8 @@
 #include "CoffeeEngine/Renderer/Buffer.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
+
+#include <array>
 #include <assimp/mesh.h>
 #include <cstdint>
 #include <glm/fwd.hpp>
@@ -39,6 +41,28 @@ namespace Coffee {
 
         AABB(const glm::vec3& min, const glm::vec3& max)
             : min(min), max(max) {}
+    };
+
+    struct OBB
+    {
+        std::array<glm::vec3, 8> corners;
+
+        OBB() = default;
+
+        OBB(const std::array<glm::vec3, 8>& corners)
+            : corners(corners) {}
+
+        OBB(const glm::mat4& transform, const AABB& aabb)
+            : corners({
+                glm::vec3(transform * glm::vec4(aabb.min.x, aabb.min.y, aabb.min.z, 1.0f)),
+                glm::vec3(transform * glm::vec4(aabb.max.x, aabb.min.y, aabb.min.z, 1.0f)),
+                glm::vec3(transform * glm::vec4(aabb.max.x, aabb.max.y, aabb.min.z, 1.0f)),
+                glm::vec3(transform * glm::vec4(aabb.min.x, aabb.max.y, aabb.min.z, 1.0f)),
+                glm::vec3(transform * glm::vec4(aabb.min.x, aabb.min.y, aabb.max.z, 1.0f)),
+                glm::vec3(transform * glm::vec4(aabb.max.x, aabb.min.y, aabb.max.z, 1.0f)),
+                glm::vec3(transform * glm::vec4(aabb.max.x, aabb.max.y, aabb.max.z, 1.0f)),
+                glm::vec3(transform * glm::vec4(aabb.min.x, aabb.max.y, aabb.max.z, 1.0f))
+                }) {}
     };
 
     /**

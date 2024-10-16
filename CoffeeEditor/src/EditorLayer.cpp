@@ -383,9 +383,42 @@ namespace Coffee {
                 glm::mat4 transform = transformComponent.GetWorldTransform();
                 const AABB& aabb = meshComponent.mesh->GetAABB();
 
-                AABB transformedAABB(transform * glm::vec4(aabb.min, 1.0f), transform * glm::vec4(aabb.max, 1.0f));
+               // Compute the 8 corners of the AABB
+                glm::vec3 corners[8] = {
+                    aabb.min,
+                    glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z),
+                    glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z),
+                    glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z),
+                    glm::vec3(aabb.max.x, aabb.min.y, aabb.min.z),
+                    glm::vec3(aabb.max.x, aabb.min.y, aabb.max.z),
+                    glm::vec3(aabb.max.x, aabb.max.y, aabb.min.z),
+                    aabb.max
+                };
+
+                // Transform the corners
+                glm::vec3 transformedCorners[8];
+                for (int i = 0; i < 8; ++i) {
+                    transformedCorners[i] = glm::vec3(transform * glm::vec4(corners[i], 1.0f));
+                }
+
+                // Find the new min and max points
+                glm::vec3 newMin = transformedCorners[0];
+                glm::vec3 newMax = transformedCorners[0];
+
+                for (int i = 1; i < 8; ++i) {
+                    newMin = glm::min(newMin, transformedCorners[i]);
+                    newMax = glm::max(newMax, transformedCorners[i]);
+                }
+
+                // Create the transformed AABB
+                AABB transformedAABB(newMin, newMax);
 
                 DebugRenderer::DrawBox(transformedAABB, {1.0f, 0.0f, 0.0f, 1.0f});
+
+                // OBB
+                OBB obb(transform, aabb);
+                DebugRenderer::DrawBox(obb, {0.0f, 1.0f, 0.0f, 1.0f}, 2.0f);
+
             } else if (selectedEntity != lastSelectedEntity) {
                 // TODO generate defaults bounding boxes for when the entity does not have a mesh component
                 lastSelectedEntity = selectedEntity;

@@ -161,6 +161,15 @@ namespace Coffee {
         DrawBox(aabb.min, aabb.max, color, lineWidth);
     }
 
+    void DebugRenderer::DrawBox(const OBB& obb, glm::vec4 color, float lineWidth)
+    {
+        for (int i = 0; i < 4; i++) {
+            DrawLine(obb.corners[i], obb.corners[(i + 1) % 4], color, lineWidth);
+            DrawLine(obb.corners[i + 4], obb.corners[(i + 1) % 4 + 4], color, lineWidth);
+            DrawLine(obb.corners[i], obb.corners[i + 4], color, lineWidth);
+        }
+    }
+
 
     void DebugRenderer::DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength, glm::vec4 color, float lineWidth)
     {
