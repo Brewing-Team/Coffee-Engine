@@ -385,13 +385,13 @@ namespace Coffee {
                 if(meshComponent.drawAABB)
                 {
                     const AABB& aabb = meshComponent.mesh->GetAABB(transform);
-                    DebugRenderer::DrawBox(aabb, {1.0f, 0.0f, 0.0f, 1.0f});
+                    DebugRenderer::DrawBox(aabb, {0.27f, 0.52f, 0.53f, 1.0f});
                 }
 
                 // ----------------------------------
 
                 OBB obb = meshComponent.mesh->GetOBB(transform);
-                DebugRenderer::DrawBox(obb, {0.0f, 1.0f, 0.0f, 1.0f}, 2.0f);
+                DebugRenderer::DrawBox(obb, {0.99f, 0.50f, 0.09f, 1.0f});
 
 
             } else if (selectedEntity != lastSelectedEntity) {

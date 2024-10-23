@@ -54,7 +54,7 @@ namespace Coffee {
         static void DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size, glm::vec4 color = glm::vec4(1.0f), const bool& isCentered = false, float lineWidth = 1.0f);
         static void DrawBox(const AABB& aabb, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
         static void DrawBox(const glm::vec3& min, const glm::vec3& max , glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
-        static void DrawBox(const OBB& obb, glm::vec4 color, float lineWidth);
+        static void DrawBox(const OBB& obb, glm::vec4 color, float lineWidth = 1.0f);
 
 
         static void DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength = true, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
