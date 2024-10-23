@@ -126,6 +126,45 @@ namespace Coffee {
          */
         const AABB& GetAABB() { return m_AABB; }
 
+        AABB GetAABB(const glm::mat4& transform)
+        {
+            const AABB& aabb = GetAABB();
+
+            // Compute the 8 corners of the AABB
+            glm::vec3 corners[8] = {
+                aabb.min,
+                glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z),
+                glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z),
+                glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z),
+                glm::vec3(aabb.max.x, aabb.min.y, aabb.min.z),
+                glm::vec3(aabb.max.x, aabb.min.y, aabb.max.z),
+                glm::vec3(aabb.max.x, aabb.max.y, aabb.min.z),
+                aabb.max
+            };
+
+            // Transform the corners
+            glm::vec3 transformedCorners[8];
+            for (int i = 0; i < 8; ++i) {
+                transformedCorners[i] = glm::vec3(transform * glm::vec4(corners[i], 1.0f));
+            }
+
+            // Find the new min and max points
+            glm::vec3 newMin = transformedCorners[0];
+            glm::vec3 newMax = transformedCorners[0];
+
+            for (int i = 1; i < 8; ++i) {
+                newMin = glm::min(newMin, transformedCorners[i]);
+                newMax = glm::max(newMax, transformedCorners[i]);
+            }
+
+            // Create the transformed AABB
+            AABB transformedAABB(newMin, newMax);
+
+            return transformedAABB;
+        }
+
+        OBB GetOBB(const glm::mat4& transform) { return {transform, GetAABB()}; }
+
         /**
          * @brief Gets the material of the mesh.
          * @return A reference to the material.
