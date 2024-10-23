@@ -430,10 +430,12 @@ namespace Coffee {
         DebugRenderer::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);
         DebugRenderer::DrawLine({0.0f, 0.0f, -1000.0f}, {0.0f, 0.0f, 1000.0f}, {0.153f, 0.525f, 0.918f, 1.0f}, 2);
 
-        static Ref<Mesh> gridPlane = PrimitiveMesh::CreatePlane({1000.0f, 1000.0f});
+        static Ref<Mesh> gridPlaneDown = PrimitiveMesh::CreatePlane({1000.0f, 1000.0f});
+        static Ref<Mesh> gridPlaneUp = PrimitiveMesh::CreatePlane({1000.0f, -1000.0f}); // FIXME this is a hack to avoid the grid not beeing rendered due to backface culling
         static Ref<Shader> gridShader = Shader::Create("assets/shaders/SimpleGridShader.vert", "assets/shaders/SimpleGridShader.frag");
 
-        Renderer::Submit(gridShader, gridPlane->GetVertexArray());
+        Renderer::Submit(gridShader, gridPlaneUp->GetVertexArray());
+        Renderer::Submit(gridShader, gridPlaneDown->GetVertexArray());
 
         // TODO remove testing code
         // const glm::vec3& position, const glm::quat& rotation, glm::vec3& size, glm::vec4 color, const bool& isCentered, float lineWidth
