@@ -127,6 +127,7 @@ namespace Coffee {
     struct MeshComponent
     {
         Ref<Mesh> mesh;
+        bool drawAABB = false;
 
         MeshComponent()
         {
