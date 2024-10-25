@@ -1,4 +1,7 @@
 #include "ResourceSaver.h"
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
+#include <fstream>
 
 namespace Coffee
 {
@@ -46,5 +49,18 @@ namespace Coffee
         std::filesystem::path cacheFilePath = s_cachePath / (resourceName += ".res");
 
         Save(cacheFilePath, resource);
+    }
+
+    void ResourceSaver::BinarySerialization(const std::filesystem::path& path, const Ref<Resource>& resource)
+    {
+        std::ofstream file{path, std::ios::binary};
+        cereal::BinaryOutputArchive oArchive(file);
+        oArchive(resource);
+    }
+    void ResourceSaver::JSONSerialization(const std::filesystem::path& path, const Ref<Resource>& resource)
+    {
+        std::ofstream file{path};
+        cereal::JSONOutputArchive oArchive(file);
+        oArchive(resource);
     }
 }

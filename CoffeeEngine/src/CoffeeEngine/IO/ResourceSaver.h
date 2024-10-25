@@ -28,8 +28,8 @@ namespace Coffee
 
         static void SetCachePath(const std::filesystem::path& path) { s_cachePath = path; }
       private:
-        static void BinarySerialization(const std::filesystem::path&, const Ref<Resource>& resource);
-        static void JSONSerialization(const std::filesystem::path&, const Ref<Resource>& resource);
+        static void BinarySerialization(const std::filesystem::path& path, const Ref<Resource>& resource);
+        static void JSONSerialization(const std::filesystem::path& path, const Ref<Resource>& resource);
       private:
         static std::filesystem::path s_cachePath;
 	};
