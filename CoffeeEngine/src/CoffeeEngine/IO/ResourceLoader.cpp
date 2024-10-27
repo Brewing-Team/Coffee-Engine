@@ -10,6 +10,8 @@
 
 namespace Coffee {
 
+    ResourceImporter ResourceLoader::s_Importer = ResourceImporter();
+
     void ResourceLoader::LoadResources(const std::filesystem::path& directory)
     {
         for (const auto& entry : std::filesystem::recursive_directory_iterator(directory))
@@ -88,7 +90,7 @@ namespace Coffee {
             return ResourceRegistry::Get<Texture>(name);
         }
 
-        const Ref<Texture>& texture = ResourceImporter::ImportTexture(path, srgb, cache);
+        const Ref<Texture>& texture = s_Importer.ImportTexture(path, srgb, cache);
 
         ResourceRegistry::Add(name, texture);
         return texture;
@@ -104,10 +106,10 @@ namespace Coffee {
 
         const std::string& name = path.filename().string();
 
-        /* if(ResourceRegistry::Exists(name))
+        if(ResourceRegistry::Exists(name))
         {
             return ResourceRegistry::Get<Model>(name);
-        } */
+        }
 
         const Ref<Model>& model = CreateRef<Model>(path);
 

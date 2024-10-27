@@ -1,5 +1,8 @@
 #include "ResourceImporter.h"
+#include "ResourceSaver.h"
 #include "CoffeeEngine/IO/CacheManager.h"
+
+#include <fstream>
 
 namespace Coffee {
 
