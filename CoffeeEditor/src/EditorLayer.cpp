@@ -203,7 +203,7 @@ namespace Coffee {
             {
                 if(ImGui::MenuItem("About Coffee Engine"))
                 {
-                    ImGui::OpenPopup("About Coffee Engine");
+                    mainMenuAction = "About Coffee Engine";
                 }
                 ImGui::EndMenu();
             }
@@ -233,6 +233,19 @@ namespace Coffee {
 
             ImGui::EndMainMenuBar();
         }
+
+        // About Coffee Engine Popup
+
+        if(mainMenuAction == "About Coffee Engine"){ ImGui::OpenPopup("About Coffee Engine"); }
+        if(ImGui::BeginPopupModal("About Coffee Engine", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextWrapped("Coffee Engine is a 3D Game Engine developed by the Brewing Team.");
+            ImGui::TextWrapped("This project is open source and can be found at:");
+            ImGui::TextLinkOpenURL("https://github.com/Brewing-Team/Coffee-Engine");
+            ImGui::EndPopup();
+        }
+
+
 
         // Render the panels
         m_SceneTreePanel.OnImGuiRender();
