@@ -1,13 +1,12 @@
 #include "ResourceSaver.h"
 #include "CoffeeEngine/IO/ResourceFormat.h"
+#include "CoffeeEngine/IO/CacheManager.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
 namespace Coffee
 {
-    std::filesystem::path ResourceSaver::s_cachePath = ".CoffeeEngine/Cache/Resources";
-
     ResourceFormat GetResourceSaveFormatFromType(ResourceType type)
     {
         switch (type)
@@ -44,10 +43,7 @@ namespace Coffee
     }
     void ResourceSaver::SaveToCache(const Ref<Resource>& resource)
     {
-        std::filesystem::create_directories(s_cachePath);
-        //TODO: Research how to do it without copying the name string to resourceName (how to do it with const ... &)
-        std::string resourceName = resource->GetName();
-        std::filesystem::path cacheFilePath = s_cachePath / (resourceName += ".res");
+        std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(resource->GetName());
 
         Save(cacheFilePath, resource);
     }

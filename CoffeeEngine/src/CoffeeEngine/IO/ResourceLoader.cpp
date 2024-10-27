@@ -96,7 +96,7 @@ namespace Coffee {
 
     Ref<Model> ResourceLoader::LoadModel(const std::filesystem::path& path, bool cache)
     {
-/*         if(GetResourceTypeFromExtension(path) != ResourceType::Model)
+        if(GetResourceTypeFromExtension(path) != ResourceType::Model)
         {
             COFFEE_CORE_ERROR("ResourceLoader::Load<Model>: Resource is not a model!");
             return nullptr;
@@ -104,15 +104,15 @@ namespace Coffee {
 
         const std::string& name = path.filename().string();
 
-        if(ResourceRegistry::Exists(name))
+        /* if(ResourceRegistry::Exists(name))
         {
             return ResourceRegistry::Get<Model>(name);
-        }
+        } */
 
-        const Ref<Model>& model = ResourceImporter::Import<Model>(cache, path);
+        const Ref<Model>& model = CreateRef<Model>(path);
 
         ResourceRegistry::Add(name, model);
-        return model; */
+        return model;
     }
 
     ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)

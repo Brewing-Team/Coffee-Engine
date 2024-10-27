@@ -17,14 +17,10 @@ namespace Coffee {
     {
     public:
         static Ref<Texture> ImportTexture(const std::filesystem::path& path, bool srgb, bool cache);
-
-        static void SetCachePath(const std::filesystem::path& path) { m_cachePath = path; }
     private:
         static Ref<Resource> LoadFromCache(const std::filesystem::path& path, ResourceFormat format);
 
         static Ref<Resource> BinaryDeserialization(const std::filesystem::path& path);
         static Ref<Resource> JSONDeserialization(const std::filesystem::path& path);
-    private:
-        static std::filesystem::path m_cachePath;
     };
 }

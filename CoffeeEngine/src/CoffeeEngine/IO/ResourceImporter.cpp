@@ -1,7 +1,7 @@
 #include "ResourceImporter.h"
+#include "CoffeeEngine/IO/CacheManager.h"
 
 namespace Coffee {
-    std::filesystem::path ResourceImporter::m_cachePath = ".CoffeeEngine/Cache/Resources";
 
     Ref<Texture> ResourceImporter::ImportTexture(const std::filesystem::path& path, bool srgb, bool cache)
     {
@@ -10,9 +10,7 @@ namespace Coffee {
             return CreateRef<Texture>(path, srgb);
         }
 
-        std::filesystem::create_directories(m_cachePath);
-
-        std::filesystem::path cachedFilePath = m_cachePath / (path.filename().stem() += ".res");
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(path.filename().string());
 
         if (std::filesystem::exists(cachedFilePath))
         {

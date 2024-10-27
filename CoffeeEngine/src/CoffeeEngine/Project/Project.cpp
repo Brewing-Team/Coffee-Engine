@@ -1,8 +1,8 @@
 #include "Project.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/ResourceImporter.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 
 #include <cereal/archives/json.hpp>
 
@@ -23,7 +23,7 @@ namespace Coffee {
             s_ActiveProject->m_CacheDirectory = ".CoffeeEngine/Cache/";
         }
 
-        ResourceImporter::SetCachePath((path.parent_path() / s_ActiveProject->m_CacheDirectory / "Resources"));
+        CacheManager::SetCachePath(s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_CacheDirectory);
 
         return s_ActiveProject;
     }
@@ -43,7 +43,7 @@ namespace Coffee {
 
         ResourceRegistry::Clear();
 
-        ResourceImporter::SetCachePath((path.parent_path() / s_ActiveProject->m_CacheDirectory / "Resources"));
+        CacheManager::SetCachePath(project->m_ProjectDirectory / project->m_CacheDirectory);
         ResourceLoader::LoadResources(project->m_ProjectDirectory);
 
         return project;
