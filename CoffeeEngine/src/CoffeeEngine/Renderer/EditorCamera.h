@@ -39,7 +39,7 @@ namespace Coffee {
         /**
          * @brief Updates the camera's view matrix.
          */
-        void OnUpdate();
+        void OnUpdate(float dt);
 
         /**
          * @brief Handles events for the camera.
@@ -132,6 +132,8 @@ namespace Coffee {
          * @param delta The mouse scroll delta.
          */
         void MouseZoom(float delta);
+
+        void Fly(const glm::vec2& mouseDelta);
 
     private:
         glm::mat4 m_ViewMatrix; ///< The view matrix of the camera.

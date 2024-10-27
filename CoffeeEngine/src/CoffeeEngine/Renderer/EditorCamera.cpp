@@ -25,7 +25,7 @@ namespace Coffee {
         UpdateProjection();
     }
 
-    void EditorCamera::OnUpdate()
+    void EditorCamera::OnUpdate(float dt)
     {
         glm::vec2 mousePos = Input::GetMousePosition();
 
@@ -44,13 +44,11 @@ namespace Coffee {
                 MouseRotate(delta);
             }
         }
+        else if(Input::IsMouseButtonPressed(Mouse::BUTTON_RIGHT))
+        {
+            Fly(delta);
+        }
 
-     /* COFFEE_CORE_INFO("Camera Position: ({0}, {1})", m_Position.x, m_Position.y);
-        COFFEE_CORE_INFO("Camera Focal Point: ({0}, {1})", m_FocalPoint.x, m_FocalPoint.y);
-
-        glm::vec3 cameraEulerAngles = glm::eulerAngles(GetOrientation());
-        COFFEE_CORE_INFO("Camera Euler Angles: ({0}, {1}, {2})", glm::degrees(cameraEulerAngles.x), glm::degrees(cameraEulerAngles.y), glm::degrees(cameraEulerAngles.z));
-        */
         UpdateView();
     }
 
@@ -75,6 +73,46 @@ namespace Coffee {
     void EditorCamera::MouseZoom(float delta)
     {
         m_Distance -= delta;
+    }
+
+    void EditorCamera::Fly(const glm::vec2& mouseDelta)
+    {
+        float delta = 0.1f;
+
+        m_Distance = 1.0f;
+
+        MouseRotate(mouseDelta);
+
+        glm::vec3 forward = GetForwardDirection();
+        glm::vec3 right = GetRightDirection();
+        glm::vec3 up = GetUpDirection();
+
+        if(Input::IsKeyPressed(Key::W))
+        {
+            m_FocalPoint += forward * delta;
+        }
+        if(Input::IsKeyPressed(Key::S))
+        {
+            m_FocalPoint -= forward * delta;
+        }
+        if(Input::IsKeyPressed(Key::A))
+        {
+            m_FocalPoint -= right * delta;
+        }
+        if(Input::IsKeyPressed(Key::D))
+        {
+            m_FocalPoint += right * delta;
+        }
+        if(Input::IsKeyPressed(Key::Q))
+        {
+            m_FocalPoint -= up * delta;
+        }
+        if(Input::IsKeyPressed(Key::E))
+        {
+            m_FocalPoint += up * delta;
+        }
+
+        UpdateView();
     }
 
     bool EditorCamera::OnMouseScroll(MouseScrolledEvent& event)

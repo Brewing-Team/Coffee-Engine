@@ -59,7 +59,7 @@ namespace Coffee {
         switch (m_SceneState)
         {
             case SceneState::Edit:
-                m_EditorCamera.OnUpdate();
+                m_EditorCamera.OnUpdate(dt);
                 m_ActiveScene->OnUpdateEditor(m_EditorCamera, dt);
                 OnOverlayRender();
             break;
