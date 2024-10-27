@@ -21,6 +21,7 @@ namespace Coffee {
 
     void ContentBrowserPanel::OnImGuiRender()
     {
+        if (!m_Visible) return;
 
         ImGui::Begin("Content Browser");
 

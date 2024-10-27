@@ -11,6 +11,8 @@ namespace Coffee {
 
     void OutputPanel::OnImGuiRender()
     {
+        if (!m_Visible) return;
+
         ImGui::Begin("Output", nullptr, ImGuiWindowFlags_HorizontalScrollbar);
         const std::vector<std::string>& logBuffer = Coffee::Log::GetLogBuffer();
         /* for (const auto& log : logBuffer)

@@ -30,6 +30,8 @@ namespace Coffee {
 
     void SceneTreePanel::OnImGuiRender()
     {
+        if (!m_Visible) return;
+
         ImGui::Begin("Scene Tree");
 
         //delete node and all children if supr is pressed and the node is selected
