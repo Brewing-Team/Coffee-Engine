@@ -14,12 +14,6 @@ namespace Coffee
         [ ] Use this class in the other Resouce Management classes
     */
 
-    enum class ResourceSaveFormat
-    {
-        Binary,
-        JSON
-    };
-
 	class ResourceSaver
 	{
       public:

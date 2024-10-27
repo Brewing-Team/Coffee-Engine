@@ -88,7 +88,7 @@ namespace Coffee {
             return ResourceRegistry::Get<Texture>(name);
         }
 
-        const Ref<Texture>& texture = ResourceImporter::Import<Texture>(cache, path, srgb);
+        const Ref<Texture>& texture = ResourceImporter::ImportTexture(path, srgb, cache);
 
         ResourceRegistry::Add(name, texture);
         return texture;
@@ -96,7 +96,7 @@ namespace Coffee {
 
     Ref<Model> ResourceLoader::LoadModel(const std::filesystem::path& path, bool cache)
     {
-        if(GetResourceTypeFromExtension(path) != ResourceType::Model)
+/*         if(GetResourceTypeFromExtension(path) != ResourceType::Model)
         {
             COFFEE_CORE_ERROR("ResourceLoader::Load<Model>: Resource is not a model!");
             return nullptr;
@@ -112,7 +112,7 @@ namespace Coffee {
         const Ref<Model>& model = ResourceImporter::Import<Model>(cache, path);
 
         ResourceRegistry::Add(name, model);
-        return model;
+        return model; */
     }
 
     ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)

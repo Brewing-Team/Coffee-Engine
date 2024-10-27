@@ -1,4 +1,5 @@
 #include "ResourceSaver.h"
+#include "CoffeeEngine/IO/ResourceFormat.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
 #include <fstream>
@@ -7,14 +8,14 @@ namespace Coffee
 {
     std::filesystem::path ResourceSaver::s_cachePath = ".CoffeeEngine/Cache/Resources";
 
-    ResourceSaveFormat GetResourceSaveFormatFromType(ResourceType type)
+    ResourceFormat GetResourceSaveFormatFromType(ResourceType type)
     {
         switch (type)
         {
         case Coffee::ResourceType::Unknown:
             break;
         case Coffee::ResourceType::Texture:
-            return ResourceSaveFormat::Binary;
+            return ResourceFormat::Binary;
             break;
         case Coffee::ResourceType::Model:
             break;
@@ -27,10 +28,10 @@ namespace Coffee
 
     void ResourceSaver::Save(const std::filesystem::path& path, const Ref<Resource>& resource)
     {
-        ResourceSaveFormat format = GetResourceSaveFormatFromType(resource->GetType());
+        ResourceFormat format = GetResourceSaveFormatFromType(resource->GetType());
         switch (format)
         {
-            using enum ResourceSaveFormat;
+            using enum ResourceFormat;
         case Binary:
             BinarySerialization(path, resource);
             break;
