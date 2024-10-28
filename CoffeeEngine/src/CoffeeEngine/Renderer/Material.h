@@ -105,6 +105,7 @@ namespace Coffee {
         Ref<Shader> GetShader() { return m_Shader; }
 
         const MaterialTextures& GetMaterialTextures() const { return m_MaterialTextures; }
+        const MaterialProperties& GetMaterialProperties() const { return m_MaterialProperties; }
 
         //For testing purposes is not definitive
 

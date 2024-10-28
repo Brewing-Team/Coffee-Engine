@@ -202,7 +202,8 @@ namespace Coffee {
         if(entity.HasComponent<LightComponent>())
         {
             auto& lightComponent = entity.GetComponent<LightComponent>();
-            if(ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingHeaderOpen = true;
+            if(ImGui::CollapsingHeader("Light", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Text("Light Type");
                 ImGui::Combo("##Light Type", (int*)&lightComponent.type, "Directional\0Point\0Spot\0");
@@ -224,13 +225,18 @@ namespace Coffee {
                     ImGui::Text("Attenuation");
                     ImGui::DragFloat("##Attenuation", &lightComponent.Attenuation, 0.1f);
                 }
+                if(!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<LightComponent>();
+                }
             }
         }
 
         if(entity.HasComponent<MeshComponent>())
         {
             auto& meshComponent = entity.GetComponent<MeshComponent>();
-            if(ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingHeaderOpen = true;
+            if(ImGui::CollapsingHeader("Mesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Text("Mesh");
                 ImGui::SameLine();
@@ -279,17 +285,29 @@ namespace Coffee {
                     ImGui::EndPopup();
                 }
                 ImGui::Checkbox("Draw AABB", &meshComponent.drawAABB);
+
+                if(!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<MeshComponent>();
+                }
             }
         }
 
         if(entity.HasComponent<MaterialComponent>())
         {
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
-            if(ImGui::CollapsingHeader("Material", ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingHeaderOpen = true;
+            if(ImGui::CollapsingHeader("Material", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 const MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
+                const MaterialProperties& materialProperties = materialComponent.material->GetMaterialProperties();
 
-                ImGui::Text("Albedo");
+                if(ImGui::TreeNode("Albedo"))
+                {
+                    //ImGui::ColorEdit4("##Albedo", glm::value_ptr(materialProperties.color));
+
+                    ImGui::TreePop();
+                }
                 uint32_t textureID = materialTextures.albedo ? materialTextures.albedo->GetID() : 0;
                 ImGui::ImageButton("##Albedo", (ImTextureID)textureID, {64, 64});
                 if(ImGui::BeginDragDropTarget())
@@ -322,6 +340,11 @@ namespace Coffee {
                 ImGui::Text("Emissive");
                 textureID = materialTextures.emissive ? materialTextures.emissive->GetID() : 0;
                 ImGui::ImageButton("##Emissive", (ImTextureID)textureID, {64, 64});
+            
+                if(!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<MaterialComponent>();
+                }
             }
         }
 
