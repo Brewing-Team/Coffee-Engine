@@ -300,14 +300,42 @@ namespace Coffee {
             if(ImGui::CollapsingHeader("Material", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 const MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
-                const MaterialProperties& materialProperties = materialComponent.material->GetMaterialProperties();
+                MaterialProperties& materialProperties = materialComponent.material->GetMaterialProperties();
 
                 if(ImGui::TreeNode("Albedo"))
                 {
-                    //ImGui::ColorEdit4("##Albedo", glm::value_ptr(materialProperties.color));
+                    ImGui::ColorEdit4("Color", glm::value_ptr(materialProperties.color));
 
                     ImGui::TreePop();
                 }
+                if(ImGui::TreeNode("Metallic"))
+                {
+                    ImGui::DragFloat("##Metallic", &materialProperties.metallic, 0.1f, 0.0f, 1.0f);
+                    ImGui::TreePop();
+                }
+                if(ImGui::TreeNode("Roughness"))
+                {
+                    ImGui::DragFloat("##Roughness", &materialProperties.roughness, 0.1f, 0.0f, 1.0f);
+                    ImGui::TreePop();
+                }
+                if(ImGui::TreeNode("Emission"))
+                {
+                    ImGui::ColorEdit3("Color", glm::value_ptr(materialProperties.emissive));
+                    ImGui::TreePop();
+                }
+                if(ImGui::TreeNode("Normal Map"))
+                {
+                    ImGui::TreePop();
+                }
+                if(ImGui::TreeNode("Ambient Occlusion"))
+                {
+                    ImGui::DragFloat("##AO", &materialProperties.ao, 0.1f, 0.0f, 1.0f);
+                    ImGui::TreePop();
+                }
+
+
+
+
                 uint32_t textureID = materialTextures.albedo ? materialTextures.albedo->GetID() : 0;
                 ImGui::ImageButton("##Albedo", (ImTextureID)textureID, {64, 64});
                 if(ImGui::BeginDragDropTarget())
