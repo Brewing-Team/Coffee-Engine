@@ -15,12 +15,33 @@ struct VertexData
 
 layout (location = 2) in VertexData VertexInput;
 
-uniform sampler2D albedoMap;
-uniform sampler2D normalMap;
-uniform sampler2D metallicMap;
-uniform sampler2D roughnessMap;
-uniform sampler2D aoMap;
-uniform sampler2D emissiveMap;
+/*Todo: Think if we should use a struct for the material or mimmic the Material
+        structs in the C++ code.
+*/
+struct Material
+{
+    sampler2D albedoMap;
+    sampler2D normalMap;
+    sampler2D metallicMap;
+    sampler2D roughnessMap;
+    sampler2D aoMap;
+    sampler2D emissiveMap;
+
+    vec4 color;
+    float metallic;
+    float roughness;
+    float ao;
+    float emissive;
+
+    int hasAlbedo;
+    int hasNormal;
+    int hasMetallic;
+    int hasRoughness;
+    int hasAO;
+    int hasEmissive;
+};
+
+uniform Material material;
 
 #define MAX_LIGHTS 32
 
@@ -46,31 +67,6 @@ layout (std140, binding = 1) uniform RenderData
 };
 
 const float PI = 3.14159265359;
-
-/* vec3 albedo = vec3(0.5f, 0.0f, 0.0f);
-float metallic = 0.2;
-float roughness = 0.5;
-float ao = 1.0f; */
-
-vec3 getNormalFromMap()
-{
-/*     vec3 tangentNormal = texture(normalMap, TexCoords).xyz * 2.0 - 1.0;
-
-    vec3 Q1  = dFdx(WorldPos);
-    vec3 Q2  = dFdy(WorldPos);
-    vec2 st1 = dFdx(TexCoords);
-    vec2 st2 = dFdy(TexCoords);
-
-    vec3 N   = normalize(Normal);
-    vec3 T  = normalize(Q1*st2.t - Q2*st1.t);
-    vec3 B  = -normalize(cross(N, T));
-    mat3 TBN = mat3(T, B, N);
-
-    return normalize(TBN * tangentNormal); */
-
-    vec3 normal = texture(normalMap, VertexInput.TexCoords).rgb * 2.0 - 1.0;
-        return normalize(VertexInput.TBN * normal);
-}
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -115,13 +111,14 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 
 void main()
 {
-    vec3 albedo = texture(albedoMap, VertexInput.TexCoords).rgb;
-    float metallic = texture(metallicMap, VertexInput.TexCoords).b;
-    float roughness = texture(roughnessMap, VertexInput.TexCoords).g;
-    float ao = texture(aoMap, VertexInput.TexCoords).r;
+    vec3 albedo = material.hasAlbedo * (texture(material.albedoMap, VertexInput.TexCoords).rgb * material.color.rgb) + (1 - material.hasAlbedo) * material.color.rgb;
+    vec3 normal = material.hasNormal * (VertexInput.TBN * (texture(material.normalMap, VertexInput.TexCoords).rgb * 2.0 - 1.0)) + (1 - material.hasNormal) * VertexInput.Normal;
+    float metallic = material.hasMetallic * (texture(material.metallicMap, VertexInput.TexCoords).b * material.metallic) + (1 - material.hasMetallic) * material.metallic;
+    float roughness = material.hasRoughness * (texture(material.roughnessMap, VertexInput.TexCoords).g * material.roughness) + (1 - material.hasRoughness) * material.roughness;
+    float ao = material.hasAO * (texture(material.aoMap, VertexInput.TexCoords).r * material.ao) + (1 - material.hasAO) * material.ao;
+    vec3 emissive = material.hasEmissive * (texture(material.emissiveMap, VertexInput.TexCoords).rgb * material.emissive) + (1 - material.hasEmissive) * material.emissive;
 
-    //vec3 N = normalize(Normal);
-    vec3 N = getNormalFromMap();
+    vec3 N = normalize(normal);
     vec3 V = normalize(VertexInput.camPos - VertexInput.WorldPos);
 
     vec3 F0 = vec3(0.04);
@@ -175,7 +172,7 @@ void main()
     }
 
     vec3 ambient = vec3(0.03) * albedo * ao;
-    vec3 color = ambient + Lo;
+    vec3 color = ambient + Lo + emissive;
 
     FragColor = vec4(vec3(color), 1.0);
 }

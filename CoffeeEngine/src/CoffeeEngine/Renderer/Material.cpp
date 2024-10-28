@@ -14,6 +14,7 @@ namespace Coffee {
         s_MissingTexture = Texture::Load("assets/textures/UVMap-Grid.jpg");
 
         m_MaterialTextures.albedo = s_MissingTexture;
+        m_MaterialTextureFlags.hasAlbedo = true;
 
         m_Shader = Coffee::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
 
@@ -36,6 +37,13 @@ namespace Coffee {
         m_MaterialTextures.ao = materialTextures.ao;
         m_MaterialTextures.emissive = materialTextures.emissive;
 
+        m_MaterialTextureFlags.hasAlbedo = (m_MaterialTextures.albedo != nullptr);
+        m_MaterialTextureFlags.hasNormal = (m_MaterialTextures.normal != nullptr);
+        m_MaterialTextureFlags.hasMetallic = (m_MaterialTextures.metallic != nullptr);
+        m_MaterialTextureFlags.hasRoughness = (m_MaterialTextures.roughness != nullptr);
+        m_MaterialTextureFlags.hasAO = (m_MaterialTextures.ao != nullptr);
+        m_MaterialTextureFlags.hasEmissive = (m_MaterialTextures.emissive != nullptr);
+
         m_Shader = Coffee::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
 
         m_Shader->Bind();
@@ -52,12 +60,19 @@ namespace Coffee {
     {
         ZoneScoped;
 
+        m_MaterialTextureFlags.hasAlbedo = (m_MaterialTextures.albedo != nullptr);
+        m_MaterialTextureFlags.hasNormal = (m_MaterialTextures.normal != nullptr);
+        m_MaterialTextureFlags.hasMetallic = (m_MaterialTextures.metallic != nullptr);
+        m_MaterialTextureFlags.hasRoughness = (m_MaterialTextures.roughness != nullptr);
+        m_MaterialTextureFlags.hasAO = (m_MaterialTextures.ao != nullptr);
+        m_MaterialTextureFlags.hasEmissive = (m_MaterialTextures.emissive != nullptr);
+
         m_Shader->Bind();
-        if(m_MaterialTextures.albedo)m_MaterialTextures.albedo->Bind(0);
-        if(m_MaterialTextures.normal)m_MaterialTextures.normal->Bind(1);
-        if(m_MaterialTextures.metallic)m_MaterialTextures.metallic->Bind(2);
-        if(m_MaterialTextures.roughness)m_MaterialTextures.roughness->Bind(3);
-        if(m_MaterialTextures.ao)m_MaterialTextures.ao->Bind(4);
-        if(m_MaterialTextures.emissive)m_MaterialTextures.emissive->Bind(5);
+        if(m_MaterialTextureFlags.hasAlbedo)m_MaterialTextures.albedo->Bind(0);
+        if(m_MaterialTextureFlags.hasNormal)m_MaterialTextures.normal->Bind(1);
+        if(m_MaterialTextureFlags.hasMetallic)m_MaterialTextures.metallic->Bind(2);
+        if(m_MaterialTextureFlags.hasRoughness)m_MaterialTextures.roughness->Bind(3);
+        if(m_MaterialTextureFlags.hasAO)m_MaterialTextures.ao->Bind(4);
+        if(m_MaterialTextureFlags.hasEmissive)m_MaterialTextures.emissive->Bind(5);
     }
 }

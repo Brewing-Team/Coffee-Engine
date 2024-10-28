@@ -14,12 +14,25 @@ namespace Coffee {
      * @{
      */
 
+    // Not implemented yet!!
+    struct MaterialRenderSettings
+    {
+        bool wireframe = false;
+        bool depthTest = true;
+        bool depthWrite = true;
+        bool faceCulling = true;
+    };
+
     /**
      * @brief Structure representing the properties of a material.
      */
     struct MaterialProperties
     {
-        // Add material properties here
+        glm::vec4 color; ///< The color of the material.
+        float metallic; ///< The metallic value of the material.
+        float roughness; ///< The roughness value of the material.
+        float ao; ///< The ambient occlusion value of the material.
+        float emissive; ///< The emissive value of the material.
     };
 
     /**
@@ -33,6 +46,16 @@ namespace Coffee {
         Ref<Texture> roughness; ///< The roughness texture.
         Ref<Texture> ao; ///< The ambient occlusion texture.
         Ref<Texture> emissive; ///< The emissive texture.
+    };
+
+    struct MaterialTextureFlags
+    {
+        bool hasAlbedo = false;
+        bool hasNormal = false;
+        bool hasMetallic = false;
+        bool hasRoughness = false;
+        bool hasAO = false;
+        bool hasEmissive = false;
     };
 
     /**
@@ -89,6 +112,9 @@ namespace Coffee {
 
     private:
         MaterialTextures m_MaterialTextures; ///< The textures used in the material.
+        MaterialTextureFlags m_MaterialTextureFlags; ///< The flags for the textures used in the material.
+        MaterialProperties m_MaterialProperties; ///< The properties of the material.
+        MaterialRenderSettings m_MaterialRenderSettings; ///< The render settings of the material.
         Ref<Shader> m_Shader; ///< The shader used with the material.
         static Ref<Texture> s_MissingTexture; ///< The texture to use when a texture is missing.
     };
