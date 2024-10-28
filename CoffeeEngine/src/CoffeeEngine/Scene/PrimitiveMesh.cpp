@@ -435,7 +435,13 @@ namespace Coffee {
             }
         }
 
-        return CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& cylinderMesh = CreateRef<Mesh>(indices, data);
+        cylinderMesh->SetName("Cylinder");
+
+        AABB cylinderAABB(glm::vec3(-topRadius, -height * 0.5f, -topRadius), glm::vec3(topRadius, height * 0.5f, topRadius));
+        cylinderMesh->SetAABB(cylinderAABB);
+        
+        return cylinderMesh;
     }
 
     Ref<Mesh> PrimitiveMesh::CreateCone(float radius, float height, int radialSegments, int rings, bool cap)
