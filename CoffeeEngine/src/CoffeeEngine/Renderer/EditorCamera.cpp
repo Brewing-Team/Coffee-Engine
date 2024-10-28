@@ -14,7 +14,7 @@
 namespace Coffee {
 
     EditorCamera::EditorCamera(float fov, ProjectionType projection, float aspectRatio, float nearClip, float farClip)
-    {   
+    {
         m_FOV = fov;
         m_ProjectionType = projection;
         m_AspectRatio = aspectRatio;
@@ -28,14 +28,12 @@ namespace Coffee {
     void EditorCamera::OnUpdate(float dt)
     {
         glm::vec2 mousePos = Input::GetMousePosition();
-
         glm::vec2 delta = (mousePos - m_InitialMousePosition) * 0.01f;
-
         m_InitialMousePosition = mousePos;
-        
-        if(Input::IsMouseButtonPressed(Mouse::BUTTON_MIDDLE))
+
+        if (Input::IsMouseButtonPressed(Mouse::BUTTON_MIDDLE))
         {
-            if(Input::IsKeyPressed(Key::LSHIFT))
+            if (Input::IsKeyPressed(Key::LSHIFT))
             {
                 MousePan(delta);
             }
@@ -44,9 +42,14 @@ namespace Coffee {
                 MouseRotate(delta);
             }
         }
-        else if(Input::IsMouseButtonPressed(Mouse::BUTTON_RIGHT))
+        else if (Input::IsMouseButtonPressed(Mouse::BUTTON_RIGHT))
         {
+            m_CurrentState = CameraState::FLY;
             Fly(delta);
+        }
+        else
+        {
+            m_CurrentState = CameraState::ORBIT;
         }
 
         UpdateView();
@@ -72,46 +75,55 @@ namespace Coffee {
 
     void EditorCamera::MouseZoom(float delta)
     {
-        m_Distance -= delta;
+        if (m_CurrentState == CameraState::FLY)
+        {
+            m_Position += GetForwardDirection() * delta;
+        }
+        else if (m_CurrentState == CameraState::ORBIT)
+        {
+            m_Distance -= delta;
+            if (m_Distance < 1.0f)
+            {
+                m_Distance = 1.0f;
+            }
+        }
     }
 
     void EditorCamera::Fly(const glm::vec2& mouseDelta)
     {
         float delta = 0.1f;
-
-        m_Distance = 1.0f;
-
         MouseRotate(mouseDelta);
 
         glm::vec3 forward = GetForwardDirection();
         glm::vec3 right = GetRightDirection();
         glm::vec3 up = GetUpDirection();
 
-        if(Input::IsKeyPressed(Key::W))
+        if (Input::IsKeyPressed(Key::W))
         {
-            m_FocalPoint += forward * delta;
+            m_Position += forward * delta;
         }
-        if(Input::IsKeyPressed(Key::S))
+        if (Input::IsKeyPressed(Key::S))
         {
-            m_FocalPoint -= forward * delta;
+            m_Position -= forward * delta;
         }
-        if(Input::IsKeyPressed(Key::A))
+        if (Input::IsKeyPressed(Key::A))
         {
-            m_FocalPoint -= right * delta;
+            m_Position -= right * delta;
         }
-        if(Input::IsKeyPressed(Key::D))
+        if (Input::IsKeyPressed(Key::D))
         {
-            m_FocalPoint += right * delta;
+            m_Position += right * delta;
         }
-        if(Input::IsKeyPressed(Key::Q))
+        if (Input::IsKeyPressed(Key::Q))
         {
-            m_FocalPoint -= up * delta;
+            m_Position -= up * delta;
         }
-        if(Input::IsKeyPressed(Key::E))
+        if (Input::IsKeyPressed(Key::E))
         {
-            m_FocalPoint += up * delta;
+            m_Position += up * delta;
         }
 
+        m_FocalPoint = m_Position + GetForwardDirection() * m_Distance;
         UpdateView();
     }
 
@@ -125,24 +137,33 @@ namespace Coffee {
 
     void EditorCamera::UpdateView()
     {
-        m_Position = CalculatePosition();
-
-        m_ViewMatrix = glm::lookAt(m_Position, m_FocalPoint, GetUpDirection());
+        if (m_CurrentState == CameraState::FLY)
+        {
+            m_ViewMatrix = glm::lookAt(m_Position, m_Position + GetForwardDirection(), GetUpDirection());
+        }
+        else if (m_CurrentState == CameraState::ORBIT)
+        {
+            m_Position = CalculatePosition();
+            m_ViewMatrix = glm::lookAt(m_Position, m_FocalPoint, GetUpDirection());
+        }
     }
 
     glm::vec3 EditorCamera::GetUpDirection() const
     {
         return GetOrientation() * glm::vec3(0.0f, 1.0f, 0.0f);
     }
-	glm::vec3 EditorCamera::GetRightDirection() const
+
+    glm::vec3 EditorCamera::GetRightDirection() const
     {
         return GetOrientation() * glm::vec3(1.0f, 0.0f, 0.0f);
     }
-	glm::vec3 EditorCamera::GetForwardDirection() const
+
+    glm::vec3 EditorCamera::GetForwardDirection() const
     {
         return GetOrientation() * glm::vec3(0.0f, 0.0f, -1.0f);
     }
-	glm::quat EditorCamera::GetOrientation() const
+
+    glm::quat EditorCamera::GetOrientation() const
     {
         return glm::quat(glm::vec3(-m_Pitch, -m_Yaw, 0.0f));
     }
@@ -150,6 +171,6 @@ namespace Coffee {
     glm::vec3 EditorCamera::CalculatePosition() const
     {
         return m_FocalPoint - GetForwardDirection() * m_Distance;
-    }  
+    }
 
 }
