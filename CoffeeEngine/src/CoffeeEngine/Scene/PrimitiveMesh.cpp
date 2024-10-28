@@ -42,7 +42,13 @@ namespace Coffee {
             0,1,2,2,3,0,
         };
 
-        return CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& quadMesh = CreateRef<Mesh>(indices, data);
+        quadMesh->SetName("Quad");
+
+        AABB quadAABB(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f));
+        quadMesh->SetAABB(quadAABB);
+
+        return quadMesh;
     }
 
     Ref<Mesh> PrimitiveMesh::CreatePlane(const glm::vec2& size, const glm::vec3& normal)
@@ -67,7 +73,13 @@ namespace Coffee {
 
         std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
 
-        return CreateRef<Mesh>(indices, vertices);
+        const Ref<Mesh>& planeMesh = CreateRef<Mesh>(indices, vertices);
+        planeMesh->SetName("Plane");
+
+        AABB planeAABB(glm::vec3(-size.x * 0.5f, 0.0f, -size.y * 0.5f), glm::vec3(size.x * 0.5f, 0.0f, size.y * 0.5f));
+        planeMesh->SetAABB(planeAABB);
+
+        return planeMesh;
     }
 
     Ref<Mesh> PrimitiveMesh::CreateCube(const glm::vec3& size, int subdivideW, int subdivideH, int subdivideD)
@@ -250,7 +262,13 @@ namespace Coffee {
             thisrow = point;
         }
 
-        return CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& cubeMesh = CreateRef<Mesh>(indices, data);
+        cubeMesh->SetName("Cube");
+
+        AABB cubeAABB(glm::vec3(-size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f), glm::vec3(size.x * 0.5f, size.y * 0.5f, size.z * 0.5f));
+        cubeMesh->SetAABB(cubeAABB);
+
+        return cubeMesh;
     }
 
     Ref<Mesh> PrimitiveMesh::CreateSphere(float radius, float height, int radialSegments, int rings, bool isHemiSphere)
@@ -319,7 +337,13 @@ namespace Coffee {
             thisrow = point;
         }
 
-        return CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& sphereMesh = CreateRef<Mesh>(indices, data);
+        sphereMesh->SetName("Sphere");
+
+        AABB sphereAABB(glm::vec3(-radius, -radius, -radius), glm::vec3(radius, radius, radius));
+        sphereMesh->SetAABB(sphereAABB);
+
+        return sphereMesh;
     }
 
     Ref<Mesh> PrimitiveMesh::CreateCylinder(float topRadius, float bottomRadius, float height, int radialSegments, int rings, bool capTop, bool capBottom)
@@ -519,7 +543,13 @@ namespace Coffee {
             }
         }
 
-        return CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& coneMesh = CreateRef<Mesh>(indices, data);
+        coneMesh->SetName("Cone");
+
+        AABB coneAABB(glm::vec3(-radius, 0.0f, -radius), glm::vec3(radius, height, radius));
+        coneMesh->SetAABB(coneAABB);
+
+        return coneMesh;
     }
 
     Ref<Mesh> PrimitiveMesh::CreateTorus(float innerRadius, float outerRadius, int rings, int ringSegments)
@@ -582,7 +612,13 @@ namespace Coffee {
             }
         }
 
-        return CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& torusMesh = CreateRef<Mesh>(indices, data);
+        torusMesh->SetName("Torus");
+
+        AABB torusAABB(glm::vec3(-outerRadius, -radius, -outerRadius), glm::vec3(outerRadius, radius, outerRadius));
+        torusMesh->SetAABB(torusAABB);
+
+        return torusMesh;
     }
 
     Ref<Mesh> PrimitiveMesh::CreateCapsule(float radius, float height, int radialSegments, int rings)
@@ -728,7 +764,13 @@ namespace Coffee {
             thisrow = point;
         }
 
-        return CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& capsuleMesh = CreateRef<Mesh>(indices, data);
+        capsuleMesh->SetName("Capsule");
+
+        AABB capsuleAABB(glm::vec3(-radius, -0.5f * height, -radius), glm::vec3(radius, 0.5f * height, radius));
+        capsuleMesh->SetAABB(capsuleAABB);
+
+        return capsuleMesh;
     }
 
 } // namespace Coffee

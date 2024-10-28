@@ -76,7 +76,7 @@ namespace Coffee {
          * @param normal The normal vector of the plane.
          * @return A reference to the created plane mesh.
          */
-        static Ref<Mesh> CreatePlane(const glm::vec2& size, const glm::vec3& normal = { 0.0f, 1.0f, 0.0f });
+        static Ref<Mesh> CreatePlane(const glm::vec2& size = { 1.0f, 1.0f }, const glm::vec3& normal = { 0.0f, 1.0f, 0.0f });
 
         /**
          * Creates a cylinder mesh.

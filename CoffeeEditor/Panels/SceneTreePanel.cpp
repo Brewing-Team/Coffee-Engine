@@ -4,7 +4,7 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
@@ -240,6 +240,42 @@ namespace Coffee {
                 }
                 if(ImGui::BeginPopup("MeshPopup"))
                 {
+                    if(ImGui::MenuItem("Quad"))
+                    {
+                        meshComponent.mesh = PrimitiveMesh::CreateQuad();
+                    }
+                    if(ImGui::MenuItem("Cube"))
+                    {
+                        meshComponent.mesh = PrimitiveMesh::CreateCube();
+                    }
+                    if(ImGui::MenuItem("Sphere"))
+                    {
+                        meshComponent.mesh = PrimitiveMesh::CreateSphere();
+                    }
+                    if(ImGui::MenuItem("Plane"))
+                    {
+                        meshComponent.mesh = PrimitiveMesh::CreatePlane();
+                    }
+                    if(ImGui::MenuItem("Cylinder"))
+                    {
+                        meshComponent.mesh = PrimitiveMesh::CreateCylinder();
+                    }
+                    if(ImGui::MenuItem("Cone"))
+                    {
+                        meshComponent.mesh = PrimitiveMesh::CreateCone();
+                    }
+                    if(ImGui::MenuItem("Torus"))
+                    {
+                        meshComponent.mesh = PrimitiveMesh::CreateTorus();
+                    }
+                    if(ImGui::MenuItem("Capsule"))
+                    {
+                        meshComponent.mesh = PrimitiveMesh::CreateCapsule();
+                    }
+                    if(ImGui::MenuItem("Save Mesh"))
+                    {
+                        COFFEE_ERROR("Save Mesh not implemented yet!");
+                    }
                     ImGui::EndPopup();
                 }
                 ImGui::Checkbox("Draw AABB", &meshComponent.drawAABB);
