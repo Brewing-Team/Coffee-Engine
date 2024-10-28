@@ -136,7 +136,16 @@ namespace Coffee
                     m_EventCallback(e);
                     break;
                 }
+                case SDL_EVENT_DROP_FILE:
+                {
+                    const std::string& source = event.drop.source ? event.drop.source : "";
+                    const std::string& file = event.drop.data ? event.drop.data : "";
+
+                    FileDropEvent e(event.drop.timestamp, event.drop.windowID,event.drop.x,
+                                    event.drop.y, source, file);
+                    m_EventCallback(e);
                     break;
+                }
                 case SDL_EVENT_KEY_DOWN:
                 {
                     if(event.key.repeat)
