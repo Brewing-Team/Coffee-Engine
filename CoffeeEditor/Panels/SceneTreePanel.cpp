@@ -232,6 +232,16 @@ namespace Coffee {
             auto& meshComponent = entity.GetComponent<MeshComponent>();
             if(ImGui::CollapsingHeader("Mesh", ImGuiTreeNodeFlags_DefaultOpen))
             {
+                ImGui::Text("Mesh");
+                ImGui::SameLine();
+                if(ImGui::Button(meshComponent.GetMesh()->GetName().c_str(), {64, 32}))
+                {
+                    ImGui::OpenPopup("MeshPopup");
+                }
+                if(ImGui::BeginPopup("MeshPopup"))
+                {
+                    ImGui::EndPopup();
+                }
                 ImGui::Checkbox("Draw AABB", &meshComponent.drawAABB);
             }
         }
