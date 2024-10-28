@@ -31,7 +31,7 @@ struct Material
     float metallic;
     float roughness;
     float ao;
-    float emissive;
+    vec3 emissive;
 
     int hasAlbedo;
     int hasNormal;
@@ -112,7 +112,14 @@ float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 void main()
 {
     vec3 albedo = material.hasAlbedo * (texture(material.albedoMap, VertexInput.TexCoords).rgb * material.color.rgb) + (1 - material.hasAlbedo) * material.color.rgb;
-    vec3 normal = material.hasNormal * (VertexInput.TBN * (texture(material.normalMap, VertexInput.TexCoords).rgb * 2.0 - 1.0)) + (1 - material.hasNormal) * VertexInput.Normal;
+
+    // Revise this type of conditional assignment (the commented one) because i think can lead to some undefined behavior in the shader!!!!!
+    vec3 normal/*  = material.hasNormal * (VertexInput.TBN * (texture(material.normalMap, VertexInput.TexCoords).rgb * 2.0 - 1.0)) + (1 - material.hasNormal) * VertexInput.Normal */;
+    if (material.hasNormal == 1) {
+        normal = VertexInput.TBN * (texture(material.normalMap, VertexInput.TexCoords).rgb * 2.0 - 1.0);
+    } else {
+        normal = VertexInput.Normal;
+    }
     float metallic = material.hasMetallic * (texture(material.metallicMap, VertexInput.TexCoords).b * material.metallic) + (1 - material.hasMetallic) * material.metallic;
     float roughness = material.hasRoughness * (texture(material.roughnessMap, VertexInput.TexCoords).g * material.roughness) + (1 - material.hasRoughness) * material.roughness;
     float ao = material.hasAO * (texture(material.aoMap, VertexInput.TexCoords).r * material.ao) + (1 - material.hasAO) * material.ao;

@@ -28,11 +28,11 @@ namespace Coffee {
      */
     struct MaterialProperties
     {
-        glm::vec4 color; ///< The color of the material.
-        float metallic; ///< The metallic value of the material.
-        float roughness; ///< The roughness value of the material.
-        float ao; ///< The ambient occlusion value of the material.
-        float emissive; ///< The emissive value of the material.
+        glm::vec4 color = glm::vec4(1.0f); ///< The color of the material.
+        float metallic = 0.0f; ///< The metallic value of the material.
+        float roughness = 1.0f; ///< The roughness value of the material.
+        float ao = 1.0f; ///< The ambient occlusion value of the material.
+        glm::vec3 emissive = glm::vec3(0.0f); ///< The emissive value of the material.
     };
 
     /**
@@ -105,7 +105,7 @@ namespace Coffee {
         Ref<Shader> GetShader() { return m_Shader; }
 
         const MaterialTextures& GetMaterialTextures() const { return m_MaterialTextures; }
-        const MaterialProperties& GetMaterialProperties() const { return m_MaterialProperties; }
+        MaterialProperties& GetMaterialProperties() { return m_MaterialProperties; }
 
         //For testing purposes is not definitive
 
