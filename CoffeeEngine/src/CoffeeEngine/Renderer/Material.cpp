@@ -44,6 +44,9 @@ namespace Coffee {
         m_MaterialTextureFlags.hasAO = (m_MaterialTextures.ao != nullptr);
         m_MaterialTextureFlags.hasEmissive = (m_MaterialTextures.emissive != nullptr);
 
+        if(m_MaterialTextureFlags.hasMetallic)m_MaterialProperties.metallic = 1.0f;
+        if(m_MaterialTextureFlags.hasEmissive)m_MaterialProperties.emissive = glm::vec3(1.0f);
+
         m_Shader = Coffee::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
 
         m_Shader->Bind();
