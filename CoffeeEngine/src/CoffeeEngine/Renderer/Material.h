@@ -104,12 +104,8 @@ namespace Coffee {
          */
         Ref<Shader> GetShader() { return m_Shader; }
 
-        const MaterialTextures& GetMaterialTextures() const { return m_MaterialTextures; }
+        MaterialTextures& GetMaterialTextures() { return m_MaterialTextures; }
         MaterialProperties& GetMaterialProperties() { return m_MaterialProperties; }
-
-        //For testing purposes is not definitive
-
-        void SetAlbedoTexture(Ref<Texture> texture) { m_MaterialTextures.albedo = texture; }
 
     private:
         MaterialTextures m_MaterialTextures; ///< The textures used in the material.
