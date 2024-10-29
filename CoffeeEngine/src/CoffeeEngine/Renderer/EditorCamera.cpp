@@ -1,15 +1,13 @@
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/Input.h"
+#include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
-#include <GLFW/glfw3.h>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/trigonometric.hpp>
 
 namespace Coffee {
 
@@ -65,6 +63,10 @@ namespace Coffee {
     {
         m_Yaw += delta.x;
         m_Pitch += delta.y;
+
+        // Clamp the pitch to prevent flipping
+        float pitchLimit = glm::radians(89.0f);
+        m_Pitch = glm::clamp(m_Pitch, -pitchLimit, pitchLimit);
     }
 
     void EditorCamera::MousePan(const glm::vec2& delta)
@@ -85,6 +87,10 @@ namespace Coffee {
             if (m_Distance < 1.0f)
             {
                 m_Distance = 1.0f;
+            }
+            if (m_Distance > 100.0f) // Maximum zoom out distance
+            {
+                m_Distance = 100.0f;
             }
         }
     }
