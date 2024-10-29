@@ -304,23 +304,24 @@ namespace Coffee {
 
                 if(ImGui::TreeNode("Albedo"))
                 {
-                    ImGui::ColorEdit4("Color", glm::value_ptr(materialProperties.color));
+                    ImGui::ColorEdit4("Color", glm::value_ptr(materialProperties.color), ImGuiColorEditFlags_NoInputs);
 
                     ImGui::TreePop();
                 }
                 if(ImGui::TreeNode("Metallic"))
                 {
-                    ImGui::DragFloat("##Metallic", &materialProperties.metallic, 0.1f, 0.0f, 1.0f);
+                    ImGui::SliderFloat("##Metallic", &materialProperties.metallic, 0.0f, 1.0f);
                     ImGui::TreePop();
                 }
                 if(ImGui::TreeNode("Roughness"))
                 {
-                    ImGui::DragFloat("##Roughness", &materialProperties.roughness, 0.1f, 0.0f, 1.0f);
+                    ImGui::SliderFloat("##Roughness", &materialProperties.roughness, 0.1f, 1.0f);
                     ImGui::TreePop();
                 }
                 if(ImGui::TreeNode("Emission"))
                 {
-                    ImGui::ColorEdit3("Color", glm::value_ptr(materialProperties.emissive));
+                    ImGui::ColorEdit3("Color", glm::value_ptr(materialProperties.emissive),
+                                      ImGuiColorEditFlags_NoInputs);
                     ImGui::TreePop();
                 }
                 if(ImGui::TreeNode("Normal Map"))
@@ -329,7 +330,7 @@ namespace Coffee {
                 }
                 if(ImGui::TreeNode("Ambient Occlusion"))
                 {
-                    ImGui::DragFloat("##AO", &materialProperties.ao, 0.1f, 0.0f, 1.0f);
+                    ImGui::SliderFloat("##AO", &materialProperties.ao, 0.0f, 1.0f);
                     ImGui::TreePop();
                 }
 
