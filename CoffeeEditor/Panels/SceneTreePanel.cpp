@@ -1,14 +1,17 @@
 #include "SceneTreePanel.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/PrimitiveMesh.h"
+#include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
+#include "imgui_internal.h"
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -68,6 +71,27 @@ namespace Coffee {
         }
 
         ImGui::EndChild();
+        
+        // Entity Tree Drag and Drop functionality
+        if(ImGui::BeginDragDropTarget())
+        {
+            if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
+            {
+                const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
+                switch(resource->GetType())
+                {
+                    case ResourceType::Model:
+                    {
+                        const Ref<Model>& model = std::static_pointer_cast<Model>(resource);
+                        AddModelToTheSceneTree(m_Context.get(), model);
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
 
         if(ImGui::IsWindowHovered() && ImGui::IsMouseDown(ImGuiMouseButton_Left))
         {
@@ -306,11 +330,14 @@ namespace Coffee {
 
                 if(ImGui::BeginDragDropTarget())
                 {
-                    if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+                    if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
                     {
-                        const char* path = (const char*)payload->Data;
-                        Ref<Texture> t = Texture::Load(path);
-                        texture = t;
+                        const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
+                        if(resource->GetType() == ResourceType::Texture)
+                        {
+                            const Ref<Texture>& t = std::static_pointer_cast<Texture>(resource);
+                            texture = t;
+                        }
                     }
                     ImGui::EndDragDropTarget();
                 }
@@ -391,6 +418,7 @@ namespace Coffee {
                 if(ImGui::TreeNode("Emission"))
                 {
                     ImGui::BeginChild("##Emission Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                    //FIXME: Emissive color variable is local and do not affect the materialProperties.emissive!!
                     glm::vec4 emissiveColor(materialProperties.emissive, 1.0f);
                     DrawCustomColorEdit4("Color", emissiveColor);
                     ImGui::Text("Texture");

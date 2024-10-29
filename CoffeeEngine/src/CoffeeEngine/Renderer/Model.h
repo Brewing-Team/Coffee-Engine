@@ -28,7 +28,7 @@ namespace Coffee {
         /**
          * @brief Default constructor for the Model class.
          */
-        Model() {};
+        Model() : Resource(ResourceType::Texture) {};
 
         /**
          * @brief Constructs a Model from a file path.

@@ -32,6 +32,7 @@ namespace Coffee {
     }
 
     Model::Model(const std::filesystem::path& path)
+        : Resource(ResourceType::Model)
     {
         ZoneScoped;
 

@@ -1,4 +1,5 @@
 #include "ContentBrowserPanel.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -60,8 +61,8 @@ namespace Coffee {
             {
                 if(ImGui::BeginDragDropSource())
                 {
-                    std::string pathString = path.string();
-                    ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", pathString.c_str(), pathString.size() + 1);
+                    Ref<Resource> resource = ResourceRegistry::Get<Resource>(path.filename().string());
+                    ImGui::SetDragDropPayload("RESOURCE", &resource, sizeof(Ref<Resource>));
                     ImGui::Text("%s", filenameString.c_str());
                     ImGui::EndDragDropSource();
                 }
