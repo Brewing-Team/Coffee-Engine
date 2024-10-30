@@ -2,6 +2,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
@@ -84,9 +85,9 @@ namespace Coffee {
         else if (m_CurrentState == CameraState::ORBIT)
         {
             m_Distance -= delta;
-            if (m_Distance < 1.0f)
+            if (m_Distance < 0.1f)
             {
-                m_Distance = 1.0f;
+                m_Distance = 0.1f;
             }
             if (m_Distance > 100.0f) // Maximum zoom out distance
             {
@@ -153,7 +154,9 @@ namespace Coffee {
         }
         else if (m_CurrentState == CameraState::ORBIT)
         {
-            MouseZoom(delta);
+            // Values that work well to multiply to the m_Distance are 0.02, 0.03(the best), 0.04
+            float zoomIncrement = glm::exp(0.03 * m_Distance) - 1.0f;
+            MouseZoom(delta * zoomIncrement);
         }
 
         UpdateView();
