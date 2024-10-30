@@ -385,10 +385,11 @@ namespace Coffee {
 
         // Display EditorCamera speed vertical slider & zoom vertical slider at the center left
 
-        auto DrawVerticalProgressBar = [&](float value, const glm::vec4& color, float min = 0.0f, float max = 1.0f) {
+        auto DrawVerticalProgressBar = [&](float value, const ImVec4& color, float min = 0.0f, float max = 1.0f) {
             window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoBackground;
 
-            float sliderHeight = 200.0f;
+            float windowHeight = ImGui::GetWindowHeight();
+            float sliderHeight = windowHeight * 0.5f;
 
             ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 10, ImGui::GetWindowPos().y + (ImGui::GetWindowSize().y / 2) - (sliderHeight / 2)));
 
@@ -396,23 +397,22 @@ namespace Coffee {
 
             ImGui::Begin("##Speed Slider", NULL, window_flags);
 
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(color.x, color.y, color.z, color.w));
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
 
-            ImGui::VSliderFloat("##speed", ImVec2(20, sliderHeight), &value, min, max, "");
+            ImGui::VSliderFloat("##speed", ImVec2(15, sliderHeight), &value, min, max, "");
 
             ImGui::PopStyleColor();
             ImGui::End();
         };
-
+        ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_FrameBg);
+        color.w = 0.5f;
         switch(m_EditorCamera.GetState())
         {
             using enum EditorCamera::CameraState;
             case FLY:
-                glm::vec4 color = {0.918f, 0.196f, 0.310f, 1.0f};
                 DrawVerticalProgressBar(m_EditorCamera.GetFlySpeed(), color);
                 break;
             case ORBIT:
-                color = {0.502f, 0.800f, 0.051f, 1.0f};
                 DrawVerticalProgressBar(100 - m_EditorCamera.GetOrbitZoom(), color, 1.0f, 100.0f);
                 break;
             case NONE:
