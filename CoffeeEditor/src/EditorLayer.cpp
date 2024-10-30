@@ -6,7 +6,10 @@
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
+#include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
+#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
@@ -17,8 +20,7 @@
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "Panels/SceneTreePanel.h"
 #include "entt/entity/entity.hpp"
-#include <ImGuizmo.h>
-#include <cstdint>
+#include <filesystem>
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
@@ -81,6 +83,7 @@ namespace Coffee {
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(COFFEE_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
         dispatcher.Dispatch<MouseButtonPressedEvent>(COFFEE_BIND_EVENT_FN(EditorLayer::OnMouseButtonPressed));
+        dispatcher.Dispatch<FileDropEvent>(COFFEE_BIND_EVENT_FN(EditorLayer::OnFileDrop));
     }
 
     bool EditorLayer::OnKeyPressed(KeyPressedEvent& event)
@@ -143,6 +146,26 @@ namespace Coffee {
                     m_SceneTreePanel.SetSelectedEntity(hoveredEntity);
                 }
             }
+        }
+        return false;
+    }
+
+    bool EditorLayer::OnFileDrop(FileDropEvent& event)
+    {
+        // Take the file path from the event and check if it is a folder or a file
+        //Then copy it to the project folder
+        const std::filesystem::path& projectDirectory = Project::GetActive()->GetProjectDirectory();
+        const std::filesystem::path& originPath = event.GetFile();
+        const std::filesystem::path& destFilePath = projectDirectory / originPath.filename();
+        std::filesystem::copy(originPath, destFilePath, std::filesystem::copy_options::recursive);
+        
+        if(std::filesystem::is_directory(destFilePath))
+        {
+            ResourceLoader::LoadDirectory(destFilePath);
+        }
+        else
+        {
+            ResourceLoader::LoadFile(destFilePath);
         }
         return false;
     }
