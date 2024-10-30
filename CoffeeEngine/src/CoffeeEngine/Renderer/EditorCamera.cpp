@@ -105,32 +105,36 @@ namespace Coffee {
 
         if (Input::IsKeyPressed(Key::LSHIFT))
         {
-            m_CameraSpeed += 5.0f; // TODO - Make this a variable with the mouse wheel
+            m_CurrentSpeed = m_BaseSpeed * 2.0f;
+        }
+        else
+        {
+            m_CurrentSpeed = m_BaseSpeed;
         }
 
         if (Input::IsKeyPressed(Key::W))
         {
-            m_Position += forward * m_CameraSpeed;
+            m_Position += forward * m_CurrentSpeed;
         }
         if (Input::IsKeyPressed(Key::S))
         {
-            m_Position -= forward * m_CameraSpeed;
+            m_Position -= forward * m_CurrentSpeed;
         }
         if (Input::IsKeyPressed(Key::A))
         {
-            m_Position -= right * m_CameraSpeed;
+            m_Position -= right * m_CurrentSpeed;
         }
         if (Input::IsKeyPressed(Key::D))
         {
-            m_Position += right * m_CameraSpeed;
+            m_Position += right * m_CurrentSpeed;
         }
         if (Input::IsKeyPressed(Key::Q))
         {
-            m_Position -= up * m_CameraSpeed;
+            m_Position -= up * m_CurrentSpeed;
         }
         if (Input::IsKeyPressed(Key::E))
         {
-            m_Position += up * m_CameraSpeed;
+            m_Position += up * m_CurrentSpeed;
         }
 
         m_FocalPoint = m_Position + GetForwardDirection() * m_Distance;
@@ -143,14 +147,13 @@ namespace Coffee {
 
         if (m_CurrentState == CameraState::FLY)
         {
-            float incrementSpeed = glm::exp(0.1 * m_CameraSpeed) - 1.0f;
-            m_CameraSpeed += delta * incrementSpeed;
-            m_CameraSpeed = glm::clamp(m_CameraSpeed, 0.01f, 1.0f);
-            COFFEE_INFO("m_CameraSpeed: {0}", m_CameraSpeed);
+            float speedIncrement = glm::exp(0.1 * m_BaseSpeed) - 1.0f;
+            m_BaseSpeed += delta * speedIncrement;
+            m_BaseSpeed = glm::clamp(m_BaseSpeed, 0.01f, 1.0f);
         }
         else if (m_CurrentState == CameraState::ORBIT)
         {
-            MouseZoom(delta * 0.5);
+            MouseZoom(delta);
         }
 
         UpdateView();
