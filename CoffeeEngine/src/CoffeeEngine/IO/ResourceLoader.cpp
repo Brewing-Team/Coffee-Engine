@@ -12,7 +12,30 @@ namespace Coffee {
 
     ResourceImporter ResourceLoader::s_Importer = ResourceImporter();
 
-    void ResourceLoader::LoadResources(const std::filesystem::path& directory)
+    void ResourceLoader::LoadFile(const std::filesystem::path& path)
+    {
+        ResourceType type = GetResourceTypeFromExtension(path);
+        switch (type)
+        {
+            case ResourceType::Texture:
+            {
+                LoadTexture(path);
+                break;
+            }
+            case ResourceType::Model:
+            {
+                LoadModel(path, false);
+                break;
+            }
+            case ResourceType::Unknown:
+            {
+                COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported file extension {0}", path.extension().string());
+                break;
+            }
+        }
+    }
+
+    void ResourceLoader::LoadDirectory(const std::filesystem::path& directory)
     {
         for (const auto& entry : std::filesystem::recursive_directory_iterator(directory))
         {
@@ -20,25 +43,7 @@ namespace Coffee {
             {
                 COFFEE_CORE_INFO("Loading resource {0}", entry.path().string());
 
-                ResourceType type = GetResourceTypeFromExtension(entry.path());
-                switch (type)
-                {
-                    case ResourceType::Texture:
-                    {
-                        LoadTexture(entry.path());
-                        break;
-                    }
-                    case ResourceType::Model:
-                    {
-                        LoadModel(entry.path(), false);
-                        break;
-                    }
-                    case ResourceType::Unknown:
-                    {
-                        COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported file extension {0}", entry.path().extension().string());
-                        break;
-                    }
-                }            
+                LoadFile(entry.path());
             }
         }
     }

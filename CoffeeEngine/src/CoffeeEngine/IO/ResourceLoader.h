@@ -11,7 +11,8 @@ namespace Coffee {
     class ResourceLoader
     {
     public:
-        static void LoadResources(const std::filesystem::path& directory);
+        static void LoadDirectory(const std::filesystem::path& directory);
+        static void LoadFile(const std::filesystem::path& path);
 
         static Ref<Texture> LoadTexture(const std::filesystem::path& path, bool srgb = true, bool cache = true);
         static Ref<Model> LoadModel(const std::filesystem::path& path, bool cache = true);
