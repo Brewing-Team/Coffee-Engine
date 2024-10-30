@@ -351,7 +351,7 @@ namespace Coffee {
                     }
                     if(ImGui::Selectable("Open"))
                     {
-                        std::string path = FileDialog::OpenFile({});
+                        std::string path = FileDialog::OpenFile({}).string();
                         if(!path.empty())
                         {
                             Ref<Texture> t = Texture::Load(path);

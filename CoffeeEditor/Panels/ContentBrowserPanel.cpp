@@ -73,11 +73,16 @@ namespace Coffee {
                 }
                 if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
                 {
-                    if(relativePath.extension() == ".glb" || relativePath.extension() == ".gltf" || relativePath.extension() == ".obj")
-                    {
-                        AddModelToTheSceneTree(m_Context.get(), ResourceRegistry::Get<Model>(path.filename().string()));
-                    }
+                    
                 }
+                //if (ImGui::BeginItemTooltip())
+                //{
+                //    const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(path.filename().string());
+                //    ImGui::Text(path.filename().string().c_str());
+                //    ImGui::Text("Size: {0}", std::filesystem::file_size(path));
+                //    ImGui::Text("Type: {0}", resource->GetTypeAsString());
+                //    ImGui::EndTooltip();
+                //}
 
                 if(directoryEntry.is_directory())
                     DisplayDirectoryContents(path, depth + 1);
