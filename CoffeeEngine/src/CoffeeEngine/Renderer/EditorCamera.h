@@ -105,6 +105,16 @@ namespace Coffee {
          */
         glm::quat GetOrientation() const;
 
+        /**
+         * @brief Gets the current state of the camera.
+         * @return The current state of the camera.
+         */
+        const CameraState& GetState() const { return m_CurrentState; }
+
+        const float& GetFlySpeed() const { return m_CameraSpeed; }
+
+        const float& GetOrbitZoom() const { return m_Distance; }
+
     private:
         /**
          * @brief Updates the view matrix based on the current position and orientation.
@@ -113,6 +123,16 @@ namespace Coffee {
 
         /**
          * @brief Handles mouse scroll events.
+         *
+         * This function calculates the increment speed using the following formulas:
+         *
+         * \f[
+         * \text{incrementSpeed} = e^{(0.1 \times \text{m\_CameraSpeed})} - 1
+         * \f]
+         * \f[
+         * \text{m\_CameraSpeed} = \text{m\_CameraSpeed} + (\delta \times \text{incrementSpeed})
+         * \f]
+         *
          * @param event The mouse scroll event.
          * @return True if the event was handled, false otherwise.
          */
@@ -151,7 +171,7 @@ namespace Coffee {
         glm::vec3 m_FocalPoint = glm::vec3(0.0f, 0.0f, 0.0f); ///< The focal point of the camera.
 
         float m_Distance = 10.0f; ///< The distance from the focal point.
-
+        float m_CameraSpeed = 0.1f; ///< The speed of the camera.
         float m_Pitch = 0.0f, m_Yaw = 0.0f; ///< The pitch and yaw angles of the camera.
 
         glm::vec2 m_InitialMousePosition = glm::vec2(0.0f, 0.0f); ///< The initial mouse position.
