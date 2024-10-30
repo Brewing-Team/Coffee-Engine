@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "Panels/ContentBrowserPanel.h"
+#include "Panels/MonitorPanel.h"
 #include "Panels/Panel.h"
 #include "Panels/SceneTreePanel.h"
 #include "CoffeeEngine/Core/Base.h"
@@ -70,6 +71,7 @@ namespace Coffee {
         SceneTreePanel m_SceneTreePanel;
         ContentBrowserPanel m_ContentBrowserPanel;
         OutputPanel m_OutputPanel;
+        MonitorPanel m_MonitorPanel;
     };
 
 }

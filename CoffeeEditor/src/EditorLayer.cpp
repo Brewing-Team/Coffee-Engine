@@ -281,6 +281,7 @@ namespace Coffee {
         m_SceneTreePanel.OnImGuiRender();
         m_ContentBrowserPanel.OnImGuiRender();
         m_OutputPanel.OnImGuiRender();
+        m_MonitorPanel.OnImGuiRender();
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
         ImGui::Begin("Viewport");
