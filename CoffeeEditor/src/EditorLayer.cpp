@@ -403,7 +403,7 @@ namespace Coffee {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
 
             ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-            ImGui::VSliderFloat("##speed", ImVec2(15, sliderHeight), &value, min, max, "");
+            ImGui::VSliderFloat("##speed", ImVec2(10, sliderHeight), &value, min, max, "");
             ImGui::PopItemFlag();
 
             ImGui::PopStyleColor();
