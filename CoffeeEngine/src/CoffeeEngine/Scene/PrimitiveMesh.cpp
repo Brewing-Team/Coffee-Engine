@@ -219,32 +219,26 @@ namespace Coffee {
     Ref<Mesh> PrimitiveMesh::CreateSphere(float radius, float height, int radialSegments, int rings, bool isHemiSphere)
     {
 
-        int i, j, prevrow, thisrow, point;
+        int i, j, prevrow, thisrow, point = 0;
         float x, y, z;
 
         std::vector<Vertex> data;
         std::vector<uint32_t> indices;
 
-        float scale = height * (isHemiSphere ? 1.0 : 0.5);
+        float scale = height * (isHemiSphere ? 1.0f : 0.5f);
 
         thisrow = 0;
         prevrow = 0;
-        for (j = 0; j <= (rings + 1); j++)
-        {
-            float v = j;
-            float w;
+        for (j = 0; j <= rings; j++) {
+            float v = static_cast<float>(j) / rings;
+            float w = glm::sin(glm::pi<float>() * v);
+            y = scale * glm::cos(glm::pi<float>() * v);
 
-            v /= (rings + 1);
-            w = glm::sin(glm::pi<float>() * v);
-            y = scale * cos(glm::pi<float>() * v);
+            for (i = 0; i <= radialSegments; i++) {
+                float u = static_cast<float>(i) / radialSegments;
 
-            for(i = 0; i <= radialSegments; i++)
-            {
-                float u = i;
-                u /= radialSegments;
-
-                x = sin(u * glm::tau<float>());
-                z = cos(u * glm::tau<float>());
+                x = glm::sin(u * glm::two_pi<float>());
+                z = glm::cos(u * glm::two_pi<float>());
 
                 Vertex vertex;
                 if (isHemiSphere && y < 0.0f) {
@@ -256,7 +250,7 @@ namespace Coffee {
                     data.emplace_back(vertex);
                 } else {
                     glm::vec3 p = glm::vec3(x * radius * w, y, z * radius * w);
-                    glm::vec3 normal = glm::vec3(x * w * scale, radius * (y / scale), z * w * scale);
+                    glm::vec3 normal = glm::vec3(x * w, y / scale, z * w);
 
                     vertex.Position = p;
                     vertex.Normals = glm::normalize(normal);
@@ -269,12 +263,12 @@ namespace Coffee {
 
                 if (i > 0 && j > 0) {
                     indices.push_back(prevrow + i - 1);
-                    indices.push_back(prevrow + i);
                     indices.push_back(thisrow + i - 1);
+                    indices.push_back(prevrow + i);
 
                     indices.push_back(prevrow + i);
-                    indices.push_back(thisrow + i);
                     indices.push_back(thisrow + i - 1);
+                    indices.push_back(thisrow + i);
                 }
             }
 
