@@ -71,7 +71,7 @@ namespace Coffee {
         vertices[3].Normals = normal;
         vertices[3].TexCoords = {0.0f, 1.0f};
 
-        std::vector<uint32_t> indices = {0, 1, 2, 2, 3, 0};
+        std::vector<uint32_t> indices = {0, 2, 1, 3, 2, 0};
 
         const Ref<Mesh>& planeMesh = CreateRef<Mesh>(indices, vertices);
         planeMesh->SetName("Plane");
