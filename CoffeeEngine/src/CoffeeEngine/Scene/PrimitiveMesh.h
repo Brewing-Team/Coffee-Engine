@@ -120,7 +120,7 @@ namespace Coffee {
          * @param rings Number of rings.
          * @return A reference to the created capsule mesh.
          */
-        static Ref<Mesh> CreateCapsule(float radius = 1.0f, float height = 4.0f, int radialSegments = 64, int rings = 8);
+        static Ref<Mesh> CreateCapsule(float radius = 0.5f, float height = 2.0f, int radialSegments = 64, int rings = 8);
 
     };
 

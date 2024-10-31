@@ -557,49 +557,44 @@ namespace Coffee {
     Ref<Mesh> PrimitiveMesh::CreateCapsule(float radius, float height, int radialSegments, int rings)
     {
         std::vector<uint32_t> indices;
-        auto data = std::vector<Vertex>{};
-        int i, j, prevrow, thisrow, point;
+        std::vector<Vertex> data;
+        int i, j, prevrow, thisrow, point = 0;
         float x, y, z, u, v, w;
         float onethird = 1.0f / 3.0f;
         float twothirds = 2.0f / 3.0f;
 
-        // top hemisphere
+        // Top hemisphere
         thisrow = 0;
         prevrow = 0;
-        for (j = 0; j <= (rings + 1); j++)
-        {
-            v = j;
-            v /= rings + 1;
-            w = sin(0.5 * glm::pi<float>() * v);
-            y = radius * cos(0.5 * glm::pi<float>() * v);
+        for (j = 0; j <= rings; j++) {
+            v = j / float(rings);
+            w = sin(0.5f * glm::pi<float>() * v);
+            y = radius * cos(0.5f * glm::pi<float>() * v);
 
-            for (i = 0; i <= radialSegments; i++)
-            {
-                u = i;
-                u /= radialSegments;
+            for (i = 0; i <= radialSegments; i++) {
+                u = i / float(radialSegments);
 
-                x = -sin(u * glm::tau<float>());
-                z = cos(u * glm::tau<float>());
+                x = -sin(u * glm::two_pi<float>());
+                z = cos(u * glm::two_pi<float>());
 
                 glm::vec3 p = glm::vec3(x * radius * w, y, -z * radius * w);
                 Vertex vertex;
-                vertex.Position = p + glm::vec3(0.0f, 0.5f * height - radius, 0.0f),
+                vertex.Position = p + glm::vec3(0.0f, 0.5f * height - radius, 0.0f);
                 vertex.Normals = glm::normalize(p);
                 vertex.Tangent = glm::vec4(-z, 0.0f, -x, 1.0f);
-                vertex.TexCoords = glm::vec2(u, v * onethird); // TODO check this
+                vertex.TexCoords = glm::vec2(u, v * onethird);
                 data.emplace_back(vertex);
 
                 point++;
 
-                if (i > 0 && j > 0)
-                {
+                if (i > 0 && j > 0) {
                     indices.push_back(prevrow + i - 1);
-                    indices.push_back(prevrow + i);
                     indices.push_back(thisrow + i - 1);
+                    indices.push_back(prevrow + i);
 
                     indices.push_back(prevrow + i);
-                    indices.push_back(thisrow + i);
                     indices.push_back(thisrow + i - 1);
+                    indices.push_back(thisrow + i);
                 }
             }
 
@@ -607,43 +602,37 @@ namespace Coffee {
             thisrow = point;
         }
 
-        // cylinder
-        thisrow = point;
+        // Cylinder
         prevrow = 0;
-        for (j = 0; j <= (rings + 1); j++)
-        {
-            v = j;
-            v /= rings + 1;
+        for (j = 0; j <= rings; j++) {
+            v = j / float(rings);
 
-            y = (height - 2.0 * radius) * v;
-            y = (0.5 * height - radius) - y;
+            y = (height - 2.0f * radius) * v;
+            y = (0.5f * height - radius) - y;
 
-            for (i = 0; i <= radialSegments; i++)
-            {
-                u = i;
-                u /= radialSegments;
+            for (i = 0; i <= radialSegments; i++) {
+                u = i / float(radialSegments);
 
-                x = -sin(u * glm::tau<float>());
-                z = cos(u * glm::tau<float>());
+                x = -sin(u * glm::two_pi<float>());
+                z = cos(u * glm::two_pi<float>());
 
                 Vertex vertex;
                 vertex.Position = glm::vec3(x * radius, y, -z * radius);
                 vertex.Normals = glm::normalize(glm::vec3(x, 0.0f, -z));
                 vertex.Tangent = glm::vec4(-z, 0.0f, -x, 1.0f);
-                vertex.TexCoords = glm::vec2(u, onethird + (v * onethird)); // TODO check this
+                vertex.TexCoords = glm::vec2(u, onethird + (v * onethird));
                 data.emplace_back(vertex);
 
                 point++;
 
-                if (i > 0 && j > 0)
-                {
+                if (i > 0 && j > 0) {
                     indices.push_back(prevrow + i - 1);
-                    indices.push_back(prevrow + i);
                     indices.push_back(thisrow + i - 1);
+                    indices.push_back(prevrow + i);
 
                     indices.push_back(prevrow + i);
-                    indices.push_back(thisrow + i);
                     indices.push_back(thisrow + i - 1);
+                    indices.push_back(thisrow + i);
                 }
             }
 
@@ -651,38 +640,29 @@ namespace Coffee {
             thisrow = point;
         }
 
-        // bottom hemisphere
-        thisrow = point;
-        prevrow = 0;
-        for (j = 0; j <= (rings + 1); j++)
-        {
-            v = j;
+        // Bottom hemisphere
+        for (j = 0; j <= rings; j++) {
+            v = j / float(rings);
+            w = sin(0.5f * glm::pi<float>() * v);
+            y = radius * cos(0.5f * glm::pi<float>() * v);
 
-            v /= (rings + 1);
-            v += 1.0;
-            w = sin(0.5 * glm::pi<float>() * v);
-            y = radius * glm::cos(0.5 * glm::pi<float>() * v);
+            for (i = 0; i <= radialSegments; i++) {
+                u = i / float(radialSegments);
 
-            for (i = 0; i <= radialSegments; i++)
-            {
-                u = i;
-                u /= radialSegments;
+                x = -sin(u * glm::two_pi<float>());
+                z = cos(u * glm::two_pi<float>());
 
-                x = -glm::sin(u * glm::tau<float>());
-                z = glm::cos(u * glm::tau<float>());
-
+                glm::vec3 p = glm::vec3(x * radius * w, -y, -z * radius * w);
                 Vertex vertex;
-                glm::vec3 p = glm::vec3(x * radius * w, y, -z * radius * w);
                 vertex.Position = p + glm::vec3(0.0f, -0.5f * height + radius, 0.0f);
                 vertex.Normals = glm::normalize(p);
                 vertex.Tangent = glm::vec4(-z, 0.0f, -x, 1.0f);
-                vertex.TexCoords = glm::vec2(u, twothirds + ((v - 1.0f) * onethird));
+                vertex.TexCoords = glm::vec2(u, twothirds + (v * onethird));
                 data.emplace_back(vertex);
 
                 point++;
 
-                if (i > 0 && j > 0)
-                {
+                if (i > 0 && j > 0) {
                     indices.push_back(prevrow + i - 1);
                     indices.push_back(prevrow + i);
                     indices.push_back(thisrow + i - 1);
