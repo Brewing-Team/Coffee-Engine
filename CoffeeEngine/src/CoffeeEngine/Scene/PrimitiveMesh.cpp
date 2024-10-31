@@ -295,14 +295,12 @@ namespace Coffee {
         float heightStep = height / rings;
 
         // Generate vertices and indices for the side surface
-        for (int j = 0; j <= rings; ++j)
-        {
+        for (int j = 0; j <= rings; ++j) {
             float v = j / float(rings);
             float y = height * 0.5f - j * heightStep;
             float radius = glm::mix(topRadius, bottomRadius, v);
 
-            for (int i = 0; i <= radialSegments; ++i)
-            {
+            for (int i = 0; i <= radialSegments; ++i) {
                 float angle = i * angleStep;
                 float x = radius * glm::cos(angle);
                 float z = radius * glm::sin(angle);
@@ -313,28 +311,27 @@ namespace Coffee {
                 vertex.TexCoords = glm::vec2(i / float(radialSegments), v);
                 data.emplace_back(vertex);
 
-                if (i > 0 && j > 0)
-                {
+                if (i > 0 && j > 0) {
                     int a = point - 1;
                     int b = point;
                     int c = point - (radialSegments + 1) - 1;
                     int d = point - (radialSegments + 1);
 
+                    // Correct winding order
                     indices.push_back(a);
-                    indices.push_back(b);
                     indices.push_back(c);
+                    indices.push_back(b);
 
                     indices.push_back(b);
-                    indices.push_back(d);
                     indices.push_back(c);
+                    indices.push_back(d);
                 }
                 point++;
             }
         }
 
         // Generate vertices and indices for the top cap
-        if (capTop)
-        {
+        if (capTop) {
             int topCenterIndex = point;
             Vertex topCenterVertex;
             topCenterVertex.Position = glm::vec3(0.0f, height * 0.5f, 0.0f);
@@ -343,8 +340,7 @@ namespace Coffee {
             data.emplace_back(topCenterVertex);
             point++;
 
-            for (int i = 0; i <= radialSegments; ++i)
-            {
+            for (int i = 0; i <= radialSegments; ++i) {
                 float angle = i * angleStep;
                 float x = topRadius * glm::cos(angle);
                 float z = topRadius * glm::sin(angle);
@@ -355,19 +351,18 @@ namespace Coffee {
                 vertex.TexCoords = glm::vec2((x / topRadius + 1.0f) * 0.5f, (z / topRadius + 1.0f) * 0.5f);
                 data.emplace_back(vertex);
 
-                if (i > 0)
-                {
+                if (i > 0) {
+                    // Correct winding order
                     indices.push_back(topCenterIndex);
-                    indices.push_back(point - 1);
                     indices.push_back(point);
+                    indices.push_back(point - 1);
                 }
                 point++;
             }
         }
 
         // Generate vertices and indices for the bottom cap
-        if (capBottom)
-        {
+        if (capBottom) {
             int bottomCenterIndex = point;
             Vertex bottomCenterVertex;
             bottomCenterVertex.Position = glm::vec3(0.0f, -height * 0.5f, 0.0f);
@@ -376,8 +371,7 @@ namespace Coffee {
             data.emplace_back(bottomCenterVertex);
             point++;
 
-            for (int i = 0; i <= radialSegments; ++i)
-            {
+            for (int i = 0; i <= radialSegments; ++i) {
                 float angle = i * angleStep;
                 float x = bottomRadius * glm::cos(angle);
                 float z = bottomRadius * glm::sin(angle);
@@ -388,11 +382,11 @@ namespace Coffee {
                 vertex.TexCoords = glm::vec2((x / bottomRadius + 1.0f) * 0.5f, (z / bottomRadius + 1.0f) * 0.5f);
                 data.emplace_back(vertex);
 
-                if (i > 0)
-                {
+                if (i > 0) {
+                    // Correct winding order
                     indices.push_back(bottomCenterIndex);
-                    indices.push_back(point);
                     indices.push_back(point - 1);
+                    indices.push_back(point);
                 }
                 point++;
             }
@@ -403,7 +397,7 @@ namespace Coffee {
 
         AABB cylinderAABB(glm::vec3(-topRadius, -height * 0.5f, -topRadius), glm::vec3(topRadius, height * 0.5f, topRadius));
         cylinderMesh->SetAABB(cylinderAABB);
-        
+
         return cylinderMesh;
     }
 
