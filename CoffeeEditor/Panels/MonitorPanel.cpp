@@ -1,5 +1,8 @@
 #include "MonitorPanel.h"
-#include <SDL3/SDL_timer.h>
+#include "CoffeeEngine/Core/DataStructures/CircularBuffer.h"
+#include "CoffeeEngine/Core/SystemInfo.h"
+#include "SDL3/SDL_timer.h"
+#include <cstdint>
 #include <cstdlib>
 #include <imgui.h>
 
@@ -81,12 +84,32 @@ namespace Coffee {
             }, NULL, 100, 0, "Frame Time: %.2f ms", FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
+        //Test if this is better or is better to update the memory usage every x time
+        static CircularBuffer<uint64_t> memoryUsage(10000);
+
+        static uint64_t lastMemoryUsage = SystemInfo::GetProcessMemoryUsage();
+
+        if(lastMemoryUsage != SystemInfo::GetProcessMemoryUsage())
+        {
+            lastMemoryUsage = SystemInfo::GetProcessMemoryUsage();
+            memoryUsage.push_back(lastMemoryUsage);
+        }
+
+        //memoryUsage.push_back(SystemInfo::GetProcessMemoryUsage());
+
         if (m_MemoryUsage)
         {
             ImGui::Text("Memory Usage");
+
+            static float yMin = 0.0f;
+            static float yMax = 0.0f;
+
             ImGui::PlotLines("##MemoryUsage", [](void* data, int idx) -> float {
-                return sin(SDL_GetTicks() / 1000.0f + idx * 0.1f) * 100.0f + 100.0f;
-            }, NULL, 100, 0, "Memory Usage: %.2f MB", FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
+                auto& memoryUsage = *(CircularBuffer<uint64_t>*)data;
+                uint64_t& mu = memoryUsage[idx];
+                if (mu > yMax - 100) yMax = mu + 100;
+                return mu;
+            }, &memoryUsage, memoryUsage.size(), 0, "Memory Usage: %.2f MB", yMin, yMax, ImVec2(0, 80)); // Minimum height of 80
         }
         ImGui::EndChild();
 
