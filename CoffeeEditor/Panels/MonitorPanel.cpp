@@ -1,9 +1,8 @@
 #include "MonitorPanel.h"
 #include "CoffeeEngine/Core/DataStructures/CircularBuffer.h"
 #include "CoffeeEngine/Core/SystemInfo.h"
+#include "CoffeeEngine/Core/Application.h"
 #include "SDL3/SDL_timer.h"
-#include <cstdint>
-#include <cstdlib>
 #include <imgui.h>
 
 namespace Coffee {
@@ -67,12 +66,13 @@ namespace Coffee {
         ImGui::NextColumn();
 
         ImGui::BeginChild("RightColumn", {0,0}, ImGuiChildFlags_Border);
+
         // Second column
         if (m_ShowFPS)
         {
             ImGui::Text("FPS");
             ImGui::PlotLines("##FPS", [](void* data, int idx) -> float {
-                return sin(SDL_GetTicks() / 1000.0f + idx * 0.1f) * 100.0f + 100.0f;
+                return Application::Get().GetFPS();
             }, NULL, 100, 0, nullptr, FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
@@ -80,26 +80,26 @@ namespace Coffee {
         {
             ImGui::Text("Frame Time");
             ImGui::PlotLines("##FrameTime", [](void* data, int idx) -> float {
-                return 16.67f;
+                return Application::Get().GetFrameTime();
             }, NULL, 100, 0, "Frame Time: %.2f ms", FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
-
-        //Test if this is better or is better to update the memory usage every x time
-        static CircularBuffer<uint64_t> memoryUsage(10000);
-
-        static uint64_t lastMemoryUsage = SystemInfo::GetProcessMemoryUsage();
-
-        if(lastMemoryUsage != SystemInfo::GetProcessMemoryUsage())
-        {
-            lastMemoryUsage = SystemInfo::GetProcessMemoryUsage();
-            memoryUsage.push_back(lastMemoryUsage);
-        }
-
-        //memoryUsage.push_back(SystemInfo::GetProcessMemoryUsage());
 
         if (m_MemoryUsage)
         {
             ImGui::Text("Memory Usage");
+
+            //Test if this is better or is better to update the memory usage every x time
+            static CircularBuffer<uint64_t> memoryUsage(10000);
+
+            static uint64_t lastMemoryUsage = SystemInfo::GetProcessMemoryUsage();
+
+            if(lastMemoryUsage != SystemInfo::GetProcessMemoryUsage())
+            {
+                lastMemoryUsage = SystemInfo::GetProcessMemoryUsage();
+                memoryUsage.push_back(lastMemoryUsage);
+            }
+
+            //memoryUsage.push_back(SystemInfo::GetProcessMemoryUsage());
 
             static float yMin = 0.0f;
             static float yMax = 0.0f;
