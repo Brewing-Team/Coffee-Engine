@@ -1,5 +1,6 @@
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Layer.h"
+#include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 
@@ -74,16 +75,19 @@ namespace Coffee
     {
         ZoneScoped;
 
-        Uint64 frequency = SDL_GetPerformanceFrequency();
+        static Stopwatch frameTimeStopwatch;
 
         while (m_Running)
         {   
             ZoneScopedN("RunLoop");
 
-            //TODO: Improve precision using double instead of float
-            float time = (float)SDL_GetPerformanceCounter();
-            float deltaTime = (time - m_LastFrameTime) / frequency;
-            m_LastFrameTime = time;         
+            m_LastFrameTime = frameTimeStopwatch.GetPreciseElapsedTime();
+            frameTimeStopwatch.Reset();
+            frameTimeStopwatch.Start();
+
+            float deltaTime = m_LastFrameTime;
+
+            COFFEE_INFO("FPS: {0}", 1.0f / m_LastFrameTime);
 
             //Poll and handle events
             ProcessEvents();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Base.h"
-#include "SDL3/SDL_stdinc.h"
 #include "Window.h"
 #include "LayerStack.h"
 #include "CoffeeEngine/Events/ApplicationEvent.h"
@@ -108,7 +107,7 @@ namespace Coffee
         ImGuiLayer* m_ImGuiLayer; ///< The ImGui layer.
         bool m_Running = true; ///< Indicates whether the application is running.
         LayerStack m_LayerStack; ///< The stack of layers.
-        Uint64 m_LastFrameTime = 0.0f; ///< The time of the last frame.
+        double m_LastFrameTime = 0.0f; ///< The time of the last frame.
         EventCallbackFn m_EventCallback; ///< The event callback function.
 
       private:
