@@ -36,9 +36,9 @@ namespace Coffee {
 
     float Stopwatch::GetElapsedTime() const {
         if (m_Running) {
-            return (SDL_GetTicks() - m_StartTicks) / 1000.0;
+            return (SDL_GetTicks() - m_StartTicks) / 1000.0f;
         } else {
-            return m_ElapsedTicks / 1000.0;
+            return m_ElapsedTicks / 1000.0f;
         }
     }
 

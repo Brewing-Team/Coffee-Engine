@@ -181,30 +181,6 @@ namespace Coffee {
             Renderer::Submit(lightComponent);
         }
 
-        // -------- STOPWATCH TEST --------
-
-        static Stopwatch stopwatch;
-
-        // Start the stopwatch
-        stopwatch.Start();
-        COFFEE_INFO("Stopwatch started");
-
-        // Get the elapsed time
-        COFFEE_INFO("Elapsed time: {0} ms", stopwatch.GetElapsedTime());
-        COFFEE_INFO("Elapsed time (precise): {0} ms", stopwatch.GetPreciseElapsedTime());
-
-        if (Input::IsKeyPressed(Key::SPACE))
-        {
-            stopwatch.Stop();
-        }
-
-        if (Input::IsKeyPressed(Key::R))
-        {
-            stopwatch.Reset();
-        }
-
-        // -------- STOPWATCH TEST --------
-
         Renderer::EndScene();
     }
 
