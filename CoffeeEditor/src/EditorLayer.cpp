@@ -261,7 +261,7 @@ namespace Coffee {
 
             //set the fps counter in the right side of the menu bar
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 75);
-            ImGui::TextDisabled("FPS: %.1f", ImGui::GetIO().Framerate);
+            ImGui::TextDisabled("FPS: %.1f", Application::Get().GetFPS());
 
             ImGui::EndMainMenuBar();
         }

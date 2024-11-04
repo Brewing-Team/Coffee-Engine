@@ -87,8 +87,6 @@ namespace Coffee
 
             float deltaTime = m_LastFrameTime;
 
-            COFFEE_INFO("FPS: {0}", 1.0f / m_LastFrameTime);
-
             //Poll and handle events
             ProcessEvents();
 
