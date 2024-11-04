@@ -4,7 +4,7 @@
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Timer.h"
 #include <imgui.h>
-#include <iostream>
+#include <string>
 
 namespace Coffee {
 
@@ -72,17 +72,19 @@ namespace Coffee {
         if (m_ShowFPS)
         {
             ImGui::Text("FPS");
+            std::string FPSoverlay = "FPS: " + std::to_string((int)Application::Get().GetFPS());
             ImGui::PlotLines("##FPS", [](void* data, int idx) -> float {
-                return /* Application::Get().GetFPS() */0;
-            }, NULL, 100, 0, nullptr, FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
+                return Application::Get().GetFPS();
+            }, NULL, 100, 0, FPSoverlay.c_str(), FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
         if (m_ShowFrameTime)
         {
             ImGui::Text("Frame Time");
+            std::string FrameTimeOverlay = "Frame Time: " + std::to_string(Application::Get().GetFrameTime()) + " ms";
             ImGui::PlotLines("##FrameTime", [](void* data, int idx) -> float {
-                return /* Application::Get().GetFrameTime() */0;
-            }, NULL, 100, 0, "Frame Time: %.2f ms", FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
+                return Application::Get().GetFrameTime();
+            }, NULL, 100, 0, FrameTimeOverlay.c_str(), FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
         if (m_MemoryUsage)
@@ -99,12 +101,17 @@ namespace Coffee {
             static float yMin = 0.0f;
             static float yMax = 0.0f;
 
+            std::string MemoryUsageOverlay = "";
+            if(memoryUsage.size() > 0)
+            {
+                MemoryUsageOverlay = "Memory Usage: " + std::to_string(memoryUsage.back()) + " MB";
+            }
             ImGui::PlotLines("##MemoryUsage", [](void* data, int idx) -> float {
                 auto& memoryUsage = *(CircularBuffer<uint64_t>*)data;
                 uint64_t& mu = memoryUsage[idx];
                 if (mu > yMax - 100) yMax = mu + 100;
                 return mu;
-            }, &memoryUsage, memoryUsage.size(), 0, "Memory Usage: %.2f MB", yMin, yMax, ImVec2(0, 80)); // Minimum height of 80
+            }, &memoryUsage, memoryUsage.size(), 0, MemoryUsageOverlay.c_str(), yMin, yMax, ImVec2(0, 80)); // Minimum height of 80
         }
         ImGui::EndChild();
 

@@ -78,6 +78,10 @@ namespace Coffee
          */
         ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
+        // Temporary until we have a proper way to get the FPS and FrameTime
+        float GetFrameTime() const { return m_LastFrameTime * 1000.0f; }
+        float GetFPS() const { return 1.0f / m_LastFrameTime; }
+
         /**
          * @brief Gets the singleton instance of the Application.
          * @return A reference to the singleton instance.
