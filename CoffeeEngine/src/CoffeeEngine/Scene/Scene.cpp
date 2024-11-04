@@ -1,16 +1,19 @@
 #include "Scene.h"
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Core/Input.h"
+#include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
@@ -177,6 +180,30 @@ namespace Coffee {
 
             Renderer::Submit(lightComponent);
         }
+
+        // -------- STOPWATCH TEST --------
+
+        static Stopwatch stopwatch;
+
+        // Start the stopwatch
+        stopwatch.Start();
+        COFFEE_INFO("Stopwatch started");
+
+        // Get the elapsed time
+        COFFEE_INFO("Elapsed time: {0} ms", stopwatch.GetElapsedTime());
+        COFFEE_INFO("Elapsed time (precise): {0} ms", stopwatch.GetPreciseElapsedTime());
+
+        if (Input::IsKeyPressed(Key::SPACE))
+        {
+            stopwatch.Stop();
+        }
+
+        if (Input::IsKeyPressed(Key::R))
+        {
+            stopwatch.Reset();
+        }
+
+        // -------- STOPWATCH TEST --------
 
         Renderer::EndScene();
     }
