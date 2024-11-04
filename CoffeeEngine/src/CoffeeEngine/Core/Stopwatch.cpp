@@ -1,5 +1,7 @@
 #include "Stopwatch.h"
 
+#include <SDL3/SDL_timer.h>
+
 namespace Coffee {
 
     uint64_t Stopwatch::s_Frequency = SDL_GetPerformanceFrequency();
@@ -32,7 +34,7 @@ namespace Coffee {
         m_ElapsedPerfCounter = 0;
     }
 
-    double Stopwatch::GetElapsedTime() const {
+    float Stopwatch::GetElapsedTime() const {
         if (m_Running) {
             return (SDL_GetTicks() - m_StartTicks) / 1000.0;
         } else {

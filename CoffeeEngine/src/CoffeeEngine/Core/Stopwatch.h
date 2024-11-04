@@ -49,7 +49,7 @@ namespace Coffee {
          *
          * @return The elapsed time in seconds.
          */
-        double GetElapsedTime() const;
+        float GetElapsedTime() const;
 
         /**
          * @brief Gets the precise elapsed time in seconds.
