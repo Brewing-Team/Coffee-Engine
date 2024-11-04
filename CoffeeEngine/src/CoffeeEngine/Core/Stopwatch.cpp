@@ -32,19 +32,19 @@ namespace Coffee {
         m_ElapsedPerfCounter = 0;
     }
 
-    Uint32 Stopwatch::GetElapsedTime() const {
+    double Stopwatch::GetElapsedTime() const {
         if (m_Running) {
-            return SDL_GetTicks() - m_StartTicks;
+            return (SDL_GetTicks() - m_StartTicks) / 1000.0;
         } else {
-            return m_ElapsedTicks;
+            return m_ElapsedTicks / 1000.0;
         }
     }
 
-    Uint64 Stopwatch::GetPreciseElapsedTime() const {
+    double Stopwatch::GetPreciseElapsedTime() const {
         if (m_Running) {
-            return SDL_GetPerformanceCounter() - m_StartPerfCounter;
+            return static_cast<double>(SDL_GetPerformanceCounter() - m_StartPerfCounter) / SDL_GetPerformanceFrequency();
         } else {
-            return m_ElapsedPerfCounter;
+            return static_cast<double>(m_ElapsedPerfCounter) / SDL_GetPerformanceFrequency();
         }
     }
 

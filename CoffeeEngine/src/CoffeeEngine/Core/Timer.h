@@ -1,5 +1,8 @@
 #pragma once
 
+#include "CoffeeEngine/Core/Assert.h"
+#include "Stopwatch.h"
+
 #include "SDL3/SDL_timer.h"
 #include <functional>
 
@@ -14,17 +17,18 @@ namespace Coffee
     class Timer
     {
     public:
+
         using TimerCallback = std::function<void()>;
 
         Timer() {}
 
-        //Timer(double waitTime, bool autoStart = false, bool oneShot = false, TimerCallback callback = nullptr);
+        Timer(double waitTime, bool autoStart, bool oneShot, TimerCallback callback);
 
-        void Start(uint32_t waitTime);
+        void Start(double waitTime);
         void Stop();
 
-        void setWaitTime(uint32_t waitTime) { m_WaitTime = waitTime; }
-        uint32_t getWaitTime() const { return m_WaitTime; }
+        void setWaitTime(double waitTime);
+        double getWaitTime() const { return m_WaitTime; }
 
         void setOneShot(bool oneShot) { m_OneShot = oneShot; }
         bool isOneShot() const { return m_OneShot; }
@@ -32,22 +36,23 @@ namespace Coffee
         void setAutoStart(bool autoStart) { m_AutoStart = autoStart; }
         bool isAutoStart() const { return m_AutoStart; }
 
-        void setPaused(bool paused) { m_Paused = paused; }
-        void isPaused() const { return m_Paused; }
+        void setPaused(bool paused);
+        bool isPaused() const { return m_Paused; }
 
         void isStopped();
 
-        void GetTimeLeft() const;
+        double GetTimeLeft() const { return m_WaitTime - m_Stopwatch.GetElapsedTime(); }
 
         void SetCallback(TimerCallback callback) { m_Callback = callback; }
+        TimerCallback GetCallback() const { return m_Callback; }
 
     private:
-        uint32_t m_WaitTime = 1.0f;
+        double m_WaitTime = 1.0f;
         bool m_OneShot = false;
         bool m_AutoStart = false;
         bool m_Paused = false;
 
-        double m_TimeLeft = 0.0f;
+        Stopwatch m_Stopwatch;
 
         TimerCallback m_Callback;
         SDL_TimerID m_TimerID;

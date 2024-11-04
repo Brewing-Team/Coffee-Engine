@@ -50,7 +50,7 @@ namespace Coffee {
          *
          * @return The elapsed time in seconds.
          */
-        Uint32 GetElapsedTime() const;
+        double GetElapsedTime() const;
 
         /**
          * @brief Gets the precise elapsed time in seconds.
@@ -59,7 +59,7 @@ namespace Coffee {
          *
          * @return The precise elapsed time in seconds.
          */
-        Uint64 GetPreciseElapsedTime() const;
+        double GetPreciseElapsedTime() const;
 
     private:
         Uint32 m_StartTicks; ///< The start time in milliseconds.
