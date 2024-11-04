@@ -1,8 +1,7 @@
 #include "MonitorPanel.h"
-#include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/Core/Timer.h"
-#include <SDL3/SDL_timer.h>
-#include <cstdlib>
+#include "CoffeeEngine/Core/DataStructures/CircularBuffer.h"
+#include "CoffeeEngine/Core/SystemInfo.h"
+#include "CoffeeEngine/Core/Application.h"
 #include <imgui.h>
 #include <iostream>
 
