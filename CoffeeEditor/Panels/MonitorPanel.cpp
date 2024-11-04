@@ -84,17 +84,6 @@ namespace Coffee {
             }, NULL, 100, 0, "Frame Time: %.2f ms", FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
-        static Timer timer = Timer(1.0f, true, false, []() {
-            std::cout << "Timer callback" << std::endl;
-        });
-
-        COFFEE_CORE_INFO("Time left: {0}", timer.GetTimeLeft());
-/*         timer.setAutoStart(true);
-        timer.SetCallback([]() {
-            std::cout << "Timer callback" << std::endl;
-        });
-        timer.Start(1.0f); */
-
         if (m_MemoryUsage)
         {
             ImGui::Text("Memory Usage");
