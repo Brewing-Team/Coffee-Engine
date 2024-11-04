@@ -2,7 +2,7 @@
 
 namespace Coffee {
 
-    Uint64 Stopwatch::s_Frequency = SDL_GetPerformanceFrequency();
+    uint64_t Stopwatch::s_Frequency = SDL_GetPerformanceFrequency();
 
     Stopwatch::Stopwatch()
         : m_StartTicks(0), m_ElapsedTicks(0), m_StartPerfCounter(0), m_ElapsedPerfCounter(0), m_Running(false) {}

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SDL3/SDL.h>
-
 namespace Coffee {
 
     /**
@@ -62,12 +60,12 @@ namespace Coffee {
         double GetPreciseElapsedTime() const;
 
     private:
-        Uint32 m_StartTicks; ///< The start time in milliseconds.
-        Uint32 m_ElapsedTicks; ///< The elapsed time in milliseconds.
-        Uint64 m_StartPerfCounter; ///< The start time in performance counter ticks.
-        Uint64 m_ElapsedPerfCounter; ///< The elapsed time in performance counter ticks.
+        uint32_t m_StartTicks; ///< The start time in milliseconds.
+        uint32_t m_ElapsedTicks; ///< The elapsed time in milliseconds.
+        uint64_t m_StartPerfCounter; ///< The start time in performance counter ticks.
+        uint64_t m_ElapsedPerfCounter; ///< The elapsed time in performance counter ticks.
         bool m_Running; ///< Indicates whether the stopwatch is currently running.
-        static Uint64 s_Frequency; ///< The frequency of the performance counter.
+        static uint64_t s_Frequency; ///< The frequency of the performance counter.
     };
 
     /** @} */
