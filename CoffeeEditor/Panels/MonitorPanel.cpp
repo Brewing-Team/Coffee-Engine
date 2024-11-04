@@ -2,6 +2,7 @@
 #include "CoffeeEngine/Core/DataStructures/CircularBuffer.h"
 #include "CoffeeEngine/Core/SystemInfo.h"
 #include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Timer.h"
 #include <imgui.h>
 #include <iostream>
 
@@ -72,7 +73,7 @@ namespace Coffee {
         {
             ImGui::Text("FPS");
             ImGui::PlotLines("##FPS", [](void* data, int idx) -> float {
-                return Application::Get().GetFPS();
+                return /* Application::Get().GetFPS() */0;
             }, NULL, 100, 0, nullptr, FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
@@ -80,7 +81,7 @@ namespace Coffee {
         {
             ImGui::Text("Frame Time");
             ImGui::PlotLines("##FrameTime", [](void* data, int idx) -> float {
-                return Application::Get().GetFrameTime();
+                return /* Application::Get().GetFrameTime() */0;
             }, NULL, 100, 0, "Frame Time: %.2f ms", FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
@@ -91,15 +92,9 @@ namespace Coffee {
             //Test if this is better or is better to update the memory usage every x time
             static CircularBuffer<uint64_t> memoryUsage(10000);
 
-            static uint64_t lastMemoryUsage = SystemInfo::GetProcessMemoryUsage();
-
-            if(lastMemoryUsage != SystemInfo::GetProcessMemoryUsage())
-            {
-                lastMemoryUsage = SystemInfo::GetProcessMemoryUsage();
-                memoryUsage.push_back(lastMemoryUsage);
-            }
-
-            //memoryUsage.push_back(SystemInfo::GetProcessMemoryUsage());
+            static Timer timer(0.5f, true, false, [&]() {
+                memoryUsage.push_back(SystemInfo::GetProcessMemoryUsage());
+            });
 
             static float yMin = 0.0f;
             static float yMax = 0.0f;
