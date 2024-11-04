@@ -169,7 +169,7 @@ namespace Coffee {
         s_MainFramebuffer->UnBind();
     }
 
-    //TEMPORAL, I will think of a better way to handle this bc i want that the grid and the lines be tonemapped like in Godot
+    //TEMPORAL
     void Renderer::BeginOverlay(EditorCamera& camera)
     {
         s_RendererData.cameraData.view = camera.GetViewMatrix();
