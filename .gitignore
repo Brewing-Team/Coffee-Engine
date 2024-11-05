@@ -21,3 +21,5 @@ bin
 /.vs
 /cmake-build-debug-event-trace
 /cmake-build-debug-visual-studio
+/cmake-build-debug-visual-studio-event-trace
+/cmake-build-release-visual-studio
