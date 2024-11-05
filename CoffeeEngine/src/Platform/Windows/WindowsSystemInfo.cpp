@@ -25,7 +25,7 @@ namespace Coffee {
     {
         PROCESS_MEMORY_COUNTERS pmc;
         GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));
-        return pmc.WorkingSetSize;
+        return pmc.WorkingSetSize / 1024 / 1024; // Convert from Bytes to MB
     }
 
 }
