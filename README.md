@@ -1,4 +1,5 @@
 # Coffee Engine
+[![Publish Documentation](https://github.com/Brewing-Team/Coffee-Engine/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/Brewing-Team/Coffee-Engine/actions/workflows/publish-docs.yml)
 
 <p align="center">
     <img src="/Resources/temporal-logo.webp?raw=true">
