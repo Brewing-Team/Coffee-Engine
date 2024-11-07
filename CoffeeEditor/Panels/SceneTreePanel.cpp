@@ -6,7 +6,7 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/PrimitiveMesh.h"
+#include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"

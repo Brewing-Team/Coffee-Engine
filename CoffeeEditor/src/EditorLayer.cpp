@@ -10,7 +10,7 @@
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/PrimitiveMesh.h"
+#include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"

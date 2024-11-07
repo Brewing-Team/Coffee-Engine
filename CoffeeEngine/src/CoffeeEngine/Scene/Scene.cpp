@@ -4,7 +4,7 @@
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/PrimitiveMesh.h"
+#include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
