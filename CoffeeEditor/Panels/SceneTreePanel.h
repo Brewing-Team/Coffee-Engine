@@ -24,6 +24,10 @@ namespace Coffee {
     private:
         void DrawEntityNode(Entity entity);
         void DrawComponents(Entity entity);
+
+        //UI functions for scenetree menus
+        void ShowCreateEntityMenu();
+
     private:
         Ref<Scene> m_Context;
         Entity m_SelectionContext;

@@ -49,8 +49,9 @@ namespace Coffee {
         //Button for adding entities to the scene tree
         if(ImGui::Button("+", {24,24}))
         {
-            m_Context->CreateEntity();
+            ImGui::OpenPopup("Add Entity...");
         }
+        ShowCreateEntityMenu();
         ImGui::SameLine();
 
         static std::array<char, 256> searchBuffer;
@@ -531,6 +532,80 @@ namespace Coffee {
                 {
                     if(!entity.HasComponent<CameraComponent>())
                         entity.AddComponent<CameraComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+
+            ImGui::EndPopup();
+        }
+    }
+
+
+    // UI functions for scenetree menus
+    void SceneTreePanel::ShowCreateEntityMenu()
+    {
+        if (ImGui::BeginPopupModal("Add Entity..."))
+        {
+            static char buffer[256] = "";
+            ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
+
+            std::string items[] = {"Empty", "Camera", "Primitive", "Light"};
+            static int item_current = 1;
+
+            if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
+            {
+                for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+                {
+                    const bool is_selected = (item_current == n);
+                    if (ImGui::Selectable(items[n].c_str(), is_selected))
+                        item_current = n;
+
+                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndListBox();
+            }
+
+            ImGui::Text("Description");
+            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer "
+                               "scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi "
+                               "lacinia elit ornare, eu semper risus consectetur.");
+
+            ImGui::Button("Cancel");
+            ImGui::SameLine();
+            if (ImGui::Button("Add Component"))
+            {
+                if (items[item_current] == "Empty")
+                {
+                    Entity e = m_Context->CreateEntity();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Camera")
+                {
+                    Entity e = m_Context->CreateEntity("Camera");
+                    e.AddComponent<CameraComponent>();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Primitive")
+                {
+                    Entity e = m_Context->CreateEntity("Primitive");
+                    e.AddComponent<MeshComponent>();
+                    e.AddComponent<MaterialComponent>();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Light")
+                {
+                    Entity e = m_Context->CreateEntity("Light");
+                    e.AddComponent<LightComponent>();
+                    SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
                 else
