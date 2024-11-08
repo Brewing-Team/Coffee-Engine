@@ -452,6 +452,15 @@ namespace Coffee {
                 }
             }
         }
+        
+        if (entity.HasComponent<CameraComponent>())
+        {
+            auto& cameraComponent = entity.GetComponent<CameraComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Camera", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+            }
+        }
 
         ImGui::Separator();
 
@@ -494,7 +503,10 @@ namespace Coffee {
             ImGui::Text("Description");
             ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur.");
 
-            ImGui::Button("Cancel");
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
             ImGui::SameLine();
             if(ImGui::Button("Add Component"))
             {
@@ -576,7 +588,10 @@ namespace Coffee {
                                "scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi "
                                "lacinia elit ornare, eu semper risus consectetur.");
 
-            ImGui::Button("Cancel");
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
             ImGui::SameLine();
             if (ImGui::Button("Add Component"))
             {
