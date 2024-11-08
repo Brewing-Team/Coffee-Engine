@@ -16,7 +16,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
-//TEMPORAL
+//TEMPORAL: Move this to the serialization folder!!
 namespace cereal {
     template<class Archive>
     void serialize(Archive& archive, glm::vec2& vec)
@@ -76,7 +76,7 @@ namespace Coffee {
 
         glm::mat4 GetLocalTransform() const
         {
-            glm::mat4 rotation = glm::toMat4(glm::quat(Rotation));
+            glm::mat4 rotation = glm::toMat4(glm::quat(glm::radians(Rotation)));
 
             return glm::translate(glm::mat4(1.0f), Position)
                     * rotation
@@ -90,7 +90,7 @@ namespace Coffee {
             glm::quat orientation;
 
             glm::decompose(transform, Scale, orientation, Position, skew, perspective);
-            Rotation = glm::eulerAngles(orientation);
+            Rotation = glm::degrees(glm::eulerAngles(orientation));
         }
 
         const glm::mat4& GetWorldTransform() const
