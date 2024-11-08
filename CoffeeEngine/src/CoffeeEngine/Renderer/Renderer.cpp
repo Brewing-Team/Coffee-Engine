@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "../Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
