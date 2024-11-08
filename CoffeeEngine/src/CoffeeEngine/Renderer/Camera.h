@@ -40,6 +40,13 @@ namespace Coffee
          */
         const glm::mat4& GetProjection() const { return m_Projection; }
 
+         /**
+         * @brief Sets the size of the viewport and updates the projection matrix.
+         * @param width The width of the viewport.
+         * @param height The height of the viewport.
+         */
+        inline void SetViewportSize(float width, float height) { m_ViewportWidth = width; m_ViewportHeight = height; UpdateProjection(); }
+
     protected:
         /**
          * @brief Enum class representing the type of projection.

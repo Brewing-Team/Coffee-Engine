@@ -101,7 +101,7 @@ namespace Coffee {
          * @param camera The camera.
          * @param transform The transform matrix.
          */
-        static void BeginScene(const Camera& camera, const glm::mat4& transform);
+        static void BeginScene(Camera& camera, const glm::mat4& transform);
 
         /**
          * @brief Ends the current scene.

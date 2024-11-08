@@ -96,11 +96,14 @@ namespace Coffee {
         s_EntityIDTexture->Clear({-1.0f,0.0f,0.0f,0.0f});
     }
 
-    void Renderer::BeginScene(const Camera& camera, const glm::mat4& transform)
+    void Renderer::BeginScene(Camera& camera, const glm::mat4& transform)
     {
         s_Stats.DrawCalls = 0;
         s_Stats.VertexCount = 0;
         s_Stats.IndexCount = 0;
+
+        // This resize the camera to the viewport size. Think how to manage this in a better way :p
+        camera.SetViewportSize(s_viewportWidth, s_viewportHeight);
 
         s_RendererData.cameraData.view = glm::inverse(transform);
         s_RendererData.cameraData.projection = camera.GetProjection();
