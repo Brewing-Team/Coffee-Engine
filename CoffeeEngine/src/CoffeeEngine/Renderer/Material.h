@@ -50,12 +50,12 @@ namespace Coffee {
 
     struct MaterialTextureFlags
     {
-        bool hasAlbedo = false;
-        bool hasNormal = false;
-        bool hasMetallic = false;
-        bool hasRoughness = false;
-        bool hasAO = false;
-        bool hasEmissive = false;
+        bool hasAlbedo = false; ///< Whether the material has an albedo texture.
+        bool hasNormal = false; ///< Whether the material has a normal map texture.
+        bool hasMetallic = false; ///< Whether the material has a metallic texture.
+        bool hasRoughness = false; ///< Whether the material has a roughness texture.
+        bool hasAO = false; ///< Whether the material has an ambient occlusion texture.
+        bool hasEmissive = false; ///< Whether the material has an emissive texture.
     };
 
     /**
