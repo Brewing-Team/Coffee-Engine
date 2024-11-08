@@ -192,6 +192,9 @@ namespace Coffee {
         uint32_t m_textureID;
         int m_Width, m_Height;
     };
+
+    /** @} */
+
 }
 
 CEREAL_REGISTER_TYPE(Coffee::Texture);

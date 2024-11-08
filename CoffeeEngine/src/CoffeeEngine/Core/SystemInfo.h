@@ -4,7 +4,9 @@
 
 namespace Coffee {
     /**
+     * @defgroup core Core
      * @brief The SystemInfo class provides information about the Operating System.
+     * @{
      */
     class SystemInfo
     {
@@ -46,5 +48,7 @@ namespace Coffee {
     private:
         static SystemInfo* instance;
     };
+
+    /** @} */
 
 }
