@@ -270,11 +270,18 @@ namespace Coffee {
         // About Coffee Engine Popup
 
         if(mainMenuAction == "About Coffee Engine"){ ImGui::OpenPopup("About Coffee Engine"); }
-        if(ImGui::BeginPopupModal("About Coffee Engine", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x * 0.5f, ImGui::GetIO().DisplaySize.y * 0.5f), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSize({400, 150});
+        if (ImGui::BeginPopupModal("About Coffee Engine", NULL, ImGuiWindowFlags_AlwaysAutoResize))
         {
             ImGui::TextWrapped("Coffee Engine is a 3D Game Engine developed by the Brewing Team.");
             ImGui::TextWrapped("This project is open source and can be found at:");
             ImGui::TextLinkOpenURL("https://github.com/Brewing-Team/Coffee-Engine");
+            ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x / 2 - ImGui::CalcTextSize("Close").x / 2);
+            if (ImGui::Button("Close"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
             ImGui::EndPopup();
         }
 
