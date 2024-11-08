@@ -1,7 +1,7 @@
 {
   "name" : "coffee-engine",
   "version-string" : "1.0.0",
-  "builtin-baseline" : "3d89599850c8168fa4b560367b06c1be52645b20",
+  "builtin-baseline" : "6046e48163a26252f7a8f4aa036cbdd9eb793c20",
   "dependencies" : [ {
     "name" : "cereal",
     "version>=" : "1.3.2#1"
@@ -30,5 +30,8 @@
   }, {
     "name" : "nativefiledialog-extended",
     "version>=" : "1.2.0"
+  }, {
+    "name" : "sdl3",
+    "version>=" : "3.1.6-preview"
   } ]
 }

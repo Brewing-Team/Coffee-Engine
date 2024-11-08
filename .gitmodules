@@ -1,6 +1,3 @@
-[submodule "CoffeeEngine/vendor/SDL3"]
-	path = CoffeeEngine/vendor/SDL3
-	url = https://github.com/libsdl-org/SDL.git
 [submodule "CoffeeEngine/vendor/imgui"]
 	path = CoffeeEngine/vendor/imgui
 	url = https://github.com/Brewing-Team/imgui.git
