@@ -3,10 +3,23 @@
 #include <cstdint>
 namespace Coffee
 {
+
+    /**
+     * @defgroup core Core
+     * @brief Core components of the CoffeeEngine.
+     * @{
+     */
+
 	using KeyCode = uint16_t;
 	
 	namespace Key
 	{
+	    /**
+         * @enum Key
+         * @brief Enumeration of key codes.
+         *
+         * These values are from usage page 0x07 (USB keyboard page).
+         */
 		enum : KeyCode
 		{
 			// From SDL_scancode.h
@@ -384,4 +397,5 @@ namespace Coffee
 			COUNT = 512 /**< not a key, just marks the number of scancodes for array bounds */
 		};
 	}
+    /** @} */
 }

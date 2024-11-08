@@ -38,15 +38,15 @@ namespace Coffee {
         virtual uint64_t GetProcessMemoryUsageImpl() const = 0;
 
         // Static methods to delegate to the instance
-        static uint32_t GetLogicalProcessorCount();
-        static uint32_t GetPhysicalProcessorCount();
-        static uint64_t GetTotalMemory();
-        static uint64_t GetAvailableMemory();
-        static uint64_t GetUsedMemory();
-        static uint64_t GetProcessMemoryUsage();
+        static uint32_t GetLogicalProcessorCount(); ///< Gets the number of logical processors.
+        static uint32_t GetPhysicalProcessorCount(); ///< Gets the number of physical processors.
+        static uint64_t GetTotalMemory(); ///< Gets the total memory in the system.
+        static uint64_t GetAvailableMemory(); ///< Gets the available memory in the system.
+        static uint64_t GetUsedMemory(); ///< Gets the used memory in the system.
+        static uint64_t GetProcessMemoryUsage(); ///< Gets the memory used by the process.
 
     private:
-        static SystemInfo* instance;
+        static SystemInfo* instance; ///< The instance of the SystemInfo class.
     };
 
     /** @} */
