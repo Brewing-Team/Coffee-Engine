@@ -38,13 +38,14 @@ namespace Coffee {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; //Comment this for disable the detached imgui windows from the main window
 
-        float fontSize = 18.0f;
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/OpenSans-SemiBold.ttf", fontSize);
+        float fontSize = 17.5f;
+        io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrains_Mono/static/JetBrainsMono-Medium.ttf", fontSize);
 
 		/* float fontSize = 16.0f;
         io.FontDefault = io.Fonts->AddFontFromFileTTF("/home/hugo/.fonts/iosevka-nerd-font.ttf", fontSize); */
 
-		SetTeaColorStyle();
+		//SetTeaColorStyle();
+		SetCoffeeColorStyle();
 
         Application& app = Application::Get();
         SDL_Window* window = static_cast<SDL_Window*>(app.GetWindow().GetNativeWindow());
@@ -93,7 +94,7 @@ namespace Coffee {
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-/*       	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) //Comment this for disable the detached imgui windows from the main window
+      	/* if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) //Comment this for disable the detached imgui windows from the main window
 		{
             SDL_Window* backup_current_window = SDL_GL_GetCurrentWindow();
             SDL_GLContext backup_current_context = SDL_GL_GetCurrentContext();
