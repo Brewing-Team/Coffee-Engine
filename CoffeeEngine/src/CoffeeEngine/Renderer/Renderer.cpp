@@ -194,6 +194,9 @@ namespace Coffee {
         shader->setMat4("model", transform);
         shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
 
+        //REMOVE: This is for the first release of the engine it should be handled differently
+        shader->setBool("showNormals", s_RenderSettings.showNormals);
+
         // Convert entityID to vec3
         uint32_t r = (entityID & 0x000000FF) >> 0;
         uint32_t g = (entityID & 0x0000FF00) >> 8;

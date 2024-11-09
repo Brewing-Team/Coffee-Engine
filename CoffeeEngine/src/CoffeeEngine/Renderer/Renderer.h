@@ -72,6 +72,9 @@ namespace Coffee {
         bool Bloom = false; ///< Enable or disable bloom.
         bool FXAA = false; ///< Enable or disable FXAA.
         float Exposure = 1.0f; ///< Exposure value.
+
+        // REMOVE: This is for the first release of the engine it should be handled differently
+        bool showNormals = false;
     };
 
     /**

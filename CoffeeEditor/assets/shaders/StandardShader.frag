@@ -66,6 +66,8 @@ layout (std140, binding = 1) uniform RenderData
     int lightCount;
 };
 
+uniform bool showNormals;
+
 const float PI = 3.14159265359;
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
@@ -182,4 +184,12 @@ void main()
     vec3 color = ambient + Lo + emissive;
 
     FragColor = vec4(vec3(color), 1.0);
+    EntityID = vec4(entityID, 1.0f); //set the alpha to 0
+
+    //REMOVE: This is for the first release of the engine it should be handled differently
+    if(showNormals)
+    {
+        FragColor = vec4((N * 0.5) + 0.5, 1.0);
+        return;
+    }
 }

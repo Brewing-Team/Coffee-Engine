@@ -27,6 +27,7 @@
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
+#include <string>
 #include <sys/types.h>
 #include <tracy/Tracy.hpp>
 
@@ -435,6 +436,28 @@ namespace Coffee {
         }
 
         // End of EditorCamera ----------------------------
+
+        // Render Mode Button Viewport Overlay
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 30, ImGui::GetWindowPos().y + 50));
+        ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
+        ImGui::Begin("Render Mode", NULL, window_flags);
+        static bool a = false;
+        if(ImGui::Button("Render Mode", ImVec2(100, 32)))
+            ImGui::OpenPopup("Render Mode Popup");
+        if(ImGui::BeginPopup("Render Mode Popup", ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::BeginDisabled(true);
+            ImGui::Checkbox("Wireframe", &a);
+            ImGui::Checkbox("Solid", &a);
+            ImGui::Checkbox("Lighting", &a);
+            ImGui::EndDisabled();
+            static bool normals = false;
+            ImGui::Checkbox("Normals", &normals);
+            Renderer::GetRenderSettings().showNormals = normals;
+            Renderer::GetRenderSettings().PostProcessing = !normals;
+            ImGui::EndPopup();
+        }
+        ImGui::End();
 
         ImGui::End();
         ImGui::PopStyleVar();
