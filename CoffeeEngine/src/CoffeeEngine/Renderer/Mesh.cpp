@@ -1,6 +1,5 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
 #include <tracy/Tracy.hpp>
 

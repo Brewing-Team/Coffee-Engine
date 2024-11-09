@@ -22,7 +22,6 @@ namespace Coffee
         m_Window = Window::Create(WindowProps("Coffee Engine"));
         SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
 
-        //TODO: Create The Renderer Instance and remove the RendererAPI Instance
         Renderer::Init();
 
         m_ImGuiLayer = new ImGuiLayer();
@@ -61,7 +60,6 @@ namespace Coffee
         EventDispatcher dispacher(e);
         dispacher.Dispatch<WindowCloseEvent>(COFFEE_BIND_EVENT_FN(OnWindowClose));
 
-        //COFFEE_CORE_TRACE("{0}", e);
 
         for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
         {

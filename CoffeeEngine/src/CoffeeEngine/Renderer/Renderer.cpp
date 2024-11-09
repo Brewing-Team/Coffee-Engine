@@ -83,9 +83,6 @@ namespace Coffee {
         //This is setting the light information from the previous frame :(
         s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
         s_RendererData.renderData.lightCount = 0;
-        /* for (int i = 0; i < 4; i++) {
-            s_RendererData.renderData.lights[i] = {};
-        } */
 
         s_MainFramebuffer->Bind();
         s_MainFramebuffer->SetDrawBuffers({0, 1});
@@ -113,9 +110,6 @@ namespace Coffee {
         //This is setting the light information from the previous frame :(
         s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
         s_RendererData.renderData.lightCount = 0;
-        /* for (int i = 0; i < 4; i++) {
-            s_RendererData.renderData.lights[i] = {};
-        } */
 
         s_MainFramebuffer->Bind();
 
@@ -131,9 +125,6 @@ namespace Coffee {
 
             //ToneMapping
             s_PostProcessingFramebuffer->Bind();
-            //RendererAPI::SetClearColor({.1f,.1f,.1f,1.0});
-            //RendererAPI::Clear();
-            //glClear(GL_COLOR_BUFFER_BIT);
 
             s_ToneMappingShader->Bind();
             s_ToneMappingShader->setInt("screenTexture", 0);
@@ -143,8 +134,6 @@ namespace Coffee {
             RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
 
             s_ToneMappingShader->Unbind();
-
-            //s_PostProcessingFramebuffer->UnBind();
 
             //This has to be set because the s_ScreenQuad overwrites the depth buffer
             RendererAPI::SetDepthMask(false);

@@ -286,6 +286,7 @@ namespace Coffee {
             SpotLight = 2 ///< Spot light.
         };
 
+        // Align to 16 bytes(glm::vec4) instead of 12 bytes(glm::vec3) to match the std140 layout in the shader (a vec3 is 16 bytes in std140)
         alignas(16) glm::vec3 Color = {1.0f, 1.0f, 1.0f}; ///< The color of the light.
         alignas(16) glm::vec3 Direction = {0.0f, -1.0f, 0.0f}; ///< The direction of the light.
         alignas(16) glm::vec3 Position = {0.0f, 0.0f, 0.0f}; ///< The position of the light.

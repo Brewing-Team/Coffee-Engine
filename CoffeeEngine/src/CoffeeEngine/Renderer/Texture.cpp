@@ -3,7 +3,6 @@
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/Renderer/Image.h"
 
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>

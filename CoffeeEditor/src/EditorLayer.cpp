@@ -44,9 +44,6 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        //TEMPORAL
-        //Project::Load("/home/hugo/Documentos/GitHub/Coffee-Engine/bin/Coffee-Editor/Debug/Example Project/Untitled.TeaProject");
-
         m_EditorScene = CreateRef<Scene>();
         m_ActiveScene = m_EditorScene;
 
@@ -555,10 +552,6 @@ namespace Coffee {
 
         Renderer::Submit(gridShader, gridPlaneUp->GetVertexArray());
         Renderer::Submit(gridShader, gridPlaneDown->GetVertexArray());
-
-        // TODO remove testing code
-        // const glm::vec3& position, const glm::quat& rotation, glm::vec3& size, glm::vec4 color, const bool& isCentered, float lineWidth
-        // DebugRenderer::DrawBox({0,0,0}, glm::quat({0,0,0}), {1,1,1}, {1,1,0,0}, false, 2.0f);
 
         Renderer::EndOverlay();
     }

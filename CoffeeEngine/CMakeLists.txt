@@ -46,7 +46,6 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PUBLIC
     spdlog::spdlog
     fmt::fmt
-    #glfw
     SDL3::SDL3
     glm::glm
     GLAD
@@ -72,7 +71,6 @@ if (UNIX)
     option(SDL_STATIC "Use static SDL" ON)
 endif()
 
-# add_subdirectory(vendor/SDL3)
 add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)

@@ -1,15 +1,11 @@
 #include "Scene.h"
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Core/Input.h"
-#include "CoffeeEngine/Core/Stopwatch.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/Shader.h"
-#include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
@@ -65,77 +61,12 @@ namespace Coffee {
     {
         ZoneScoped;
 
-/*         Entity Root = CreateEntity("Root");
-
-        for(int i = 0; i < 5; i++)
-        {
-            Entity child1 = CreateEntity("Child(" + std::to_string(i) + ")");
-            child1.SetParent(Root);
-
-            for(int i = 0; i < 5; i++)
-            {
-                Entity child2 = CreateEntity("Child(" + std::to_string(i) + ")");
-                child2.SetParent(child1);
-            }
-        } */
-
-        /* for(int i = 0; i < 4; i++)
-        {
-            Entity light = CreateEntity("Light");
-            light.AddComponent<LightComponent>();
-            light.GetComponent<TransformComponent>().Position = glm::vec3(rand () % 10, rand () % 10, rand () % 10);
-        } */
-/*         for(int i = 0; i < 4; i++)
-                {
-                    Entity light = CreateEntity("Light");
-                    light.AddComponent<LightComponent>();
-
-                    glm::vec3 position;
-                    switch (i)
-                    {
-                        case 0:
-                            position = glm::vec3(-5.0f, 5.0f, -5.0f); // Top-left
-                            break;
-                        case 1:
-                            position = glm::vec3(5.0f, 5.0f, -5.0f); // Top-right
-                            break;
-                        case 2:
-                            position = glm::vec3(-5.0f, 5.0f, 5.0f); // Bottom-left
-                            break;
-                        case 3:
-                            position = glm::vec3(5.0f, 5.0f, 5.0f); // Bottom-right
-                            break;
-                    }
-
-                    light.GetComponent<TransformComponent>().Position = position;
-                } */
-
-        /*Entity cube = CreateEntity("Cube test");
-        cube.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());*/
-
-        /*Entity sphere = CreateEntity("Sphere test");
-        sphere.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());*/
-
-        Entity cylinder = CreateEntity("Cylinder test");
-        cylinder.AddComponent<MeshComponent>(PrimitiveMesh::CreateCylinder());
-
-        /*Entity torus = CreateEntity("Torus test");
-        torus.AddComponent<MeshComponent>(PrimitiveMesh::CreateTorus());*/
-
-        /*Entity capsule = CreateEntity("Capsule test");
-        capsule.AddComponent<MeshComponent>(PrimitiveMesh::CreateCapsule());*/
-
-        /*Entity cone = CreateEntity("Cone test");
-        cone.AddComponent<MeshComponent>(PrimitiveMesh::CreateCone());*/
-
         Entity light = CreateEntity("Directional Light");
         light.AddComponent<LightComponent>().Color = {1.0f, 0.9f, 0.85f};
         light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f};
         
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
-
-        /* AddModelToTheSceneTree(this, CreateRef<Model>("assets/models/DamagedHelmet/DamagedHelmet.gltf")); */
 
         Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
         missingMaterial = CreateRef<Material>(missingShader);
@@ -303,6 +234,7 @@ namespace Coffee {
             .get<LightComponent>(archive);
     }
 
+    // Is possible that this function will be moved to the SceneTreePanel but for now it will stay here
     void AddModelToTheSceneTree(Scene* scene, Ref<Model> model)
     {
         static Entity parent;

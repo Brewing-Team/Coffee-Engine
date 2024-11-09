@@ -3,13 +3,11 @@
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "Panels/ContentBrowserPanel.h"
 #include "Panels/MonitorPanel.h"
-#include "Panels/Panel.h"
 #include "Panels/SceneTreePanel.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
-#include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Scene/Scene.h"
 
 #include <Panels/OutputPanel.h>

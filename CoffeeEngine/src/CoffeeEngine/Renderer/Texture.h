@@ -2,7 +2,6 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/Renderer/Image.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 
 #include <cereal/access.hpp>

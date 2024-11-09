@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Events/Event.h"
 
 
