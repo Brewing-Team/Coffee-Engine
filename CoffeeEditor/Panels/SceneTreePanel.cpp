@@ -420,7 +420,8 @@ namespace Coffee {
                 {
                     ImGui::BeginChild("##Emission Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
                     //FIXME: Emissive color variable is local and do not affect the materialProperties.emissive!!
-                    glm::vec4 emissiveColor(materialProperties.emissive, 1.0f);
+                    glm::vec4& emissiveColor = reinterpret_cast<glm::vec4&>(materialProperties.emissive);
+                    emissiveColor.a = 1.0f;
                     DrawCustomColorEdit4("Color", emissiveColor);
                     ImGui::Text("Texture");
                     DrawTextureWidget("##Emissive", materialTextures.emissive);
