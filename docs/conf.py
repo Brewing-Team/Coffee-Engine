@@ -25,8 +25,32 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = [] # Do not include static files in the build directory (_static), it is not necessary and will output a warning
+using_rtd_theme = True
 
+html_theme_options = {
+    "logo_only": True,
+    "collapse_navigation": False,
+}
+
+html_context = {
+    "display_github": True, # Integrate GitHub
+    "github_user": "Brewing-Team", # Username
+    "github_repo": "Coffee-Engine", # Repo name
+    "github_version": "main", # Version
+    "conf_py_path": "/docs/", # Path in the checkout to the docs root
+}
+
+html_static_path = ["_static"] # Do not include static files in the build directory (_static), it is not necessary and will output a warning
+
+html_logo = "_static/temporal-logo.png"
+
+html_css_files = [
+    "custom.css",
+]
+
+html_js_files = [
+    "custom.js",
+]
 
 # Breathe Configuration
 breathe_projects = {
@@ -34,8 +58,3 @@ breathe_projects = {
 }
 
 breathe_default_project = "CoffeeEngine"
-
-html_theme_options = {
-    "sidebar_hide_name": False,  # Mostrar el nombre del proyecto en la barra lateral
-    "navigation_with_keys": True,  # Habilitar la navegación con teclas
-}

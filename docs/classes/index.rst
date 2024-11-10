@@ -12,6 +12,13 @@ Events
    :project: CoffeeEngine
    :members:
 
+IO
+==
+
+.. doxygengroup:: io
+   :project: CoffeeEngine
+   :members:
+
 
 ImGui
 =====
