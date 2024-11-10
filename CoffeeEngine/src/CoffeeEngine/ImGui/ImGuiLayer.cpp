@@ -29,23 +29,26 @@ namespace Coffee {
     {
         ZoneScoped;
 
-		IMGUI_CHECKVERSION();
+        IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui::StyleColorsDark();
 
         ImGuiIO& io = ImGui::GetIO(); (void)io;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; //Comment this for disable the detached imgui windows from the main window
+        //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Comment this to disable the detached imgui windows from the main window
 
         float fontSize = 17.5f;
         io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrains_Mono/static/JetBrainsMono-Medium.ttf", fontSize);
 
-		/* float fontSize = 16.0f;
-        io.FontDefault = io.Fonts->AddFontFromFileTTF("/home/hugo/.fonts/iosevka-nerd-font.ttf", fontSize); */
+        // Load icon font
+        static const ImWchar icon_ranges[] = { 0xe000, 0xe7ff, 0 }; // Adjust this range according to your icons
+        ImFontConfig icon_config;
+        icon_config.MergeMode = true;
+        icon_config.PixelSnapH = true;
+        io.Fonts->AddFontFromFileTTF("assets/fonts/lucide.ttf", fontSize, &icon_config, icon_ranges);
 
-		//SetTeaColorStyle();
-		SetCoffeeColorStyle();
+        SetCoffeeColorStyle();
 
         Application& app = Application::Get();
         SDL_Window* window = static_cast<SDL_Window*>(app.GetWindow().GetNativeWindow());

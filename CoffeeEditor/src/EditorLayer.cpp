@@ -31,6 +31,8 @@
 #include <sys/types.h>
 #include <tracy/Tracy.hpp>
 
+#include "src/IconsLucide.h"
+
 namespace Coffee {
 
     static RendererStats s_RendererData;
@@ -245,13 +247,13 @@ namespace Coffee {
             switch (m_SceneState)
             {
                 case SceneState::Edit:
-                    if(ImGui::Button("Play"))
+                    if(ImGui::Button(ICON_LC_PLAY))
                     {
                         m_SceneState = SceneState::Play;
                     }
                 break;
                 case SceneState::Play:
-                    if(ImGui::Button("Stop"))
+                    if(ImGui::Button(ICON_LC_PAUSE))
                     {
                         m_SceneState = SceneState::Edit;
                     }
