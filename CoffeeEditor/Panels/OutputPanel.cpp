@@ -72,13 +72,13 @@ namespace Coffee {
     {
         switch (level)
         {
-            case spdlog::level::trace: return ImVec4(0.5f, 0.5f, 0.5f, 1.0f); // Gray
-            case spdlog::level::debug: return ImVec4(0.0f, 1.0f, 1.0f, 1.0f); // Cyan
-            case spdlog::level::info: return ImVec4(0.0f, 1.0f, 0.0f, 1.0f);  // Green
-            case spdlog::level::warn: return ImVec4(1.0f, 1.0f, 0.0f, 1.0f); // Yellow
-            case spdlog::level::err: return ImVec4(1.0f, 0.0f, 0.0f, 1.0f);  // Red
-            case spdlog::level::critical: return ImVec4(1.0f, 0.0f, 1.0f, 1.0f); // Magenta
-            default: return ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // White
+            case spdlog::level::trace: return ImVec4(0.655f, 0.596f, 0.514f, 1.0f); // #A79883
+            case spdlog::level::debug: return ImGui::GetStyle().Colors[ImGuiCol_Text]; // Default text color
+            case spdlog::level::info: return ImVec4(0.592f, 0.588f, 0.098f, 1.0f);  // #979619
+            case spdlog::level::warn: return ImVec4(0.976f, 0.737f, 0.180f, 1.0f); // #F9BC2E
+            case spdlog::level::err: return ImVec4(0.984f, 0.357f, 0.282f, 1.0f);  // #FB5B48
+            case spdlog::level::critical: return ImVec4(0.796f, 0.137f, 0.110f, 1.0f); // #CB231C
+            default: return ImGui::GetStyle().Colors[ImGuiCol_Text]; // Default text color
         }
     }
 

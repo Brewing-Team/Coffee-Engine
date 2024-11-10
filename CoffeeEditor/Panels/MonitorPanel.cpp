@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/SystemInfo.h"
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Timer.h"
+#include <cstdint>
 #include <imgui.h>
 #include <string>
 
@@ -10,6 +11,15 @@ namespace Coffee {
 
     void MonitorPanel::OnImGuiRender()
     {
+        static float FPS = 0.0f;
+        static float FrameTime = 0.0f;
+        static uint64_t MemoryUsage = 0.0f;
+
+        FPS = Application::Get().GetFPS();
+        FrameTime = Application::Get().GetFrameTime();
+        MemoryUsage = SystemInfo::GetProcessMemoryUsage();
+
+
         ImGui::Begin("Monitor");
 
         // Set up two columns
@@ -40,12 +50,12 @@ namespace Coffee {
             ImGui::TableNextColumn();
             ImGui::Checkbox("FPS", &m_ShowFPS);
             ImGui::TableNextColumn();
-            ImGui::Text("60");
+            ImGui::Text("%d", (int)FPS);
             ImGui::TableNextRow();
             ImGui::TableNextColumn();
             ImGui::Checkbox("Frame Time", &m_ShowFrameTime);
             ImGui::TableNextColumn();
-            ImGui::Text("16.67 ms");
+            ImGui::Text("%f", FrameTime);
             ImGui::EndTable();
             ImGui::TreePop();
         }
@@ -58,7 +68,7 @@ namespace Coffee {
             ImGui::TableNextColumn();
             ImGui::Checkbox("Memory Usage", &m_MemoryUsage);
             ImGui::TableNextColumn();
-            ImGui::Text("512 MB");
+            ImGui::Text("%lu", MemoryUsage);
             ImGui::EndTable();
             ImGui::TreePop();
         }
@@ -72,18 +82,18 @@ namespace Coffee {
         if (m_ShowFPS)
         {
             ImGui::Text("FPS");
-            std::string FPSoverlay = "FPS: " + std::to_string((int)Application::Get().GetFPS());
+            std::string FPSoverlay = "FPS: " + std::to_string((int)FPS);
             ImGui::PlotLines("##FPS", [](void* data, int idx) -> float {
-                return Application::Get().GetFPS();
+                return FPS;
             }, NULL, 100, 0, FPSoverlay.c_str(), FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
         if (m_ShowFrameTime)
         {
             ImGui::Text("Frame Time");
-            std::string FrameTimeOverlay = "Frame Time: " + std::to_string(Application::Get().GetFrameTime()) + " ms";
+            std::string FrameTimeOverlay = "Frame Time: " + std::to_string(FrameTime) + " ms";
             ImGui::PlotLines("##FrameTime", [](void* data, int idx) -> float {
-                return Application::Get().GetFrameTime();
+                return FrameTime;
             }, NULL, 100, 0, FrameTimeOverlay.c_str(), FLT_MIN, FLT_MAX, ImVec2(0, 80)); // Minimum height of 80
         }
 
@@ -95,7 +105,7 @@ namespace Coffee {
             static CircularBuffer<uint64_t> memoryUsage(10000);
 
             static Timer timer(0.5f, true, false, [&]() {
-                memoryUsage.push_back(SystemInfo::GetProcessMemoryUsage());
+                memoryUsage.push_back(MemoryUsage);
             });
 
             static float yMin = 0.0f;

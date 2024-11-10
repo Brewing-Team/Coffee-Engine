@@ -259,7 +259,8 @@ namespace Coffee {
             }
 
             //set the fps counter in the right side of the menu bar
-            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 75);
+            ImVec2 textSize = ImGui::CalcTextSize(("FPS:" + std::to_string(Application::Get().GetFPS())).c_str());
+            ImGui::SetCursorPosX(ImGui::GetWindowWidth() - textSize.x);
             ImGui::TextDisabled("FPS: %.1f", Application::Get().GetFPS());
 
             ImGui::EndMainMenuBar();
@@ -381,7 +382,7 @@ namespace Coffee {
         //transparent overlay displaying fps draw calls etc
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | /*ImGuiWindowFlags_AlwaysAutoResize |*/ ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x - 150, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 100));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + ImGui::GetWindowSize().x - 205, ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - 100));
 
         ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
 
@@ -435,7 +436,7 @@ namespace Coffee {
         // End of EditorCamera ----------------------------
 
         // Render Mode Button Viewport Overlay
-        ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 30, ImGui::GetWindowPos().y + 50));
+        ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 15, ImGui::GetWindowPos().y + 35));
         ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
         ImGui::Begin("Render Mode", NULL, window_flags);
         static bool a = false;
