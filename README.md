@@ -7,7 +7,7 @@
 
 **Coffee Engine is a Beautiful and Cross-platform 3D Game Engine written in C++ using OpenGL and SDL3.** </br> 
 
-> [!WARNING]
+> [!IMPORTANT]
 > This is a university project for learning how to make a 3D game engine.
 
 ---
@@ -27,24 +27,46 @@ cd Coffee-Engine
 ### 2. Compilation
 <details>
   <summary>Windows</summary>
-(Not Tested but you should use cmake with vcpkg (easiest way i think is with vs2022))
+There are a lot of ways to do it. From installing all the necessary packages for building it (cmake, vcpkg, a compiler...), to using a IDE environment. My recomendation is to use an IDE environment if what you want is an straightforward way to compile the project.
+
+#### Instructions to compile the project using an IDE
+
+##### Visual Studio 2022
+1. Open the folder with Visual Studio 2022
+2. Enable vcpkg integration. More info at https://devblogs.microsoft.com/cppblog/vcpkg-is-now-included-with-visual-studio.
+3. Reconfigure the cmake project. If the output panel display something like ```running vcpkg install``` then you are ready to go to the next stage.
+4. Wait until all the dependencies are installed by vcpkg.
+Then select on the top play button the Coffee-Editor.exe and run it.
+5. Go to the "bin/Coffee-Engine/<build type>" folder
+6. Congratulations! You have built Coffee-Engine for the first time!
+
+##### CLion
+1. Open the folder with CLion
+2. ...
+    
 </details>
 <details>
   <summary>Linux</summary>
 
-#### 1. Install Dependencies
-- Arch Linux
+#### 1. Install vcpkg
+
+##### Clone vcpkg
 ```
-sudo pacman -S spdlog fmt glfw glm assimp
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
 ```
-- Fedora
+##### Run the bootstrap
 ```
-sudo dnf install spdlog-devel fmt-devel glfw-devel glm-devel assimp-devel
+./bootstrap-vcpkg.sh
 ```
-- Ubuntu
+
+##### Enable the vcpkg instance
 ```
-sudo apt-get install libspdlog-dev libfmt-dev libglfw3-dev libglm-dev libassimp-dev
+./vcpkg integrate install
 ```
+> Sometimes this will not automatically add the VCPKG_ROOT environment variable!
+
+##### For more info take a look at https://learn.microsoft.com/en-us/vcpkg/get_started/get-started?pivots=shell-powershell
 
 #### 2. Build
 ```
@@ -62,13 +84,15 @@ cd ../bin/CoffeeEditor/Release
 ---
 
 # Features (WIP)
+> [!WARNING]
+> This is outdated, please Brewing-Team update it!
 - [x] Compatible with Windows and Linux.
 - [x] 3D Rendering
   - [x] Textures
   - [x] Materials
   - [x] Shaders
-  - [ ] PBR Rendering
-  - [ ] Lights
+  - [x] PBR Rendering
+  - [x] Lights
   - [ ] Environment
 - [x] Scene System
   - [x] Scene Tree
