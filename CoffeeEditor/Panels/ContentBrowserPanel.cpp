@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Scene/Scene.h"
+#include "src/IconsLucide.h"
 
 #include <imgui.h>
 #include <filesystem>
@@ -54,12 +55,23 @@ namespace Coffee {
             std::string filenameString = relativePath.filename().string();
 
             ImGuiTreeNodeFlags flags = ((m_SelectedDirectory == path) ? ImGuiTreeNodeFlags_Selected : 0) |
-                            (directoryEntry.is_directory() ? 0 : ImGuiTreeNodeFlags_Leaf) |
-                            ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
+                                       (directoryEntry.is_directory() ? 0 : ImGuiTreeNodeFlags_Leaf) |
+                                       ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanAvailWidth;
 
-            if (ImGui::TreeNodeEx(filenameString.c_str(), flags))
+            const char* icon = directoryEntry.is_directory() ? ICON_LC_FOLDER : ICON_LC_FILE;
+            if (!directoryEntry.is_directory())
             {
-                if(ImGui::BeginDragDropSource())
+                std::string extension = path.extension().string();
+                if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
+                    icon = ICON_LC_IMAGE;
+                else if (extension == ".obj" || extension == ".fbx" || extension == ".gltf")
+                    icon = ICON_LC_PACKAGE;
+                // Add more file type checks as needed
+            }
+
+            if (ImGui::TreeNodeEx((std::string(icon) + " " + filenameString).c_str(), flags))
+            {
+                if (ImGui::BeginDragDropSource())
                 {
                     Ref<Resource> resource = ResourceRegistry::Get<Resource>(path.filename().string());
                     ImGui::SetDragDropPayload("RESOURCE", &resource, sizeof(Ref<Resource>));
@@ -71,25 +83,17 @@ namespace Coffee {
                 {
                     m_SelectedDirectory = path;
                 }
-                if(ImGui::IsItemClicked(ImGuiMouseButton_Right))
+                if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
                 {
-                    
+                    // Handle right-click actions
                 }
-                //if (ImGui::BeginItemTooltip())
-                //{
-                //    const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(path.filename().string());
-                //    ImGui::Text(path.filename().string().c_str());
-                //    ImGui::Text("Size: {0}", std::filesystem::file_size(path));
-                //    ImGui::Text("Type: {0}", resource->GetTypeAsString());
-                //    ImGui::EndTooltip();
-                //}
 
-                if(directoryEntry.is_directory())
+                if (directoryEntry.is_directory())
                     DisplayDirectoryContents(path, depth + 1);
 
                 ImGui::TreePop();
             }
         }
-    };
+    }
 
 }
