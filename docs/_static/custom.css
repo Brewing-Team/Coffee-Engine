@@ -27,7 +27,7 @@
     src: url("fonts/JetBrainsMono-Bold.ttf");
 }
 @font-face {
-    font-family: "Montserrat";
+    font-family: "Roboto";
     font-weight: 700;
     font-style: normal;
     font-display: swap;
@@ -158,135 +158,133 @@
     --footer-color: #808080;
 
     --system-font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-    --header-font-family: "Montserrat", var(--system-font-family);
+    --header-font-family: "Roboto", var(--system-font-family);
     --monospace-font-family: "JetBrains Mono", SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, Courier, monospace;
 }
 
 /* Dark theme colors */
 @media (prefers-color-scheme: dark) {
     :root {
-        --body-color: rgba(255, 255, 255, 0.85);
-        --content-wrap-background-color: #202326;
-        --content-background-color: #2e3236;
-        /* Decrease the logo opacity when using the dark theme to be less distracting */
+        --body-color: rgba(250, 242, 199, 0.85); /* ImGuiCol_Text */
+        --content-wrap-background-color: #14100a; /* ImGuiCol_WindowBg */
+        --content-background-color: #0e0a05; /* Similar a ImGuiCol_PopupBg */
         --logo-opacity: 0.85;
 
-        --navbar-background-color: #25282b;
-        --navbar-background-color-hover: #333639;
-        --navbar-background-color-active: #111417;
-        --navbar-current-background-color: #333639;
-        --navbar-current-background-color-hover: #44474a;
-        --navbar-current-background-color-active: #222528;
-        --navbar-category-active-color: rgba(238 115 129 / 10%);
-        --navbar-current-color: #fefefe;
-        --navbar-level-1-color: #ddd;
-        --navbar-level-2-color: #ccc;
-        --navbar-level-3-color: #bbb;
-        --navbar-expand-base-color: #80848e;
-        --navbar-expand-hover-color: #ccc;
-        --navbar-expand-active-color: #ddd;
-        --navbar-dimmed-color: #bbb;
-        --navbar-heading-color: #ee7381;
-        --navbar-scrollbar-color: #be5460;
-        --navbar-scrollbar-hover-color: #963e48;
-        --navbar-scrollbar-active-color: #5f3034;
-        --navbar-scrollbar-background: #1c1e21;
+        --navbar-background-color: #120a04; /* ImGuiCol_MenuBarBg */
+        --navbar-background-color-hover: #160e06; /* Ligeramente más claro */
+        --navbar-background-color-active: #1d1309; /* ImGuiCol_FrameBg */
+        --navbar-current-background-color: #160e06; /* Similar a Hover */
+        --navbar-current-background-color-hover: #271309; /* Similar a ImGuiCol_FrameBgHovered */
+        --navbar-current-background-color-active: #46290b; /* ImGuiCol_FrameBgActive */
+        --navbar-category-active-color: rgba(176, 97, 4, 0.1); /* Color anaranjado tenue */
+        --navbar-current-color: #fae2c7; /* ImGuiCol_Text */
+        --navbar-level-1-color: #a99484; /* Similar a ImGuiCol_TextDisabled */
+        --navbar-level-2-color: #988c84; /* Un poco más tenue */
+        --navbar-level-3-color: #918479; /* Otro tono de ImGuiCol_TextDisabled */
+        --navbar-expand-base-color: #6a5642; /* Tonos de marrón claro */
+        --navbar-expand-hover-color: #988c84;
+        --navbar-expand-active-color: #a99484;
+        --navbar-dimmed-color: #918479;
+        --navbar-heading-color: #d0620a; /* ImGuiCol_TextLink */
+        --navbar-scrollbar-color: #745c40; /* ImGuiCol_ScrollbarGrab */
+        --navbar-scrollbar-hover-color: #876945; /* ImGuiCol_ScrollbarGrabHovered */
+        --navbar-scrollbar-active-color: #643d23; /* ImGuiCol_ScrollbarGrabActive */
+        --navbar-scrollbar-background: #332416; /* Similar a ImGuiCol_ScrollbarBg */
 
-        --link-color: #8cf;
-        --link-color-hover: #9df;
-        --link-color-active: #6ad;
-        --link-color-visited: #cb99f6;
-        --class-reference-icon: url("data:image/svg+xml;base64,PHN2ZyBjbGlwLXJ1bGU9ImV2ZW5vZGQiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLW1pdGVybGltaXQ9IjIiIHZpZXdCb3g9IjAgMCAxNiAxNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJtNS4wMjkgMWMtLjk5OS0uMDExLTIuMDA5LjMxMi0zLjAyOSAxdjdjMi4wMTctMS4zNTMgNC4wMTctMS4zMTQgNiAwIDEuOTgzLTEuMzE0IDMuOTgzLTEuMzUzIDYgMHYtN2MtMS4wMi0uNjg4LTIuMDMtMS4wMTEtMy4wMjktMS0uNjYyLjAwNy0xLjMxOC4xNzMtMS45NzEuNDYzdjQuNTM3aC0xdi00Yy0uOTgyLS42NDUtMS45NzEtLjk4OS0yLjk3MS0xem0tNS4wMjkgOXY2aDJjMS42NDYgMCAzLTEuMzU0IDMtM3MtMS4zNTQtMy0zLTN6bTUgM2MwIDEuNjQ2IDEuMzU0IDMgMyAzczMtMS4zNTQgMy0zLTEuMzU0LTMtMy0zLTMgMS4zNTQtMyAzem02IDBjMCAxLjY0NiAxLjM1NCAzIDMgM2gxdi0yaC0xYy0uNTQ5IDAtMS0uNDUxLTEtMXMuNDUxLTEgMS0xaDF2LTJoLTFjLTEuNjQ2IDAtMyAxLjM1NC0zIDN6bS05LTFjLjU0OSAwIDEgLjQ1MSAxIDFzLS40NTEgMS0xIDF6bTYgMGMuNTQ5IDAgMSAuNDUxIDEgMXMtLjQ1MSAxLTEgMS0xLS40NTEtMS0xIC40NTEtMSAxLTF6IiBmaWxsPSIjYmZiZmJmIiBmaWxsLW9wYWNpdHk9Ii41OSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PC9zdmc+Cg==");
-        --external-reference-icon: url("data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjEyIiB3aWR0aD0iMTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjOGNmIj48cGF0aCBkPSJtNy41IDcuMXYzLjRoLTZ2LTZoMy40Ii8+PHBhdGggZD0ibTUuNzY1IDFoNS4yMzV2NS4zOWwtMS41NzMgMS41NDctMS4zMS0xLjMxLTIuNzI0IDIuNzIzLTIuNjktMi42ODggMi44MS0yLjgwOC0xLjMxMy0xLjMxeiIvPjwvZz48L3N2Zz4K");
+        --link-color: #bf7734; /* ImGuiCol_TextLink */
+        --link-color-hover: #e58736; /* Un poco más claro */
+        --link-color-active: #a66230; /* Un poco más oscuro */
+        --link-color-visited: #d18a4e; /* Tono intermedio */
+        --class-reference-icon: url("data:image/svg+xml;base64,...");
 
-        --hr-color: #555;
-        --table-row-odd-background-color: #3b3e41;
-        --code-background-color: #22252d;
-        --code-border-color: #505356;
-        --code-literal-color: #d68f8f;
-        --input-background-color: #333537;
-        --input-focus-border-color: #5f8cff;
+        --hr-color: #37291a; /* ImGuiCol_Border */
+        --table-row-odd-background-color: #120a04; /* ImGuiCol_MenuBarBg */
+        --code-background-color: #120d07; /* Similar a ImGuiCol_TitleBg */
+        --code-border-color: #352417; /* ImGuiCol_TableBorderStrong */
+        --code-literal-color: #b26522; /* Color naranja oscuro */
+        --input-background-color: #302217; /* ImGuiCol_FrameBg */
+        --input-focus-border-color: #bf7734; /* ImGuiCol_SliderGrab */
 
-        --tabs-background-color: #434649;
-        --tabs-selected-color: #a2a9ae;
-        --code-tabs-background-color: #353c4c;
-        --code-tabs-selected-color: #5a657e;
+        --tabs-background-color: #160e06; /* Ligeramente más claro */
+        --tabs-selected-color: #bf7734; /* ImGuiCol_HeaderHovered */
+        --code-tabs-background-color: #2a1b11; /* ImGuiCol_TitleBgCollapsed */
+        --code-tabs-selected-color: #6a5642; /* ImGuiCol_Header */
 
-        --classref-primary-color: #e8e8e8;
-        --classref-secondary-color: #929598;
-        --classref-setget-color: #9e9fa0;
+        --classref-primary-color: #fae2c7; /* ImGuiCol_Text */
+        --classref-secondary-color: #918479;
+        --classref-setget-color: #bfa28e;
 
-        --search-input-background-color: #43464a; /* derived from --input-background-color */
-        --search-match-color: #52b4ff; /* derived from --link-color */
-        --search-match-background-color: #414c56; /* derived from --link-color */
-        --search-active-color: #202326;
-        --search-credits-background-color: #202123; /* derived from --navbar-background-color */
-        --search-credits-color: #6b6b6b; /* derived from --footer-color */
-        --search-credits-link-color: #628fb1; /* derived from --link-color */
+        --search-input-background-color: #302217;
+        --search-match-color: #d18a4e;
+        --search-match-background-color: #3b291a;
+        --search-active-color: #120a04;
+        --search-credits-background-color: #120a04;
+        --search-credits-color: #988c84;
+        --search-credits-link-color: #bf7734;
 
-        --search-odd-color: #202326;
-        --search-even-color: #25282b;
-        --search-highlighted-color: rgb(255 205 0 / 16%);
-        --search-context-color: #aaa;
+        --search-odd-color: #120a04;
+        --search-even-color: #160e06;
+        --search-highlighted-color: rgba(250, 205, 0, 0.16);
+        --search-context-color: #a99484;
 
-        /* Colors taken from the Godot script editor with the Adaptive theme */
-        --highlight-background-color: #202531;
-        --highlight-background-emph-color: #2d3444;
-        --highlight-default-color: rgba(255, 255, 255, 0.85);
-        --highlight-comment-color: rgba(204, 206, 211, 0.5);
-        --highlight-keyword-color: #ff7085;
-        --highlight-keyword2-color: #42ffc2;
-        --highlight-control-flow-keyword-color: #ff8ccc;
-        --highlight-number-color: #a1ffe0;
-        --highlight-decorator-color: #ffb373;
-        --highlight-type-color: #8effda;
-        --highlight-type2-color: #c6ffed;
-        --highlight-function-color: #57b3ff;
-        --highlight-operator-color: #abc8ff;
-        --highlight-string-color: #ffeca1;
+        --highlight-background-color: #14100a;
+        --highlight-background-emph-color: #271309;
+        --highlight-default-color: rgba(250, 242, 199, 0.85);
+        --highlight-comment-color: rgba(168, 144, 132, 0.5);
+        --highlight-keyword-color: #bf7734;
+        --highlight-keyword2-color: #69b13c;
+        --highlight-control-flow-keyword-color: #d15c5c;
+        --highlight-number-color: #89d0a8;
+        --highlight-decorator-color: #d1ab54;
+        --highlight-type-color: #6a9a7a;
+        --highlight-type2-color: #bfa2a6;
+        --highlight-function-color: #8bb3de;
+        --highlight-operator-color: #bbc3a5;
+        --highlight-string-color: #d1c5a2;
 
-        --copybtn-background-color: #2a303c;
-        --copybtn-background-color-hover: #3e4450;
-        --copybtn-border-color: #3e4450;
-        --copybtn-border-color-hover: #8b949e;
-        --copybtn-icon-color: #8b949e;
-        --copybtn-icon-color-success: #3fb950;
-        --copybtn-tooltip-background-color: #6e7681;
+        --copybtn-background-color: #2f2516;
+        --copybtn-background-color-hover: #3d2c1b;
+        --copybtn-border-color: #3d2c1b;
+        --copybtn-border-color-hover: #9e846c;
+        --copybtn-icon-color: #9e846c;
+        --copybtn-icon-color-success: #96d23a;
+        --copybtn-tooltip-background-color: #6b5743;
         --copybtn-box-shadow: 0 0 transparent, 0 0 transparent;
-        --copybtn-border-color-success: #238636;
+        --copybtn-border-color-success: #6ba83a;
 
-        --contribute-background-color: #25282d;
-        --contribute-text-color: #7f939b;
+        --contribute-background-color: #2b1e15;
+        --contribute-text-color: #a99484;
 
-        --admonition-note-background-color: #303d4f;
-        --admonition-note-color: #bfeeff;
-        --admonition-note-title-background-color: #305070;
-        --admonition-note-title-color: #bfefff;
-        --admonition-attention-background-color: #444033;
-        --admonition-attention-color: #ffeeaf;
-        --admonition-attention-title-background-color: #665022;
-        --admonition-attention-title-color: #ffeeaf;
-        --admonition-danger-background-color: #433;
-        --admonition-danger-color: #fcc;
-        --admonition-danger-title-background-color: #633;
-        --admonition-danger-title-color: #fcc;
-        --admonition-tip-background-color: #28382d;
-        --admonition-tip-color: #dfd;
-        --admonition-tip-title-background-color: #336648;
-        --admonition-tip-title-color: #dfd;
+        --admonition-note-background-color: #3e3025;
+        --admonition-note-color: #c0b39c;
+        --admonition-note-title-background-color: #5c3d2d;
+        --admonition-note-title-color: #c0b39c;
+        --admonition-attention-background-color: #4a3320;
+        --admonition-attention-color: #e1d1a7;
+        --admonition-attention-title-background-color: #6d4a31;
+        --admonition-attention-title-color: #e1d1a7;
+        --admonition-danger-background-color: #4d3024;
+        --admonition-danger-color: #e79b9b;
+        --admonition-danger-title-background-color: #732724;
+        --admonition-danger-title-color: #e79b9b;
+        --admonition-tip-background-color: #2d3026;
+        --admonition-tip-color: #e1e8d1;
+        --admonition-tip-title-background-color: #385232;
+        --admonition-tip-title-color: #e1e8d1;
 
-        --kbd-background-color: #595b5d;
-        --kbd-outline-color: #3d4144;
-        --kbd-shadow-color: #1e2023;
-        --kbd-text-color: #e2f2ff;
+        --kbd-background-color: #5c4a3b;
+        --kbd-outline-color: #3d2c21;
+        --kbd-shadow-color: #1e1813;
+        --kbd-text-color: #f2e2d2;
 
-        --code-example-good-color: #3fb950;
-        --code-example-bad-color: #f85149;
+        --code-example-good-color: #96d23a;
+        --code-example-bad-color: #e85151;
 
-        --btn-neutral-background-color: #404040;
-        --btn-neutral-hover-background-color: #505050;
-        --footer-color: #aaa;
+        --btn-neutral-background-color: #41302a;
+        --btn-neutral-hover-background-color: #523e2e;
+        --footer-color: #a99484;
     }
+
 }
 
 body,
