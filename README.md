@@ -2,10 +2,10 @@
 [![Publish Documentation](https://github.com/Brewing-Team/Coffee-Engine/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/Brewing-Team/Coffee-Engine/actions/workflows/publish-docs.yml)
 
 <p align="center">
-    <img src="/Resources/temporal-logo.webp?raw=true">
+    <img src="/Resources/temporal-logo.webp?raw=true" width="256" height="256">
 </p>
 
-**Coffee Engine is a Beautiful(not yet but it will be) and Cross-platform 3D Game Engine written in C++ using OpenGL and SDL3.** </br> 
+**Coffee Engine is a Beautiful and Cross-platform 3D Game Engine written in C++ using OpenGL and SDL3.** </br> 
 
 > [!WARNING]
 > This is a university project for learning how to make a 3D game engine.
@@ -14,7 +14,7 @@
 
 # Getting Started
 
-Any IDE or Text Editor that supports CMake Projects should work for developing the project.
+Any IDE or Text Editor that supports CMake Projects (and vcpkg) should work for developing the project.
 
 ## Building
 
@@ -81,10 +81,9 @@ cd ../bin/CoffeeEditor/Release
 
 # Screenshots
 
-
-![Coffee-Engine Screenshot-1.png](/Resources/Screenshot_20240820_212911.png?raw=true)
-![Coffee-Engine Screenshot-2.png](/Resources/vlcsnap-2024-09-19-11h51m05s268.png?raw=true)
-![Coffee-Engine Screenshot-3.png](/Resources/Screenshot_20240806_153839.png?raw=true)
+![](Resources/Release1/screenshot_1.png)
+![](Resources/Release1/screenshot_2.png)
+![](Resources/Release1/screenshot_3.png)
 
 ---
 
@@ -93,7 +92,7 @@ cd ../bin/CoffeeEditor/Release
 This project makes use of several open-source libraries and resources that have greatly contributed to its development. Special thanks to the creators and maintainers of the following:
 
 - **[spdlog](https://github.com/gabime/spdlog)**: Fast C++ logging library.
-- **[GLFW](https://www.glfw.org/)**: Library for handling window creation, input, and events.
+- **[SDL3](https://github.com/libsdl-org/SDL)**: Cross-platform development library made by [libsdl.org](https://libsdl.org/).
 - **[GLM](https://github.com/g-truc/glm)**: OpenGL Mathematics library for graphics software.
 - **[GLAD](https://github.com/Dav1dde/glad)**: Multi-language OpenGL loader-generator.
 - **[ImGui](https://github.com/ocornut/imgui)**: Immediate Mode Graphical User Interface for C++.
