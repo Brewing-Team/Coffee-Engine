@@ -9,7 +9,7 @@
 project = 'Coffee Engine'
 copyright = '2024, Hugo Planell Moreno, Mario Dorado Martínez'
 author = 'Hugo Planell Moreno, Mario Dorado Martínez'
-release = '0.1.0'
+release = '0.2.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
