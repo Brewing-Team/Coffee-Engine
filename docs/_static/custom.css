@@ -1337,13 +1337,14 @@ p + .classref-constant {
     /* A 5 pixel margin is added on each side. The logo itself displays at 200×200 at 100% scaling. */
     /*
 
-    TODO change the logo size when we add the name in the iamge
+    width: 70px;
+    height: 70px;
+    */
 
     width: 270px;
     height: 70px;
-    */
-    width: 70px;
-    height: 70px;
+
+
 }
 
 .wy-side-nav-search {

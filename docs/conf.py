@@ -42,7 +42,7 @@ html_context = {
 
 html_static_path = ["_static"] # Do not include static files in the build directory (_static), it is not necessary and will output a warning
 
-html_logo = "_static/temporal-logo.png"
+html_logo = "_static/Coffee-Docs.png"
 
 html_css_files = [
     "custom.css",
