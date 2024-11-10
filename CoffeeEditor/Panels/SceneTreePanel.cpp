@@ -2,6 +2,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
@@ -12,6 +13,7 @@
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
+
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -328,6 +330,16 @@ namespace Coffee {
                 auto& materialComponent = entity.GetComponent<MaterialComponent>();
                 uint32_t textureID = texture ? texture->GetID() : 0;
                 ImGui::ImageButton(label.c_str(), (ImTextureID)textureID, {64, 64});
+
+                if (ImGui::IsItemHovered() and texture)
+                {
+                    ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s",
+                      texture->GetName().c_str(),
+                      texture->GetWidth(),
+                      texture->GetHeight(),
+                      texture->GetPath().c_str()
+                      );
+                }
 
                 if(ImGui::BeginDragDropTarget())
                 {
