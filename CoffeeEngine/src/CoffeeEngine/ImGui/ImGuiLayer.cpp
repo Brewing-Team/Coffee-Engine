@@ -48,7 +48,7 @@ namespace Coffee {
         ImFontConfig icon_config;
         icon_config.MergeMode = true;
         icon_config.PixelSnapH = true;
-        io.Fonts->AddFontFromFileTTF("assets/fonts/lucide.ttf", 14, &icon_config, icon_ranges); // FIXME the size of the font makes the icons beeing not centered
+        io.Fonts->AddFontFromFileTTF("assets/fonts/lucide.ttf", 14, &icon_config, icon_ranges); // FIXME the size of the font makes the icons beeing not centered https://github.com/ocornut/imgui/blob/master/docs/FONTS.md
 
         SetCoffeeColorStyle();
 
