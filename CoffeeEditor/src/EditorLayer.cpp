@@ -191,25 +191,25 @@ namespace Coffee {
 
             if (ImGui::BeginMenu("File"))
             {
-                if (ImGui::MenuItem("New Scene", "Ctrl+N")) { NewScene(); }
-                if (ImGui::MenuItem("Open Scene...", "Ctrl+O")) { OpenScene(); }
-                if (ImGui::MenuItem("Save Scene", "Ctrl+S")) { SaveScene(); }
-                if (ImGui::MenuItem("Save Scene As...", "Ctrl+Shift+S")) { SaveSceneAs(); }
-                if (ImGui::MenuItem("Exit")) { Application::Get().Close(); }
+                if (ImGui::MenuItem(ICON_LC_FILE_PLUS_2 " New Scene", "Ctrl+N")) { NewScene(); }
+                if (ImGui::MenuItem(ICON_LC_FOLDER_OPEN " Open Scene...", "Ctrl+O")) { OpenScene(); }
+                if (ImGui::MenuItem(ICON_LC_SAVE " Save Scene", "Ctrl+S")) { SaveScene(); }
+                if (ImGui::MenuItem(ICON_LC_SAVE " Save Scene As...", "Ctrl+Shift+S")) { SaveSceneAs(); }
+                if (ImGui::MenuItem(ICON_LC_X " Exit")) { Application::Get().Close(); }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Project"))
             {
-                if (ImGui::MenuItem("New Project...", "Ctrl+N")) { NewProject(); }
-                if (ImGui::MenuItem("Open Project...", "Ctrl+O")) { OpenProject(); }
-                if (ImGui::MenuItem("Save Project", "Ctrl+S")) { SaveProject(); }
+                if (ImGui::MenuItem(ICON_LC_FILE_PLUS_2 " New Project...", "Ctrl+N")) { NewProject(); }
+                if (ImGui::MenuItem(ICON_LC_FOLDER_OPEN " Open Project...", "Ctrl+O")) { OpenProject(); }
+                if (ImGui::MenuItem(ICON_LC_SAVE " Save Project", "Ctrl+S")) { SaveProject(); }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Editor"))
             {
                 if(ImGui::BeginMenu("Color Theme"))
                 {
-                    if(ImGui::MenuItem("Coffee"))
+                    if(ImGui::MenuItem(ICON_LC_COFFEE " Coffee"))
                     {
                         Application::Get().GetImGuiLayer()->SetCoffeeColorStyle();
                     }

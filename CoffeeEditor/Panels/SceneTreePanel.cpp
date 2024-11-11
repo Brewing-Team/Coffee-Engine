@@ -1,4 +1,5 @@
 #include "SceneTreePanel.h"
+
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/IO/Resource.h"
@@ -10,6 +11,7 @@
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
+#include "IconsLucide.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
@@ -49,7 +51,7 @@ namespace Coffee {
         }
 
         //Button for adding entities to the scene tree
-        if(ImGui::Button("+", {24,24}))
+        if(ImGui::Button(ICON_LC_PLUS, {24,24}))
         {
             ImGui::OpenPopup("Add Entity...");
         }
@@ -57,7 +59,7 @@ namespace Coffee {
         ImGui::SameLine();
 
         static std::array<char, 256> searchBuffer;
-        ImGui::InputTextWithHint("##searchbar", "Search by name:", searchBuffer.data(), searchBuffer.size());
+        ImGui::InputTextWithHint("##searchbar", ICON_LC_SEARCH " Search by name:", searchBuffer.data(), searchBuffer.size());
 
         ImGui::BeginChild("entity tree", {0,0}, ImGuiChildFlags_Border);
 
