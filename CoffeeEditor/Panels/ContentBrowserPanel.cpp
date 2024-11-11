@@ -65,7 +65,10 @@ namespace Coffee {
                 if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
                     icon = ICON_LC_IMAGE;
                 else if (extension == ".obj" || extension == ".fbx" || extension == ".gltf")
-                    icon = ICON_LC_PACKAGE;
+                    icon = ICON_LC_BOX;
+                else if (extension == ".TeaProject")
+                    icon = ICON_LC_COFFEE;
+
                 // Add more file type checks as needed
             }
 
