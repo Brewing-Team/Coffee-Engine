@@ -52,7 +52,7 @@ namespace Coffee {
         ImGui::GetStyle().ScaleAllSizes(dpiScaling);
 
         float fontSize = 17.5f * dpiScaling;
-        float iconFontSize = fontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
+        float iconFontSize = fontSize;
         io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrains_Mono/static/JetBrainsMono-Medium.ttf", fontSize);
 
         // ================ This is temporal please Hugo do it correctly (END) ===============//
