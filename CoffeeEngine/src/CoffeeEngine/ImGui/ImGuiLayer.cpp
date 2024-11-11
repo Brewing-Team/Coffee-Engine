@@ -41,6 +41,7 @@ namespace Coffee {
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Comment this to disable the detached imgui windows from the main window
 
         float fontSize = 17.5f;
+        float iconFontSize = fontSize * 2.0f / 3.0f; // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
         io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrains_Mono/static/JetBrainsMono-Medium.ttf", fontSize);
 
         // Load icon font
@@ -48,7 +49,8 @@ namespace Coffee {
         ImFontConfig icon_config;
         icon_config.MergeMode = true;
         icon_config.PixelSnapH = true;
-        io.Fonts->AddFontFromFileTTF("assets/fonts/lucide.ttf", 14, &icon_config, icon_ranges); // FIXME the size of the font makes the icons beeing not centered https://github.com/ocornut/imgui/blob/master/docs/FONTS.md
+        icon_config.GlyphMinAdvanceX = iconFontSize;
+        io.Fonts->AddFontFromFileTTF("assets/fonts/lucide.ttf", iconFontSize, &icon_config, icon_ranges); // FIXME the size of the font makes the icons beeing not centered https://github.com/ocornut/imgui/blob/master/docs/FONTS.md
 
         SetCoffeeColorStyle();
 
