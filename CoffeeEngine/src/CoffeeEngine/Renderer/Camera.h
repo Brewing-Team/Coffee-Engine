@@ -107,12 +107,10 @@ namespace Coffee
         template <class Archive>
         void serialize(Archive& archive)
         {
-            /* archive(cereal::make_nvp("FOV", m_FOV), cereal::make_nvp("AspectRatio", m_AspectRatio),
+            archive(cereal::make_nvp("FOV", m_FOV), cereal::make_nvp("AspectRatio", m_AspectRatio),
                     cereal::make_nvp("NearClip", m_NearClip), cereal::make_nvp("FarClip", m_FarClip),
                     cereal::make_nvp("ProjectionType", m_ProjectionType), cereal::make_nvp("ViewportWidth", m_ViewportWidth),
-                    cereal::make_nvp("ViewportHeight", m_ViewportHeight)); */
-            archive(CEREAL_NVP(m_FOV), CEREAL_NVP(m_AspectRatio), CEREAL_NVP(m_NearClip), CEREAL_NVP(m_FarClip),
-                    /* CEREAL_NVP(m_ProjectionType),  */CEREAL_NVP(m_ViewportWidth), CEREAL_NVP(m_ViewportHeight));
+                    cereal::make_nvp("ViewportHeight", m_ViewportHeight));
         }
 
     protected:
