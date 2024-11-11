@@ -198,7 +198,7 @@ namespace Coffee {
         {
             auto& entityNameTag = entity.GetComponent<TagComponent>().Tag;
 
-            ImGui::Text("Tag");
+            ImGui::Text(ICON_LC_TAG " Tag");
             ImGui::SameLine();
 
             char buffer[256];
