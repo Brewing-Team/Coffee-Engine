@@ -75,6 +75,7 @@ add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/ImGuizmo)
+add_subdirectory(vendor/IconFontCppHeaders)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=1)
