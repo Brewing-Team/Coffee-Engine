@@ -71,6 +71,8 @@ namespace Coffee {
 
             SDL_SetWindowPosition(m_Window, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
 
+			m_Data.scalingFactor = SDL_GetWindowDisplayScale(m_Window);
+
 			++s_SDLWindowCount;
         }
 		//Create OpenGL Context

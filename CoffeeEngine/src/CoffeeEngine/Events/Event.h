@@ -18,7 +18,7 @@ namespace Coffee {
     enum class EventType
     {
         None = 0,
-        WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, FileDrop,
+        WindowClose, WindowResize, WindowDisplayScale, WindowFocus, WindowLostFocus, WindowMoved, FileDrop,
         AppTick, AppUpdate, AppRender,
         KeyPressed, KeyReleased, KeyTyped,
         MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled

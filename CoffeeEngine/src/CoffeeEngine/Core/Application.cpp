@@ -1,5 +1,6 @@
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Layer.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
@@ -59,7 +60,8 @@ namespace Coffee
 
         EventDispatcher dispacher(e);
         dispacher.Dispatch<WindowCloseEvent>(COFFEE_BIND_EVENT_FN(OnWindowClose));
-
+        dispacher.Dispatch<WindowResizeEvent>(COFFEE_BIND_EVENT_FN(OnWindowResize));
+        dispacher.Dispatch<WindowDisplayScaleEvent>(COFFEE_BIND_EVENT_FN(OnWindowDisplayScale));
 
         for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
         {
@@ -127,6 +129,13 @@ namespace Coffee
                 case SDL_EVENT_WINDOW_RESIZED:
                 {
                     WindowResizeEvent e(event.window.data1, event.window.data2);
+                    m_EventCallback(e);
+                    break;
+                }
+                case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
+                {
+                    float scale = SDL_GetWindowDisplayScale((SDL_Window*)m_Window->GetNativeWindow());
+                    WindowDisplayScaleEvent e(scale);
                     m_EventCallback(e);
                     break;
                 }
@@ -200,6 +209,24 @@ namespace Coffee
 
         m_Running = false;
         return true;
+    }
+
+    bool Application::OnWindowResize(WindowResizeEvent& e)
+    {
+        ZoneScoped;
+
+        m_Window->OnSizeChanged(e.GetWidth(), e.GetHeight());
+
+        return false;
+    }
+
+    bool Application::OnWindowDisplayScale(WindowDisplayScaleEvent& e)
+    {
+        ZoneScoped;
+
+        m_Window->OnDisplayScaleChanged(e.GetScale());
+
+        return false;
     }
 
 } // namespace Coffee

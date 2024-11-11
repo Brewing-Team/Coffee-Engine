@@ -1,6 +1,7 @@
 #include "ImGuiLayer.h"
 
 #include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Window.h"
 #include "SDL3/SDL_video.h"
 
@@ -40,18 +41,14 @@ namespace Coffee {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Comment this to disable the detached imgui windows from the main window
 
-
-        // ================ This is temporal please Hugo do it correctly ===============//
         Application& app = Application::Get();
-        SDL_Window* window = static_cast<SDL_Window*>(app.GetWindow().GetNativeWindow());
+        Window& window = app.GetWindow();
 
-        COFFEE_ERROR("DPI Scaling: {0}", SDL_GetWindowDisplayScale(window));
+        float scalingFactor = window.GetScalingFactor();
 
-        float dpiScaling = SDL_GetWindowDisplayScale(window);
+        ImGui::GetStyle().ScaleAllSizes(scalingFactor);
 
-        ImGui::GetStyle().ScaleAllSizes(dpiScaling);
-
-        float fontSize = 17.5f * dpiScaling;
+        float fontSize = 17.5f * scalingFactor; // 17.5f has decimals and IMGUI documentation says that it should be rounded to the nearest integer but it looks good with decimals
         float iconFontSize = fontSize;
         io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrains_Mono/static/JetBrainsMono-Medium.ttf", fontSize);
 
@@ -68,7 +65,9 @@ namespace Coffee {
 
         SetCoffeeColorStyle();
 
-        ImGui_ImplSDL3_InitForOpenGL(window, SDL_GL_GetCurrentContext());
+		SDL_Window* nativeWindow = static_cast<SDL_Window*>(window.GetNativeWindow());
+
+        ImGui_ImplSDL3_InitForOpenGL(nativeWindow, SDL_GL_GetCurrentContext());
         ImGui_ImplOpenGL3_Init("#version 410");
     }
 
@@ -88,6 +87,30 @@ namespace Coffee {
 			ImGuiIO& io = ImGui::GetIO();
 			e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
 			e.Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
+		}
+
+		if(e.GetEventType() == EventType::WindowDisplayScale)
+		{
+			WindowDisplayScaleEvent& event = static_cast<WindowDisplayScaleEvent&>(e);
+			ImGui::GetStyle().ScaleAllSizes(event.GetScale());
+
+			float fontSize = 17.5f * event.GetScale();
+			float iconFontSize = fontSize;
+			ImGuiIO& io = ImGui::GetIO();
+			io.Fonts->Clear();
+			io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrains_Mono/static/JetBrainsMono-Medium.ttf", fontSize);
+
+			// Load icon font
+			static const ImWchar icon_ranges[] = { ICON_MIN_LC, ICON_MAX_LC, 0 }; // Adjust this range according to your icons
+			ImFontConfig icon_config;
+			icon_config.MergeMode = true;
+			icon_config.PixelSnapH = true;
+			icon_config.GlyphMinAdvanceX = iconFontSize;
+			icon_config.GlyphOffset.y = 3.5f;
+			io.Fonts->AddFontFromFileTTF("assets/fonts/lucide.ttf", iconFontSize, &icon_config, icon_ranges);
+
+			ImGui_ImplOpenGL3_DestroyDeviceObjects();
+			ImGui_ImplOpenGL3_CreateDeviceObjects();
 		}
     }
 

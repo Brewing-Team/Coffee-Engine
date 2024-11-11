@@ -59,6 +59,9 @@ namespace Coffee {
          */
         void OnUpdate();
 
+        void OnSizeChanged(uint32_t width, uint32_t height) { m_Data.Width = width; m_Data.Height = height; }
+        void OnDisplayScaleChanged(float scale) { m_Data.scalingFactor = scale; }
+
         /**
          * @brief Gets the width of the window.
          * @return The width of the window.
@@ -70,6 +73,8 @@ namespace Coffee {
          * @return The height of the window.
          */
         unsigned int GetHeight() const { return m_Data.Height; }
+
+        float GetScalingFactor() const { return m_Data.scalingFactor; }
 
         /**
          * @brief Enables or disables VSync.
@@ -137,6 +142,7 @@ namespace Coffee {
         {
             std::string Title; ///< The title of the window.
             unsigned int Width, Height; ///< The width and height of the window.
+            float scalingFactor; ///< The scaling factor of the window.
             bool VSync; ///< Indicates whether VSync is enabled.
         };
 
