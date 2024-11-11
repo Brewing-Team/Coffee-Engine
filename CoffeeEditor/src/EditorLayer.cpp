@@ -646,7 +646,20 @@ namespace Coffee {
     }
     void EditorLayer::SaveScene()
     {
-        Scene::Save(Project::GetActive()->GetProjectDirectory() / "Untitled.TeaScene", m_ActiveScene);
+        FileDialogArgs args;
+        args.Filters = {{"Coffee Scene", "TeaScene"}};
+        const std::filesystem::path& path = FileDialog::SaveFile(args);
+
+        if (!path.empty())
+        {
+            Scene::Save(path, m_ActiveScene);
+        }
+        else
+        {
+            COFFEE_CORE_WARN("Save Scene: No file selected");
+        }
+
+        /* Scene::Save(Project::GetActive()->GetProjectDirectory() / "Untitled.TeaScene", m_ActiveScene); */
     }
     void EditorLayer::SaveSceneAs() {}
 

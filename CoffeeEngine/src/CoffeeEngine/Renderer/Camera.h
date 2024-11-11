@@ -1,7 +1,11 @@
 #pragma once
 
+#include <cereal/details/helpers.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/glm.hpp>
+#include <cereal/access.hpp>
+#include <cereal/archives/json.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 namespace Coffee
 {
@@ -57,6 +61,14 @@ namespace Coffee
             ORTHOGRAPHIC ///< Orthographic projection.
         };
 
+/*         template <class Archive>
+        void serialize(Archive& archive, ProjectionType& projectionType)
+        {
+            int projectionTypeInt = static_cast<int>(projectionType);
+            archive(projectionTypeInt);
+            projectionType = static_cast<ProjectionType>(projectionTypeInt);
+        } */
+
         /**
          * @brief Converts the projection type to a projection matrix.
          * @param projection The type of projection.
@@ -84,6 +96,24 @@ namespace Coffee
             m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
             m_Projection = ProjectionTypeToMat4(m_ProjectionType);
         }
+    private:
+        friend class cereal::access;
+
+        /**
+         * @brief Serializes the camera to an archive.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to save the camera to.
+         */
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            /* archive(cereal::make_nvp("FOV", m_FOV), cereal::make_nvp("AspectRatio", m_AspectRatio),
+                    cereal::make_nvp("NearClip", m_NearClip), cereal::make_nvp("FarClip", m_FarClip),
+                    cereal::make_nvp("ProjectionType", m_ProjectionType), cereal::make_nvp("ViewportWidth", m_ViewportWidth),
+                    cereal::make_nvp("ViewportHeight", m_ViewportHeight)); */
+            archive(CEREAL_NVP(m_FOV), CEREAL_NVP(m_AspectRatio), CEREAL_NVP(m_NearClip), CEREAL_NVP(m_FarClip),
+                    /* CEREAL_NVP(m_ProjectionType),  */CEREAL_NVP(m_ViewportWidth), CEREAL_NVP(m_ViewportHeight));
+        }
 
     protected:
         float m_FOV = 45.0f; ///< The field of view for the perspective projection.
@@ -101,3 +131,5 @@ namespace Coffee
 
     /** @} */
 }
+
+CEREAL_REGISTER_TYPE(Coffee::Camera);
