@@ -41,18 +41,9 @@ namespace Coffee {
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
         //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Comment this to disable the detached imgui windows from the main window
 
-        Application& app = Application::Get();
-        Window& window = app.GetWindow();
-
-        float scalingFactor = window.GetScalingFactor();
-
-        ImGui::GetStyle().ScaleAllSizes(scalingFactor);
-
-        float fontSize = 17.5f * scalingFactor; // 17.5f has decimals and IMGUI documentation says that it should be rounded to the nearest integer but it looks good with decimals
+        float fontSize = 17.5f;
         float iconFontSize = fontSize;
         io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrains_Mono/static/JetBrainsMono-Medium.ttf", fontSize);
-
-        // ================ This is temporal please Hugo do it correctly (END) ===============//
 
         // Load icon font
         static const ImWchar icon_ranges[] = { ICON_MIN_LC, ICON_MAX_LC, 0 }; // Adjust this range according to your icons
@@ -65,9 +56,10 @@ namespace Coffee {
 
         SetCoffeeColorStyle();
 
-		SDL_Window* nativeWindow = static_cast<SDL_Window*>(window.GetNativeWindow());
+        Application& app = Application::Get();
+        SDL_Window* window = static_cast<SDL_Window*>(app.GetWindow().GetNativeWindow());
 
-        ImGui_ImplSDL3_InitForOpenGL(nativeWindow, SDL_GL_GetCurrentContext());
+        ImGui_ImplSDL3_InitForOpenGL(window, SDL_GL_GetCurrentContext());
         ImGui_ImplOpenGL3_Init("#version 410");
     }
 
