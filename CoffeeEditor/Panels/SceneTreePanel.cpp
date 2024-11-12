@@ -11,7 +11,7 @@
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include <vendor/IconFontCppHeaders/IconsLucide.h>
+#include <IconsLucide.h>
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"

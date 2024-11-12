@@ -4,7 +4,7 @@
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Scene/Scene.h"
-#include <vendor/IconFontCppHeaders/IconsLucide.h>
+#include <IconsLucide.h>
 #include <imgui.h>
 #include <filesystem>
 

@@ -57,6 +57,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     EnTT::EnTT
     Tracy::TracyClient
     nfd::nfd
+    icon_font_cpp_headers
     )
 
 # Set this in a profile like (Release + Profile)

@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <tracy/Tracy.hpp>
 
-#include <vendor/IconFontCppHeaders/IconsLucide.h>
+#include <IconsLucide.h>
 
 namespace Coffee {
 
