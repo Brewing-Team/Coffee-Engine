@@ -9,38 +9,43 @@
 
 namespace Coffee {
 
-    Shader::Shader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath)
+    Shader::Shader(const std::filesystem::path& shaderPath)
     {
         ZoneScoped;
 
-        // 1. retrieve the vertex/fragment source code from filePath
-        std::string vertexCode;
-        std::string fragmentCode;
-        std::ifstream vShaderFile;
-        std::ifstream fShaderFile;
-        // ensure ifstream objects can throw exceptions:
-        vShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-        fShaderFile.exceptions (std::ifstream::failbit | std::ifstream::badbit);
+        std::string shaderCode;
+        std::ifstream shaderFile;
+
+        shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
         try
         {
-            // open files
-            vShaderFile.open(vertexPath);
-            fShaderFile.open(fragmentPath);
-            std::stringstream vShaderStream, fShaderStream;
-            // read file's buffer contents into streams
-            vShaderStream << vShaderFile.rdbuf();
-            fShaderStream << fShaderFile.rdbuf();
-            // close file handlers
-            vShaderFile.close();
-            fShaderFile.close();
-            // convert stream into string
-            vertexCode = vShaderStream.str();
-            fragmentCode = fShaderStream.str();
+            shaderFile.open(shaderPath);
+            std::stringstream shaderStream;
+            shaderStream << shaderFile.rdbuf();
+            shaderFile.close();
+            shaderCode = shaderStream.str();
         }
-        catch (std::ifstream::failure& e)
+        catch (std::ifstream::failure e)
         {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+            COFFEE_CORE_ERROR(std::string("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: ") + e.what());
         }
+
+        const std::string vertexDelimiter = "#[vertex]";
+        const std::string fragmentDelimiter = "#[fragment]";
+
+        size_t vertexPos = shaderCode.find(vertexDelimiter);
+        size_t fragmentPos = shaderCode.find(fragmentDelimiter);
+
+        if(vertexPos == std::string::npos || fragmentPos == std::string::npos)
+        {
+            COFFEE_CORE_ERROR("ERROR::SHADER::DELIMITER_NOT_FOUND: Delimiter not found in shader file!");
+            return;
+        }
+
+        std::string vertexCode = shaderCode.substr(vertexPos + vertexDelimiter.length(), fragmentPos - vertexPos - vertexDelimiter.length());
+        std::string fragmentCode = shaderCode.substr(fragmentPos + fragmentDelimiter.length(), shaderCode.length() - fragmentPos - fragmentDelimiter.length());
+
         const char* vShaderCode = vertexCode.c_str();
         const char * fShaderCode = fragmentCode.c_str();
         // 2. compile shaders
@@ -159,11 +164,11 @@ namespace Coffee {
         glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
     }
 
-    Ref<Shader> Shader::Create(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath)
+    Ref<Shader> Shader::Create(const std::filesystem::path& shaderPath)
     {
         ZoneScoped;
 
-        return ResourceLoader::LoadShader(vertexPath, fragmentPath);
+        return ResourceLoader::LoadShader(shaderPath);
     }
 
     void Shader::checkCompileErrors(GLuint shader, std::string type)

@@ -1,3 +1,5 @@
+#[vertex]
+
 #version 450 core
 
 layout (location = 0) in vec3 aPosition;
@@ -16,4 +18,17 @@ void main()
 {
     Color = aColor;
     gl_Position = projection * view * vec4(aPosition, 1.0);
+}
+
+
+#[fragment]
+
+#version 450 core
+out vec4 FragColor;
+
+in vec4 Color;
+
+void main()
+{
+    FragColor = Color;
 }
