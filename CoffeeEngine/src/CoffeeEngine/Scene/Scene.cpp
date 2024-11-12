@@ -68,7 +68,7 @@ namespace Coffee {
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
+        Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.glsl");
         missingMaterial = CreateRef<Material>(missingShader);
     }
 

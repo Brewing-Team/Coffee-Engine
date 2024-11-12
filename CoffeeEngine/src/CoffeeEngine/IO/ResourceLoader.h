@@ -52,7 +52,7 @@ namespace Coffee {
          */
         static Ref<Model> LoadModel(const std::filesystem::path& path, bool cache = true);
 
-        static Ref<Shader> LoadShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath);
+        static Ref<Shader> LoadShader(const std::filesystem::path& shaderPath);
     private:
         /**
          * @brief Determines the resource type from the file extension.

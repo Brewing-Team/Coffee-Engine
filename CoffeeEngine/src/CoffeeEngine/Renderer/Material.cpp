@@ -16,7 +16,7 @@ namespace Coffee {
         m_MaterialTextures.albedo = s_MissingTexture;
         m_MaterialTextureFlags.hasAlbedo = true;
 
-        m_Shader = Coffee::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
+        m_Shader = Coffee::Shader::Create("assets/shaders/StandardShader.glsl");
 
         m_Shader->Bind();
         m_MaterialTextures.albedo->Bind(0);
@@ -47,7 +47,7 @@ namespace Coffee {
         if(m_MaterialTextureFlags.hasMetallic)m_MaterialProperties.metallic = 1.0f;
         if(m_MaterialTextureFlags.hasEmissive)m_MaterialProperties.emissive = glm::vec3(1.0f);
 
-        m_Shader = Coffee::Shader::Create("assets/shaders/StandardShader.vert", "assets/shaders/StandardShader.frag");
+        m_Shader = Coffee::Shader::Create("assets/shaders/StandardShader.glsl");
 
         m_Shader->Bind();
         m_Shader->setInt("material.albedoMap", 0);

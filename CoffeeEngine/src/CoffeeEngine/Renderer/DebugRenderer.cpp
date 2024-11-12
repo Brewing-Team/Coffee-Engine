@@ -20,7 +20,7 @@ namespace Coffee {
 
     void DebugRenderer::Init()
     {
-        m_DebugShader = Shader::Create("assets/shaders/DebugLineShader.vert", "assets/shaders/DebugLineShader.frag");
+        m_DebugShader = Shader::Create("assets/shaders/DebugLineShader.glsl");
 
         BufferLayout DebugVertexLayout = {
             {ShaderDataType::Vec3, "a_Position"},

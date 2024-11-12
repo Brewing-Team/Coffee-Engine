@@ -54,8 +54,8 @@ namespace Coffee {
 
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
 
-        s_ToneMappingShader = Shader::Create("assets/shaders/ToneMappingShader.vert", "assets/shaders/ToneMappingShader.frag");
-        s_FinalPassShader = Shader::Create("assets/shaders/FinalPassShader.vert", "assets/shaders/FinalPassShader.frag");
+        s_ToneMappingShader = Shader::Create("assets/shaders/ToneMappingShader.glsl");
+        s_FinalPassShader = Shader::Create("assets/shaders/FinalPassShader.glsl");
     }
 
     void Renderer::Shutdown()

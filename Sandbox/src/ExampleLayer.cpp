@@ -109,7 +109,7 @@ ExampleLayer::ExampleLayer() : Layer("Example")
         m_VertexArray->AddVertexBuffer(m_VertexBuffer);
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
         
-        m_defaultShader = Coffee::Shader::Create("assets/shaders/FaceIndexShader.vert", "assets/shaders/FaceIndexShader.frag");
+        m_defaultShader = Coffee::Shader::Create("assets/shaders/FaceIndexShader.glsl");
 
         m_Texture = Coffee::Texture::Load("assets/textures/test.jpg");
 

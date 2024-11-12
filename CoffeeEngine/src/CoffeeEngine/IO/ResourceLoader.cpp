@@ -125,13 +125,26 @@ namespace Coffee {
         return model;
     }
 
-    Ref<Shader> ResourceLoader::LoadShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath)
+    Ref<Shader> ResourceLoader::LoadShader(const std::filesystem::path& shaderPath)
     {
-        if(GetResourceTypeFromExtension(vertexPath) != ResourceType::Shader || GetResourceTypeFromExtension(fragmentPath) != ResourceType::Shader)
+        if(GetResourceTypeFromExtension(shaderPath) != ResourceType::Shader)
         {
             COFFEE_CORE_ERROR("ResourceLoader::Load<Shader>: Resource is not a shader!");
             return nullptr;
         }
+
+        UUID uuid = GetUUIDFromImportFile(shaderPath);
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Shader>(uuid);
+        }
+
+        const Ref<Shader>& shader = CreateRef<Shader>(shaderPath);
+
+        ResourceRegistry::Add(uuid, shader);
+
+        return shader;
 
         //TODO: Add support for Resource Registry, Resource Importer and UUIDs
 
@@ -151,8 +164,6 @@ namespace Coffee {
                 return shader;
             }
         */
-        
-        return CreateRef<Shader>(vertexPath, fragmentPath);
     }
 
     ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)
@@ -167,7 +178,7 @@ namespace Coffee {
         {
             return ResourceType::Model;
         }
-        else if(extension == ".frag" || extension == ".vert")
+        else if(extension == ".glsl")
         {
             return ResourceType::Shader;
         }
