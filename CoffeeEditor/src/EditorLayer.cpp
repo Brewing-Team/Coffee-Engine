@@ -478,7 +478,7 @@ namespace Coffee {
 
         for(auto& resource : resources)
         {
-            ImGui::Text(resource.first.c_str());
+            ImGui::Text("%lu", (uint64_t)resource.first);
             ImGui::SameLine();
             ImGui::Text("Use Count: %ld", resource.second.use_count() - 1);
         }

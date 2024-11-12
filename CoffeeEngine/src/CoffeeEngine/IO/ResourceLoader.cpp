@@ -3,10 +3,13 @@
 #include "CoffeeEngine/IO/Resource.h"
 
 #include "CoffeeEngine/Renderer/Model.h"
+#include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
+#include <cstdint>
 #include <filesystem>
+#include <fstream>
 
 namespace Coffee {
 
@@ -88,16 +91,16 @@ namespace Coffee {
             return nullptr;
         }
 
-        const std::string& name = path.filename().string();
+        UUID uuid = GetUUIDFromImportFile(path);
 
-        if(ResourceRegistry::Exists(name))
+        if(ResourceRegistry::Exists(uuid))
         {
-            return ResourceRegistry::Get<Texture>(name);
+            return ResourceRegistry::Get<Texture>(uuid);
         }
 
         const Ref<Texture>& texture = s_Importer.ImportTexture(path, srgb, cache);
 
-        ResourceRegistry::Add(name, texture);
+        ResourceRegistry::Add(uuid, texture);
         return texture;
     }
 
@@ -109,17 +112,47 @@ namespace Coffee {
             return nullptr;
         }
 
-        const std::string& name = path.filename().string();
+        UUID uuid = GetUUIDFromImportFile(path);
 
-        if(ResourceRegistry::Exists(name))
+        if(ResourceRegistry::Exists(uuid))
         {
-            return ResourceRegistry::Get<Model>(name);
+            return ResourceRegistry::Get<Model>(uuid);
         }
 
         const Ref<Model>& model = CreateRef<Model>(path);
 
-        ResourceRegistry::Add(name, model);
+        ResourceRegistry::Add(uuid, model);
         return model;
+    }
+
+    Ref<Shader> ResourceLoader::LoadShader(const std::string& vertexPath, const std::string& fragmentPath)
+    {
+        if(GetResourceTypeFromExtension(vertexPath) != ResourceType::Shader || GetResourceTypeFromExtension(fragmentPath) != ResourceType::Shader)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Shader>: Resource is not a shader!");
+            return nullptr;
+        }
+
+        //TODO: Add support for Resource Registry, Resource Importer and UUIDs
+
+        //OLD CODE
+        /*
+            std::filesystem::path filePath(vertexPath);
+            std::string fileName = filePath.stem().string();
+
+            if(ResourceRegistry::Exists(fileName))
+            {
+                return ResourceRegistry::Get<Shader>(fileName);
+            }
+            else
+            {
+                Ref<Shader> shader = CreateRef<Shader>(vertexPath, fragmentPath);
+                ResourceRegistry::Add(fileName, shader);
+                return shader;
+            }
+        */
+        
+        const Ref<Shader> shader = Shader::Create(vertexPath, fragmentPath);
     }
 
     ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)
@@ -142,4 +175,26 @@ namespace Coffee {
         return ResourceType::Unknown;
     }
 
+    UUID ResourceLoader::GetUUIDFromImportFile(const std::filesystem::path& path)
+    {
+        UUID uuid;
+
+        std::filesystem::path importFilePath = path;
+        importFilePath.replace_extension(".import");
+
+        if(std::filesystem::exists(importFilePath))
+        {
+            std::ifstream importFile(importFilePath);
+            cereal::JSONInputArchive archive(importFile);
+            archive(uuid);
+        }
+        else
+        {
+            std::ofstream importFile(importFilePath);
+            cereal::JSONOutputArchive archive(importFile);
+            archive(uuid);
+        }
+
+        return uuid;
+    }
 }

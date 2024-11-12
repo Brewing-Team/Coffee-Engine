@@ -1,4 +1,5 @@
 #pragma once
+#include <cereal/access.hpp>
 #include <cstddef>
 #include <glm/fwd.hpp>
 
@@ -12,6 +13,14 @@ namespace Coffee {
         UUID(const UUID&) = default;
 
         operator uint64_t() const { return m_UUID; }
+    private:
+        friend class cereal::access;
+
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(m_UUID);
+        }
     private:
         uint64_t m_UUID;
     };

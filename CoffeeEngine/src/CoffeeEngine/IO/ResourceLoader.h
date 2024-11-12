@@ -6,9 +6,11 @@
 
 #pragma once
 
+#include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
 #include "CoffeeEngine/Renderer/Model.h"
+#include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include <filesystem>
 
@@ -49,6 +51,8 @@ namespace Coffee {
          * @return A reference to the loaded model.
          */
         static Ref<Model> LoadModel(const std::filesystem::path& path, bool cache = true);
+
+        static Ref<Shader> LoadShader(const std::string& vertexPath, const std::string& fragmentPath);
     private:
         /**
          * @brief Determines the resource type from the file extension.
@@ -56,6 +60,8 @@ namespace Coffee {
          * @return The resource type.
          */
         static ResourceType GetResourceTypeFromExtension(const std::filesystem::path& path);
+        
+        static UUID GetUUIDFromImportFile(const std::filesystem::path& path);
     private:
         static ResourceImporter s_Importer; ///< The importer used to load resources.
     };

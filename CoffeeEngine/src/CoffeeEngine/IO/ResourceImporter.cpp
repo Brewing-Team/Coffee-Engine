@@ -23,7 +23,7 @@ namespace Coffee {
         else
         {
             Ref<Texture> texture = CreateRef<Texture>(path, srgb);
-            ResourceSaver::SaveToCache(texture);
+            ResourceSaver::SaveToCache(texture); //TODO: Add the UUID to the cache filename
             return texture;
         }
     }

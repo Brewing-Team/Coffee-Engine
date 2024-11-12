@@ -1,4 +1,5 @@
 #include "CoffeeEngine/Renderer/Shader.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 
 #include <fstream>
@@ -162,19 +163,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        std::filesystem::path filePath(vertexPath);
-        std::string fileName = filePath.stem().string();
-
-        if(ResourceRegistry::Exists(fileName))
-        {
-            return ResourceRegistry::Get<Shader>(fileName);
-        }
-        else
-        {
-            Ref<Shader> shader = CreateRef<Shader>(vertexPath, fragmentPath);
-            ResourceRegistry::Add(fileName, shader);
-            return shader;
-        }
+        return ResourceLoader::LoadShader(vertexPath, fragmentPath);
     }
 
     void Shader::checkCompileErrors(GLuint shader, std::string type)
