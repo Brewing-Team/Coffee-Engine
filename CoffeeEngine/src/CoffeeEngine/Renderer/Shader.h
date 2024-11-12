@@ -28,7 +28,7 @@ namespace Coffee {
          * @param vertexPath The file path to the vertex shader.
          * @param fragmentPath The file path to the fragment shader.
          */
-        Shader(const std::string& vertexPath, const std::string& fragmentPath);
+        Shader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath);
 
         /**
          * @brief Destructor for the Shader class.
@@ -114,7 +114,7 @@ namespace Coffee {
          * @param fragmentPath The file path to the fragment shader.
          * @return A reference to the created shader.
          */
-        static Ref<Shader> Create(const std::string& vertexPath, const std::string& fragmentPath);
+        static Ref<Shader> Create(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath);
 
         /**
          * @brief Checks for compile errors in the shader.

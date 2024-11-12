@@ -125,7 +125,7 @@ namespace Coffee {
         return model;
     }
 
-    Ref<Shader> ResourceLoader::LoadShader(const std::string& vertexPath, const std::string& fragmentPath)
+    Ref<Shader> ResourceLoader::LoadShader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath)
     {
         if(GetResourceTypeFromExtension(vertexPath) != ResourceType::Shader || GetResourceTypeFromExtension(fragmentPath) != ResourceType::Shader)
         {
@@ -152,7 +152,7 @@ namespace Coffee {
             }
         */
         
-        const Ref<Shader> shader = Shader::Create(vertexPath, fragmentPath);
+        return CreateRef<Shader>(vertexPath, fragmentPath);
     }
 
     ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)

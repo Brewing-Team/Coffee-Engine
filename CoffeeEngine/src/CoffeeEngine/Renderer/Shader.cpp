@@ -9,7 +9,7 @@
 
 namespace Coffee {
 
-    Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
+    Shader::Shader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath)
     {
         ZoneScoped;
 
@@ -159,7 +159,7 @@ namespace Coffee {
         glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
     }
 
-    Ref<Shader> Shader::Create(const std::string& vertexPath, const std::string& fragmentPath)
+    Ref<Shader> Shader::Create(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath)
     {
         ZoneScoped;
 
