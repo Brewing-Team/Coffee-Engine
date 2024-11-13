@@ -44,7 +44,7 @@ namespace Coffee {
         {
             if (entry.is_regular_file())
             {
-                COFFEE_CORE_INFO("Loading resource {0}", entry.path().string());
+                //COFFEE_CORE_INFO("Loading resource {0}", entry.path().string());
 
                 LoadFile(entry.path());
             }
@@ -125,45 +125,17 @@ namespace Coffee {
         return model;
     }
 
-    Ref<Shader> ResourceLoader::LoadShader(const std::filesystem::path& shaderPath)
+    Ref<Mesh> ResourceLoader::LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
     {
-        if(GetResourceTypeFromExtension(shaderPath) != ResourceType::Shader)
+        if(ResourceRegistry::Exists(name))
         {
-            COFFEE_CORE_ERROR("ResourceLoader::Load<Shader>: Resource is not a shader!");
-            return nullptr;
+            return ResourceRegistry::Get<Mesh>(name);
         }
 
-        UUID uuid = GetUUIDFromImportFile(shaderPath);
+        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, vertices, indices);
 
-        if(ResourceRegistry::Exists(uuid))
-        {
-            return ResourceRegistry::Get<Shader>(uuid);
-        }
-
-        const Ref<Shader>& shader = CreateRef<Shader>(shaderPath);
-
-        ResourceRegistry::Add(uuid, shader);
-
-        return shader;
-
-        //TODO: Add support for Resource Registry, Resource Importer and UUIDs
-
-        //OLD CODE
-        /*
-            std::filesystem::path filePath(vertexPath);
-            std::string fileName = filePath.stem().string();
-
-            if(ResourceRegistry::Exists(fileName))
-            {
-                return ResourceRegistry::Get<Shader>(fileName);
-            }
-            else
-            {
-                Ref<Shader> shader = CreateRef<Shader>(vertexPath, fragmentPath);
-                ResourceRegistry::Add(fileName, shader);
-                return shader;
-            }
-        */
+        ResourceRegistry::Add(name, mesh);
+        return mesh;
     }
 
     ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)

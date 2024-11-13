@@ -1,17 +1,20 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Buffer.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
+#include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 
-#include <array>
-#include <assimp/mesh.h>
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include <cereal/access.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 namespace Coffee {
 
@@ -30,6 +33,15 @@ namespace Coffee {
         glm::vec3 Normals = glm::vec3(0.0f); ///< The normal vector of the vertex.
         glm::vec3 Tangent = glm::vec3(0.0f); ///< The tangent vector of the vertex.
         glm::vec3 Bitangent = glm::vec3(0.0f); ///< The bitangent vector of the vertex.
+
+        private:
+            friend class cereal::access;
+
+            template<class Archive>
+            void serialize(Archive& archive)
+            {
+                archive(Position, TexCoords, Normals, Tangent, Bitangent);
+            }    
     };
 
     /**
@@ -49,6 +61,15 @@ namespace Coffee {
          */
         AABB(const glm::vec3& min, const glm::vec3& max)
             : min(min), max(max) {}
+
+        private:
+            friend class cereal::access;
+
+            template<class Archive>
+            void serialize(Archive& archive)
+            {
+                archive(min, max);
+            }
     };
 
     /**
@@ -88,7 +109,7 @@ namespace Coffee {
     /**
      * @brief Class representing a mesh.
      */
-    class Mesh
+    class Mesh : public Resource
     {
     public:
         /**
@@ -96,7 +117,7 @@ namespace Coffee {
          * @param indices The indices of the mesh.
          * @param vertices The vertices of the mesh.
          */
-        Mesh(const std::vector<uint32_t>& indices, const std::vector<Vertex>& vertices);
+        Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
 
         /**
          * @brief Gets the vertex array of the mesh.
@@ -217,36 +238,34 @@ namespace Coffee {
         friend class cereal::access;
 
         template<class Archive>
-        void save(Archive& archive)
+        void save(Archive& archive) const
         {
-            archive(m_Vertices, m_Indices, m_Name, m_AABB);
+            archive(m_Vertices, m_Indices, m_Name, m_AABB, cereal::base_class<Resource>(this));
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            archive(m_Vertices, m_Indices, m_Name, m_AABB);
+            archive(m_Vertices, m_Indices, m_Name, m_AABB, cereal::base_class<Resource>(this));
         }
 
         template<class Archive>
         static void load_and_construct(Archive& data, cereal::construct<Mesh>& construct)
         {
+            // Try to take this data as a reference
             std::vector<Vertex> vertices;
             std::vector<uint32_t> indices;
-            std::string name;
-            AABB aabb;
-
-            data(vertices, indices, name, aabb);
+            data(vertices, indices);
             construct(vertices, indices);
-            construct->m_Name = name;
-            construct->m_AABB = aabb;
+
+            data(construct->m_Name, construct->m_AABB, cereal::base_class<Resource>(construct.ptr()));
+            construct->m_Vertices = vertices;
+            construct->m_Indices = indices;
         }
       private:
         Ref<VertexArray> m_VertexArray; ///< The vertex array of the mesh.
         Ref<VertexBuffer> m_VertexBuffer; ///< The vertex buffer of the mesh.
         Ref<IndexBuffer> m_IndexBuffer; ///< The index buffer of the mesh.
-
-        std::string m_Name; ///< The name of the mesh.
 
         Ref<Material> m_Material; ///< The material of the mesh.
         AABB m_AABB; ///< The axis-aligned bounding box of the mesh.
@@ -257,3 +276,6 @@ namespace Coffee {
 
     /** @} */
 }
+
+CEREAL_REGISTER_TYPE(Coffee::Mesh);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Resource, Coffee::Mesh);

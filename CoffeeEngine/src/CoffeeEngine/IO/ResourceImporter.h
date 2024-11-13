@@ -9,6 +9,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceFormat.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
@@ -30,6 +31,8 @@ namespace Coffee {
          * @return A reference to the imported texture.
          */
         Ref<Texture> ImportTexture(const std::filesystem::path& path, bool srgb, bool cache);
+
+        Ref<Mesh> ImportMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
     private:
         /**
          * @brief Loads a resource from the cache.

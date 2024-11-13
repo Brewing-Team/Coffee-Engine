@@ -38,7 +38,7 @@ namespace Coffee
          * @brief Saves a resource to the project cache.
          * @param resource A reference to the resource to save to cache.
          */
-        static void SaveToCache(const Ref<Resource>& resource);
+        static void SaveToCache(const std::string& filename, const Ref<Resource>& resource);
       private:
         /**
          * @brief Serializes a resource to a binary file.

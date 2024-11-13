@@ -18,6 +18,9 @@ namespace Coffee
             break;
         case Coffee::ResourceType::Model:
             break;
+        case Coffee::ResourceType::Mesh:
+            return ResourceFormat::Binary;
+            break;
         case Coffee::ResourceType::Shader:
             break;
         default:
@@ -41,9 +44,9 @@ namespace Coffee
             break;
         }
     }
-    void ResourceSaver::SaveToCache(const Ref<Resource>& resource)
+    void ResourceSaver::SaveToCache(const std::string& filename, const Ref<Resource>& resource)
     {
-        std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(resource->GetName());
+        std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(filename);
 
         Save(cacheFilePath, resource);
     }

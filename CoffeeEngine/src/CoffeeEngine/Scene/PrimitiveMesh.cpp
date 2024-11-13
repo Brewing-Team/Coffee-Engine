@@ -42,7 +42,7 @@ namespace Coffee {
             0,1,2,2,3,0,
         };
 
-        const Ref<Mesh>& quadMesh = CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& quadMesh = CreateRef<Mesh>(data, indices);
         quadMesh->SetName("Quad");
 
         AABB quadAABB(glm::vec3(-1.0f, -1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 0.0f));
@@ -73,7 +73,7 @@ namespace Coffee {
 
         std::vector<uint32_t> indices = {0, 2, 1, 3, 2, 0};
 
-        const Ref<Mesh>& planeMesh = CreateRef<Mesh>(indices, vertices);
+        const Ref<Mesh>& planeMesh = CreateRef<Mesh>(vertices, indices);
         planeMesh->SetName("Plane");
 
         AABB planeAABB(glm::vec3(-size.x * 0.5f, 0.0f, -size.y * 0.5f), glm::vec3(size.x * 0.5f, 0.0f, size.y * 0.5f));
@@ -207,7 +207,7 @@ namespace Coffee {
             20, 21, 22, 22, 23, 20, // Left
         };
 
-        const Ref<Mesh>& cubeMesh = CreateRef<Mesh>(indices, vertices);
+        const Ref<Mesh>& cubeMesh = CreateRef<Mesh>(vertices, indices);
         cubeMesh->SetName("Cube");
 
         AABB cubeAABB(glm::vec3(-size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f), glm::vec3(size.x * 0.5f, size.y * 0.5f, size.z * 0.5f));
@@ -276,7 +276,7 @@ namespace Coffee {
             thisrow = point;
         }
 
-        const Ref<Mesh>& sphereMesh = CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& sphereMesh = CreateRef<Mesh>(data, indices);
         sphereMesh->SetName("Sphere");
 
         AABB sphereAABB(glm::vec3(-radius, -radius, -radius), glm::vec3(radius, radius, radius));
@@ -392,7 +392,7 @@ namespace Coffee {
             }
         }
 
-        const Ref<Mesh>& cylinderMesh = CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& cylinderMesh = CreateRef<Mesh>(data, indices);
         cylinderMesh->SetName("Cylinder");
 
         AABB cylinderAABB(glm::vec3(-topRadius, -height * 0.5f, -topRadius), glm::vec3(topRadius, height * 0.5f, topRadius));
@@ -476,7 +476,7 @@ namespace Coffee {
             }
         }
 
-        const Ref<Mesh>& coneMesh = CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& coneMesh = CreateRef<Mesh>(data, indices);
         coneMesh->SetName("Cone");
 
         AABB coneAABB(glm::vec3(-radius, 0.0f, -radius), glm::vec3(radius, height, radius));
@@ -545,7 +545,7 @@ namespace Coffee {
             }
         }
 
-        const Ref<Mesh>& torusMesh = CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& torusMesh = CreateRef<Mesh>(data, indices);
         torusMesh->SetName("Torus");
 
         AABB torusAABB(glm::vec3(-outerRadius, -radius, -outerRadius), glm::vec3(outerRadius, radius, outerRadius));
@@ -677,7 +677,7 @@ namespace Coffee {
             thisrow = point;
         }
 
-        const Ref<Mesh>& capsuleMesh = CreateRef<Mesh>(indices, data);
+        const Ref<Mesh>& capsuleMesh = CreateRef<Mesh>(data, indices);
         capsuleMesh->SetName("Capsule");
 
         AABB capsuleAABB(glm::vec3(-radius, -0.5f * height, -radius), glm::vec3(radius, 0.5f * height, radius));

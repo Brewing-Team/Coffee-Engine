@@ -5,15 +5,16 @@
 
 namespace Coffee {
 
-    Mesh::Mesh(const std::vector<uint32_t>& indices, const std::vector<Vertex>& vertices)
+    Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+        : Resource(ResourceType::Mesh)
     {
         ZoneScoped;
 
-        m_Indices = indices;
         m_Vertices = vertices;
+        m_Indices = indices;
 
-        m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), m_Indices.size());
         m_VertexBuffer = VertexBuffer::Create((float*)m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
+        m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), m_Indices.size());
 
         BufferLayout layout = {
             {ShaderDataType::Vec3, "a_Position"},

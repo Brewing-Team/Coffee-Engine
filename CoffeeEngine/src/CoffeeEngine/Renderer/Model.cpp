@@ -142,7 +142,8 @@ namespace Coffee {
             glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z)
             );
 
-        Ref<Mesh> resultMesh = CreateRef<Mesh>(indices, vertices);
+        std::string nameReference = m_FilePath.stem().string() + "_" + mesh->mName.C_Str();
+        Ref<Mesh> resultMesh = ResourceLoader::LoadMesh(nameReference, vertices, indices);
         resultMesh->SetName(mesh->mName.C_Str());
         resultMesh->SetMaterial(meshMaterial);
         resultMesh->SetAABB(aabb);

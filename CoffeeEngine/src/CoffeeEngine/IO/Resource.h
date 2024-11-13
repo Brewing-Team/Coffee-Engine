@@ -23,7 +23,8 @@ namespace Coffee {
         Unknown, ///< Unknown resource type
         Texture, ///< Texture resource type
         Model,   ///< Model resource type
-        Shader   ///< Shader resource type
+        Mesh,   ///< Mesh resource type
+        Shader,   ///< Shader resource type
     };
 
     /**
