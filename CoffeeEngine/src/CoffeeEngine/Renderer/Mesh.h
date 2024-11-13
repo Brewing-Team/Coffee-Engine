@@ -213,28 +213,34 @@ namespace Coffee {
          */
         const std::vector<uint32_t>& GetIndices() const { return m_Indices; }
 
-        /**
-         * @brief Serializes the mesh to an archive.
-         * @tparam Archive The type of the archive.
-         * @param archive The archive to serialize to.
-         */
+    private:
+        friend class cereal::access;
+
         template<class Archive>
         void save(Archive& archive)
         {
-            archive(m_Name, m_Vertices, m_Indices);
+            archive(m_Vertices, m_Indices, m_Name, m_AABB);
         }
 
-        /**
-         * @brief Deserializes the mesh from an archive.
-         * @tparam Archive The type of the archive.
-         * @param archive The archive to deserialize from.
-         */
-        template <class Archive> void load(Archive& archive)
+        template<class Archive>
+        void load(Archive& archive)
         {
-            archive(m_Name, m_Vertices, m_Indices);
-            Mesh(m_Indices, m_Vertices);
+            archive(m_Vertices, m_Indices, m_Name, m_AABB);
         }
 
+        template<class Archive>
+        static void load_and_construct(Archive& data, cereal::construct<Mesh>& construct)
+        {
+            std::vector<Vertex> vertices;
+            std::vector<uint32_t> indices;
+            std::string name;
+            AABB aabb;
+
+            data(vertices, indices, name, aabb);
+            construct(vertices, indices);
+            construct->m_Name = name;
+            construct->m_AABB = aabb;
+        }
       private:
         Ref<VertexArray> m_VertexArray; ///< The vertex array of the mesh.
         Ref<VertexBuffer> m_VertexBuffer; ///< The vertex buffer of the mesh.
