@@ -108,6 +108,7 @@ namespace Coffee {
         MaterialTextures& GetMaterialTextures() { return m_MaterialTextures; }
         MaterialProperties& GetMaterialProperties() { return m_MaterialProperties; }
 
+        //TODO: Remove the materialTextures parameter and make a function that set the materialTextures and the shader too
         static Ref<Material> Create(const std::string& name = "Material" /* + uuid*/, MaterialTextures* materialTextures = nullptr);
 
     private:

@@ -206,7 +206,7 @@ namespace Coffee {
             .get<TransformComponent>(archive)
             .get<HierarchyComponent>(archive)
             .get<CameraComponent>(archive)
-            //.get<MeshComponent>(archive)
+            .get<MeshComponent>(archive)
             //.get<MaterialComponent>(archive)
             .get<LightComponent>(archive);
 
@@ -229,7 +229,7 @@ namespace Coffee {
             .get<TransformComponent>(archive)
             .get<HierarchyComponent>(archive)
             .get<CameraComponent>(archive)
-            //.get<MeshComponent>(archive)
+            .get<MeshComponent>(archive)
             //.get<MaterialComponent>(archive)
             .get<LightComponent>(archive);
     }

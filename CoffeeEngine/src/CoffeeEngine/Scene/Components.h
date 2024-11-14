@@ -6,16 +6,20 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/string.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
@@ -171,26 +175,27 @@ namespace Coffee {
          */
         const Ref<Mesh>& GetMesh() const { return mesh; }
 
+        private:
+            friend class cereal::access;
         /**
          * @brief Serializes the MeshComponent.
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
         template<class Archive>
-        void save(Archive& archive)
+        void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("Mesh", *mesh));
+            archive(cereal::make_nvp("Mesh", mesh->GetName()));
         }
 
-        /**
-         * @brief Deserializes the MeshComponent.
-         * @tparam Archive The type of the archive.
-         * @param archive The archive to deserialize from.
-         */
         template<class Archive>
         void load(Archive& archive)
         {
-            archive(*mesh);
+            std::string meshName;
+            archive(cereal::make_nvp("Mesh", meshName));
+
+            Ref<Mesh> mesh = ResourceRegistry::Get<Mesh>(meshName);
+            this->mesh = mesh;
         }
     };
 

@@ -146,7 +146,9 @@ namespace Coffee {
 
         std::string nameReference = m_FilePath.stem().string() + "_" + mesh->mName.C_Str();
         Ref<Mesh> resultMesh = ResourceLoader::LoadMesh(nameReference, vertices, indices);
-        resultMesh->SetName(mesh->mName.C_Str());
+        //resultMesh->SetName(mesh->mName.C_Str());
+        //TODO: When the UUID is implemented, the name of the mesh will be resultMesh->SetName(mesh->mName.C_Str());
+        resultMesh->SetName(nameReference);
         resultMesh->SetMaterial(meshMaterial);
         resultMesh->SetAABB(aabb);
 
