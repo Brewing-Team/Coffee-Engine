@@ -68,8 +68,8 @@ namespace Coffee {
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.glsl");
-        missingMaterial = CreateRef<Material>(missingShader);
+        Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
+        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)

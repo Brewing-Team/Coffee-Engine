@@ -130,11 +130,13 @@ namespace Coffee {
         if(material)
         {
             MaterialTextures matTextures = LoadMaterialTextures(material);
-            meshMaterial = CreateRef<Material>(matTextures);
+            std::string materialName = (material->GetName().length > 0) ? material->GetName().C_Str() : m_Name;
+            std::string referenceName = materialName + "_Mat" + std::to_string(mesh->mMaterialIndex);
+            meshMaterial = Material::Create(referenceName, &matTextures);
         }
         else
         {
-            meshMaterial = CreateRef<Material>();
+            meshMaterial = Material::Create();
         }
 
         AABB aabb(

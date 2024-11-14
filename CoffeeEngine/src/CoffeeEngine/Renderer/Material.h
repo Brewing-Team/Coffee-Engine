@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include <glm/fwd.hpp>
@@ -61,19 +62,19 @@ namespace Coffee {
     /**
      * @brief Class representing a material.
      */
-    class Material
+    class Material : public Resource
     {
     public:
         /**
          * @brief Default constructor for the Material class.
          */
-        Material();
+        Material(const std::string& name);
 
         /**
          * @brief Constructs a Material with the specified shader.
          * @param shader The shader to be used with the material.
          */
-        Material(Ref<Shader> shader);
+        Material(const std::string& name, Ref<Shader> shader);
 
         /**
          * @brief Constructs a Material from a file path.
@@ -86,7 +87,7 @@ namespace Coffee {
          * @brief Constructs a Material with the specified textures.
          * @param materialTextures The textures to be used with the material.
          */
-        Material(MaterialTextures& materialTextures);
+        Material(const std::string& name, MaterialTextures& materialTextures);
 
         /**
          * @brief Default destructor for the Material class.
@@ -106,6 +107,8 @@ namespace Coffee {
 
         MaterialTextures& GetMaterialTextures() { return m_MaterialTextures; }
         MaterialProperties& GetMaterialProperties() { return m_MaterialProperties; }
+
+        static Ref<Material> Create(const std::string& name = "Material" /* + uuid*/, MaterialTextures* materialTextures = nullptr);
 
     private:
         MaterialTextures m_MaterialTextures; ///< The textures used in the material.

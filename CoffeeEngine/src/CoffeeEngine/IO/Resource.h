@@ -25,6 +25,7 @@ namespace Coffee {
         Model,   ///< Model resource type
         Mesh,   ///< Mesh resource type
         Shader,   ///< Shader resource type
+        Material, ///< Material resource type
     };
 
     /**

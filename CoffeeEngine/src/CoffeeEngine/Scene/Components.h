@@ -203,7 +203,7 @@ namespace Coffee {
         Ref<Material> material; ///< The material reference.
 
         MaterialComponent()
-            : material(CreateRef<Material>()) {}
+            : material(Material::Create()) {}
         MaterialComponent(const MaterialComponent&) = default;
         MaterialComponent(Ref<Material> material)
             : material(material) {}
