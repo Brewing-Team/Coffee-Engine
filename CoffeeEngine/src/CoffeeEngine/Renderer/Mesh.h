@@ -12,6 +12,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include <array>
 #include <cereal/access.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/polymorphic.hpp>
