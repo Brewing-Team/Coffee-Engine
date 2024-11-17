@@ -1,5 +1,6 @@
 #include "ResourceLoader.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/Resource.h"
 
 #include "CoffeeEngine/Renderer/Model.h"
@@ -30,6 +31,11 @@ namespace Coffee {
                 LoadModel(path, false);
                 break;
             }
+            case ResourceType::Shader:
+            {
+                LoadShader(path);
+                break;
+            }
             case ResourceType::Unknown:
             {
                 COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported file extension {0}", path.extension().string());
@@ -42,46 +48,32 @@ namespace Coffee {
     {
         for (const auto& entry : std::filesystem::recursive_directory_iterator(directory))
         {
-            if (entry.is_regular_file())
+            if (!entry.is_regular_file())
             {
-                //COFFEE_CORE_INFO("Loading resource {0}", entry.path().string());
-
-                LoadFile(entry.path());
+                continue;
             }
+
+            if(GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown)
+            {
+                continue;
+            }
+
+            std::filesystem::path resourcePath = entry.path();
+
+            if (resourcePath.extension() == ".import")
+            {
+                resourcePath = GetPathFromImportFile(resourcePath);
+                COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", resourcePath.string());
+            }
+            else
+            {
+                COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Generating import file for {0}", resourcePath.string());
+                GenerateImportFile(resourcePath);
+            }
+
+            LoadFile(resourcePath);
         }
     }
-
-    /* Ref<Resource> ResourceLoader::LoadResource(const std::filesystem::path& path)
-    {
-        auto extension = path.extension();
-
-        if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
-        {
-            return Texture::Load(path);
-        }
-        else if(extension == ".glb" || extension == ".gltf" || extension == ".fbx" || extension == ".obj")
-        {
-            return Model::Load(path);
-        }
-        //When the frag and vert shaders are merged into a single file called .glsl change this to .glsl
-        //FIXME: The shader class does not add the Shader to the registry
-        else if(extension == ".frag" || extension == ".vert")
-        {
-            if(extension == ".frag")
-            {
-                auto vertPath = path.parent_path() / (path.stem().string() + ".vert");
-                return Shader::Create(vertPath.string(), path.string());
-            }
-            else if(extension == ".vert")
-            {
-                auto fragPath = path.parent_path() / (path.stem().string() + ".frag");
-                return Shader::Create(path.string(), fragPath.string());
-            }
-        }
-        
-        COFFEE_CORE_ERROR("ResourceLoader::LoadResource: Unsupported file extension {0}", extension.string());
-        return nullptr;
-    } */
 
     Ref<Texture> ResourceLoader::LoadTexture(const std::filesystem::path& path, bool srgb, bool cache)
     {
@@ -158,26 +150,58 @@ namespace Coffee {
         return ResourceType::Unknown;
     }
 
-    UUID ResourceLoader::GetUUIDFromImportFile(const std::filesystem::path& path)
+    void ResourceLoader::GenerateImportFile(const std::filesystem::path& path)
     {
-        UUID uuid;
+        std::filesystem::path importFilePath = path;
+        importFilePath.replace_extension(".import");
+
+        if(!std::filesystem::exists(importFilePath))
+        {
+            ImportData importData;
+            importData.uuid = UUID();
+            importData.originalPath = path.relative_path();
+
+            std::ofstream importFile(importFilePath);
+            cereal::JSONOutputArchive archive(importFile);
+            archive(CEREAL_NVP(importData));
+        }
+    }
+
+    ResourceLoader::ImportData ResourceLoader::GetImportData(const std::filesystem::path& path)
+    {
+        ImportData importData;
 
         std::filesystem::path importFilePath = path;
         importFilePath.replace_extension(".import");
+
+        /* TODO: add the path serialization relative to the project directory.
+         * This means that when we load the path from the .import file we need to append the project directory
+         * 
+        */
 
         if(std::filesystem::exists(importFilePath))
         {
             std::ifstream importFile(importFilePath);
             cereal::JSONInputArchive archive(importFile);
-            archive(uuid);
+            archive(CEREAL_NVP(importData));
         }
         else
         {
-            std::ofstream importFile(importFilePath);
-            cereal::JSONOutputArchive archive(importFile);
-            archive(uuid);
+            COFFEE_CORE_ERROR("ResourceLoader::GetImportData: .import file does not exist for {0}", path.string());
         }
 
-        return uuid;
+        return importData;
+    }
+
+    UUID ResourceLoader::GetUUIDFromImportFile(const std::filesystem::path& path)
+    {
+        ImportData importData = GetImportData(path);
+        return importData.uuid;
+    }
+
+    std::filesystem::path ResourceLoader::GetPathFromImportFile(const std::filesystem::path& path)
+    {
+        ImportData importData = GetImportData(path);
+        return importData.originalPath;
     }
 }

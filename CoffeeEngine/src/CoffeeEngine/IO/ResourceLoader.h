@@ -60,8 +60,24 @@ namespace Coffee {
          * @return The resource type.
          */
         static ResourceType GetResourceTypeFromExtension(const std::filesystem::path& path);
+
+        struct ImportData
+        {
+            UUID uuid;
+            std::filesystem::path originalPath;
+
+            template<typename Archive>
+            void serialize(Archive& archive)
+            {
+                archive(CEREAL_NVP(uuid), CEREAL_NVP(originalPath));
+            }
+        };
         
+        static void GenerateImportFile(const std::filesystem::path& path);
+        static ImportData GetImportData(const std::filesystem::path& path);
+
         static UUID GetUUIDFromImportFile(const std::filesystem::path& path);
+        static std::filesystem::path GetPathFromImportFile(const std::filesystem::path& path);
     private:
         static ResourceImporter s_Importer; ///< The importer used to load resources.
     };
