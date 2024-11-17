@@ -1,13 +1,15 @@
 #include "Scene.h"
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/Core/DataStructures/Octree.h"
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "entt/entity/entity.hpp"
@@ -24,6 +26,8 @@ namespace Coffee {
 
     //TEMPORAL
     static Ref<Material> missingMaterial;
+
+    static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)});
 
     Scene::Scene()
     {
@@ -69,7 +73,13 @@ namespace Coffee {
         camera.AddComponent<CameraComponent>();
 
         Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
-        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
+        missingMaterial = CreateRef<Material>(missingShader);
+
+        // TEST -------------------------
+
+        octree.Preallocate(2);
+
+        COFFEE_INFO("asd");
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
@@ -79,6 +89,8 @@ namespace Coffee {
         m_SceneTree->Update();
 
         Renderer::BeginScene(camera);
+
+        octree.Update();
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();

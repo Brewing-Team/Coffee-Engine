@@ -1,18 +1,52 @@
 #pragma once
-#include "CoffeeEngine/Scene/Entity.h"
-#include <glm/detail/func_common.inl>
+#include "CoffeeEngine/Renderer/Mesh.h"
 
-class Octree {
-};
+#include <list>
 
-struct OctreeNode {
-    glm::vec3 center; ///< Center point of the node
-    float halfWidth; ///< Half the width of the node volume
-    OctreeNode* children[8]; ///< Pointers to the 8 children nodes
-    Octree* objectList; ///< Linked list of objects contained at this node
-    Coffee::Entity* pNextObject; ///< Pointer to the next object when linked into list
+namespace Coffee {
 
-    OctreeNode* BuildOctree(glm::vec3 center, float halfWidth, int stopDepth);
-    void InsertObject(OctreeNode* pTree, Coffee::Entity* pObject);
-    void TestAllCollisions(OctreeNode* pTree);
-};
+    struct MeshComponent; ///< Forward declaration of MeshComponent.
+
+    struct ObjectContainer
+    {
+        glm::vec3 position;
+        // TODO add templates
+        glm::vec3 data;
+    };
+
+    struct OctreeNode
+    {
+        public:
+            OctreeNode(OctreeNode* parent, AABB aabb);
+            ~OctreeNode();
+
+            void Insert(ObjectContainer object);
+            void Preallocate(int depth);
+            void DebugDrawAABB();
+            bool IsLeaf() const;
+
+        public:
+            OctreeNode* parent;
+            OctreeNode* children[8];
+            std::list<ObjectContainer> objectList; ///< list of objects of the node
+            AABB aabb;
+            int depth;
+    };
+
+    class Octree
+    {
+        public:
+            Octree(AABB bounds);
+            ~Octree();
+
+            void Preallocate(int depth);
+            void Insert(const glm::vec3& position, glm::vec3 data /*TODO THIS SHOULD BE A TEMPLATE*/);
+            void Update();
+
+        public:
+            uint32_t maxDepth = 4;
+            uint32_t maxObjectsPerNode = 8;
+            OctreeNode* rootNode;
+    };
+
+}

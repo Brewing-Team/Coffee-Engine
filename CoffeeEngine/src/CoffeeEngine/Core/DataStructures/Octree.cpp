@@ -1,97 +1,96 @@
 #include "Octree.h"
 
-OctreeNode* OctreeNode::BuildOctree(glm::vec3 center, float halfWidth, int stopDepth)
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
+#include "CoffeeEngine/Scene/Components.h"
+
+namespace Coffee
 {
-    if (stopDepth < 0)
-    {
-        return nullptr;
-    }
-    else
-    {
-        // Construct and fill in 'root' of this subtree
-        OctreeNode* pNode = new OctreeNode();
-        pNode->center = center;
-        pNode->halfWidth = halfWidth;
-        pNode->objectList = nullptr;
+    OctreeNode::OctreeNode(OctreeNode* parent, AABB aabb) : parent(parent), aabb(aabb) {}
 
-        // Recursively construct the eight children of this subtree
-        glm::vec3 offset;
-        float step = halfWidth * 0.5f;
-        for (int i = 0; i < 8; i++)
+    OctreeNode::~OctreeNode()
+    {
+        // Free all the children
+        if (depth == 0)
+            return;
+
+        for (auto & i : children)
         {
-            offset.x = (i & 1) ? step : -step;
-            offset.y = (i & 2) ? step : -step;
-            offset.z = (i & 4) ? step : -step;
-            pNode->children[i] = BuildOctree(center + offset, step, stopDepth - 1);
-        }
-        return pNode;
-    }
-}
-
-void OctreeNode::InsertObject(OctreeNode* pTree, Coffee::Entity* pObject)
-{
-    int index = 0;
-    int straddle = 0;
-
-    // Compute the octant number [0..7] the object sphere center is in
-    // If straddling any of the dividing x, y or z planes, exit directly
-    for (int i = 0; i < 3; i++)
-    {
-        float delta = pObject->center[i] - pTree->center[i]; // TODO check this
-        if (glm::abs(delta) < pTree->halfWidth + pObject->radius)
-        {
-            straddle = 1;
-            break;
-        }
-        if (delta > 0.0f) index |= (1 << i); // ZYX
-    }
-    if (!straddle and pTree->children[index])
-    {
-        // Fully contained in existing child node; insert in that subtree
-        InsertObject(pTree->children[index], pObject);
-    }
-    else
-    {
-        // Straddling, or no child node to descend into, so
-        // link object into linked list at this node
-        pObject->pNextObject = pTree->objectList;
-        pTree->objectList = pObject;
-    }
-}
-
-// Test all objects that could possibly overlap due to cell ancestry and coexistence
-// in the same cell. Assume objects exist in a single cell only, and fully inside it
-void OctreeNode::TestAllCollisions(OctreeNode* pTree)
-{
-    // Keep track of all ancestor object lists in a stack
-    const int MAX_DEPTH = 40;
-    static OctreeNode* ancestorStack[MAX_DEPTH];
-    static int depth = 0; // 'Depth == 0' is invariant over calls
-
-    // Check collisions between all objects on this level and all
-    // ancestor objects. The current level is included as its own
-    // ancestor so all necessary pairwise tests are done
-    ancestorStack[depth++] = pTree;
-    for (int n = 0; n < depth; n++)
-    {
-        Coffee::Entity* pA, pB;
-        for (pA = ancestorStack[n]->objectList; pA; pA = pA->pNextObject)
-        {
-            for (pB = pTree->objectList; pB; pB = pB->pNextObject)
-            {
-                // Avoid testing both A->B and B->A
-                if (pA == pB) break;
-                // Now perform the collision test between pA and pB in some manner
-                TestCollision(pA, pB);
-            }
+            delete i;
         }
     }
 
-    // Recursively visit all existing children
-    for (int i = 0; i < 8; i++)
-        if (pTree->children[i])
-            TestAllCollisions(pTree->children[i]);
+    void OctreeNode::Insert(ObjectContainer object) {}
 
-    // Remove current node from ancestor stack before returning
-    depth--;
-}
+    void OctreeNode::Preallocate(int depth)
+    {
+        this->depth = depth;
+
+        if (depth == 0)
+            return;
+
+        glm::vec3 halfSize = (aabb.max - aabb.min) * 0.5f;
+        glm::vec3 center = (aabb.max + aabb.min) * 0.5f;
+
+        for (int i = 0; i < 8; ++i)
+        {
+            glm::vec3 newCenter = center;
+            newCenter.x += (i & 1 ? halfSize.x : -halfSize.x);
+            newCenter.y += (i & 2 ? halfSize.y : -halfSize.y);
+            newCenter.z += (i & 4 ? halfSize.z : -halfSize.z);
+
+            AABB newAABB(newCenter - halfSize, newCenter + halfSize);
+            children[i] = new OctreeNode(this, newAABB);
+            children[i]->Preallocate(depth - 1);
+        }
+    }
+
+    void OctreeNode::DebugDrawAABB()
+    {
+        // Calculate hue based on depth
+        float hue = static_cast<float>(depth) / 10.0f;            // Adjust the divisor to control the hue range
+        glm::vec4 color = glm::vec4(hue, 1.0f - hue, 0.0f, 1.0f); // Create a color based on the hue
+
+        DebugRenderer::DrawBox(aabb, color, 1.0f);
+
+        if (depth == 0)
+            return;
+
+        for (auto& child : children)
+        {
+            // if (child->IsLeaf()) {} // TODO test this
+            child->DebugDrawAABB();
+        }
+    }
+
+    bool OctreeNode::IsLeaf() const
+    {
+        return !objectList.empty();
+    }
+
+    Octree::Octree(AABB bounds)
+    {
+        rootNode = new OctreeNode(nullptr, bounds);
+    }
+
+    Octree::~Octree()
+    {
+        delete rootNode;
+    }
+
+    void Octree::Preallocate(int depth)
+    {
+        rootNode->Preallocate(depth);
+    }
+
+    void Octree::Insert(const glm::vec3& position, glm::vec3 data)
+    {
+        rootNode->Insert({ position, data });
+    }
+
+    void Octree::Update()
+    {
+        // Draw parent
+        rootNode->DebugDrawAABB();
+    }
+
+} // namespace Coffee

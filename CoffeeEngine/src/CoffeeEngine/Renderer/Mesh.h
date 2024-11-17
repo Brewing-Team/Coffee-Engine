@@ -63,14 +63,22 @@ namespace Coffee {
         AABB(const glm::vec3& min, const glm::vec3& max)
             : min(min), max(max) {}
 
-        private:
-            friend class cereal::access;
+        bool Intersects(const AABB& other) const
+        {
+            return (min.x <= other.max.x && max.x >= other.min.x) &&
+                (min.y <= other.max.y && max.y >= other.min.y) &&
+                (min.z <= other.max.z && max.z >= other.min.z);
+        }
 
-            template<class Archive>
-            void serialize(Archive& archive)
-            {
-                archive(min, max);
-            }
+        glm::vec3 GetCenter() const
+        {
+            return (min + max) / 2.0f;
+        }
+
+        glm::vec3 GetHalfSize() const
+        {
+            return (max - min) / 2.0f;
+        }
     };
 
     /**
