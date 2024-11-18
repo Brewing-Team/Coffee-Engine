@@ -33,12 +33,19 @@ namespace Coffee
 
         for (int i = 0; i < 8; ++i)
         {
-            glm::vec3 newCenter = center;
-            newCenter.x += (i & 1 ? halfSize.x : -halfSize.x);
-            newCenter.y += (i & 2 ? halfSize.y : -halfSize.y);
-            newCenter.z += (i & 4 ? halfSize.z : -halfSize.z);
+            glm::vec3 newMin = center;
+            glm::vec3 newMax = center;
 
-            AABB newAABB(newCenter - halfSize, newCenter + halfSize);
+            newMin.x += (i & 1 ? 0.0f : -halfSize.x);
+            newMax.x += (i & 1 ? halfSize.x : 0.0f);
+
+            newMin.y += (i & 2 ? 0.0f : -halfSize.y);
+            newMax.y += (i & 2 ? halfSize.y : 0.0f);
+
+            newMin.z += (i & 4 ? 0.0f : -halfSize.z);
+            newMax.z += (i & 4 ? halfSize.z : 0.0f);
+
+            AABB newAABB(newMin, newMax);
             children[i] = new OctreeNode(this, newAABB);
             children[i]->Preallocate(depth - 1);
         }
