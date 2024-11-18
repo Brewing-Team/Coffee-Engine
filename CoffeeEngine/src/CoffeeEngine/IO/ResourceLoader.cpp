@@ -53,7 +53,7 @@ namespace Coffee {
                 continue;
             }
 
-            if(GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown)
+            if(GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
             {
                 continue;
             }
@@ -67,8 +67,13 @@ namespace Coffee {
             }
             else
             {
-                COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Generating import file for {0}", resourcePath.string());
-                GenerateImportFile(resourcePath);
+                std::filesystem::path importFilePath = resourcePath;
+                importFilePath.replace_extension(".import");
+                if(!std::filesystem::exists(importFilePath))
+                {
+                    COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Generating import file for {0}", resourcePath.string());
+                    GenerateImportFile(resourcePath);
+                }
             }
 
             LoadFile(resourcePath);
@@ -170,7 +175,7 @@ namespace Coffee {
         {
             ImportData importData;
             importData.uuid = UUID();
-            importData.originalPath = path.relative_path();
+            importData.originalPath = path;
 
             std::ofstream importFile(importFilePath);
             cereal::JSONOutputArchive archive(importFile);

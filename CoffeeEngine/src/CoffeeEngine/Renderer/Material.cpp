@@ -20,7 +20,7 @@ namespace Coffee {
         m_Name = name;
 
         s_MissingTexture = Texture::Load("assets/textures/UVMap-Grid.jpg");
-        s_StandardShader = CreateRef<Shader>(std::string(standardShaderSource));
+        s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>(std::string(standardShaderSource));
 
         m_MaterialTextures.albedo = s_MissingTexture;
         m_MaterialTextureFlags.hasAlbedo = true;
@@ -40,7 +40,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        s_StandardShader = CreateRef<Shader>(std::string(standardShaderSource));
+        s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>(std::string(standardShaderSource));
 
         m_MaterialTextures.albedo = materialTextures.albedo;
         m_MaterialTextures.normal = materialTextures.normal;
