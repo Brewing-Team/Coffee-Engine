@@ -21,16 +21,26 @@ namespace Coffee
 
     void OctreeNode::Insert(ObjectContainer object)
     {
+        // If this node has space for more objects, insert it
         if (objectList.size() < maxObjectsPerNode)
         {
-            Insert(object);
+            objectList.push_back(object);
         }
         else
         {
-            Subdivide(depth--);
-            for (auto& object : objectList)
+            // If the node is not subdivided yet, subdivide it
+            if (children[0] == nullptr)
             {
-                Insert(object);
+                Subdivide(depth - 1);
+            }
+
+            // Insert the object into the appropriate child node(s) TODO and remove it from the current node
+            for (auto& child : children)
+            {
+                if (child->aabb.Intersects(AABB(object.position, object.position)))
+                {
+                    child->Insert(object);
+                }
             }
         }
     }
@@ -93,21 +103,7 @@ namespace Coffee
 
     void Octree::Insert(const glm::vec3& position, glm::vec3 data)
     {
-        // if this node has space for more objects, insert it
-        // else subdivide the node and insert all the objects in the new nodes (check the aabb and insert in all the nodes that the object is colliding with)
-
-        if (rootNode->objectList.size() < rootNode->maxObjectsPerNode)
-        {
-            rootNode->Insert({ position, data });
-        }
-        else
-        {
-            rootNode->Subdivide(maxDepth--);
-            for (auto& object : rootNode->objectList)
-            {
-                rootNode->Insert(object);
-            }
-        }
+        rootNode->Insert({position, data});
     }
 
     void Octree::Update()
