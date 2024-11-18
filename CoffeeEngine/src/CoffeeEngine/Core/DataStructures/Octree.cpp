@@ -19,9 +19,23 @@ namespace Coffee
         }
     }
 
-    void OctreeNode::Insert(ObjectContainer object) {}
+    void OctreeNode::Insert(ObjectContainer object)
+    {
+        if (objectList.size() < maxObjectsPerNode)
+        {
+            Insert(object);
+        }
+        else
+        {
+            Subdivide(depth--);
+            for (auto& object : objectList)
+            {
+                Insert(object);
+            }
+        }
+    }
 
-    void OctreeNode::Preallocate(int depth)
+    void OctreeNode::Subdivide(int depth)
     {
         this->depth = depth;
 
@@ -47,7 +61,6 @@ namespace Coffee
 
             AABB newAABB(newMin, newMax);
             children[i] = new OctreeNode(this, newAABB);
-            children[i]->Preallocate(depth - 1);
         }
     }
 
@@ -64,14 +77,8 @@ namespace Coffee
 
         for (auto& child : children)
         {
-            // if (child->IsLeaf()) {} // TODO test this
             child->DebugDrawAABB();
         }
-    }
-
-    bool OctreeNode::IsLeaf() const
-    {
-        return !objectList.empty();
     }
 
     Octree::Octree(AABB bounds)
@@ -84,20 +91,32 @@ namespace Coffee
         delete rootNode;
     }
 
-    void Octree::Preallocate(int depth)
-    {
-        rootNode->Preallocate(depth);
-    }
-
     void Octree::Insert(const glm::vec3& position, glm::vec3 data)
     {
-        rootNode->Insert({ position, data });
+        // if this node has space for more objects, insert it
+        // else subdivide the node and insert all the objects in the new nodes (check the aabb and insert in all the nodes that the object is colliding with)
+
+        if (rootNode->objectList.size() < rootNode->maxObjectsPerNode)
+        {
+            rootNode->Insert({ position, data });
+        }
+        else
+        {
+            rootNode->Subdivide(maxDepth--);
+            for (auto& object : rootNode->objectList)
+            {
+                rootNode->Insert(object);
+            }
+        }
     }
 
     void Octree::Update()
     {
         // Draw parent
         rootNode->DebugDrawAABB();
+
+        // Update the nodes, so that the objects are in the correct nodes
+        // TODO
     }
 
 } // namespace Coffee

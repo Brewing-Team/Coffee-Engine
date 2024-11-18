@@ -21,9 +21,8 @@ namespace Coffee {
             ~OctreeNode();
 
             void Insert(ObjectContainer object);
-            void Preallocate(int depth);
+            void Subdivide(int depth);
             void DebugDrawAABB();
-            bool IsLeaf() const;
 
         public:
             OctreeNode* parent;
@@ -31,6 +30,7 @@ namespace Coffee {
             std::list<ObjectContainer> objectList; ///< list of objects of the node
             AABB aabb;
             int depth;
+            uint32_t maxObjectsPerNode = 8;
     };
 
     class Octree
@@ -39,13 +39,11 @@ namespace Coffee {
             Octree(AABB bounds);
             ~Octree();
 
-            void Preallocate(int depth);
             void Insert(const glm::vec3& position, glm::vec3 data /*TODO THIS SHOULD BE A TEMPLATE*/);
             void Update();
 
         public:
             uint32_t maxDepth = 4;
-            uint32_t maxObjectsPerNode = 8;
             OctreeNode* rootNode;
     };
 

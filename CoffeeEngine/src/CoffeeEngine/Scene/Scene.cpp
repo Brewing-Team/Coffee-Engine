@@ -77,7 +77,18 @@ namespace Coffee {
 
         // TEST -------------------------
 
-        octree.Preallocate(2);
+        octree.Insert(glm::vec3(0.0f), glm::vec3(0.0f));
+        octree.Insert(glm::vec3(1.0f), glm::vec3(1.0f));
+        octree.Insert(glm::vec3(2.0f), glm::vec3(2.0f));
+        octree.Insert(glm::vec3(3.0f), glm::vec3(3.0f));
+        octree.Insert(glm::vec3(4.0f), glm::vec3(4.0f));
+        octree.Insert(glm::vec3(5.0f), glm::vec3(5.0f));
+        octree.Insert(glm::vec3(6.0f), glm::vec3(6.0f));
+        octree.Insert(glm::vec3(7.0f), glm::vec3(7.0f));
+        octree.Insert(glm::vec3(8.0f), glm::vec3(8.0f));
+        octree.Insert(glm::vec3(9.0f), glm::vec3(9.0f));
+        octree.Insert(glm::vec3(10.0f), glm::vec3(10.0f));
+        octree.Insert(glm::vec3(11.0f), glm::vec3(11.0f));
 
         COFFEE_INFO("asd");
     }
