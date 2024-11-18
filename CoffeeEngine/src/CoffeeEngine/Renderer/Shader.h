@@ -29,6 +29,7 @@ namespace Coffee {
          * @param fragmentPath The file path to the fragment shader.
          */
         Shader(const std::filesystem::path& shaderPath);
+        Shader(const std::string& shaderSource);
 
         /**
          * @brief Destructor for the Shader class.
@@ -115,6 +116,7 @@ namespace Coffee {
          * @return A reference to the created shader.
          */
         static Ref<Shader> Create(const std::filesystem::path& shaderPath);
+        //static Ref<Shader> Create(const std::string& shaderSource);
 
         /**
          * @brief Checks for compile errors in the shader.
@@ -122,6 +124,9 @@ namespace Coffee {
          * @param type The type of the shader.
          */
         void checkCompileErrors(GLuint shader, std::string type);
+
+    private:
+        void CompileShader(const std::string& shaderSource);
 
     private:
         unsigned int m_ShaderID; ///< The ID of the shader program.

@@ -118,6 +118,7 @@ namespace Coffee {
         MaterialRenderSettings m_MaterialRenderSettings; ///< The render settings of the material.
         Ref<Shader> m_Shader; ///< The shader used with the material.
         static Ref<Texture> s_MissingTexture; ///< The texture to use when a texture is missing.
+        static Ref<Shader> s_StandardShader; ///< The standard shader to use with the material. (When the material be a base class of PBRMaterial and ShaderMaterial this should be moved to PBRMaterial)
     };
 
     /** @} */

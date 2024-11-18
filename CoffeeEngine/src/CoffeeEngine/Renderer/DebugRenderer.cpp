@@ -2,6 +2,9 @@
 #include "CoffeeEngine/Renderer/Buffer.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
+
+#include "CoffeeEngine/Embedded/DebugLineShader.inl"
+
 #include <glm/ext/quaternion_trigonometric.hpp>
 #include <glm/fwd.hpp>
 
@@ -20,7 +23,7 @@ namespace Coffee {
 
     void DebugRenderer::Init()
     {
-        m_DebugShader = Shader::Create("assets/shaders/DebugLineShader.glsl");
+        m_DebugShader = CreateRef<Shader>(std::string(debugLineShaderSource));
 
         BufferLayout DebugVertexLayout = {
             {ShaderDataType::Vec3, "a_Position"},

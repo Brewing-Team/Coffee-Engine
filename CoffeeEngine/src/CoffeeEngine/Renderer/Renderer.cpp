@@ -8,6 +8,10 @@
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Renderer/UniformBuffer.h"
+
+#include "CoffeeEngine/Embedded/ToneMappingShader.inl"
+#include "CoffeeEngine/Embedded/FinalPassShader.inl"
+
 #include <cstdint>
 #include <glm/fwd.hpp>
 #include <glm/matrix.hpp>
@@ -54,8 +58,8 @@ namespace Coffee {
 
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
 
-        s_ToneMappingShader = Shader::Create("assets/shaders/ToneMappingShader.glsl");
-        s_FinalPassShader = Shader::Create("assets/shaders/FinalPassShader.glsl");
+        s_ToneMappingShader = CreateRef<Shader>(std::string(toneMappingShaderSource));
+        s_FinalPassShader = CreateRef<Shader>(std::string(finalPassShaderSource));
     }
 
     void Renderer::Shutdown()
