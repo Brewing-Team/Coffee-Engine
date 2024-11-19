@@ -29,6 +29,9 @@ namespace Coffee {
 
     static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)});
 
+    static Entity e1;
+    static Entity e2;
+
     Scene::Scene()
     {
         m_SceneTree = CreateScope<SceneTree>(this);
@@ -90,6 +93,27 @@ namespace Coffee {
         octree.Insert(glm::vec3(10.0f), glm::vec3(10.0f));
         octree.Insert(glm::vec3(11.0f), glm::vec3(11.0f));
 
+        // static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)});
+        // Static is a cube that goes from x -10 y -10 z -10 to x 10 y 10 z 10
+        // Fill it with 10 random objects
+
+        /*
+        for(int i = 0; i < 10; i++)
+        {
+            octree.Insert(glm::vec3((float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10), glm::vec3((float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10));
+        }
+        */
+
+
+        // Primitive
+
+        e1 = CreateEntity("e1");
+        e1.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+
+        e2 = CreateEntity("e2");
+        e2.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        e2.GetComponent<TransformComponent>().Position = {3.0f, 0.0f, 0.0f};
+
         COFFEE_INFO("asd");
     }
 
@@ -102,6 +126,9 @@ namespace Coffee {
         Renderer::BeginScene(camera);
 
         octree.Update();
+
+        // log if e1 and e2 aabb are intersecting
+        // COFFEE_INFO("e1 and e2 AABBs intersecting: {0}", Mesh::Intersects(e1.GetComponent<MeshComponent>().mesh->GetAABB(), e1.GetComponent<TransformComponent>().Position, e2.GetComponent<MeshComponent>().mesh->GetAABB(), e2.GetComponent<TransformComponent>().Position));
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
