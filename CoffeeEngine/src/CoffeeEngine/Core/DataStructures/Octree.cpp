@@ -37,7 +37,7 @@ namespace Coffee
             // Insert the object into the appropriate child node(s) TODO and remove it from the current node
             for (auto& child : children)
             {
-                if (child->aabb.Intersects(AABB(object.position, object.position)))
+                if (Mesh::Intersects(child->aabb, child->aabb.GetCenter(), aabb, aabb.GetCenter()))
                 {
                     child->Insert(object);
                 }
