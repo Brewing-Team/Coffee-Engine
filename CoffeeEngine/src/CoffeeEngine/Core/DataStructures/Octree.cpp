@@ -22,15 +22,14 @@ namespace Coffee
     void OctreeNode::Insert(ObjectContainer object)
     {
         // Insert the object into the node if there is still space
-        if (objectList.size() < maxObjectsPerNode || depth == 0) {
+        if (objectList.size() < maxObjectsPerNode) {
             objectList.push_back(object);
             return;
         }
 
-        // Subdivide if not already done
-        if (children[0] == nullptr) {
-            Subdivide(depth + 1);
-        }
+
+        Subdivide(depth + 1); // TODO need to find a way to add the children to the correct subdivided node
+
 
         // Distribute objects to children and clear the current list
         auto it = objectList.begin();
@@ -92,8 +91,8 @@ namespace Coffee
 
     void OctreeNode::DebugDrawAABB()
     {
-
-        if (!objectList.empty() )
+        // Always draw the root node's AABB
+        if (parent == nullptr || !objectList.empty())
         {
             // Calculate hue based on depth
             float hue = static_cast<float>(depth) / 10.0f;            // Adjust the divisor to control the hue range
@@ -119,6 +118,7 @@ namespace Coffee
     Octree::Octree(AABB bounds)
     {
         rootNode = new OctreeNode(nullptr, bounds);
+        rootNode->depth = 0;
     }
 
     Octree::~Octree()
