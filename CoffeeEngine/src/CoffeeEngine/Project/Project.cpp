@@ -24,6 +24,7 @@ namespace Coffee {
         }
 
         CacheManager::SetCachePath(s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_CacheDirectory);
+        ResourceLoader::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
 
         return s_ActiveProject;
     }
@@ -44,6 +45,7 @@ namespace Coffee {
         ResourceRegistry::Clear();
 
         CacheManager::SetCachePath(project->m_ProjectDirectory / project->m_CacheDirectory);
+        ResourceLoader::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
         ResourceLoader::LoadDirectory(project->m_ProjectDirectory);
 
         return project;

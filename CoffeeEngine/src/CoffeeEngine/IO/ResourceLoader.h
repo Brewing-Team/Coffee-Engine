@@ -54,6 +54,8 @@ namespace Coffee {
 
         static Ref<Shader> LoadShader(const std::filesystem::path& shaderPath);
         static Ref<Shader> LoadShader(const std::string& shaderSource);
+
+        static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
     private:
         /**
          * @brief Determines the resource type from the file extension.
@@ -80,6 +82,7 @@ namespace Coffee {
         static UUID GetUUIDFromImportFile(const std::filesystem::path& path);
         static std::filesystem::path GetPathFromImportFile(const std::filesystem::path& path);
     private:
+        static std::filesystem::path s_WorkingDirectory; ///< The working directory of the resource loader.
         static ResourceImporter s_Importer; ///< The importer used to load resources.
     };
 

@@ -2,18 +2,17 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/Resource.h"
-
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
-#include <cstdint>
 #include <filesystem>
 #include <fstream>
 
 namespace Coffee {
 
+    std::filesystem::path ResourceLoader::s_WorkingDirectory = std::filesystem::current_path();
     ResourceImporter ResourceLoader::s_Importer = ResourceImporter();
 
     void ResourceLoader::LoadFile(const std::filesystem::path& path)
@@ -175,7 +174,8 @@ namespace Coffee {
         {
             ImportData importData;
             importData.uuid = UUID();
-            importData.originalPath = path;
+            std::filesystem::path relativePath = std::filesystem::relative(path, s_WorkingDirectory);
+            importData.originalPath = relativePath;
 
             std::ofstream importFile(importFilePath);
             cereal::JSONOutputArchive archive(importFile);
@@ -200,6 +200,9 @@ namespace Coffee {
             std::ifstream importFile(importFilePath);
             cereal::JSONInputArchive archive(importFile);
             archive(CEREAL_NVP(importData));
+
+            // Convert the relative path to an absolute path
+            importData.originalPath = s_WorkingDirectory / importData.originalPath;
         }
         else
         {
