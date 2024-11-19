@@ -21,28 +21,43 @@ namespace Coffee
 
     void OctreeNode::Insert(ObjectContainer object)
     {
-        // If this node has space for more objects, insert it
-        if (objectList.size() < maxObjectsPerNode)
-        {
+        // Insert the object into the node if there is still space
+        if (objectList.size() < maxObjectsPerNode || depth == 0) {
             objectList.push_back(object);
+            return;
         }
-        else
-        {
-            // If the node is not subdivided yet, subdivide it
-            if (children[0] == nullptr)
-            {
-                Subdivide(depth - 1);
-            }
 
-            // Insert the object into the appropriate child node(s) TODO and remove it from the current node
-            for (auto& child : children)
-            {
-                if (Mesh::Intersects(child->aabb, child->aabb.GetCenter(), aabb, aabb.GetCenter()))
-                {
-                    child->Insert(object);
+        // Subdivide if not already done
+        if (children[0] == nullptr) {
+            Subdivide(depth - 1);
+        }
+
+        // Distribute objects to children and clear the current list
+        auto it = objectList.begin();
+        while (it != objectList.end()) {
+            bool inserted = false;
+            for (auto& child : children) {
+                if (child->aabb.Contains(it->position)) {
+                    child->Insert(*it);
+                    inserted = true;
+                    break;
                 }
             }
+            if (inserted) {
+                it = objectList.erase(it);
+            } else {
+                ++it;
+            }
         }
+
+        // Finally, insert the current object
+        for (auto& child : children) {
+            if (child->aabb.Contains(object.position)) {
+                child->Insert(object);
+                return;
+            }
+        }
+
     }
 
     void OctreeNode::Subdivide(int depth)
@@ -81,6 +96,11 @@ namespace Coffee
         glm::vec4 color = glm::vec4(hue, 1.0f - hue, 0.0f, 1.0f); // Create a color based on the hue
 
         DebugRenderer::DrawBox(aabb, color, 1.0f);
+
+        for (auto& object : objectList)
+        {
+            DebugRenderer::DrawSphere(object.position, 0.1f, color);
+        }
 
         if (depth == 0)
             return;

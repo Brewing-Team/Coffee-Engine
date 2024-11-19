@@ -72,6 +72,13 @@ namespace Coffee {
         {
             return (max - min) / 2.0f;
         }
+
+        bool Contains(const glm::vec3& point) const
+        {
+            return point.x >= min.x && point.x <= max.x &&
+                   point.y >= min.y && point.y <= max.y &&
+                   point.z >= min.z && point.z <= max.z;
+        }
     };
 
     /**

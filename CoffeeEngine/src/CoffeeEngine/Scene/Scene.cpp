@@ -91,7 +91,6 @@ namespace Coffee {
         octree.Insert(glm::vec3(8.0f), glm::vec3(8.0f));
         octree.Insert(glm::vec3(9.0f), glm::vec3(9.0f));
         octree.Insert(glm::vec3(10.0f), glm::vec3(10.0f));
-        octree.Insert(glm::vec3(11.0f), glm::vec3(11.0f));
 
         // static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)});
         // Static is a cube that goes from x -10 y -10 z -10 to x 10 y 10 z 10
