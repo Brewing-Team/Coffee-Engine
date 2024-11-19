@@ -80,6 +80,7 @@ namespace Coffee {
 
         // TEST -------------------------
 
+        /*
         octree.Insert(glm::vec3(0.0f), glm::vec3(0.0f));
         octree.Insert(glm::vec3(1.0f), glm::vec3(1.0f));
         octree.Insert(glm::vec3(2.0f), glm::vec3(2.0f));
@@ -91,17 +92,18 @@ namespace Coffee {
         octree.Insert(glm::vec3(8.0f), glm::vec3(8.0f));
         octree.Insert(glm::vec3(9.0f), glm::vec3(9.0f));
         octree.Insert(glm::vec3(10.0f), glm::vec3(10.0f));
+        */
 
         // static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)});
         // Static is a cube that goes from x -10 y -10 z -10 to x 10 y 10 z 10
         // Fill it with 10 random objects
 
-        /*
-        for(int i = 0; i < 10; i++)
+
+        for(int i = 0; i < 50; i++)
         {
             octree.Insert(glm::vec3((float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10), glm::vec3((float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10));
         }
-        */
+
 
 
         // Primitive

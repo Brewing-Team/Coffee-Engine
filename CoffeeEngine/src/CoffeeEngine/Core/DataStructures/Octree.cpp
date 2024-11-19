@@ -29,7 +29,7 @@ namespace Coffee
 
         // Subdivide if not already done
         if (children[0] == nullptr) {
-            Subdivide(depth - 1);
+            Subdivide(depth + 1);
         }
 
         // Distribute objects to children and clear the current list
@@ -39,6 +39,7 @@ namespace Coffee
             for (auto& child : children) {
                 if (child->aabb.Contains(it->position)) {
                     child->Insert(*it);
+                    child->depth = depth + 1;
                     inserted = true;
                     break;
                 }
@@ -91,15 +92,19 @@ namespace Coffee
 
     void OctreeNode::DebugDrawAABB()
     {
-        // Calculate hue based on depth
-        float hue = static_cast<float>(depth) / 10.0f;            // Adjust the divisor to control the hue range
-        glm::vec4 color = glm::vec4(hue, 1.0f - hue, 0.0f, 1.0f); // Create a color based on the hue
 
-        DebugRenderer::DrawBox(aabb, color, 1.0f);
-
-        for (auto& object : objectList)
+        if (!objectList.empty() )
         {
-            DebugRenderer::DrawSphere(object.position, 0.1f, color);
+            // Calculate hue based on depth
+            float hue = static_cast<float>(depth) / 10.0f;            // Adjust the divisor to control the hue range
+            glm::vec4 color = glm::vec4(hue, 1.0f - hue, 0.0f, 1.0f); // Create a color based on the hue
+
+            DebugRenderer::DrawBox(aabb, color, 1.0f);
+
+            for (auto& object : objectList)
+            {
+                DebugRenderer::DrawSphere(object.position, 0.1f, color);
+            }
         }
 
         if (depth == 0)
