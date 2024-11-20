@@ -4,6 +4,7 @@
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
+#include <filesystem>
 #include <glm/fwd.hpp>
 #include <string>
 
@@ -81,7 +82,7 @@ namespace Coffee {
          * @param path The file path to the material definition.
          * @note This constructor is for future use when the material YAML exists.
          */
-        Material(std::string& path);
+        Material(std::filesystem::path& path);
 
         /**
          * @brief Constructs a Material with the specified textures.
@@ -109,7 +110,7 @@ namespace Coffee {
         MaterialProperties& GetMaterialProperties() { return m_MaterialProperties; }
 
         //TODO: Remove the materialTextures parameter and make a function that set the materialTextures and the shader too
-        static Ref<Material> Create(const std::string& name = "Material" /* + uuid*/, MaterialTextures* materialTextures = nullptr);
+        static Ref<Material> Create(const std::string& name = "", MaterialTextures* materialTextures = nullptr);
 
     private:
         MaterialTextures m_MaterialTextures; ///< The textures used in the material.

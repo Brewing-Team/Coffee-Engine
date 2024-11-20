@@ -47,7 +47,7 @@ namespace Coffee {
             return;
         }
 
-        m_Name = scene->mRootNode->mName.C_Str();
+        m_Name = path.filename()/* scene->mRootNode->mName.C_Str() */;
 
         processNode(scene->mRootNode, scene);
     }
@@ -147,8 +147,8 @@ namespace Coffee {
         std::string nameReference = m_FilePath.stem().string() + "_" + mesh->mName.C_Str();
         Ref<Mesh> resultMesh = ResourceLoader::LoadMesh(nameReference, vertices, indices);
         //resultMesh->SetName(mesh->mName.C_Str());
-        //TODO: When the UUID is implemented, the name of the mesh will be resultMesh->SetName(mesh->mName.C_Str());
-        resultMesh->SetName(nameReference);
+        //TODO: When the UUID is implemented, the name of the mesh will be resultMesh->SetName(mesh->mName.C_Str());, are your sure?
+        //resultMesh->SetName(nameReference);
         resultMesh->SetMaterial(meshMaterial);
         resultMesh->SetAABB(aabb);
 
@@ -160,7 +160,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        m_Name = node->mName.C_Str();
+        //m_Name = node->mName.C_Str();
 
         m_Transform = aiMatrix4x4ToGLMMat4(node->mTransformation);
 
@@ -173,6 +173,7 @@ namespace Coffee {
         for(uint32_t i = 0; i < node->mNumChildren; i++)
         {
             Ref<Model> child = CreateRef<Model>();
+            child->m_Name = node->mChildren[i]->mName.C_Str();
             child->m_FilePath = m_FilePath;
             child->m_Parent = weak_from_this();
             m_Children.push_back(child);

@@ -106,6 +106,7 @@ namespace Coffee {
         }
 
         const Ref<Texture>& texture = s_Importer.ImportTexture(path, srgb, cache);
+        texture->SetUUID(uuid);
 
         ResourceRegistry::Add(uuid, texture);
         return texture;
@@ -127,6 +128,7 @@ namespace Coffee {
         }
 
         const Ref<Model>& model = s_Importer.ImportModel(path, cache);
+        model->SetUUID(uuid);
 
         ResourceRegistry::Add(uuid, model);
         return model;
@@ -140,8 +142,9 @@ namespace Coffee {
         }
 
         const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, vertices, indices);
+        const UUID& uuid = mesh->GetUUID();
 
-        ResourceRegistry::Add(name, mesh);
+        ResourceRegistry::Add(uuid, mesh);
         return mesh;
     }
 
@@ -154,8 +157,36 @@ namespace Coffee {
 
         const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, vertices, indices);
 
-        ResourceRegistry::Add(name, mesh);
-        return mesh;
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Shader>(uuid);
+        }
+
+        const Ref<Shader>& shader = CreateRef<Shader>(shaderPath);
+        shader->SetUUID(uuid);
+
+        ResourceRegistry::Add(uuid, shader);
+
+        return shader;
+
+        //TODO: Add support for Resource Registry, Resource Importer and UUIDs
+
+        //OLD CODE
+        /*
+            std::filesystem::path filePath(vertexPath);
+            std::string fileName = filePath.stem().string();
+
+            if(ResourceRegistry::Exists(fileName))
+            {
+                return ResourceRegistry::Get<Shader>(fileName);
+            }
+            else
+            {
+                Ref<Shader> shader = CreateRef<Shader>(vertexPath, fragmentPath);
+                ResourceRegistry::Add(fileName, shader);
+                return shader;
+            }
+        */
     }
 
     /*Ref<Shader> ResourceLoader::LoadShader(const std::string& shaderSource)

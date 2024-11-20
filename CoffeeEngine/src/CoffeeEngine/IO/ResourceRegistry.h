@@ -31,7 +31,7 @@ namespace Coffee {
         { 
             m_Resources[uuid] = resource;
 
-            const std::string& name = resource->GetPath().filename().string();
+            const std::string& name = resource->GetName();
             m_NameToUUID[name] = uuid;
         }
 

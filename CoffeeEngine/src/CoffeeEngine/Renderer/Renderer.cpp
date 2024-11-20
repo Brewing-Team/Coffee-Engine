@@ -58,8 +58,8 @@ namespace Coffee {
 
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
 
-        s_ToneMappingShader = CreateRef<Shader>(std::string(toneMappingShaderSource));
-        s_FinalPassShader = CreateRef<Shader>(std::string(finalPassShaderSource));
+        s_ToneMappingShader = CreateRef<Shader>("ToneMappingShader", std::string(toneMappingShaderSource));
+        s_FinalPassShader = CreateRef<Shader>("FinalPassShader", std::string(finalPassShaderSource));
     }
 
     void Renderer::Shutdown()

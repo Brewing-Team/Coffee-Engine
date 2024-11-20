@@ -29,7 +29,7 @@ namespace Coffee {
          * @param fragmentPath The file path to the fragment shader.
          */
         Shader(const std::filesystem::path& shaderPath);
-        Shader(const std::string& shaderSource);
+        Shader(const std::string& name, const std::string& shaderSource);
 
         /**
          * @brief Destructor for the Shader class.

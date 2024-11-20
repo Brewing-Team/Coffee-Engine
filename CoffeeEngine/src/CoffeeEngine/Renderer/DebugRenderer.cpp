@@ -23,7 +23,7 @@ namespace Coffee {
 
     void DebugRenderer::Init()
     {
-        m_DebugShader = CreateRef<Shader>(std::string(debugLineShaderSource));
+        m_DebugShader = CreateRef<Shader>("DebugLineShader", std::string(debugLineShaderSource));
 
         BufferLayout DebugVertexLayout = {
             {ShaderDataType::Vec3, "a_Position"},

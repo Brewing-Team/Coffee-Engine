@@ -13,6 +13,8 @@ namespace Coffee {
     {
         ZoneScoped;
 
+        m_Name = shaderPath.filename().string();
+
         std::string shaderCode;
         std::ifstream shaderFile;
 
@@ -34,8 +36,10 @@ namespace Coffee {
         CompileShader(shaderCode);
     }
 
-    Shader::Shader(const std::string& shaderSource)
+    Shader::Shader(const std::string& name, const std::string& shaderSource)
     {
+        m_Name = name;
+
         CompileShader(shaderSource);
     }
 

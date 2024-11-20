@@ -25,7 +25,7 @@ namespace Coffee {
         {
             COFFEE_WARN("ResourceImporter::ImportTexture: Texture {0} not found in cache. Creating new texture.", path.string());
             Ref<Texture> texture = CreateRef<Texture>(path, srgb);
-            ResourceSaver::SaveToCache(texture->GetName(), texture);
+            ResourceSaver::SaveToCache(texture->GetName(), texture); //TODO: Add the UUID to the cache filename
             return texture;
         }
     }
@@ -68,6 +68,7 @@ namespace Coffee {
         {
             COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache. Creating new mesh.", name);
             Ref<Mesh> mesh = CreateRef<Mesh>(vertices, indices);
+            mesh->SetName(name);
             ResourceSaver::SaveToCache(name, mesh);
             return mesh;
         }

@@ -4,6 +4,7 @@
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Embedded/StandardShader.inl"
+#include <cstdint>
 #include <glm/fwd.hpp>
 #include <tracy/Tracy.hpp>
 
@@ -20,7 +21,7 @@ namespace Coffee {
         m_Name = name;
 
         s_MissingTexture = Texture::Load("assets/textures/UVMap-Grid.jpg");
-        s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>(std::string(standardShaderSource));
+        s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>("StandardShader", std::string(standardShaderSource));
 
         m_MaterialTextures.albedo = s_MissingTexture;
         m_MaterialTextureFlags.hasAlbedo = true;
@@ -40,7 +41,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>(std::string(standardShaderSource));
+        s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>("StandardShader", std::string(standardShaderSource));
         
         m_Name = name;
 
@@ -113,23 +114,34 @@ namespace Coffee {
 
     Ref<Material> Material::Create(const std::string& name, MaterialTextures* materialTextures)
     {
-        if(ResourceRegistry::Exists(name))
+        std::string materialName = name;
+
+        UUID uuid;
+
+        if(materialName.empty())
         {
-            return ResourceRegistry::Get<Material>(name);
+            materialName = "Material-" + std::to_string(uuid);
+        }
+        
+        if(ResourceRegistry::Exists(materialName))
+        {
+            return ResourceRegistry::Get<Material>(materialName);
         }
         else
         {
             Ref<Material> material;
             if(materialTextures == nullptr)
             {
-                material = CreateRef<Material>(name);
-                ResourceRegistry::Add(name, material);
+                material = CreateRef<Material>(materialName);
+                material->m_UUID = uuid;
+                ResourceRegistry::Add(uuid, material);
                 return material;
             }
             else
             {
-                material = CreateRef<Material>(name, *materialTextures);
-                ResourceRegistry::Add(name, material);
+                material = CreateRef<Material>(materialName, *materialTextures);
+                material->m_UUID = uuid;
+                ResourceRegistry::Add(uuid, material);
                 return material;
             }
         }
