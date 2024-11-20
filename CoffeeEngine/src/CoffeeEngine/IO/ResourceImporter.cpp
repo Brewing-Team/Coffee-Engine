@@ -23,7 +23,7 @@ namespace Coffee {
         }
         else
         {
-            COFFEE_INFO("ResourceImporter::ImportTexture: Texture {0} not found in cache. Creating new texture.", path.string());
+            COFFEE_WARN("ResourceImporter::ImportTexture: Texture {0} not found in cache. Creating new texture.", path.string());
             Ref<Texture> texture = CreateRef<Texture>(path, srgb);
             ResourceSaver::SaveToCache(texture->GetName(), texture);
             return texture;
@@ -46,7 +46,7 @@ namespace Coffee {
         }
         else
         {
-            COFFEE_INFO("ResourceImporter::ImportModel: Model {0} not found in cache. Creating new model.", path.string());
+            COFFEE_WARN("ResourceImporter::ImportModel: Model {0} not found in cache. Creating new model.", path.string());
             Ref<Model> model = CreateRef<Model>(path);
             ResourceSaver::SaveToCache(model->GetName(), model);
             return model;
@@ -66,7 +66,7 @@ namespace Coffee {
         }
         else
         {
-            COFFEE_ERROR("ResourceImporter::ImportMesh: Mesh {0} not found in cache. Creating new mesh.", name);
+            COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache. Creating new mesh.", name);
             Ref<Mesh> mesh = CreateRef<Mesh>(vertices, indices);
             ResourceSaver::SaveToCache(name, mesh);
             return mesh;
