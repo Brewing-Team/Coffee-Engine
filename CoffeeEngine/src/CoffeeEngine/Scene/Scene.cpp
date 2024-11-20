@@ -79,46 +79,7 @@ namespace Coffee {
         camera.AddComponent<CameraComponent>();
 
         Ref<Shader> missingShader = CreateRef<Shader>(std::string(missingShaderSource));
-        missingMaterial = CreateRef<Material>(missingShader);
-
-        // TEST -------------------------
-
-        /*
-        octree.Insert(glm::vec3(0.0f), glm::vec3(0.0f));
-        octree.Insert(glm::vec3(1.0f), glm::vec3(1.0f));
-        octree.Insert(glm::vec3(2.0f), glm::vec3(2.0f));
-        octree.Insert(glm::vec3(3.0f), glm::vec3(3.0f));
-        octree.Insert(glm::vec3(4.0f), glm::vec3(4.0f));
-        octree.Insert(glm::vec3(5.0f), glm::vec3(5.0f));
-        octree.Insert(glm::vec3(6.0f), glm::vec3(6.0f));
-        octree.Insert(glm::vec3(7.0f), glm::vec3(7.0f));
-        octree.Insert(glm::vec3(8.0f), glm::vec3(8.0f));
-        octree.Insert(glm::vec3(9.0f), glm::vec3(9.0f));
-        octree.Insert(glm::vec3(10.0f), glm::vec3(10.0f));
-        */
-
-        // static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)});
-        // Static is a cube that goes from x -10 y -10 z -10 to x 10 y 10 z 10
-        // Fill it with 10 random objects
-
-
-        for(int i = 0; i < 50; i++)
-        {
-            octree.Insert(glm::vec3((float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10), glm::vec3((float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10, (float)rand() / RAND_MAX * 20 - 10));
-        }
-
-
-
-        // Primitive
-
-        e1 = CreateEntity("e1");
-        e1.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
-
-        e2 = CreateEntity("e2");
-        e2.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
-        e2.GetComponent<TransformComponent>().Position = {3.0f, 0.0f, 0.0f};
-
-        COFFEE_INFO("asd");
+        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)

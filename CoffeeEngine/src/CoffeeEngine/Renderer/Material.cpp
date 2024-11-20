@@ -41,6 +41,8 @@ namespace Coffee {
         ZoneScoped;
 
         s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>(std::string(standardShaderSource));
+        
+        m_Name = name;
 
         m_MaterialTextures.albedo = materialTextures.albedo;
         m_MaterialTextures.normal = materialTextures.normal;

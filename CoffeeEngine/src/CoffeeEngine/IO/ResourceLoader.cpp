@@ -145,6 +145,19 @@ namespace Coffee {
         return mesh;
     }
 
+    Ref<Shader> ResourceLoader::LoadShader(const std::filesystem::path& shaderPath)
+    {
+        if(ResourceRegistry::Exists(name))
+        {
+            return ResourceRegistry::Get<Mesh>(name);
+        }
+
+        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, vertices, indices);
+
+        ResourceRegistry::Add(name, mesh);
+        return mesh;
+    }
+
     /*Ref<Shader> ResourceLoader::LoadShader(const std::string& shaderSource)
     {
         if(ResourceRegistry::Exists())
