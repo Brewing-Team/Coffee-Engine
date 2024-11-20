@@ -25,6 +25,7 @@ namespace Coffee
         case Coffee::ResourceType::Shader:
             break;
         default:
+            return ResourceFormat::Binary;
             break;
         }
     }
