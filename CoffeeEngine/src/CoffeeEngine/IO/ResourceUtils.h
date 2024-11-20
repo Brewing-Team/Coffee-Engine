@@ -25,4 +25,19 @@ namespace Coffee {
         return ResourceType::Unknown;
     }
 
+    inline std::string ResourceTypeToString(ResourceType type)
+    {
+        switch (type)
+        {
+        case ResourceType::Texture:
+            return "Texture";
+        case ResourceType::Model:
+            return "Model";
+        case ResourceType::Shader:
+            return "Shader";
+        default:
+            return "Unknown";
+        }
+    }
+
 }

@@ -10,17 +10,19 @@
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/IO/ResourceUtils.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "Panels/SceneTreePanel.h"
 #include "entt/entity/entity.hpp"
 #include "imgui_internal.h"
+
 #include <ImGuizmo.h>
 #include <cstdint>
 #include <filesystem>
@@ -474,13 +476,29 @@ namespace Coffee {
         //Debug Window for testing the ResourceRegistry
         ImGui::Begin("Resource Registry");
 
-        auto& resources = ResourceRegistry::GetResourceRegistry();
-
-        for(auto& resource : resources)
+        if (ImGui::BeginTable("ResourceTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
         {
-            ImGui::Text("%lu", (uint64_t)resource.first);
-            ImGui::SameLine();
-            ImGui::Text("Use Count: %ld", resource.second.use_count() - 1);
+            ImGui::TableSetupColumn("Name");
+            ImGui::TableSetupColumn("UUID");
+            ImGui::TableSetupColumn("Type");
+            ImGui::TableSetupColumn("Use Count");
+            ImGui::TableHeadersRow();
+
+            auto& resources = ResourceRegistry::GetResourceRegistry();
+            for (auto& resource : resources)
+            {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%s", resource.second->GetName().c_str());
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%lu", resource.first);
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text("%s", ResourceTypeToString(resource.second->GetType()).c_str());
+                ImGui::TableSetColumnIndex(3);
+                ImGui::Text("%d", resource.second.use_count());
+            }
+
+            ImGui::EndTable();
         }
 
         ImGui::End();
