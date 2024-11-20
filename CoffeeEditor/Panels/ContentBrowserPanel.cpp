@@ -4,9 +4,10 @@
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Scene/Scene.h"
+#include <CoffeeEngine/IO/ResourceUtils.h>
 #include <IconsLucide.h>
-#include <imgui.h>
 #include <filesystem>
+#include <imgui.h>
 
 namespace Coffee {
 
@@ -50,6 +51,12 @@ namespace Coffee {
         for (auto& directoryEntry : std::filesystem::directory_iterator(directory))
         {
             const auto& path = directoryEntry.path();
+
+            if(GetResourceTypeFromExtension(path) == ResourceType::Unknown)
+            {
+                continue;
+            }
+
             auto relativePath = std::filesystem::relative(path, m_CurrentDirectory);
             std::string filenameString = relativePath.filename().string();
 
