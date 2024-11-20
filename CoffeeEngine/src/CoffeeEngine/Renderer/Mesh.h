@@ -254,13 +254,13 @@ namespace Coffee {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(m_Vertices, m_Indices, m_Name, m_AABB, cereal::base_class<Resource>(this));
+            archive(m_Vertices, m_Indices, m_AABB, cereal::base_class<Resource>(this));
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            archive(m_Vertices, m_Indices, m_Name, m_AABB, cereal::base_class<Resource>(this));
+            archive(m_Vertices, m_Indices, m_AABB, cereal::base_class<Resource>(this));
         }
 
         template<class Archive>
@@ -272,7 +272,7 @@ namespace Coffee {
             data(vertices, indices);
             construct(vertices, indices);
 
-            data(construct->m_Name, construct->m_AABB, cereal::base_class<Resource>(construct.ptr()));
+            data(construct->m_AABB, cereal::base_class<Resource>(construct.ptr()));
             construct->m_Vertices = vertices;
             construct->m_Indices = indices;
         }
