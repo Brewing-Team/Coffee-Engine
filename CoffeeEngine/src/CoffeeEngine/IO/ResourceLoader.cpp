@@ -17,7 +17,38 @@ namespace Coffee {
 
     void ResourceLoader::LoadFile(const std::filesystem::path& path)
     {
-        ResourceType type = GetResourceTypeFromExtension(path);
+        if (!is_regular_file(path))
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::LoadResources: {0} is not a file!", path.string());
+            return;
+        }
+
+        const ResourceType type = GetResourceTypeFromExtension(path);
+
+        if(type == ResourceType::Unknown and path.extension() != ".import")
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported file extension {0}", path.extension().string());
+            return;
+        }
+
+        std::filesystem::path resourcePath = path;
+
+        if(resourcePath.extension() == ".import")
+        {
+            resourcePath = GetPathFromImportFile(path);
+            COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", resourcePath.string());
+        }
+        else
+        {
+            std::filesystem::path importFilePath = resourcePath;
+            importFilePath.replace_extension(".import");
+            if(!std::filesystem::exists(importFilePath))
+            {
+                COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Generating import file for {0}", resourcePath.string());
+                GenerateImportFile(resourcePath);
+            }
+        }
+
         switch (type)
         {
             case ResourceType::Texture:
@@ -35,11 +66,6 @@ namespace Coffee {
                 LoadShader(path);
                 break;
             }
-            case ResourceType::Unknown:
-            {
-                COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported file extension {0}", path.extension().string());
-                break;
-            }
         }
     }
 
@@ -47,6 +73,8 @@ namespace Coffee {
     {
         for (const auto& entry : std::filesystem::recursive_directory_iterator(directory))
         {
+            // This two if statements are duplicated in LoadFile but are necessary to suppress errors
+
             if (!entry.is_regular_file())
             {
                 continue;
@@ -57,25 +85,7 @@ namespace Coffee {
                 continue;
             }
 
-            std::filesystem::path resourcePath = entry.path();
-
-            if (resourcePath.extension() == ".import")
-            {
-                resourcePath = GetPathFromImportFile(resourcePath);
-                COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", resourcePath.string());
-            }
-            else
-            {
-                std::filesystem::path importFilePath = resourcePath;
-                importFilePath.replace_extension(".import");
-                if(!std::filesystem::exists(importFilePath))
-                {
-                    COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Generating import file for {0}", resourcePath.string());
-                    GenerateImportFile(resourcePath);
-                }
-            }
-
-            LoadFile(resourcePath);
+            LoadFile(entry.path());
         }
     }
 
