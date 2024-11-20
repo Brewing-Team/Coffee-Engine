@@ -17,7 +17,7 @@ namespace Coffee {
     struct OctreeNode
     {
         public:
-            OctreeNode(OctreeNode* parent, AABB aabb);
+            OctreeNode(OctreeNode* parent, AABB aabb, uint32_t depth);
             ~OctreeNode();
 
             void Insert(ObjectContainer object);
@@ -29,7 +29,8 @@ namespace Coffee {
             OctreeNode* children[8];
             std::list<ObjectContainer> objectList; ///< list of objects of the node
             AABB aabb;
-            int depth;
+            uint32_t depth;
+            uint32_t maxDepth = 4;
             uint32_t maxObjectsPerNode = 8;
     };
 

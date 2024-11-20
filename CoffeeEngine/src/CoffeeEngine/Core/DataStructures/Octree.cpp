@@ -5,7 +5,7 @@
 
 namespace Coffee
 {
-    OctreeNode::OctreeNode(OctreeNode* parent, AABB aabb) : parent(parent), aabb(aabb) {}
+    OctreeNode::OctreeNode(OctreeNode* parent, AABB aabb, uint32_t depth) : parent(parent), aabb(aabb), depth(depth) {}
 
     OctreeNode::~OctreeNode()
     {
@@ -38,7 +38,8 @@ namespace Coffee
             for (auto& child : children) {
                 if (child->aabb.Contains(it->position)) {
                     child->Insert(*it);
-                    child->depth = depth + 1;
+                    child->depth = depth;
+                    //child->parent = this;
                     inserted = true;
                     break;
                 }
@@ -62,9 +63,7 @@ namespace Coffee
 
     void OctreeNode::Subdivide(int depth)
     {
-        this->depth = depth;
-
-        if (depth == 0)
+        if (depth == (maxDepth - 1))
             return;
 
         glm::vec3 halfSize = (aabb.max - aabb.min) * 0.5f;
@@ -85,14 +84,14 @@ namespace Coffee
             newMax.z += (i & 4 ? halfSize.z : 0.0f);
 
             AABB newAABB(newMin, newMax);
-            children[i] = new OctreeNode(this, newAABB);
+            children[i] = new OctreeNode(this, newAABB, depth++);
         }
     }
 
     void OctreeNode::DebugDrawAABB()
     {
         // Always draw the root node's AABB
-        if (parent == nullptr || !objectList.empty())
+        if (!objectList.empty())
         {
             // Calculate hue based on depth
             float hue = static_cast<float>(depth) / 10.0f;            // Adjust the divisor to control the hue range
@@ -117,8 +116,7 @@ namespace Coffee
 
     Octree::Octree(AABB bounds)
     {
-        rootNode = new OctreeNode(nullptr, bounds);
-        rootNode->depth = 0;
+        rootNode = new OctreeNode(nullptr, bounds, 0);
     }
 
     Octree::~Octree()
@@ -134,7 +132,7 @@ namespace Coffee
     void Octree::Update()
     {
         // Draw parent
-        rootNode->DebugDrawAABB();
+        // rootNode->DebugDrawAABB();
 
         // Update the nodes, so that the objects are in the correct nodes
         // TODO
