@@ -28,7 +28,7 @@ namespace Coffee {
             }
             case ResourceType::Model:
             {
-                LoadModel(path, false);
+                LoadModel(path);
                 break;
             }
             case ResourceType::Shader:
@@ -111,7 +111,7 @@ namespace Coffee {
             return ResourceRegistry::Get<Model>(uuid);
         }
 
-        const Ref<Model>& model = CreateRef<Model>(path);
+        const Ref<Model>& model = s_Importer.ImportModel(path, cache);
 
         ResourceRegistry::Add(uuid, model);
         return model;

@@ -17,6 +17,7 @@ namespace Coffee
             return ResourceFormat::Binary;
             break;
         case Coffee::ResourceType::Model:
+            return ResourceFormat::Binary;
             break;
         case Coffee::ResourceType::Mesh:
             return ResourceFormat::Binary;

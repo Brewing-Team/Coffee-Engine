@@ -54,7 +54,7 @@ namespace Coffee {
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::LoadModel(path, false);
+        return ResourceLoader::LoadModel(path, true);
     }
 
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)
@@ -174,7 +174,7 @@ namespace Coffee {
         {
             Ref<Model> child = CreateRef<Model>();
             child->m_FilePath = m_FilePath;
-            child->m_Parent = this;
+            child->m_Parent = weak_from_this();
             m_Children.push_back(child);
 
             child->processNode(node->mChildren[i], scene);

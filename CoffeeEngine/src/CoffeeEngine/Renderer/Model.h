@@ -5,9 +5,16 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Scene.h"
+#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include <assimp/scene.h>
+#include <cereal/access.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
 #include <filesystem>
 #include <glm/fwd.hpp>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -22,13 +29,13 @@ namespace Coffee {
     /**
      * @brief Class representing a 3D model.
      */
-    class Model : public Resource
+    class Model : public Resource, public std::enable_shared_from_this<Model>
     {
     public:
         /**
          * @brief Default constructor for the Model class.
          */
-        Model() : Resource(ResourceType::Texture) {};
+        Model() : Resource(ResourceType::Model) {};
 
         /**
          * @brief Constructs a Model from a file path.
@@ -58,7 +65,7 @@ namespace Coffee {
          * @brief Gets the parent model.
          * @return A pointer to the parent model.
          */
-        const Model* GetParent() const { return m_Parent; }
+        const std::weak_ptr<Model> GetParent() const { return m_Parent; }
 
         /**
          * @brief Gets the children models.
@@ -109,11 +116,34 @@ namespace Coffee {
          * @return The loaded material textures.
          */
         MaterialTextures LoadMaterialTextures(aiMaterial* material);
+        
+        friend class cereal::access;
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            // convert this to UUIDs
+            std::vector<std::string> meshUUIDs;
+            for (const auto& mesh : m_Meshes)
+            {
+                meshUUIDs.push_back(mesh->GetName()); //Get UUID
+            }
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, cereal::base_class<Resource>(this));
+        }
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            std::vector<std::string> meshUUIDs;
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, cereal::base_class<Resource>(this));
+            for (const auto& meshUUID : meshUUIDs)
+            {
+                m_Meshes.push_back(ResourceRegistry::Get<Mesh>(meshUUID));
+            }
+        }
 
     private:
         std::vector<Ref<Mesh>> m_Meshes; ///< The meshes of the model.
 
-        Model* m_Parent; ///< The parent model.
+        std::weak_ptr<Model> m_Parent; ///< The parent model.
         std::vector<Ref<Model>> m_Children; ///< The children models.
 
         glm::mat4 m_Transform; ///< The transformation matrix of the model.
@@ -121,3 +151,6 @@ namespace Coffee {
 
     /** @} */
 }
+
+CEREAL_REGISTER_TYPE(Coffee::Model);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Resource, Coffee::Model);

@@ -30,6 +30,29 @@ namespace Coffee {
         }
     }
 
+    Ref<Model> ResourceImporter::ImportModel(const std::filesystem::path& path, bool cache)
+    {
+        if (!cache)
+        {
+            return CreateRef<Model>(path);
+        }
+
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(path.filename().string());
+
+        if (std::filesystem::exists(cachedFilePath))
+        {
+            const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
+            return std::static_pointer_cast<Model>(resource);
+        }
+        else
+        {
+            COFFEE_INFO("ResourceImporter::ImportModel: Model {0} not found in cache. Creating new model.", path.string());
+            Ref<Model> model = CreateRef<Model>(path);
+            ResourceSaver::SaveToCache(model->GetName(), model);
+            return model;
+        }
+    }
+
     Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
     {
         // TODO: Think about adding a cache parameter.
