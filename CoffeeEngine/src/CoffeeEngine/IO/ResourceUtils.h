@@ -1,0 +1,28 @@
+﻿#pragma once
+
+#include <filesystem>
+#include "CoffeeEngine/IO/Resource.h"
+
+namespace Coffee {
+
+    ResourceType GetResourceTypeFromExtension(const std::filesystem::path& path)
+    {
+        auto extension = path.extension();
+
+        if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
+        {
+            return ResourceType::Texture;
+        }
+        else if(extension == ".glb" || extension == ".gltf" || extension == ".fbx" || extension == ".obj")
+        {
+            return ResourceType::Model;
+        }
+        else if(extension == ".glsl")
+        {
+            return ResourceType::Shader;
+        }
+
+        return ResourceType::Unknown;
+    }
+
+}

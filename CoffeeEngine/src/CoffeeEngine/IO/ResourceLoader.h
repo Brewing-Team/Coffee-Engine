@@ -57,13 +57,6 @@ namespace Coffee {
 
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
     private:
-        /**
-         * @brief Determines the resource type from the file extension.
-         * @param path The file path to check.
-         * @return The resource type.
-         */
-        static ResourceType GetResourceTypeFromExtension(const std::filesystem::path& path);
-
         struct ImportData
         {
             UUID uuid;

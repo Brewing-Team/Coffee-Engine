@@ -7,6 +7,7 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
+#include "CoffeeEngine/IO/ResourceUtils.h"
 #include <filesystem>
 #include <fstream>
 
@@ -154,26 +155,6 @@ namespace Coffee {
 
         return shader;
     }*/
-
-    ResourceType ResourceLoader::GetResourceTypeFromExtension(const std::filesystem::path& path)
-    {
-        auto extension = path.extension();
-
-        if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
-        {
-            return ResourceType::Texture;
-        }
-        else if(extension == ".glb" || extension == ".gltf" || extension == ".fbx" || extension == ".obj")
-        {
-            return ResourceType::Model;
-        }
-        else if(extension == ".glsl")
-        {
-            return ResourceType::Shader;
-        }
-
-        return ResourceType::Unknown;
-    }
 
     void ResourceLoader::GenerateImportFile(const std::filesystem::path& path)
     {
