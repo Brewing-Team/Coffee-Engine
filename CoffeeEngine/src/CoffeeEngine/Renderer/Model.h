@@ -55,11 +55,7 @@ namespace Coffee {
          */
         void AddMesh(const Ref<Mesh> mesh) { m_Meshes.push_back(mesh); };
 
-        /**
-         * @brief Gets the name of the model.
-         * @return A reference to the name of the model.
-         */
-        std::string& GetName() { return m_Name; }
+        const std::string& GetNodeName() { return m_NodeName; }
 
         /**
          * @brief Gets the parent model.
@@ -127,13 +123,13 @@ namespace Coffee {
             {
                 meshUUIDs.push_back(mesh->GetName()); //Get UUID
             }
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, cereal::base_class<Resource>(this));
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
         }
         template<class Archive>
         void load(Archive& archive)
         {
             std::vector<std::string> meshUUIDs;
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, cereal::base_class<Resource>(this));
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
             for (const auto& meshUUID : meshUUIDs)
             {
                 m_Meshes.push_back(ResourceRegistry::Get<Mesh>(meshUUID));
@@ -147,6 +143,8 @@ namespace Coffee {
         std::vector<Ref<Model>> m_Children; ///< The children models.
 
         glm::mat4 m_Transform; ///< The transformation matrix of the model.
+
+        std::string m_NodeName; ///< The name of the node.
     };
 
     /** @} */

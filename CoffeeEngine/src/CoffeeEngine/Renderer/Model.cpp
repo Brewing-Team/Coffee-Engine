@@ -47,7 +47,7 @@ namespace Coffee {
             return;
         }
 
-        m_Name = path.filename()/* scene->mRootNode->mName.C_Str() */;
+        m_Name = m_FilePath.filename();
 
         processNode(scene->mRootNode, scene);
     }
@@ -160,7 +160,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        //m_Name = node->mName.C_Str();
+        m_NodeName = node->mName.C_Str();
 
         m_Transform = aiMatrix4x4ToGLMMat4(node->mTransformation);
 
