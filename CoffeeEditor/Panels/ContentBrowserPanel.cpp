@@ -52,7 +52,12 @@ namespace Coffee {
         {
             const auto& path = directoryEntry.path();
 
-            if(GetResourceTypeFromExtension(path) == ResourceType::Unknown)
+            if(directoryEntry.is_regular_file() and GetResourceTypeFromExtension(path) == ResourceType::Unknown)
+            {
+                continue;
+            }
+
+            if(directory.stem() == ".CoffeeEngine")
             {
                 continue;
             }

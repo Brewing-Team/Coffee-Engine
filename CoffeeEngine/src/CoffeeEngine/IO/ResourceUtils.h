@@ -5,7 +5,7 @@
 
 namespace Coffee {
 
-    ResourceType GetResourceTypeFromExtension(const std::filesystem::path& path)
+    inline ResourceType GetResourceTypeFromExtension(const std::filesystem::path& path)
     {
         auto extension = path.extension();
 
