@@ -183,37 +183,7 @@ namespace Coffee {
         ResourceRegistry::Add(uuid, shader);
 
         return shader;
-
-        //TODO: Add support for Resource Registry, Resource Importer and UUIDs
-
-        //OLD CODE
-        /*
-            std::filesystem::path filePath(vertexPath);
-            std::string fileName = filePath.stem().string();
-
-            if(ResourceRegistry::Exists(fileName))
-            {
-                return ResourceRegistry::Get<Shader>(fileName);
-            }
-            else
-            {
-                Ref<Shader> shader = CreateRef<Shader>(vertexPath, fragmentPath);
-                ResourceRegistry::Add(fileName, shader);
-                return shader;
-            }
-        */
     }
-
-    /*Ref<Shader> ResourceLoader::LoadShader(const std::string& shaderSource)
-    {
-        if(ResourceRegistry::Exists())
-
-        const Ref<Shader>& shader = CreateRef<Shader>(shaderSource);
-
-        ResourceRegistry::Add(uuid, shader);
-
-        return shader;
-    }*/
 
     void ResourceLoader::GenerateImportFile(const std::filesystem::path& path)
     {
