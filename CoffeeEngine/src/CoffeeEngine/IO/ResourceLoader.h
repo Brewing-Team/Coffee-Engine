@@ -7,14 +7,15 @@
 #pragma once
 
 #include "CoffeeEngine/Core/UUID.h"
-#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
-#include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include <filesystem>
 
 namespace Coffee {
+
+    class Model;
+    class Mesh;
 
     /**
      * @class ResourceLoader
@@ -53,6 +54,7 @@ namespace Coffee {
         static Ref<Model> LoadModel(const std::filesystem::path& path, bool cache = true);
 
         static Ref<Mesh> LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+        static Ref<Mesh> LoadMesh(UUID uuid);
 
         static Ref<Shader> LoadShader(const std::filesystem::path& shaderPath);
         static Ref<Shader> LoadShader(const std::string& shaderSource);

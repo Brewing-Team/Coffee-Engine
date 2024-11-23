@@ -1,9 +1,12 @@
 #include "ResourceImporter.h"
 #include "ResourceSaver.h"
 #include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/Renderer/Model.h"
 
+#include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <string>
 
 namespace Coffee {
 
@@ -53,11 +56,13 @@ namespace Coffee {
         }
     }
 
-    Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+    Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const UUID& uuid, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
     {
         // TODO: Think about adding a cache parameter.
 
-        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(name);
+        std::string uuidString = std::to_string(uuid);
+
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuidString);
 
         if(std::filesystem::exists(cachedFilePath))
         {
@@ -66,11 +71,30 @@ namespace Coffee {
         }
         else
         {
-            COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache. Creating new mesh.", name);
+            COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache. Creating new mesh.", (uint64_t)uuid);
             Ref<Mesh> mesh = CreateRef<Mesh>(vertices, indices);
+            mesh->SetUUID(uuid);
             mesh->SetName(name);
-            ResourceSaver::SaveToCache(name, mesh);
+            ResourceSaver::SaveToCache(uuidString, mesh);
             return mesh;
+        }
+    }
+
+    Ref<Mesh> ResourceImporter::ImportMesh(const UUID& uuid)
+    {
+        std::string uuidString = std::to_string(uuid);
+
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuidString);
+
+        if(std::filesystem::exists(cachedFilePath))
+        {
+            const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
+            return std::static_pointer_cast<Mesh>(resource);
+        }
+        else
+        {
+            COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache.", (uint64_t)uuid);
+            return nullptr;
         }
     }
 

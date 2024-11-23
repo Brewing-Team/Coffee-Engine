@@ -5,7 +5,7 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Scene.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include <assimp/scene.h>
 #include <cereal/access.hpp>
@@ -118,21 +118,21 @@ namespace Coffee {
         void save(Archive& archive) const
         {
             // convert this to UUIDs
-            std::vector<std::string> meshUUIDs;
+            std::vector<UUID> meshUUIDs;
             for (const auto& mesh : m_Meshes)
             {
-                meshUUIDs.push_back(mesh->GetName()); //Get UUID
+                meshUUIDs.push_back(mesh->GetUUID());
             }
             archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
         }
         template<class Archive>
         void load(Archive& archive)
         {
-            std::vector<std::string> meshUUIDs;
+            std::vector<UUID> meshUUIDs;
             archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
             for (const auto& meshUUID : meshUUIDs)
             {
-                m_Meshes.push_back(ResourceRegistry::Get<Mesh>(meshUUID));
+                m_Meshes.push_back(ResourceLoader::LoadMesh(meshUUID));
             }
         }
 

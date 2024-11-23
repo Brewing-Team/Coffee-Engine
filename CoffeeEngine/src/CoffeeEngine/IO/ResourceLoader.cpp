@@ -140,9 +140,24 @@ namespace Coffee {
         {
             return ResourceRegistry::Get<Mesh>(name);
         }
+        
+        UUID uuid = ResourceRegistry::GetUUIDByName(name);
 
-        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, vertices, indices);
-        const UUID& uuid = mesh->GetUUID();
+        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, uuid, vertices, indices);
+        mesh->SetName(name);
+
+        ResourceRegistry::Add(uuid, mesh);
+        return mesh;
+    }
+
+    Ref<Mesh> ResourceLoader::LoadMesh(UUID uuid)
+    {
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Mesh>(uuid);
+        }
+
+        const Ref<Mesh>& mesh = s_Importer.ImportMesh(uuid);
 
         ResourceRegistry::Add(uuid, mesh);
         return mesh;
