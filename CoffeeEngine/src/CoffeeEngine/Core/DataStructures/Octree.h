@@ -9,43 +9,58 @@ namespace Coffee {
 
     struct ObjectContainer
     {
+        int id;
         glm::vec3 position;
         // TODO add templates
-        glm::vec3 data;
+        //glm::vec3 data;
     };
 
     struct OctreeNode
     {
         public:
-            OctreeNode(OctreeNode* parent, AABB aabb, uint32_t depth);
-            ~OctreeNode();
+            OctreeNode() = default;
+            OctreeNode(const AABB& aabb) : aabb(aabb) {}
+            ~OctreeNode()
+            {
+                for (auto& child : children)
+                {
+                    if (child)
+                    {
+                        child.reset();
+                    }
+                }
+            }
 
-            void Insert(ObjectContainer object);
-            void Subdivide(int depth);
+            // Delete copy constructor and copy assignment operator
+            // to prevent copying of the OctreeNode
+            OctreeNode(const OctreeNode&) = delete;
+            OctreeNode& operator=(const OctreeNode&) = delete;
+
             void DebugDrawAABB();
+            int GetChildIndex(const AABB& bounds, const glm::vec3& point) const;
 
         public:
-            OctreeNode* parent;
-            OctreeNode* children[8];
-            std::list<ObjectContainer> objectList; ///< list of objects of the node
+            std::unique_ptr<OctreeNode> children[8]; ///< Pointers to child nodes
+            std::vector<ObjectContainer> objectList; ///< list of objects of the node
             AABB aabb;
-            uint32_t depth;
-            uint32_t maxDepth = 4;
-            uint32_t maxObjectsPerNode = 8;
+            bool isLeaf = true;
     };
 
     class Octree
     {
         public:
-            Octree(AABB bounds);
+            Octree(const AABB& bounds, int maxObjectsPerNode = 8, int maxDepth = 5);
             ~Octree();
 
-            void Insert(const glm::vec3& position, glm::vec3 data /*TODO THIS SHOULD BE A TEMPLATE*/);
+            void Insert(OctreeNode& node, const ObjectContainer& object);
+            void Insert(const ObjectContainer& object);
+            void Subdivide(OctreeNode& node);
             void Update();
 
         public:
             uint32_t maxDepth = 4;
-            OctreeNode* rootNode;
+            uint32_t maxObjectsPerNode = 8;
+            OctreeNode rootNode;
     };
 
 }

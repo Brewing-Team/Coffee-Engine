@@ -3,136 +3,114 @@
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Scene/Components.h"
 
-namespace Coffee
-{
-    OctreeNode::OctreeNode(OctreeNode* parent, AABB aabb, uint32_t depth) : parent(parent), aabb(aabb), depth(depth) {}
+namespace Coffee {
 
-    OctreeNode::~OctreeNode()
+    void Octree::Insert(OctreeNode& node, const ObjectContainer& object)
     {
-        // Free all the children
-        if (depth == 0)
+        // If the object is not inside the node, return
+        if (!node.aabb.Contains(object.position))
             return;
 
-        for (auto & i : children)
+        if (node.isLeaf) // If the node is a leaf, insert the object into the node
         {
-            delete i;
-        }
-    }
-
-    void OctreeNode::Insert(ObjectContainer object)
-    {
-        // Insert the object into the node if there is still space
-        if (objectList.size() < maxObjectsPerNode) {
-            objectList.push_back(object);
-            return;
-        }
-
-
-        Subdivide(depth + 1); // TODO need to find a way to add the children to the correct subdivided node
-
-
-        // Distribute objects to children and clear the current list
-        auto it = objectList.begin();
-        while (it != objectList.end()) {
-            bool inserted = false;
-            for (auto& child : children) {
-                if (child->aabb.Contains(it->position)) {
-                    child->Insert(*it);
-                    child->depth = depth;
-                    //child->parent = this;
-                    inserted = true;
-                    break;
+            node.objectList.push_back(object);
+            if (node.objectList.size() > maxObjectsPerNode and maxDepth > 0)
+            {
+                // If the node is full, subdivide it and distribute the objects to the children
+                Subdivide(node);
+                for (const auto& obj : node.objectList)
+                {
+                    int childIndex = node.GetChildIndex(node.aabb, object.position);
+                    Insert(*node.children[childIndex], obj);
                 }
+                node.objectList.clear();
             }
-            if (inserted) {
-                it = objectList.erase(it);
-            } else {
-                ++it;
-            }
+        } else { // If the node is not a leaf, insert the object into the correct child
+            int childIndex  = node.GetChildIndex(node.aabb, object.position);
+            Insert(*node.children[childIndex], object);
         }
-
-        // Finally, insert the current object
-        for (auto& child : children) {
-            if (child->aabb.Contains(object.position)) {
-                child->Insert(object);
-                return;
-            }
-        }
-
     }
 
-    void OctreeNode::Subdivide(int depth)
+    void Octree::Insert(const ObjectContainer& object) {
+        Insert(rootNode, object);
+    }
+
+    void Octree::Subdivide(OctreeNode& node)
     {
-        if (depth == (maxDepth - 1))
-            return;
+        glm::vec3 center = (node.aabb.min + node.aabb.max) * 0.5f;
+        glm::vec3 halfSize = (node.aabb.max - node.aabb.min) * 0.5f; // delete this
 
-        glm::vec3 halfSize = (aabb.max - aabb.min) * 0.5f;
-        glm::vec3 center = (aabb.max + aabb.min) * 0.5f;
+        // Create the 8 children nodes of the current node
+        node.children[0] = std::make_unique<OctreeNode>(AABB(node.aabb.min, center));
+        node.children[1] = std::make_unique<OctreeNode>(AABB(glm::vec3(center.x, node.aabb.min.y, node.aabb.min.z),
+                                                             glm::vec3(node.aabb.max.x, center.y, center.z)));
+        node.children[2] = std::make_unique<OctreeNode>(AABB(glm::vec3(node.aabb.min.x, center.y, node.aabb.min.z),
+                                                             glm::vec3(center.x, node.aabb.max.y, center.z)));
+        node.children[3] = std::make_unique<OctreeNode>(AABB(glm::vec3(center.x, center.y, node.aabb.min.z),
+                                                             glm::vec3(node.aabb.max.x, node.aabb.max.y, center.z)));
+        node.children[4] = std::make_unique<OctreeNode>(AABB(glm::vec3(node.aabb.min.x, node.aabb.min.y, center.z),
+                                                             glm::vec3(center.x, center.y, node.aabb.max.z)));
+        node.children[5] = std::make_unique<OctreeNode>(AABB(glm::vec3(center.x, node.aabb.min.y, center.z),
+                                                             glm::vec3(node.aabb.max.x, center.y, node.aabb.max.z)));
+        node.children[6] = std::make_unique<OctreeNode>(AABB(glm::vec3(node.aabb.min.x, center.y, center.z),
+                                                             glm::vec3(center.x, node.aabb.max.y, node.aabb.max.z)));
+        node.children[7] = std::make_unique<OctreeNode>(AABB(center, node.aabb.max));
 
-        for (int i = 0; i < 8; ++i)
-        {
-            glm::vec3 newMin = center;
-            glm::vec3 newMax = center;
-
-            newMin.x += (i & 1 ? 0.0f : -halfSize.x);
-            newMax.x += (i & 1 ? halfSize.x : 0.0f);
-
-            newMin.y += (i & 2 ? 0.0f : -halfSize.y);
-            newMax.y += (i & 2 ? halfSize.y : 0.0f);
-
-            newMin.z += (i & 4 ? 0.0f : -halfSize.z);
-            newMax.z += (i & 4 ? halfSize.z : 0.0f);
-
-            AABB newAABB(newMin, newMax);
-            children[i] = new OctreeNode(this, newAABB, depth++);
-        }
+        // Set the node as not a leaf
+        node.isLeaf = false;
     }
 
     void OctreeNode::DebugDrawAABB()
     {
-        // Always draw the root node's AABB
-        if (!objectList.empty())
+        DebugRenderer::DrawBox(aabb.min, aabb.max, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        if (!isLeaf)
         {
-            // Calculate hue based on depth
-            float hue = static_cast<float>(depth) / 10.0f;            // Adjust the divisor to control the hue range
-            glm::vec4 color = glm::vec4(hue, 1.0f - hue, 0.0f, 1.0f); // Create a color based on the hue
-
-            DebugRenderer::DrawBox(aabb, color, 1.0f);
-
-            for (auto& object : objectList)
+            for (auto& child : children)
             {
-                DebugRenderer::DrawSphere(object.position, 0.1f, color);
+                if (child)
+                {
+                    child->DebugDrawAABB();
+                    for (auto& obj : child->objectList)
+                    {
+                        DebugRenderer::DrawSphere(obj.position, 0.1f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                    }
+                }
             }
-        }
-
-        if (depth == 0)
-            return;
-
-        for (auto& child : children)
-        {
-            child->DebugDrawAABB();
         }
     }
 
-    Octree::Octree(AABB bounds)
+    // Get the index of the child node that contains the point
+    int OctreeNode::GetChildIndex(const AABB& bounds, const glm::vec3& point) const
     {
-        rootNode = new OctreeNode(nullptr, bounds, 0);
+        glm::vec3 center = (bounds.min + bounds.max) * 0.5f;
+        int index = 0;
+        if (point.x > center.x) index |= 1;
+        if (point.y > center.y) index |= 2;
+        if (point.z > center.z) index |= 4;
+        return index;
+    }
+
+    Octree::Octree(const AABB& bounds, int maxObjectsPerNode, int maxDepth) : maxObjectsPerNode(maxObjectsPerNode), maxDepth(maxDepth)
+    {
+        rootNode.aabb = bounds;
     }
 
     Octree::~Octree()
     {
-        delete rootNode;
-    }
-
-    void Octree::Insert(const glm::vec3& position, glm::vec3 data)
-    {
-        rootNode->Insert({position, data});
+        rootNode.objectList.clear();
+        for (auto& child : rootNode.children) {
+            if (child) {
+                child->objectList.clear();
+                child.reset();
+            }
+        }
+        rootNode.isLeaf = true;
     }
 
     void Octree::Update()
     {
         // Draw parent
-        // rootNode->DebugDrawAABB();
+        rootNode.DebugDrawAABB();
 
         // Update the nodes, so that the objects are in the correct nodes
         // TODO

@@ -30,7 +30,7 @@ namespace Coffee {
     //TEMPORAL
     static Ref<Material> missingMaterial;
 
-    static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)});
+    static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)}, 2, 5);
 
     static Entity e1;
     static Entity e2;
@@ -78,8 +78,31 @@ namespace Coffee {
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
-        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
+        Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
+        missingMaterial = CreateRef<Material>(missingShader);
+
+        // TEST -------------------------
+
+        // static Octree octree({glm::vec3(-10.0f), glm::vec3(10.0f)});
+        // Static is a cube that goes from x -10 y -10 z -10 to x 10 y 10 z 10
+        // Fill it with 10 random objects
+
+        for (int i = 0; i < 100; i++)
+        {
+            // FIXME there is a memory leak in the Insert function
+            octree.Insert(ObjectContainer{i, glm::vec3(static_cast<float>(rand()) / RAND_MAX * 20.0f - 10.0f, static_cast<float>(rand()) / RAND_MAX * 20.0f - 10.0f, static_cast<float>(rand()) / RAND_MAX * 20.0f - 10.0f)});
+        }
+
+        // Primitive
+
+        /*
+        e1 = CreateEntity("e1");
+        e1.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+
+        e2 = CreateEntity("e2");
+        e2.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        e2.GetComponent<TransformComponent>().Position = {3.0f, 0.0f, 0.0f};
+        */
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
