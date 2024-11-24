@@ -222,7 +222,7 @@ namespace Coffee {
             .get<HierarchyComponent>(archive)
             .get<CameraComponent>(archive)
             .get<MeshComponent>(archive)
-            //.get<MaterialComponent>(archive)
+            .get<MaterialComponent>(archive)
             .get<LightComponent>(archive);
 
         return scene;
@@ -245,7 +245,7 @@ namespace Coffee {
             .get<HierarchyComponent>(archive)
             .get<CameraComponent>(archive)
             .get<MeshComponent>(archive)
-            //.get<MaterialComponent>(archive)
+            .get<MaterialComponent>(archive)
             .get<LightComponent>(archive);
     }
 

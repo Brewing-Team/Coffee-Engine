@@ -2,6 +2,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -10,6 +11,7 @@
 #include "CoffeeEngine/IO/ResourceUtils.h"
 #include <filesystem>
 #include <fstream>
+#include <string>
 
 namespace Coffee {
 
@@ -134,7 +136,7 @@ namespace Coffee {
         return model;
     }
 
-    Ref<Mesh> ResourceLoader::LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+    Ref<Mesh> ResourceLoader::LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material)
     {
         if(ResourceRegistry::Exists(name))
         {
@@ -143,7 +145,7 @@ namespace Coffee {
         
         UUID uuid = ResourceRegistry::GetUUIDByName(name);
 
-        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, uuid, vertices, indices);
+        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, uuid, vertices, indices, material);
         mesh->SetName(name);
 
         ResourceRegistry::Add(uuid, mesh);
@@ -183,6 +185,64 @@ namespace Coffee {
         ResourceRegistry::Add(uuid, shader);
 
         return shader;
+    }
+
+    Ref<Material> ResourceLoader::LoadMaterial(const std::string& name)
+    {
+        std::string materialName = name;
+
+        UUID uuid;
+
+        if(materialName.empty())
+        {
+            materialName = "Material-" + std::to_string(uuid);
+        }
+
+        if(ResourceRegistry::Exists(materialName))
+        {
+            return ResourceRegistry::Get<Material>(materialName);
+        }
+
+        Ref<Material> material = s_Importer.ImportMaterial(materialName, uuid);
+        material->SetUUID(uuid);
+        ResourceRegistry::Add(uuid, material);
+        return material;
+
+    }
+
+    Ref<Material> ResourceLoader::LoadMaterial(const std::string& name, MaterialTextures& materialTextures)
+    {
+        std::string materialName = name;
+
+        UUID uuid;
+
+        if(materialName.empty())
+        {
+            materialName = "Material-" + std::to_string(uuid);
+        }
+
+        if(ResourceRegistry::Exists(materialName))
+        {
+            return ResourceRegistry::Get<Material>(materialName);
+        }
+
+        Ref<Material> material = s_Importer.ImportMaterial(materialName, uuid, materialTextures);
+        material->SetUUID(uuid);
+        ResourceRegistry::Add(uuid, material);
+        return material;
+    }
+    
+    Ref<Material> ResourceLoader::LoadMaterial(UUID uuid)
+    {
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Material>(uuid);
+        }
+
+        const Ref<Material>& material = s_Importer.ImportMaterial(uuid);
+
+        ResourceRegistry::Add(uuid, material);
+        return material;
     }
 
     void ResourceLoader::GenerateImportFile(const std::filesystem::path& path)

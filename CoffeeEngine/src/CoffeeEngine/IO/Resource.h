@@ -61,6 +61,12 @@ namespace Coffee {
         const std::filesystem::path& GetPath() { COFFEE_CORE_ASSERT(m_FilePath.empty(), "This Texture does not exist on disk!") return m_FilePath; }
 
         /**
+         * @brief Sets the name of the mesh.
+         * @param name The name of the mesh.
+         */
+        void SetName(const std::string& name) { m_Name = name; }
+
+        /**
          * @brief Gets the type of the resource.
          * @return The type of the resource.
          */

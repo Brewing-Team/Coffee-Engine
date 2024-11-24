@@ -1,7 +1,10 @@
 #include "ResourceImporter.h"
+#include "CoffeeEngine/Renderer/Material.h"
 #include "ResourceSaver.h"
 #include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/Renderer/Model.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Renderer/Material.h"
 
 #include <cstdint>
 #include <filesystem>
@@ -56,7 +59,7 @@ namespace Coffee {
         }
     }
 
-    Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const UUID& uuid, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+    Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const UUID& uuid, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material)
     {
         // TODO: Think about adding a cache parameter.
 
@@ -75,6 +78,7 @@ namespace Coffee {
             Ref<Mesh> mesh = CreateRef<Mesh>(vertices, indices);
             mesh->SetUUID(uuid);
             mesh->SetName(name);
+            mesh->SetMaterial(material);
             ResourceSaver::SaveToCache(uuidString, mesh);
             return mesh;
         }
@@ -94,6 +98,68 @@ namespace Coffee {
         else
         {
             COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache.", (uint64_t)uuid);
+            return nullptr;
+        }
+    }
+
+    Ref<Material> ResourceImporter::ImportMaterial(const std::string& name, const UUID& uuid)
+    {
+        std::string uuidString = std::to_string(uuid);
+
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuidString);
+
+        if(std::filesystem::exists(cachedFilePath))
+        {
+            const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
+            return std::static_pointer_cast<Material>(resource);
+        }
+        else
+        {
+            COFFEE_WARN("ResourceImporter::ImportMaterial: Material {0} not found in cache. Creating new material.", (uint64_t)uuid);
+            Ref<Material> material = CreateRef<Material>(name);
+            material->SetUUID(uuid);
+            material->SetName(name);
+            ResourceSaver::SaveToCache(uuidString, material);
+            return material;
+        }
+    }
+
+    Ref<Material> ResourceImporter::ImportMaterial(const std::string& name, const UUID& uuid, MaterialTextures& materialTextures)
+    {
+        std::string uuidString = std::to_string(uuid);
+
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuidString);
+
+        if(std::filesystem::exists(cachedFilePath))
+        {
+            const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
+            return std::static_pointer_cast<Material>(resource);
+        }
+        else
+        {
+            COFFEE_WARN("ResourceImporter::ImportMaterial: Material {0} not found in cache. Creating new material.", (uint64_t)uuid);
+            Ref<Material> material = CreateRef<Material>(name, materialTextures);
+            material->SetUUID(uuid);
+            material->SetName(name);
+            ResourceSaver::SaveToCache(uuidString, material);
+            return material;
+        }
+    }
+
+    Ref<Material> ResourceImporter::ImportMaterial(const UUID& uuid)
+    {
+        std::string uuidString = std::to_string(uuid);
+
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuidString);
+
+        if(std::filesystem::exists(cachedFilePath))
+        {
+            const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
+            return std::static_pointer_cast<Material>(resource);
+        }
+        else
+        {
+            COFFEE_WARN("ResourceImporter::ImportMaterial: Material {0} not found in cache.", (uint64_t)uuid);
             return nullptr;
         }
     }

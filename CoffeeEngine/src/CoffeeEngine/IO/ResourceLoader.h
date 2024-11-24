@@ -16,6 +16,7 @@ namespace Coffee {
 
     class Model;
     class Mesh;
+    class Material;
 
     /**
      * @class ResourceLoader
@@ -53,11 +54,15 @@ namespace Coffee {
          */
         static Ref<Model> LoadModel(const std::filesystem::path& path, bool cache = true);
 
-        static Ref<Mesh> LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+        static Ref<Mesh> LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material);
         static Ref<Mesh> LoadMesh(UUID uuid);
 
         static Ref<Shader> LoadShader(const std::filesystem::path& shaderPath);
         static Ref<Shader> LoadShader(const std::string& shaderSource);
+
+        static Ref<Material> LoadMaterial(const std::string& name);
+        static Ref<Material> LoadMaterial(const std::string& name, MaterialTextures& materialTextures);
+        static Ref<Material> LoadMaterial(UUID uuid);
 
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
     private:

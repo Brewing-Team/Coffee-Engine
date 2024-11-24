@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/Renderer/Buffer.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
@@ -139,18 +140,6 @@ namespace Coffee {
         const Ref<IndexBuffer>& GetIndexBuffer() const { return m_IndexBuffer; }
 
         /**
-         * @brief Sets the name of the mesh.
-         * @param name The name of the mesh.
-         */
-        void SetName(const std::string& name) { m_Name = name; }
-
-        /**
-         * @brief Gets the name of the mesh.
-         * @return The name of the mesh.
-         */
-        const std::string& GetName() const { return m_Name; }
-
-        /**
          * @brief Sets the material of the mesh.
          * @param material A reference to the material.
          */
@@ -254,13 +243,17 @@ namespace Coffee {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(m_Vertices, m_Indices, m_AABB, cereal::base_class<Resource>(this));
+            UUID materialUUID = m_Material->GetUUID();
+            archive(m_Vertices, m_Indices, m_AABB, materialUUID, cereal::base_class<Resource>(this));
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            archive(m_Vertices, m_Indices, m_AABB, cereal::base_class<Resource>(this));
+            UUID materialUUID;
+            archive(m_Vertices, m_Indices, m_AABB, materialUUID, cereal::base_class<Resource>(this));
+
+            m_Material = ResourceLoader::LoadMaterial(materialUUID);
         }
 
         template<class Archive>
@@ -272,9 +265,12 @@ namespace Coffee {
             data(vertices, indices);
             construct(vertices, indices);
 
-            data(construct->m_AABB, cereal::base_class<Resource>(construct.ptr()));
+            UUID materialUUID;
+
+            data(construct->m_AABB, materialUUID, cereal::base_class<Resource>(construct.ptr()));
             construct->m_Vertices = vertices;
             construct->m_Indices = indices;
+            construct->m_Material = ResourceLoader::LoadMaterial(materialUUID);
         }
       private:
         Ref<VertexArray> m_VertexArray; ///< The vertex array of the mesh.

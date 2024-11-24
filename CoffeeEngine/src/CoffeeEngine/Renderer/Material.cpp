@@ -1,6 +1,7 @@
 #include "Material.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Embedded/StandardShader.inl"
@@ -12,6 +13,13 @@ namespace Coffee {
 
     Ref<Texture> Material::s_MissingTexture;
     Ref<Shader> Material::s_StandardShader;
+
+     Material::Material() : Resource(ResourceType::Material)
+    {
+        s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>("StandardShader", std::string(standardShaderSource));
+
+        m_Shader = s_StandardShader;
+    }
 
     Material::Material(const std::string& name)
         : Resource(ResourceType::Material)
@@ -114,37 +122,11 @@ namespace Coffee {
 
     Ref<Material> Material::Create(const std::string& name, MaterialTextures* materialTextures)
     {
-        std::string materialName = name;
-
-        UUID uuid;
-
-        if(materialName.empty())
+        if(materialTextures)
         {
-            materialName = "Material-" + std::to_string(uuid);
+            return ResourceLoader::LoadMaterial(name, *materialTextures);
         }
-        
-        if(ResourceRegistry::Exists(materialName))
-        {
-            return ResourceRegistry::Get<Material>(materialName);
-        }
-        else
-        {
-            Ref<Material> material;
-            if(materialTextures == nullptr)
-            {
-                material = CreateRef<Material>(materialName);
-                material->m_UUID = uuid;
-                ResourceRegistry::Add(uuid, material);
-                return material;
-            }
-            else
-            {
-                material = CreateRef<Material>(materialName, *materialTextures);
-                material->m_UUID = uuid;
-                ResourceRegistry::Add(uuid, material);
-                return material;
-            }
-        }
+        return ResourceLoader::LoadMaterial(name);
     }
 
 }

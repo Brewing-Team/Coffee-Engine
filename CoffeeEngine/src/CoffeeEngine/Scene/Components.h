@@ -185,16 +185,16 @@ namespace Coffee {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("Mesh", mesh->GetName()));
+            archive(cereal::make_nvp("Mesh", mesh->GetUUID()));
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            std::string meshName;
-            archive(cereal::make_nvp("Mesh", meshName));
+            UUID meshUUID;
+            archive(cereal::make_nvp("Mesh", meshUUID));
 
-            Ref<Mesh> mesh = ResourceRegistry::Get<Mesh>(meshName);
+            Ref<Mesh> mesh = ResourceRegistry::Get<Mesh>(meshUUID);
             this->mesh = mesh;
         }
     };
@@ -213,15 +213,27 @@ namespace Coffee {
         MaterialComponent(Ref<Material> material)
             : material(material) {}
 
+        private:
+            friend class cereal::access;
         /**
-         * @brief Serializes the MaterialComponent.
+         * @brief Serializes the MeshComponent.
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
         template<class Archive>
-        void serialize(Archive& archive)
+        void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("Material", *material));
+            archive(cereal::make_nvp("Material", material->GetUUID()));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            UUID materialUUID;
+            archive(cereal::make_nvp("Material", materialUUID));
+
+            Ref<Material> material = ResourceRegistry::Get<Material>(materialUUID);
+            this->material = material;
         }
     };
 
