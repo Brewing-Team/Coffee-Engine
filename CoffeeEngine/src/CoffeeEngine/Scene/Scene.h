@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
@@ -99,6 +100,7 @@ namespace Coffee {
     private:
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
+        Octree m_Octree;
 
         friend class Entity;
         friend class SceneTree;

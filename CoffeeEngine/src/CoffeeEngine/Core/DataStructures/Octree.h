@@ -30,16 +30,11 @@ namespace Coffee {
                 }
             }
 
-            // Delete copy constructor and copy assignment operator
-            // to prevent copying of the OctreeNode
-            OctreeNode(const OctreeNode&) = delete;
-            OctreeNode& operator=(const OctreeNode&) = delete;
-
             void DebugDrawAABB();
             int GetChildIndex(const AABB& bounds, const glm::vec3& point) const;
 
         public:
-            std::unique_ptr<OctreeNode> children[8]; ///< Pointers to child nodes
+            Scope<OctreeNode> children[8]; ///< Pointers to child nodes
             std::vector<ObjectContainer> objectList; ///< list of objects of the node
             AABB aabb;
             bool isLeaf = true;
@@ -51,10 +46,13 @@ namespace Coffee {
             Octree(const AABB& bounds, int maxObjectsPerNode = 8, int maxDepth = 5);
             ~Octree();
 
-            void Insert(OctreeNode& node, const ObjectContainer& object);
             void Insert(const ObjectContainer& object);
             void Subdivide(OctreeNode& node);
-            void Update();
+            void Clear();
+            void DebugDraw();
+
+        private:
+            void Insert(OctreeNode& node, const ObjectContainer& object);
 
         public:
             uint32_t maxDepth = 4;
