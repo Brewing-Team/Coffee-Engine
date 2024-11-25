@@ -1,63 +1,51 @@
 #pragma once
-#include "CoffeeEngine/Renderer/Mesh.h"
 
-#include <list>
+#include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
+#include <vector>
+#include <memory>
 
 namespace Coffee {
 
-    struct MeshComponent; ///< Forward declaration of MeshComponent.
-
     struct ObjectContainer
     {
-        int id;
         glm::vec3 position;
         // TODO add templates for different types of objects
     };
 
-    struct OctreeNode
+    class OctreeNode
     {
-        public:
-            OctreeNode() = default;
-            OctreeNode(const AABB& aabb) : aabb(aabb) {}
-            ~OctreeNode()
-            {
-                for (auto& child : children)
-                {
-                    if (child)
-                    {
-                        child.reset();
-                    }
-                }
-            }
+    public:
+        AABB aabb;
+        bool isLeaf = true;
+        std::vector<ObjectContainer> objectList;
+        std::array<Scope<OctreeNode>, 8> children;
 
-            void DebugDrawAABB();
-            int GetChildIndex(const AABB& bounds, const glm::vec3& point) const;
-
-        public:
-            Scope<OctreeNode> children[8]; ///< Pointers to child nodes
-            std::vector<ObjectContainer> objectList; ///< list of objects of the node
-            AABB aabb;
-            bool isLeaf = true;
+        void DebugDrawAABB();
+        int GetChildIndex(const AABB& bounds, const glm::vec3& point) const;
     };
 
     class Octree
     {
-        public:
-            Octree(const AABB& bounds, int maxObjectsPerNode = 8, int maxDepth = 5);
-            ~Octree();
+    public:
+        Octree(const AABB& bounds, int maxObjectsPerNode = 8, int maxDepth = 5);
+        ~Octree();
 
-            void Insert(const ObjectContainer& object);
-            void Subdivide(OctreeNode& node);
-            void Clear();
-            void DebugDraw();
+        void Insert(const ObjectContainer& object);
+        void DebugDraw();
+        void Clear();
 
-        private:
-            void Insert(OctreeNode& node, const ObjectContainer& object);
+    private:
+        void Insert(OctreeNode& node, const ObjectContainer& object);
+        void InsertIntoLeaf(OctreeNode& node, const ObjectContainer& object);
+        void InsertIntoChild(OctreeNode& node, const ObjectContainer& object);
+        void RedistributeObjects(OctreeNode& node);
+        void Subdivide(OctreeNode& node);
+        void CreateChildren(OctreeNode& node, const glm::vec3& center);
 
-        public:
-            uint32_t maxDepth = 4;
-            uint32_t maxObjectsPerNode = 8;
-            OctreeNode rootNode;
+        OctreeNode rootNode;
+        int maxObjectsPerNode;
+        int maxDepth;
     };
 
-}
+} // namespace Coffee

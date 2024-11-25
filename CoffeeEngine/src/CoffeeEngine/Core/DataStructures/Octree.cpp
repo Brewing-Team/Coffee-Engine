@@ -1,34 +1,40 @@
 #include "Octree.h"
 
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
-#include "CoffeeEngine/Scene/Components.h"
 
 namespace Coffee {
 
     void Octree::Insert(OctreeNode& node, const ObjectContainer& object)
     {
-        // If the object is not inside the node, return
         if (!node.aabb.Contains(object.position))
             return;
 
-        if (node.isLeaf) // If the node is a leaf, insert the object into the node
-        {
-            node.objectList.push_back(object);
-            if (node.objectList.size() > maxObjectsPerNode and maxDepth > 0)
-            {
-                // If the node is full, subdivide it and distribute the objects to the children
-                Subdivide(node);
-                for (const auto& obj : node.objectList)
-                {
-                    int childIndex = node.GetChildIndex(node.aabb, object.position);
-                    Insert(*node.children[childIndex], obj);
-                }
-                node.objectList.clear();
-            }
-        } else { // If the node is not a leaf, insert the object into the correct child
-            int childIndex  = node.GetChildIndex(node.aabb, object.position);
-            Insert(*node.children[childIndex], object);
+        if (node.isLeaf) {
+            InsertIntoLeaf(node, object);
+        } else {
+            InsertIntoChild(node, object);
         }
+    }
+
+    void Octree::InsertIntoLeaf(OctreeNode& node, const ObjectContainer& object) {
+        node.objectList.push_back(object);
+        if (node.objectList.size() > maxObjectsPerNode && maxDepth > 0) {
+            Subdivide(node);
+            RedistributeObjects(node);
+        }
+    }
+
+    void Octree::InsertIntoChild(OctreeNode& node, const ObjectContainer& object) {
+        int childIndex = node.GetChildIndex(node.aabb, object.position);
+        Insert(*node.children[childIndex], object);
+    }
+
+    void Octree::RedistributeObjects(OctreeNode& node) {
+        for (const auto& obj : node.objectList) {
+            int childIndex = node.GetChildIndex(node.aabb, obj.position);
+            Insert(*node.children[childIndex], obj);
+        }
+        node.objectList.clear();
     }
 
     void Octree::Insert(const ObjectContainer& object) {
@@ -38,25 +44,25 @@ namespace Coffee {
     void Octree::Subdivide(OctreeNode& node)
     {
         glm::vec3 center = (node.aabb.min + node.aabb.max) * 0.5f;
+        CreateChildren(node, center);
+        node.isLeaf = false;
+    }
 
-        // Create the 8 children nodes of the current node
+    void Octree::CreateChildren(OctreeNode& node, const glm::vec3& center) {
         node.children[0] = CreateScope<OctreeNode>(AABB(node.aabb.min, center));
         node.children[1] = CreateScope<OctreeNode>(AABB(glm::vec3(center.x, node.aabb.min.y, node.aabb.min.z),
-                                                             glm::vec3(node.aabb.max.x, center.y, center.z)));
+                                                        glm::vec3(node.aabb.max.x, center.y, center.z)));
         node.children[2] = CreateScope<OctreeNode>(AABB(glm::vec3(node.aabb.min.x, center.y, node.aabb.min.z),
-                                                             glm::vec3(center.x, node.aabb.max.y, center.z)));
+                                                        glm::vec3(center.x, node.aabb.max.y, center.z)));
         node.children[3] = CreateScope<OctreeNode>(AABB(glm::vec3(center.x, center.y, node.aabb.min.z),
-                                                             glm::vec3(node.aabb.max.x, node.aabb.max.y, center.z)));
+                                                        glm::vec3(node.aabb.max.x, node.aabb.max.y, center.z)));
         node.children[4] = CreateScope<OctreeNode>(AABB(glm::vec3(node.aabb.min.x, node.aabb.min.y, center.z),
-                                                             glm::vec3(center.x, center.y, node.aabb.max.z)));
+                                                        glm::vec3(center.x, center.y, node.aabb.max.z)));
         node.children[5] = CreateScope<OctreeNode>(AABB(glm::vec3(center.x, node.aabb.min.y, center.z),
-                                                             glm::vec3(node.aabb.max.x, center.y, node.aabb.max.z)));
+                                                        glm::vec3(node.aabb.max.x, center.y, node.aabb.max.z)));
         node.children[6] = CreateScope<OctreeNode>(AABB(glm::vec3(node.aabb.min.x, center.y, center.z),
-                                                             glm::vec3(center.x, node.aabb.max.y, node.aabb.max.z)));
+                                                        glm::vec3(center.x, node.aabb.max.y, node.aabb.max.z)));
         node.children[7] = CreateScope<OctreeNode>(AABB(center, node.aabb.max));
-
-        // Set the node as not a leaf
-        node.isLeaf = false;
     }
 
     void OctreeNode::DebugDrawAABB()
@@ -78,7 +84,6 @@ namespace Coffee {
         }
     }
 
-    // Get the index of the child node that contains the point
     int OctreeNode::GetChildIndex(const AABB& bounds, const glm::vec3& point) const
     {
         glm::vec3 center = (bounds.min + bounds.max) * 0.5f;
