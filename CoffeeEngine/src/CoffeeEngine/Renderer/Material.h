@@ -76,12 +76,12 @@ namespace Coffee {
             template<class Archive>
             void save(Archive& archive) const
             {
-                UUID albedoUUID = albedo ? albedo->GetUUID() : UUID();
-                UUID normalUUID = normal ? normal->GetUUID() : UUID();
-                UUID metallicUUID = metallic ? metallic->GetUUID() : UUID();
-                UUID roughnessUUID = roughness ? roughness->GetUUID() : UUID();
-                UUID aoUUID = ao ? ao->GetUUID() : UUID();
-                UUID emissiveUUID = emissive ? emissive->GetUUID() : UUID();
+                UUID albedoUUID = albedo ? albedo->GetUUID() : UUID::null;
+                UUID normalUUID = normal ? normal->GetUUID() : UUID::null;
+                UUID metallicUUID = metallic ? metallic->GetUUID() : UUID::null;
+                UUID roughnessUUID = roughness ? roughness->GetUUID() : UUID::null;
+                UUID aoUUID = ao ? ao->GetUUID() : UUID::null;
+                UUID emissiveUUID = emissive ? emissive->GetUUID() : UUID::null;
 
                 archive(albedoUUID, normalUUID, metallicUUID, roughnessUUID, aoUUID, emissiveUUID);
             }

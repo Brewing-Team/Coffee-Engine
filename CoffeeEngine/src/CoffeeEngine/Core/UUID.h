@@ -8,6 +8,9 @@ namespace Coffee {
     class UUID
     {
     public:
+        inline static constexpr uint64_t null = 0;
+
+    public:
         UUID();
         UUID(uint64_t uuid);
         UUID(const UUID&) = default;

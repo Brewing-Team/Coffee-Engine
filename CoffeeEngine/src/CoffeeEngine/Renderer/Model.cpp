@@ -47,7 +47,7 @@ namespace Coffee {
             return;
         }
 
-        m_Name = m_FilePath.filename();
+        m_Name = m_FilePath.filename().string();
 
         processNode(scene->mRootNode, scene);
     }
