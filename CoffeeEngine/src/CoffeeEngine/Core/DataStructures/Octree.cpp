@@ -75,12 +75,13 @@ namespace Coffee {
                 if (child)
                 {
                     child->DebugDrawAABB();
-                    for (auto& obj : child->objectList)
-                    {
-                        DebugRenderer::DrawSphere(obj.position, 0.1f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                    }
                 }
             }
+        }
+
+        for (auto& obj : objectList)
+        {
+            DebugRenderer::DrawSphere(obj.position, 0.1f, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         }
     }
 

@@ -105,6 +105,9 @@ namespace Coffee {
         friend class Entity;
         friend class SceneTree;
         friend class SceneTreePanel;
+
+        //REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!
+        friend class EditorLayer;
     };
 
     /**

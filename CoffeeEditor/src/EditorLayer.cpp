@@ -502,6 +502,18 @@ namespace Coffee {
         }
 
         ImGui::End();
+
+        //Debug Scene Octree
+        ImGui::Begin("Octree Debug");
+        if(ImGui::Button("Clear Octree"))
+        {
+            m_ActiveScene->m_Octree.Clear();
+        }
+        if(ImGui::Button("Add Point"))
+        {
+            m_ActiveScene->m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
+        }
+        ImGui::End();
     }
 
     void EditorLayer::OnOverlayRender()
