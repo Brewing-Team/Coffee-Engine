@@ -9,6 +9,8 @@
 #include <glm/fwd.hpp>
 
 #define GLM_ENABLE_EXPERIMENTAL
+#include "Camera.h"
+
 #include <glm/gtx/quaternion.hpp>
 
 namespace Coffee {
@@ -88,7 +90,7 @@ namespace Coffee {
         RendererAPI::DrawLines(m_CircleVertexArray, segments * 2, lineWidth);
     }
 
-    void DebugRenderer::DrawSphere(const glm::vec3& position, float radius, glm::vec4 color, float lineWidth)
+    void DebugRenderer::DrawSphere(const glm::vec3& position, float radius, const glm::vec4& color, float lineWidth)
     {
         DrawCircle(position, radius, glm::quat(), color, lineWidth);
         DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), color,
@@ -99,7 +101,7 @@ namespace Coffee {
 
     // TODO fix this function, currently is not drawing the bounding box at all
     void DebugRenderer::DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size,
-                                glm::vec4 color, const bool& isCentered, float lineWidth)
+                                const glm::vec4& color, const bool& isCentered, float lineWidth)
     {
         glm::vec3 halfSize = size * 0.5f;
         glm::vec3 vertices[8];
@@ -140,7 +142,7 @@ namespace Coffee {
         DrawLine(vertices[3], vertices[7], color, lineWidth);
     }
 
-    void DebugRenderer::DrawBox(const glm::vec3& min, const glm::vec3& max, glm::vec4 color, float lineWidth)
+    void DebugRenderer::DrawBox(const glm::vec3& min, const glm::vec3& max, const glm::vec4& color, float lineWidth)
     {
         DrawLine(glm::vec3(min.x, min.y, min.z), glm::vec3(max.x, min.y, min.z), color, lineWidth);
         DrawLine(glm::vec3(max.x, min.y, min.z), glm::vec3(max.x, max.y, min.z), color, lineWidth);
@@ -159,12 +161,12 @@ namespace Coffee {
 
     }
 
-    void DebugRenderer::DrawBox(const AABB& aabb, glm::vec4 color, float lineWidth)
+    void DebugRenderer::DrawBox(const AABB& aabb, const glm::vec4& color, float lineWidth)
     {
         DrawBox(aabb.min, aabb.max, color, lineWidth);
     }
 
-    void DebugRenderer::DrawBox(const OBB& obb, glm::vec4 color, float lineWidth)
+    void DebugRenderer::DrawBox(const OBB& obb, const glm::vec4& color, float lineWidth)
     {
         for (int i = 0; i < 4; i++) {
             DrawLine(obb.corners[i], obb.corners[(i + 1) % 4], color, lineWidth);

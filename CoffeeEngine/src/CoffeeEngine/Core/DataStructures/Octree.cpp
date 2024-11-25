@@ -38,7 +38,6 @@ namespace Coffee {
     void Octree::Subdivide(OctreeNode& node)
     {
         glm::vec3 center = (node.aabb.min + node.aabb.max) * 0.5f;
-        glm::vec3 halfSize = (node.aabb.max - node.aabb.min) * 0.5f; // delete this
 
         // Create the 8 children nodes of the current node
         node.children[0] = std::make_unique<OctreeNode>(AABB(node.aabb.min, center));
@@ -109,11 +108,7 @@ namespace Coffee {
 
     void Octree::Update()
     {
-        // Draw parent
         rootNode.DebugDrawAABB();
-
-        // Update the nodes, so that the objects are in the correct nodes
-        // TODO
     }
 
 } // namespace Coffee

@@ -49,12 +49,12 @@ namespace Coffee {
 
         static void DrawCircle(const glm::vec3& position, float radius, const glm::quat& rotation, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
-        static void DrawSphere(const glm::vec3& position, float radius, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        static void DrawSphere(const glm::vec3& position, float radius, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
-        static void DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size, glm::vec4 color = glm::vec4(1.0f), const bool& isCentered = false, float lineWidth = 1.0f);
-        static void DrawBox(const AABB& aabb, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
-        static void DrawBox(const glm::vec3& min, const glm::vec3& max , glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
-        static void DrawBox(const OBB& obb, glm::vec4 color, float lineWidth = 1.0f);
+        static void DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size, const glm::vec4& color = glm::vec4(1.0f), const bool& isCentered = false, float lineWidth = 1.0f);
+        static void DrawBox(const AABB& aabb, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        static void DrawBox(const glm::vec3& min, const glm::vec3& max , const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        static void DrawBox(const OBB& obb, const glm::vec4& color, float lineWidth = 1.0f);
 
 
         static void DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength = true, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);

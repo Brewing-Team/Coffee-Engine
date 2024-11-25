@@ -11,8 +11,7 @@ namespace Coffee {
     {
         int id;
         glm::vec3 position;
-        // TODO add templates
-        //glm::vec3 data;
+        // TODO add templates for different types of objects
     };
 
     struct OctreeNode
