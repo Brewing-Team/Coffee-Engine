@@ -1,8 +1,6 @@
 #include "Scene.h"
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Core/DataStructures/Octree.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
@@ -12,6 +10,7 @@
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
+#include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
@@ -30,10 +29,13 @@ namespace Coffee {
 
     //TEMPORAL
     static Ref<Material> missingMaterial;
+    static LuaBackend luaBackend;
 
     Scene::Scene() : m_Octree({glm::vec3(-10.0f), glm::vec3(10.0f)}, 2, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
+        luaBackend.Initialize();
+        luaBackend.ExecuteScript("print_message('Hello from Lua!')");
     }
 
     Entity Scene::CreateEntity(const std::string& name)
