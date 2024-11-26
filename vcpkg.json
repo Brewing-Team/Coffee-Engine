@@ -33,5 +33,11 @@
   }, {
     "name" : "sdl3",
     "version>=" : "3.1.6-preview"
+  }, {
+    "name" : "sol2",
+    "version>=" : "3.3.1"
+  }, {
+    "name" : "lua",
+    "version>=" : "5.4.7"
   } ]
 }

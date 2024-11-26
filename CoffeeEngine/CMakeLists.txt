@@ -35,12 +35,14 @@ find_package(Tracy CONFIG REQUIRED)
 #find_package(imgui REQUIRED)
 #find_package(ImGuizmo REQUIRED)
 find_package(nfd REQUIRED)
+find_package(sol2 CONFIG REQUIRED)
+find_package(Lua REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 add_library(coffee-engine ALIAS ${PROJECT_NAME})
 
 target_include_directories(${PROJECT_NAME}
-    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${INCLUDE_DIRS}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${INCLUDE_DIRS} ${LUA_INCLUDE_DIR}
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC
@@ -58,7 +60,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Tracy::TracyClient
     nfd::nfd
     icon_font_cpp_headers
-    )
+    ${LUA_LIBRARIES}
+)
 
 # Set this in a profile like (Release + Profile)
 option(TRACY_ENABLE "Enable Tracy Profiler" ON)
