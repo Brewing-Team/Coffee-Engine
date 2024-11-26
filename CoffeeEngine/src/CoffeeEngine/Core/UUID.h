@@ -8,7 +8,7 @@ namespace Coffee {
     class UUID
     {
     public:
-        inline static constexpr uint64_t null = 0;
+        static const UUID null;
 
     public:
         UUID();
@@ -27,6 +27,8 @@ namespace Coffee {
     private:
         uint64_t m_UUID;
     };
+
+    inline const UUID UUID::null = UUID(0);
 
 }
 
