@@ -9,7 +9,6 @@
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
 #include "CoffeeEngine/Renderer/Shader.h"
-#include "CoffeeEngine/Renderer/Texture.h"
 #include <filesystem>
 
 namespace Coffee {
@@ -17,6 +16,7 @@ namespace Coffee {
     class Model;
     class Mesh;
     class Material;
+    class Texture;
 
     /**
      * @class ResourceLoader
@@ -45,6 +45,7 @@ namespace Coffee {
          * @return A reference to the loaded texture.
          */
         static Ref<Texture> LoadTexture(const std::filesystem::path& path, bool srgb = true, bool cache = true);
+        static Ref<Texture> LoadTexture(UUID uuid);
 
         /**
          * @brief Loads a model from a file.

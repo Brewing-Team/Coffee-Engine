@@ -4,7 +4,7 @@
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include <cereal/types/polymorphic.hpp>
 #include <filesystem>
@@ -92,18 +92,12 @@ namespace Coffee {
                 UUID albedoUUID, normalUUID, metallicUUID, roughnessUUID, aoUUID, emissiveUUID;
                 archive(albedoUUID, normalUUID, metallicUUID, roughnessUUID, aoUUID, emissiveUUID);
 
-                if(ResourceRegistry::Exists(albedoUUID))    
-                albedo = ResourceRegistry::Get<Texture>(albedoUUID);
-                if(ResourceRegistry::Exists(normalUUID))    
-                normal = ResourceRegistry::Get<Texture>(normalUUID);
-                if(ResourceRegistry::Exists(metallicUUID))  
-                metallic = ResourceRegistry::Get<Texture>(metallicUUID);
-                if(ResourceRegistry::Exists(roughnessUUID)) 
-                roughness = ResourceRegistry::Get<Texture>(roughnessUUID);
-                if(ResourceRegistry::Exists(aoUUID))        
-                ao = ResourceRegistry::Get<Texture>(aoUUID);
-                if(ResourceRegistry::Exists(emissiveUUID))  
-                emissive = ResourceRegistry::Get<Texture>(emissiveUUID);
+                albedo = ResourceLoader::LoadTexture(albedoUUID);
+                normal = ResourceLoader::LoadTexture(normalUUID);
+                metallic = ResourceLoader::LoadTexture(metallicUUID);
+                roughness = ResourceLoader::LoadTexture(roughnessUUID);
+                ao = ResourceLoader::LoadTexture(aoUUID);
+                emissive = ResourceLoader::LoadTexture(emissiveUUID);
             }
     };
 

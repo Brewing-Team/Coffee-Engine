@@ -13,14 +13,14 @@
 
 namespace Coffee {
 
-    Ref<Texture> ResourceImporter::ImportTexture(const std::filesystem::path& path, bool srgb, bool cache)
+    Ref<Texture> ResourceImporter::ImportTexture(const std::filesystem::path& path, const UUID& uuid, bool srgb, bool cache)
     {
         if (!cache)
         {
             return CreateRef<Texture>(path, srgb);
         }
 
-        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(path.filename().string());
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(std::to_string(uuid));
 
         if (std::filesystem::exists(cachedFilePath))
         {
@@ -31,10 +31,29 @@ namespace Coffee {
         {
             COFFEE_WARN("ResourceImporter::ImportTexture: Texture {0} not found in cache. Creating new texture.", path.string());
             Ref<Texture> texture = CreateRef<Texture>(path, srgb);
-            ResourceSaver::SaveToCache(texture->GetName(), texture); //TODO: Add the UUID to the cache filename
+            ResourceSaver::SaveToCache(std::to_string(uuid), texture); //TODO: Add the UUID to the cache filename
             return texture;
         }
     }
+
+    Ref<Texture> ResourceImporter::ImportTexture(const UUID& uuid)
+    {
+        std::string uuidString = std::to_string(uuid);
+
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuidString);
+
+        if(std::filesystem::exists(cachedFilePath))
+        {
+            const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
+            return std::static_pointer_cast<Texture>(resource);
+        }
+        else
+        {
+            COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache.", (uint64_t)uuid);
+            return nullptr;
+        }
+    }
+
 
     Ref<Model> ResourceImporter::ImportModel(const std::filesystem::path& path, bool cache)
     {

@@ -107,8 +107,24 @@ namespace Coffee {
             return ResourceRegistry::Get<Texture>(uuid);
         }
 
-        const Ref<Texture>& texture = s_Importer.ImportTexture(path, srgb, cache);
+        const Ref<Texture>& texture = s_Importer.ImportTexture(path, uuid, srgb, cache);
         texture->SetUUID(uuid);
+
+        ResourceRegistry::Add(uuid, texture);
+        return texture;
+    }
+
+    Ref<Texture> ResourceLoader::LoadTexture(UUID uuid)
+    {
+        if(uuid == UUID::null)
+            return nullptr;
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Texture>(uuid);
+        }
+
+        const Ref<Texture>& texture = s_Importer.ImportTexture(uuid);
 
         ResourceRegistry::Add(uuid, texture);
         return texture;

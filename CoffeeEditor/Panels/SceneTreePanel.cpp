@@ -333,12 +333,26 @@ namespace Coffee {
                 uint32_t textureID = texture ? texture->GetID() : 0;
                 ImGui::ImageButton(label.c_str(), (ImTextureID)textureID, {64, 64});
 
+                auto textureImageFormat = [](ImageFormat format) -> std::string {
+                    switch (format)
+                    {
+                        case ImageFormat::R8: return "R8";
+                        case ImageFormat::RGB8: return "RGB8";
+                        case ImageFormat::RGBA8: return "RGBA8";
+                        case ImageFormat::SRGB8: return "SRGB8";
+                        case ImageFormat::SRGBA8: return "SRGBA8";
+                        case ImageFormat::RGBA32F: return "RGBA32F";
+                        case ImageFormat::DEPTH24STENCIL8: return "DEPTH24STENCIL8";
+                    }
+                };
+
                 if (ImGui::IsItemHovered() and texture)
                 {
                     ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s",
                       texture->GetName().c_str(),
                       texture->GetWidth(),
                       texture->GetHeight(),
+                      textureImageFormat(texture->GetImageFormat()).c_str(),
                       texture->GetPath().c_str()
                       );
                 }
