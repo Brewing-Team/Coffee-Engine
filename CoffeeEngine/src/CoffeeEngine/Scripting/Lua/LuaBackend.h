@@ -1,9 +1,10 @@
 #pragma once
 #include "CoffeeEngine/Scripting/IScriptingBackend.h"
 
+#include <filesystem>
 #include <functional>
-#include <string>
 #include <sol/sol.hpp>
+#include <string>
 
 namespace Coffee {
 
@@ -12,7 +13,9 @@ namespace Coffee {
         public:
             void Initialize() override;
             void ExecuteScript(const std::string& script) override;
-            void RegisterFunction(const std::string& name, std::function<void()> func) override;
+            void ExecuteFile(const std::filesystem::path& filepath) override;
+            void RegisterFunction(std::function<void()> func, const std::string& name) override;
+            void BindFunction(const std::string& name, std::function<void()>& func) override;
         private:
             sol::state luaState;
 

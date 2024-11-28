@@ -6,10 +6,6 @@ namespace Coffee {
 
     void LuaBackend::Initialize() {
         luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
-
-        luaState["print_message"] = [](const std::string& message) {
-            COFFEE_CORE_INFO("[Lua]: {0}", message);
-        };
     }
 
     void LuaBackend::ExecuteScript(const std::string& script) {
@@ -20,9 +16,23 @@ namespace Coffee {
         }
     }
 
-    void LuaBackend::RegisterFunction(const std::string& name, std::function<void()> func) {
+    void LuaBackend::ExecuteFile(const std::filesystem::path& filepath) {
+        try {
+            luaState.script_file(filepath.string());
+        } catch (const sol::error& e) {
+            COFFEE_CORE_ERROR("[Lua Error]: {0}", e.what());
+        }
+    }
+
+    void LuaBackend::RegisterFunction(std::function<void()> func, const std::string& name)
+    {
         luaState.set_function(name, func);
         COFFEE_CORE_INFO("Registered Lua function {0}", name);
     }
 
+    void LuaBackend::BindFunction(const std::string& name, std::function<void()>& func)
+    {
+        func = luaState[name];
+        COFFEE_CORE_INFO("Bound Lua function {0}", name);
+    }
 } // namespace Coffee

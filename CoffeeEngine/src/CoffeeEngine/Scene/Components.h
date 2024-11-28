@@ -280,23 +280,6 @@ namespace Coffee {
             archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
     };
-
-    /**
-     * @brief Component representing a script.
-     * @ingroup scene
-     */
-    struct ScriptComponent
-    {
-        std::string scriptName; ///< The name of the script.
-        std::filesystem::path scriptPath; ///< The path to the script file.
-        std::function<void()> OnCreate; ///< The function to call when the script is created.
-        std::function<void()> OnStart; ///< The function to call when the script starts.
-        std::function<void()> OnUpdate; ///< The function to call when the script updates.
-        std::function<void()> OnExit; ///< The function to call when the script exits.
-
-        ScriptComponent() = default;
-        ScriptComponent(const std::string& name) : scriptName(name) {} // TODO check this
-    };
 }
 
 /** @} */

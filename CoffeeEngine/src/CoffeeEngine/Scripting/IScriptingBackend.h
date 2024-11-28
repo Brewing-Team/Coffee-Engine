@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 #include <functional>
 #include <string>
 
@@ -24,13 +25,17 @@ namespace Coffee {
              */
             virtual void ExecuteScript(const std::string& script) = 0;
 
+            virtual void ExecuteFile(const std::filesystem::path& filepath) = 0;
+
             /**
              * @brief Registers a function with the scripting backend.
              *
              * @param name The name of the function.
              * @param func The function to register.
              */
-            virtual void RegisterFunction(const std::string& name, std::function<void()> func) = 0;
+            virtual void RegisterFunction(std::function<void()> func, const std::string& name) = 0;
+
+            virtual void BindFunction(const std::string& name, std::function<void()>& func) = 0;
 
     };
 

@@ -16,6 +16,7 @@
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
 
+#include <CoffeeEngine/Scripting/Script.h>
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -23,7 +24,6 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
 #include <string>
-
 
 namespace Coffee {
 
@@ -497,8 +497,11 @@ namespace Coffee {
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImGui::Text("Name");
-                ImGui::Text(scriptComponent.scriptName.c_str());
+                ImGui::Text("Script Name: ");
+                ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
+
+                ImGui::Text("Script Path: ");
+                ImGui::Text(scriptComponent.script.GetPath().c_str());
                 // TODO modify the script inspector fields
             }
 
@@ -524,7 +527,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Script Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -591,7 +594,8 @@ namespace Coffee {
                 else if(items[item_current] == "Script Component")
                 {
                     if(!entity.HasComponent<ScriptComponent>())
-                        entity.AddComponent<ScriptComponent>();
+                        //entity.AddComponent<ScriptComponent>();
+                        // TODO add script component
                     ImGui::CloseCurrentPopup();
                 }
                 else
