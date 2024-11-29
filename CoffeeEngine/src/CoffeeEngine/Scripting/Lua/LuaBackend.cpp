@@ -1,9 +1,11 @@
 #include "LuaBackend.h"
 
 #include "CoffeeEngine/Core/Input.h"
-#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
+#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Scene/Entity.h"
 
 namespace Coffee {
 
@@ -329,7 +331,55 @@ namespace Coffee {
         # pragma region Bind Timer Functions
         # pragma endregion
 
+        #pragma region Bind Entity Functions
+        #pragma endregion
 
+        # pragma region Bind Components Functions
+        luaState.new_usertype<Coffee::TagComponent>("tag_component",
+            sol::constructors<Coffee::TagComponent(), Coffee::TagComponent(const std::string&)>(),
+            "tag", &Coffee::TagComponent::Tag
+        );
+
+        luaState.new_usertype<Coffee::TransformComponent>("transform_component",
+            sol::constructors<Coffee::TransformComponent(), Coffee::TransformComponent(const glm::vec3&)>(),
+            "position", &Coffee::TransformComponent::Position,
+            "rotation", &Coffee::TransformComponent::Rotation,
+            "scale", &Coffee::TransformComponent::Scale,
+            "get_local_transform", &Coffee::TransformComponent::GetLocalTransform,
+            "set_local_transform", &Coffee::TransformComponent::SetLocalTransform,
+            "get_world_transform", &Coffee::TransformComponent::GetWorldTransform,
+            "set_world_transform", &Coffee::TransformComponent::SetWorldTransform
+        );
+
+        luaState.new_usertype<Coffee::CameraComponent>("camera_component",
+            sol::constructors<Coffee::CameraComponent()>(),
+            "camera", &Coffee::CameraComponent::Camera
+        );
+
+        luaState.new_usertype<Coffee::MeshComponent>("mesh_component",
+            sol::constructors<Coffee::MeshComponent(), Coffee::MeshComponent(Coffee::Ref<Coffee::Mesh>)>(),
+            "mesh", &Coffee::MeshComponent::mesh,
+            "drawAABB", &Coffee::MeshComponent::drawAABB,
+            "get_mesh", &Coffee::MeshComponent::GetMesh
+        );
+
+        luaState.new_usertype<Coffee::MaterialComponent>("material_component",
+            sol::constructors<Coffee::MaterialComponent(), Coffee::MaterialComponent(Coffee::Ref<Coffee::Material>)>(),
+            "material", &Coffee::MaterialComponent::material
+        );
+
+        luaState.new_usertype<Coffee::LightComponent>("light_component",
+            sol::constructors<Coffee::LightComponent()>(),
+            "color", &Coffee::LightComponent::Color,
+            "direction", &Coffee::LightComponent::Direction,
+            "position", &Coffee::LightComponent::Position,
+            "range", &Coffee::LightComponent::Range,
+            "attenuation", &Coffee::LightComponent::Attenuation,
+            "intensity", &Coffee::LightComponent::Intensity,
+            "angle", &Coffee::LightComponent::Angle,
+            "type", &Coffee::LightComponent::type
+        );
+        # pragma endregion
 
     }
 

@@ -291,3 +291,56 @@ input = {
 
 -- Timer functions
 -- Add timer functions here if any
+
+-- Component stubs
+TagComponent = {
+    Tag = ""
+}
+
+TransformComponent = {
+    Position = {0.0, 0.0, 0.0},
+    Rotation = {0.0, 0.0, 0.0},
+    Scale = {1.0, 1.0, 1.0},
+    GetLocalTransform = function()
+        -- Implementation here
+        return {}
+    end,
+    SetLocalTransform = function(transform)
+        -- Implementation here
+    end,
+    GetWorldTransform = function()
+        -- Implementation here
+        return {}
+    end,
+    SetWorldTransform = function(transform)
+        -- Implementation here
+    end
+}
+
+CameraComponent = {
+    Camera = {}
+}
+
+MeshComponent = {
+    mesh = {},
+    drawAABB = false,
+    GetMesh = function()
+        -- Implementation here
+        return {}
+    end
+}
+
+MaterialComponent = {
+    material = {}
+}
+
+LightComponent = {
+    Color = {1.0, 1.0, 1.0},
+    Direction = {0.0, -1.0, 0.0},
+    Position = {0.0, 0.0, 0.0},
+    Range = 5.0,
+    Attenuation = 1.0,
+    Intensity = 1.0,
+    Angle = 45.0,
+    type = 0
+}
