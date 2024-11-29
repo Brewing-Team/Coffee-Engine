@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
+#include "CoffeeEngine/Core/MouseCodes.h"
 
 namespace Coffee {
 
@@ -265,6 +266,23 @@ namespace Coffee {
         lua["keycode"] = keyCodeTable;
     }
 
+    void BindMouseCodesToLua(sol::state& lua)
+    {
+        std::vector<std::pair<std::string, Coffee::MouseCode>> mouseCodes = {
+            {"LEFT", Coffee::Mouse::BUTTON_LEFT},
+            {"MIDDLE", Coffee::Mouse::BUTTON_MIDDLE},
+            {"RIGHT", Coffee::Mouse::BUTTON_RIGHT},
+            {"X1", Coffee::Mouse::BUTTON_X1},
+            {"X2", Coffee::Mouse::BUTTON_X2}
+        };
+
+        sol::table mouseCodeTable = lua.create_table();
+        for (const auto& mouseCode : mouseCodes) {
+            mouseCodeTable[mouseCode.first] = mouseCode.second;
+        }
+        lua["mousecode"] = mouseCodeTable;
+    }
+
     void LuaBackend::Initialize() {
         luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 
@@ -289,11 +307,20 @@ namespace Coffee {
 
         # pragma region Bind Input Functions
         BindKeyCodesToLua(luaState);
+        BindMouseCodesToLua(luaState);
 
         luaState.set_function("is_key_pressed", [](KeyCode key) {
             return Coffee::Input::IsKeyPressed(key);
         });
 
+        luaState.set_function("is_mouse_button_pressed", [](MouseCode button) {
+            return Coffee::Input::IsMouseButtonPressed(button);
+        });
+
+        luaState.set_function("get_mouse_position", []() {
+            glm::vec2 mousePosition = Coffee::Input::GetMousePosition();
+            return std::make_tuple(mousePosition.x, mousePosition.y);
+        });
         # pragma endregion
 
         # pragma region Bind Timer Functions
