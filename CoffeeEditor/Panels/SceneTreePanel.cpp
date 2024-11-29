@@ -501,7 +501,7 @@ namespace Coffee {
                 ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
 
                 ImGui::Text("Script Path: ");
-                ImGui::Text(scriptComponent.script.GetPath().c_str());
+                ImGui::Text(scriptComponent.script.GetPath().string().c_str());
                 // TODO modify the script inspector fields
             }
 
