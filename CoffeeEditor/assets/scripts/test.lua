@@ -8,7 +8,7 @@ end
 
 function OnUpdate()
     -- print("OnUpdate()")
-    if is_key_pressed(SPACE) then
+    if is_key_pressed(keycode.SPACE) then
         log("SPACE")
     end
 end
