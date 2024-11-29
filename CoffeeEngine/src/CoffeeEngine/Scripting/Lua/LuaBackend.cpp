@@ -7,7 +7,7 @@
 
 namespace Coffee {
 
-    void BindKeyCodesToLua(sol::state& lua)
+    void BindKeyCodesToLua(sol::state& lua, sol::table& inputTable)
     {
         std::vector<std::pair<std::string, Coffee::KeyCode>> keyCodes = {
             {"UNKNOWN", Coffee::Key::UNKNOWN},
@@ -263,10 +263,10 @@ namespace Coffee {
         for (const auto& keyCode : keyCodes) {
             keyCodeTable[keyCode.first] = keyCode.second;
         }
-        lua["keycode"] = keyCodeTable;
+        inputTable["keycode"] = keyCodeTable;
     }
 
-    void BindMouseCodesToLua(sol::state& lua)
+    void BindMouseCodesToLua(sol::state& lua, sol::table& inputTable)
     {
         std::vector<std::pair<std::string, Coffee::MouseCode>> mouseCodes = {
             {"LEFT", Coffee::Mouse::BUTTON_LEFT},
@@ -280,7 +280,7 @@ namespace Coffee {
         for (const auto& mouseCode : mouseCodes) {
             mouseCodeTable[mouseCode.first] = mouseCode.second;
         }
-        lua["mousecode"] = mouseCodeTable;
+        inputTable["mousecode"] = mouseCodeTable;
     }
 
     void LuaBackend::Initialize() {
@@ -306,21 +306,24 @@ namespace Coffee {
         # pragma endregion
 
         # pragma region Bind Input Functions
-        BindKeyCodesToLua(luaState);
-        BindMouseCodesToLua(luaState);
+        sol::table inputTable = luaState.create_table();
+        BindKeyCodesToLua(luaState, inputTable);
+        BindMouseCodesToLua(luaState, inputTable);
 
-        luaState.set_function("is_key_pressed", [](KeyCode key) {
+        inputTable.set_function("is_key_pressed", [](KeyCode key) {
             return Coffee::Input::IsKeyPressed(key);
         });
 
-        luaState.set_function("is_mouse_button_pressed", [](MouseCode button) {
+        inputTable.set_function("is_mouse_button_pressed", [](MouseCode button) {
             return Coffee::Input::IsMouseButtonPressed(button);
         });
 
-        luaState.set_function("get_mouse_position", []() {
+        inputTable.set_function("get_mouse_position", []() {
             glm::vec2 mousePosition = Coffee::Input::GetMousePosition();
             return std::make_tuple(mousePosition.x, mousePosition.y);
         });
+
+        luaState["input"] = inputTable;
         # pragma endregion
 
         # pragma region Bind Timer Functions

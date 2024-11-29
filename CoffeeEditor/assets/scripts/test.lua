@@ -8,13 +8,13 @@ end
 
 function OnUpdate()
     -- print("OnUpdate()")
-    if is_key_pressed(keycode.SPACE) then
+    if input.is_key_pressed(input.keycode.SPACE) then
         log("SPACE")
     end
 
-    if is_mouse_button_pressed(mousecode.LEFT) then
+    if input.is_mouse_button_pressed(input.mousecode.LEFT) then
         log("LEFT")
-        local x, y = get_mouse_position()
+        local x, y = input.get_mouse_position()
         log("Mouse position: (" .. x .. ", " .. y .. ")")
     end
 end
