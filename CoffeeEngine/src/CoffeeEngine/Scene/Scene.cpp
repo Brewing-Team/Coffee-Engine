@@ -11,6 +11,7 @@
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
+#include "CoffeeEngine/Scripting/ScriptManager.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
@@ -198,11 +199,10 @@ namespace Coffee {
 
         for (auto& entity : scriptView)
         {
+            ScriptManager::RegisterVariable("self", (void*)&entity);
+
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
             scriptComponent.script.OnUpdate();
-
-            // luaBackend.ExecuteFile(scriptComponent.scriptPath);
-            // luaBackend.ExecuteScript("print_message('Hello from Lua!')");
         }
 
         Renderer::EndScene();

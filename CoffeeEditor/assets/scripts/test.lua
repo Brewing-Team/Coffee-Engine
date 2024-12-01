@@ -11,7 +11,7 @@ function OnCreate()
 end
 
 function OnUpdate()
-    -- print("OnUpdate()")
+    --log("OnUpdate()")
     if input.is_key_pressed(input.keycode.SPACE) then
         log("SPACE")
     end
@@ -21,6 +21,9 @@ function OnUpdate()
         local x, y = input.get_mouse_position()
         log("Mouse position: (" .. x .. ", " .. y .. ")")
     end
+
+    local entityTag = self.GetComponent("TagComponent").tag
+    print("Entity tag: " .. entityTag)
 end
 
 function on_destroy()

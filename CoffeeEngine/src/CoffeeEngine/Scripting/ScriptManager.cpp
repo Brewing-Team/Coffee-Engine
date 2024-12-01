@@ -23,4 +23,8 @@ namespace Coffee {
         backends[ScriptingLanguage::Lua]->BindFunction(name, func);
     }
 
+    void ScriptManager::RegisterVariable(const std::string& name, void* variable) {
+        backends[ScriptingLanguage::Lua]->RegisterVariable(name, variable);
+    }
+
 } // namespace Coffee

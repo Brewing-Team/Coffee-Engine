@@ -332,31 +332,53 @@ namespace Coffee {
         # pragma endregion
 
         #pragma region Bind Entity Functions
-        
-        luaState.set_function("get_component", [this](const std::string& componentName) {
 
-            Entity entity = luaState["entity"];
+        luaState.new_usertype<Entity>("Entity",
+        sol::constructors<Entity(), Entity(entt::entity, Scene*)>(),
 
-            if (entity.HasComponent<TagComponent>() && componentName == "tag") {
-                return entity.GetComponent<TagComponent>().Tag;
+        "AddComponent", [](Entity& self, const std::string& componentName) {
+            if (componentName == "TagComponent") {
+                self.AddComponent<TagComponent>();
+            } else if (componentName == "TransformComponent") {
+                self.AddComponent<TransformComponent>();
+            } else {
+                throw std::runtime_error("Unknown component type");
             }
-            else if (entity.HasComponent<TransformComponent>() && componentName == "transform") {
-                return entity.GetComponent<TransformComponent>();
+        },
+
+        "GetComponent", [this](Entity& self, const std::string& componentName) -> sol::object {
+            if (componentName == "TagComponent") {
+                return sol::make_object(luaState, self.GetComponent<TagComponent>());
+            } else if (componentName == "TransformComponent") {
+                return sol::make_object(luaState, self.GetComponent<TransformComponent>());
+            } else {
+                throw std::runtime_error("Unknown component type");
             }
-            else if (entity.HasComponent<CameraComponent>() && componentName == "camera") {
-                return entity.GetComponent<CameraComponent>();
+        },
+
+        "HasComponent", [](Entity& self, const std::string& componentName) -> bool {
+            if (componentName == "TagComponent") {
+                return self.HasComponent<TagComponent>();
+            } else if (componentName == "TransformComponent") {
+                return self.HasComponent<TransformComponent>();
+            } else {
+                throw std::runtime_error("Unknown component type");
             }
-            else if (entity.HasComponent<MeshComponent>() && componentName == "mesh") {
-                return entity.GetComponent<MeshComponent>();
+        },
+
+        "RemoveComponent", [](Entity& self, const std::string& componentName) {
+            if (componentName == "TagComponent") {
+                self.RemoveComponent<TagComponent>();
+            } else if (componentName == "TransformComponent") {
+                self.RemoveComponent<TransformComponent>();
+            } else {
+                throw std::runtime_error("Unknown component type");
             }
-            else if (entity.HasComponent<MaterialComponent>() && componentName == "material") {
-                return entity.GetComponent<MaterialComponent>();
-            }
-            else if (entity.HasComponent<LightComponent>() && componentName == "light") {
-                return entity.GetComponent<LightComponent>();
-            }
-            return sol::nil;
-        });
+        },
+
+        "SetParent", &Entity::SetParent,
+        "IsValid", [](Entity& self) { return static_cast<bool>(self); }
+    );
 
         #pragma endregion
 
@@ -440,6 +462,5 @@ namespace Coffee {
     void LuaBackend::RegisterVariable(const std::string& name, void* variable)
     {
         luaState[name] = variable;
-        COFFEE_CORE_INFO("Registered Lua variable {0}", name);
     }
 } // namespace Coffee
