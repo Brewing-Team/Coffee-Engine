@@ -16,15 +16,21 @@ namespace Coffee {
     }
 
     void ScriptManager::RegisterFunction(const std::string& name, std::function<void()> func) {
-        backends[ScriptingLanguage::Lua]->RegisterFunction(func, name);
+        for(auto& backend : backends) {
+            backend.second->RegisterFunction(func, name);
+        }
     }
 
     void ScriptManager::BindFunction(const std::string& name, std::function<void()>& func) {
-        backends[ScriptingLanguage::Lua]->BindFunction(name, func);
+        for(auto& backend : backends) {
+            backend.second->BindFunction(name, func);
+        }
     }
 
     void ScriptManager::RegisterVariable(const std::string& name, void* variable) {
-        backends[ScriptingLanguage::Lua]->RegisterVariable(name, variable);
+        for(auto& backend : backends) {
+            backend.second->RegisterVariable(name, variable);
+        }
     }
 
 } // namespace Coffee
