@@ -332,15 +332,32 @@ namespace Coffee {
         # pragma endregion
 
         #pragma region Bind Entity Functions
-        /*
-        luaState.new_usertype<Entity>(
-            "entity",
-            "add_component", &Entity::AddComponent, // This is ambiguous, cause function is templated, we need to use sol::resolve to specify the function
-            "get_component", &Entity::GetComponent,
-            "has_component", &Entity::HasComponent,
-            "remove_component", &Entity::RemoveComponent
-        );
-        */
+        
+        luaState.set_function("get_component", [this](const std::string& componentName) {
+
+            Entity entity = luaState["entity"];
+
+            if (entity.HasComponent<TagComponent>() && componentName == "tag") {
+                return entity.GetComponent<TagComponent>().Tag;
+            }
+            else if (entity.HasComponent<TransformComponent>() && componentName == "transform") {
+                return entity.GetComponent<TransformComponent>();
+            }
+            else if (entity.HasComponent<CameraComponent>() && componentName == "camera") {
+                return entity.GetComponent<CameraComponent>();
+            }
+            else if (entity.HasComponent<MeshComponent>() && componentName == "mesh") {
+                return entity.GetComponent<MeshComponent>();
+            }
+            else if (entity.HasComponent<MaterialComponent>() && componentName == "material") {
+                return entity.GetComponent<MaterialComponent>();
+            }
+            else if (entity.HasComponent<LightComponent>() && componentName == "light") {
+                return entity.GetComponent<LightComponent>();
+            }
+            return sol::nil;
+        });
+
         #pragma endregion
 
         # pragma region Bind Components Functions
@@ -418,5 +435,11 @@ namespace Coffee {
     {
         func = luaState[name];
         COFFEE_CORE_INFO("Bound Lua function {0}", name);
+    }
+
+    void LuaBackend::RegisterVariable(const std::string& name, void* variable)
+    {
+        luaState[name] = variable;
+        COFFEE_CORE_INFO("Registered Lua variable {0}", name);
     }
 } // namespace Coffee

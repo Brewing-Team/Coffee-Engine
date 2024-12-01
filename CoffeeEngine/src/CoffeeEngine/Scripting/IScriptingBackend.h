@@ -37,6 +37,8 @@ namespace Coffee {
 
             virtual void BindFunction(const std::string& name, std::function<void()>& func) = 0;
 
+            virtual void RegisterVariable(const std::string& name, void* variable) = 0;
+
     };
 
 } // namespace Coffee
