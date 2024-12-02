@@ -598,8 +598,8 @@ namespace Coffee {
         static Ref<Mesh> gridPlaneUp = PrimitiveMesh::CreatePlane({1000.0f, -1000.0f}); // FIXME this is a hack to avoid the grid not beeing rendered due to backface culling
         static Ref<Shader> gridShader = Shader::Create("assets/shaders/SimpleGridShader.glsl");
 
-        //Renderer::Submit(gridShader, gridPlaneUp->GetVertexArray());
-        //Renderer::Submit(gridShader, gridPlaneDown->GetVertexArray());
+        Renderer::Submit(gridShader, gridPlaneUp->GetVertexArray());
+        Renderer::Submit(gridShader, gridPlaneDown->GetVertexArray());
 
         Renderer::EndOverlay();
     }
