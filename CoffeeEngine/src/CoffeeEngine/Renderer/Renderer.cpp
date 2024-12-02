@@ -118,6 +118,8 @@ namespace Coffee {
 
         s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
 
+        // Sort the render queue to minimize state changes
+
         for(const auto& command : s_RendererData.renderQueue)
         {
             command.material->Use();
@@ -214,6 +216,29 @@ namespace Coffee {
     void Renderer::Submit(const RenderCommand& command)
     {
         s_RendererData.renderQueue.push_back(command);
+    }
+
+    // Temporal, this should be removed because this is rendering immediately.
+    void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, uint32_t entityID)
+    {
+        shader->Bind();
+        shader->setMat4("model", transform);
+        shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
+
+        //REMOVE: This is for the first release of the engine it should be handled differently
+        shader->setBool("showNormals", s_RenderSettings.showNormals);
+
+        // Convert entityID to vec3
+        uint32_t r = (entityID & 0x000000FF) >> 0;
+        uint32_t g = (entityID & 0x0000FF00) >> 8;
+        uint32_t b = (entityID & 0x00FF0000) >> 16;
+        glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
+
+        shader->setVec3("entityID", entityIDVec3);
+
+        RendererAPI::DrawIndexed(vertexArray);
+
+        s_Stats.DrawCalls++;
     }
 
     void Renderer::OnResize(uint32_t width, uint32_t height)

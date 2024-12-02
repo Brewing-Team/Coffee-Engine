@@ -134,6 +134,8 @@ namespace Coffee {
 
         static void Submit(const RenderCommand& command);
 
+        static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f), uint32_t entityID = 4294967295);
+
         /**
          * @brief Submits a light component.
          * @param light The light component.
