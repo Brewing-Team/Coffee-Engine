@@ -24,7 +24,7 @@ namespace Coffee {
         glm::mat4 transform;
         Ref<Mesh> mesh;
         Ref<Material> material;
-        //uint32_t entityID;
+        uint32_t entityID;
     };
 
     /**
@@ -58,6 +58,8 @@ namespace Coffee {
         Ref<UniformBuffer> RenderDataUniformBuffer; ///< Uniform buffer for render data.
 
         Ref<Texture> RenderTexture; ///< Render texture.
+
+        std::vector<RenderCommand> renderQueue; ///< Render queue.
     };
 
     /**
@@ -130,26 +132,14 @@ namespace Coffee {
          */
         static void EndOverlay();
 
-        /**
-         * @brief Submits a draw call with the specified shader, vertex array, and transform.
-         * @param shader The shader.
-         * @param vertexArray The vertex array.
-         * @param transform The transform matrix.
-         */
-        static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f), uint32_t entityID = 4294967295);
-
-        /**
-         * @brief Submits a draw call with the specified material, mesh, and transform.
-         * @param material The material.
-         * @param mesh The mesh.
-         * @param transform The transform matrix.
-         */
-        static void Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform = glm::mat4(1.0f), uint32_t entityID = 4294967295);
+        static void Submit(const RenderCommand& command);
 
         /**
          * @brief Submits a light component.
          * @param light The light component.
          */
+
+         //Todo change this to a light class and not a component
         static void Submit(const LightComponent& light);
 
         /**
@@ -204,8 +194,6 @@ namespace Coffee {
         static RendererData s_RendererData; ///< Renderer data.
         static RendererStats s_Stats; ///< Renderer statistics.
         static RenderSettings s_RenderSettings; ///< Render settings.
-
-        std::vector<RenderCommand> m_RenderQueue; ///< Render queue.
 
         static Ref<Texture> s_MainRenderTexture; ///< Main render texture.
         static Ref<Texture> s_EntityIDTexture; ///< Entity ID texture.

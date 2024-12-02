@@ -110,7 +110,8 @@ namespace Coffee {
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : missingMaterial;
             
-            Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
+            //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
+            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -176,7 +177,7 @@ namespace Coffee {
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : missingMaterial;
             
-            Renderer::Submit(material, mesh, transformComponent.GetWorldTransform());
+            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
         }
 
         //Get all entities with LightComponent and TransformComponent

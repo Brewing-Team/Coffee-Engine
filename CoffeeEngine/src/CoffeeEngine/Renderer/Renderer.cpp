@@ -25,6 +25,7 @@ namespace Coffee {
     RendererData Renderer::s_RendererData;
     RendererStats Renderer::s_Stats;
     RenderSettings Renderer::s_RenderSettings;
+
     Ref<Framebuffer> Renderer::s_MainFramebuffer;
     Ref<Framebuffer> Renderer::s_PostProcessingFramebuffer;
     Ref<Texture> Renderer::s_MainRenderTexture;
@@ -84,17 +85,7 @@ namespace Coffee {
         s_RendererData.cameraData.position = camera.GetPosition();
         s_RendererData.CameraUniformBuffer->SetData(&s_RendererData.cameraData, sizeof(RendererData::CameraData));
 
-        //This is setting the light information from the previous frame :(
-        s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
         s_RendererData.renderData.lightCount = 0;
-
-        s_MainFramebuffer->Bind();
-        s_MainFramebuffer->SetDrawBuffers({0, 1});
-
-        RendererAPI::SetClearColor({0.03f,0.03f,0.03f,1.0});
-        RendererAPI::Clear();
-
-        s_EntityIDTexture->Clear({-1.0f,0.0f,0.0f,0.0f});
     }
 
     void Renderer::BeginScene(Camera& camera, const glm::mat4& transform)
@@ -111,18 +102,51 @@ namespace Coffee {
         s_RendererData.cameraData.position = transform[3];
         s_RendererData.CameraUniformBuffer->SetData(&s_RendererData.cameraData, sizeof(RendererData::CameraData));
 
-        //This is setting the light information from the previous frame :(
-        s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
         s_RendererData.renderData.lightCount = 0;
-
-        s_MainFramebuffer->Bind();
-
-        RendererAPI::SetClearColor({0.03f,0.03f,0.03f,1.0});
-        RendererAPI::Clear();
     }
 
     void Renderer::EndScene()
     {
+        s_MainFramebuffer->Bind();
+        s_MainFramebuffer->SetDrawBuffers({0, 1});
+
+        RendererAPI::SetClearColor({0.03f,0.03f,0.03f,1.0});
+        RendererAPI::Clear();
+
+        // Currently this is done also in the runtime, this should be done only in editor mode
+        s_EntityIDTexture->Clear({-1.0f,0.0f,0.0f,0.0f});
+
+        s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
+
+        for(const auto& command : s_RendererData.renderQueue)
+        {
+            command.material->Use();
+
+            const Ref<Shader>& shader = command.material->GetShader();
+
+            shader->Bind();
+            shader->setMat4("model", command.transform);
+            shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(command.transform))));
+
+            //REMOVE: This is for the first release of the engine it should be handled differently
+            shader->setBool("showNormals", s_RenderSettings.showNormals);
+
+            // Convert entityID to vec3
+            uint32_t r = (command.entityID & 0x000000FF) >> 0;
+            uint32_t g = (command.entityID & 0x0000FF00) >> 8;
+            uint32_t b = (command.entityID & 0x00FF0000) >> 16;
+            glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
+
+            shader->setVec3("entityID", entityIDVec3);
+
+            RendererAPI::DrawIndexed(command.mesh->GetVertexArray());
+
+            s_Stats.DrawCalls++;
+
+            s_Stats.VertexCount += command.mesh->GetVertices().size();
+            s_Stats.IndexCount += command.mesh->GetIndices().size();
+        }
+
         if(s_RenderSettings.PostProcessing)
         {
             //Render All the fancy effects :D
@@ -155,14 +179,14 @@ namespace Coffee {
             s_FinalPassShader->Unbind();
 
             RendererAPI::SetDepthMask(true);
-
-            //std::swap(s_PostProcessingTexture, s_MainRenderTexture);
         }
 
         //Final Pass
         s_RendererData.RenderTexture = s_MainRenderTexture;
 
         s_MainFramebuffer->UnBind();
+
+        s_RendererData.renderQueue.clear();
     }
 
     //TEMPORAL
@@ -181,43 +205,15 @@ namespace Coffee {
         s_MainFramebuffer->UnBind();
     }
 
-    void Renderer::Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform, uint32_t entityID)
-    {
-        shader->Bind();
-        shader->setMat4("model", transform);
-        shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(transform))));
-
-        //REMOVE: This is for the first release of the engine it should be handled differently
-        shader->setBool("showNormals", s_RenderSettings.showNormals);
-
-        // Convert entityID to vec3
-        uint32_t r = (entityID & 0x000000FF) >> 0;
-        uint32_t g = (entityID & 0x0000FF00) >> 8;
-        uint32_t b = (entityID & 0x00FF0000) >> 16;
-        glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
-
-        shader->setVec3("entityID", entityIDVec3);
-
-        RendererAPI::DrawIndexed(vertexArray);
-
-        s_Stats.DrawCalls++;
-    }
-
-    void Renderer::Submit(const Ref<Material>& material, const Ref<Mesh>& mesh, const glm::mat4& transform, uint32_t entityID)
-    {
-        material->Use();
-        Ref<Shader> shader = material->GetShader();
-
-        Renderer::Submit(shader, mesh->GetVertexArray(), transform, entityID);
-
-        s_Stats.VertexCount += mesh->GetVertices().size();
-        s_Stats.IndexCount += mesh->GetIndices().size();
-    }
-
     void Renderer::Submit(const LightComponent& light)
     {
         s_RendererData.renderData.lights[s_RendererData.renderData.lightCount] = light;
         s_RendererData.renderData.lightCount++;
+    }
+
+    void Renderer::Submit(const RenderCommand& command)
+    {
+        s_RendererData.renderQueue.push_back(command);
     }
 
     void Renderer::OnResize(uint32_t width, uint32_t height)
