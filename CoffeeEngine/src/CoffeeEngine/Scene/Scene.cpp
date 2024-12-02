@@ -57,8 +57,8 @@ namespace Coffee {
         while(curr != entt::null)
         {
             Entity e{curr, this};
-            DestroyEntity(e);
             curr = m_Registry.get<HierarchyComponent>(curr).m_Next;
+            DestroyEntity(e);
         }
 
         m_Registry.destroy((entt::entity)entity);
