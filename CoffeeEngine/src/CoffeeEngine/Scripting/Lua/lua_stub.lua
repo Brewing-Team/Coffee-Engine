@@ -344,3 +344,28 @@ LightComponent = {
     Angle = 45.0,
     type = 0
 }
+
+-- Entity functions
+Entity = {
+    AddComponent = function(self, componentName)
+        -- Implementation here
+    end,
+    GetComponent = function(self, componentName)
+        -- Implementation here
+        return {}
+    end,
+    HasComponent = function(self, componentName)
+        -- Implementation here
+        return false
+    end,
+    RemoveComponent = function(self, componentName)
+        -- Implementation here
+    end,
+    SetParent = function(self, parent)
+        -- Implementation here
+    end,
+    IsValid = function(self)
+        -- Implementation here
+        return true
+    end
+}
