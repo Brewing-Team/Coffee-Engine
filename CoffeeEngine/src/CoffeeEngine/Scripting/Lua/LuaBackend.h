@@ -5,6 +5,8 @@
 #include <functional>
 #include <sol/sol.hpp>
 #include <string>
+#include <fstream>
+#include <regex>
 
 namespace Coffee {
 
@@ -24,7 +26,7 @@ namespace Coffee {
             void RegisterVariable(const std::string& name, void* variable) override;
             static std::vector<LuaVariable> MapVariables(const std::string& script);
 
-          private:
+        private:
             sol::state luaState;
 
     };

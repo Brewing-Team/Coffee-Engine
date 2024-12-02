@@ -503,8 +503,10 @@ namespace Coffee {
 
                 ImGui::Text("Script Path: ");
                 ImGui::Text(scriptComponent.script.GetPath().string().c_str());
-                // TODO modify the script inspector fields
 
+                // TODO modify the script inspector fields ----------------------------
+
+                // Get the exposed variables
                 std::vector<LuaVariable> exposedVariables = LuaBackend::MapVariables(scriptComponent.script.GetPath().string());
 
                 // print the exposed variables
@@ -513,6 +515,8 @@ namespace Coffee {
                     ImGui::Text("Variable: %s", variable.name.c_str());
                     ImGui::Text("Value: %s", variable.value.c_str());
                 }
+
+                // ---------------------------------------------------------------------
             }
 
         }

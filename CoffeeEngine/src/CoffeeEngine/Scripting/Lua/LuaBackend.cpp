@@ -7,9 +7,6 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 
-#include <fstream>
-#include <regex>
-
 namespace Coffee {
 
     void BindKeyCodesToLua(sol::state& lua, sol::table& inputTable)
@@ -480,7 +477,7 @@ namespace Coffee {
         while (std::regex_search(searchStart, script.cend(), match, exportRegex)) {
             LuaVariable variable;
             variable.name = match[1];
-            variable.value = match[2];
+            variable.value = match[2]; // TODO depending on the type of the variable we might need to convert it to the correct type
 
             // Store the variable in the vector
             variables.push_back(variable);
