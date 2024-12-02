@@ -7,6 +7,7 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 
+#include <fstream>
 #include <regex>
 
 namespace Coffee {
@@ -467,13 +468,16 @@ namespace Coffee {
     }
 
     // This function will check all the variables from the script and map them to a cpp map so we can expose them in the editor
-    std::vector<LuaVariable> LuaBackend::MapVariables(const std::string& script) {
+    std::vector<LuaVariable> LuaBackend::MapVariables(const std::string& scriptPath) {
         std::vector<LuaVariable> variables;
+        std::ifstream scriptFile(scriptPath);
+        std::string script((std::istreambuf_iterator<char>(scriptFile)), std::istreambuf_iterator<char>());
+
         std::regex exportRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+))"); // --[[export]] variable = value
         std::smatch match;
         std::string::const_iterator searchStart(script.cbegin());
 
-        while (std::regex_search(searchStart, script.cend(), match, exportRegex)) { // TODO load the script in a string and shearh for the variables, currently is searching in the path string, not in the script source
+        while (std::regex_search(searchStart, script.cend(), match, exportRegex)) {
             LuaVariable variable;
             variable.name = match[1];
             variable.value = match[2];
