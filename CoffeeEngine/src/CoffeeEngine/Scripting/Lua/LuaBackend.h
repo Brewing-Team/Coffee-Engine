@@ -8,6 +8,11 @@
 
 namespace Coffee {
 
+    struct LuaVariable {
+        std::string name;
+        std::string value;
+    };
+
     class LuaBackend : public IScriptingBackend {
 
         public:
@@ -17,7 +22,9 @@ namespace Coffee {
             void RegisterFunction(std::function<void()> func, const std::string& name) override;
             void BindFunction(const std::string& name, std::function<void()>& func) override;
             void RegisterVariable(const std::string& name, void* variable) override;
-        private:
+            static std::vector<LuaVariable> MapVariables(const std::string& script);
+
+          private:
             sol::state luaState;
 
     };

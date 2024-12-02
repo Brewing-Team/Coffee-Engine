@@ -1,6 +1,8 @@
 -- Test script for CoffeeEngine
 
-
+--[[export]] exampleInt = 42
+--[[export]] exampleFloat = 3.14
+--[[export]] exampleString = "Hello, ImGui!"
 
 function OnCreate()
     print("OnCreate()")

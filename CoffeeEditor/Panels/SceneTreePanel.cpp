@@ -11,10 +11,11 @@
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include <IconsLucide.h>
+#include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
+#include <IconsLucide.h>
 
 #include <CoffeeEngine/Scripting/Script.h>
 #include <array>
@@ -503,6 +504,15 @@ namespace Coffee {
                 ImGui::Text("Script Path: ");
                 ImGui::Text(scriptComponent.script.GetPath().string().c_str());
                 // TODO modify the script inspector fields
+
+                std::vector<LuaVariable> exposedVariables = LuaBackend::MapVariables(scriptComponent.script.GetPath().string());
+
+                // print the exposed variables
+                for (auto& variable : exposedVariables)
+                {
+                    ImGui::Text("Variable: %s", variable.name.c_str());
+                    ImGui::Text("Value: %s", variable.value.c_str());
+                }
             }
 
         }
