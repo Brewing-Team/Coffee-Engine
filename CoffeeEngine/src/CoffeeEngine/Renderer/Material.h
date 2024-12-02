@@ -190,6 +190,27 @@ namespace Coffee {
             archive(m_MaterialTextures, m_MaterialTextureFlags, m_MaterialProperties, m_MaterialRenderSettings, cereal::base_class<Resource>(this));
         }
 
+        template<class Archive>
+        static void load_and_construct(Archive& archive, cereal::construct<Material>& construct)
+        {
+            MaterialTextures materialTextures;
+            MaterialTextureFlags materialTextureFlags;
+            MaterialProperties materialProperties;
+            MaterialRenderSettings materialRenderSettings;
+            Resource baseClass;
+
+            archive(materialTextures, materialTextureFlags, materialProperties, materialRenderSettings, cereal::base_class<Resource>(&baseClass));
+
+            construct(baseClass.GetName(), materialTextures);
+            construct->m_MaterialTextureFlags = materialTextureFlags;
+            construct->m_MaterialProperties = materialProperties;
+            construct->m_MaterialRenderSettings = materialRenderSettings;
+            construct->m_Name = baseClass.GetName();
+            construct->m_FilePath = baseClass.GetPath();
+            construct->m_Type = baseClass.GetType();
+            construct->m_UUID = baseClass.GetUUID();
+        }
+
     private:
         MaterialTextures m_MaterialTextures; ///< The textures used in the material.
         MaterialTextureFlags m_MaterialTextureFlags; ///< The flags for the textures used in the material.
