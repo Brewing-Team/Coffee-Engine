@@ -19,6 +19,14 @@ namespace Coffee {
      * @{
      */
 
+    struct RenderCommand
+    {
+        glm::mat4 transform;
+        Ref<Mesh> mesh;
+        Ref<Material> material;
+        //uint32_t entityID;
+    };
+
     /**
      * @brief Structure containing renderer data.
      */
@@ -196,6 +204,8 @@ namespace Coffee {
         static RendererData s_RendererData; ///< Renderer data.
         static RendererStats s_Stats; ///< Renderer statistics.
         static RenderSettings s_RenderSettings; ///< Render settings.
+
+        std::vector<RenderCommand> m_RenderQueue; ///< Render queue.
 
         static Ref<Texture> s_MainRenderTexture; ///< Main render texture.
         static Ref<Texture> s_EntityIDTexture; ///< Entity ID texture.
