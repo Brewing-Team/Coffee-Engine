@@ -473,34 +473,49 @@ namespace Coffee {
 
         ImGui::End();
 
-        //Debug Window for testing the ResourceRegistry
+        // Debug Window for testing the ResourceRegistry
         ImGui::Begin("Resource Registry");
-
-        if (ImGui::BeginTable("ResourceTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+        
+        // Static variable to store the search query
+        static std::string searchQuery;
+        
+        // Input text field for the search query
+        char buffer[256];
+        strncpy(buffer, searchQuery.c_str(), sizeof(buffer));
+        if (ImGui::InputText("Search", buffer, sizeof(buffer)))
         {
-            ImGui::TableSetupColumn("Name");
-            ImGui::TableSetupColumn("UUID");
-            ImGui::TableSetupColumn("Type");
-            ImGui::TableSetupColumn("Use Count");
+            searchQuery = std::string(buffer);
+        }
+        
+        if (ImGui::BeginTable("ResourceTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable))
+        {
+            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort);
+            ImGui::TableSetupColumn("UUID", ImGuiTableColumnFlags_DefaultSort);
+            ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_DefaultSort);
+            ImGui::TableSetupColumn("Use Count", ImGuiTableColumnFlags_DefaultSort);
             ImGui::TableHeadersRow();
-
+        
             auto& resources = ResourceRegistry::GetResourceRegistry();
             for (auto& resource : resources)
             {
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::Text("%s", resource.second->GetName().c_str());
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%lu", resource.first);
-                ImGui::TableSetColumnIndex(2);
-                ImGui::Text("%s", ResourceTypeToString(resource.second->GetType()).c_str());
-                ImGui::TableSetColumnIndex(3);
-                ImGui::Text("%d", resource.second.use_count());
+                // Filter resources based on the search query
+                if (searchQuery.empty() || resource.second->GetName().find(searchQuery) != std::string::npos)
+                {
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    ImGui::Text("%s", resource.second->GetName().c_str());
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text("%lu", resource.first);
+                    ImGui::TableSetColumnIndex(2);
+                    ImGui::Text("%s", ResourceTypeToString(resource.second->GetType()).c_str());
+                    ImGui::TableSetColumnIndex(3);
+                    ImGui::Text("%d", resource.second.use_count());
+                }
             }
-
+        
             ImGui::EndTable();
         }
-
+        
         ImGui::End();
 
         //Debug Scene Octree

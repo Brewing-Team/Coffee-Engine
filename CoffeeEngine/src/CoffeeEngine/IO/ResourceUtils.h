@@ -33,8 +33,12 @@ namespace Coffee {
             return "Texture";
         case ResourceType::Model:
             return "Model";
+        case ResourceType::Mesh:
+            return "Mesh";
         case ResourceType::Shader:
             return "Shader";
+        case ResourceType::Material:
+            return "Material";
         default:
             return "Unknown";
         }
