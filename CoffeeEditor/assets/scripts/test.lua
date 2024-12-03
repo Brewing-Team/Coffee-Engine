@@ -2,6 +2,7 @@
 
 --[[export]] exampleInt = 42
 --[[export]] exampleFloat = 3.14
+-- [[header]] Esto es un header
 --[[export]] exampleString = "Hello, ImGui!"
 --[[export]] exampleBool = true
 

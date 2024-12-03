@@ -473,14 +473,22 @@ namespace Coffee {
         std::string script((std::istreambuf_iterator<char>(scriptFile)), std::istreambuf_iterator<char>());
 
         std::regex exportRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+))"); // --[[export]] variable = value
+        std::regex headerRegex(R"(--\s*\[\[header\]\]\s*(.+))"); // --[[header]] Esto es un header
+        std::regex combinedRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+)|--\s*\[\[header\]\]\s*(.+))");
         std::smatch match;
         std::string::const_iterator searchStart(script.cbegin());
 
-        while (std::regex_search(searchStart, script.cend(), match, exportRegex)) {
+        while (std::regex_search(searchStart, script.cend(), match, combinedRegex)) {
             LuaVariable variable;
-            variable.name = match[1];
-            variable.value = match[2]; // TODO depending on the type of the variable we might need to convert it to the correct type
-            variable.type = luaState[variable.name].get_type();
+            if (match[1].matched) {
+                variable.name = match[1];
+                variable.value = match[2];
+                variable.type = luaState[variable.name].get_type();
+            } else if (match[3].matched) {
+                variable.name = "header";
+                variable.value = match[3];
+                variable.type = sol::type::none;
+            }
 
             // Store the variable in the vector
             variables.push_back(variable);

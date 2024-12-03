@@ -498,11 +498,13 @@ namespace Coffee {
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
+                /*
                 ImGui::Text("Script Name: ");
                 ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
 
                 ImGui::Text("Script Path: ");
                 ImGui::Text(scriptComponent.script.GetPath().string().c_str());
+                */
 
                 // Get the exposed variables
                 std::vector<LuaVariable> exposedVariables = LuaBackend::MapVariables(scriptComponent.script.GetPath().string());
@@ -512,26 +514,23 @@ namespace Coffee {
                 {
                     switch (variable.type)
                     {
-                    case sol::type::boolean:
-                        {
+                    case sol::type::boolean: {
                         bool value = LuaBackend::luaState[variable.name];
                         if (ImGui::Checkbox(variable.name.c_str(), &value))
                         {
                             LuaBackend::luaState[variable.name] = value;
                         }
-                        }
                         break;
-                    case sol::type::number:
-                        {
+                    }
+                    case sol::type::number: {
                         float number = LuaBackend::luaState[variable.name];
                         if (ImGui::InputFloat(variable.name.c_str(), &number))
                         {
                             LuaBackend::luaState[variable.name] = number;
                         }
-                        }
                         break;
-                    case sol::type::string:
-                        {
+                    }
+                    case sol::type::string: {
                         std::string str = LuaBackend::luaState[variable.name];
                         char buffer[256];
                         memset(buffer, 0, sizeof(buffer));
@@ -541,9 +540,14 @@ namespace Coffee {
                         {
                             LuaBackend::luaState[variable.name] = std::string(buffer);
                         }
-                        }
-                    break;
-                        default:;
+                        break;
+                    }
+                    case sol::type::none: {
+                        ImGui::SeparatorText(variable.value.c_str());
+                        break;
+                    }
+                    default:
+                        break;
                     }
                 }
             }
