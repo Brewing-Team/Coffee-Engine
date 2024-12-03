@@ -3,6 +3,8 @@
 #include <glm/glm.hpp>
 #include <cereal/access.hpp>
 
+#include <array>
+
 namespace Coffee {
 
     /**
