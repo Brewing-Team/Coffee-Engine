@@ -9,6 +9,8 @@
 
 namespace Coffee {
 
+    sol::state LuaBackend::luaState;
+
     void BindKeyCodesToLua(sol::state& lua, sol::table& inputTable)
     {
         std::vector<std::pair<std::string, KeyCode>> keyCodes = {
@@ -478,6 +480,7 @@ namespace Coffee {
             LuaVariable variable;
             variable.name = match[1];
             variable.value = match[2]; // TODO depending on the type of the variable we might need to convert it to the correct type
+            variable.type = luaState[variable.name].get_type();
 
             // Store the variable in the vector
             variables.push_back(variable);

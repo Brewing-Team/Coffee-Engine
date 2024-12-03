@@ -512,8 +512,44 @@ namespace Coffee {
                 // print the exposed variables
                 for (auto& variable : exposedVariables)
                 {
-                    ImGui::Text("Variable: %s", variable.name.c_str());
-                    ImGui::Text("Value: %s", variable.value.c_str());
+                    //ImGui::Text("Variable: %s", variable.name.c_str());
+                    //ImGui::Text("Value: %s", variable.value.c_str());
+                    //ImGui::Text("Type: %d", variable.type);
+
+                    switch (variable.type)
+                    {
+                    case sol::type::boolean:
+                        {
+                        bool value = LuaBackend::luaState[variable.name];
+                        if (ImGui::Checkbox(variable.name.c_str(), &value))
+                        {
+                            LuaBackend::luaState[variable.name] = value;
+                        }
+                        }
+                        break;
+                    case sol::type::number:
+                        {
+                        float number = LuaBackend::luaState[variable.name];
+                        if (ImGui::InputFloat(variable.name.c_str(), &number))
+                        {
+                            LuaBackend::luaState[variable.name] = number;
+                        }
+                        }
+                        break;
+                    case sol::type::string:
+                        {
+                        std::string str = LuaBackend::luaState[variable.name];
+                        char buffer[256];
+                        memset(buffer, 0, sizeof(buffer));
+                        strcpy(buffer, str.c_str());
+
+                        if (ImGui::InputText(variable.name.c_str(), buffer, sizeof(buffer)))
+                        {
+                            LuaBackend::luaState[variable.name] = std::string(buffer);
+                        }
+                        }
+                        break;
+                    }
                 }
 
                 // ---------------------------------------------------------------------

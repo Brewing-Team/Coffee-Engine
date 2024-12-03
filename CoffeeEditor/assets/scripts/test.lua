@@ -3,6 +3,7 @@
 --[[export]] exampleInt = 42
 --[[export]] exampleFloat = 3.14
 --[[export]] exampleString = "Hello, ImGui!"
+--[[export]] exampleBool = true
 
 function OnCreate()
     print("OnCreate()")
@@ -23,6 +24,11 @@ function OnUpdate()
         local x, y = input.get_mouse_position()
         log("Mouse position: (" .. x .. ", " .. y .. ")")
     end
+
+    log("BOOL: " .. tostring(exampleBool))
+    log("INT: " .. exampleInt)
+    log("FLOAT: " .. exampleFloat)
+    log("STRING: " .. exampleString)
 
     local entityTag = self.GetComponent("TagComponent").tag
     print("Entity tag: " .. entityTag)
