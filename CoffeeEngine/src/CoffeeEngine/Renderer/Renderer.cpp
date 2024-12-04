@@ -44,7 +44,7 @@ namespace Coffee {
 
     void Renderer::Init()
     {
-         std::vector<std::filesystem::path> paths = {
+        /*std::vector<std::filesystem::path> paths = {
             "assets/textures/skybox/right.jpg",
             "assets/textures/skybox/left.jpg",
             "assets/textures/skybox/top.jpg",
@@ -52,9 +52,9 @@ namespace Coffee {
             "assets/textures/skybox/front.jpg",
             "assets/textures/skybox/back.jpg"
         };
-        s_EnvironmentMap = CreateRef<Cubemap>(paths);
+        s_EnvironmentMap = CreateRef<Cubemap>(paths);*/
 
-        //s_EnvironmentMap = CreateRef<Cubemap>("assets/textures/StandardCubeMap.png");
+        s_EnvironmentMap = CreateRef<Cubemap>("assets/textures/StandardCubeMap.png");
 
         s_SkyboxMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
 

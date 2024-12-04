@@ -250,7 +250,75 @@ namespace Coffee {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     };
-    Cubemap::Cubemap(const std::filesystem::path& path) {}
+    Cubemap::Cubemap(const std::filesystem::path& path)
+    {
+        // Load the combined image
+        int width, height, nrChannels;
+        stbi_set_flip_vertically_on_load(false);
+        unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &nrChannels, 0);
+        if (!data) {
+            COFFEE_CORE_ERROR("Failed to load cubemap texture: {0}", path.string());
+            return;
+        }
+
+        // Calculate the face dimensions
+        int faceWidth = width / 6;
+        int faceHeight = height;
+
+        // Generate and bind the cubemap texture
+        glGenTextures(1, &m_textureID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
+
+        // Extract and upload each face
+        GLenum targets[6] = {
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+        };
+
+        for (int i = 0; i < 6; ++i) {
+            // Calculate the offset in the combined image
+            unsigned char* faceData = data + (i * faceWidth * nrChannels);
+
+            // Create a temporary buffer for the face
+            unsigned char* faceBuffer = new unsigned char[faceWidth * faceHeight * nrChannels];
+            for (int y = 0; y < faceHeight; ++y) {
+                memcpy(
+                    faceBuffer + y * faceWidth * nrChannels,
+                    faceData + y * width * nrChannels,
+                    faceWidth * nrChannels
+                );
+            }
+
+            // Upload the face data
+            glTexImage2D(
+                targets[i],
+                0, GL_RGBA, faceWidth, faceHeight,
+                0, GL_RGBA, GL_UNSIGNED_BYTE, faceBuffer
+            );
+
+            delete[] faceBuffer;
+        }
+
+        stbi_image_free(data);
+
+        // Set cubemap texture parameters
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    }
+
+    Cubemap::~Cubemap()
+    {
+        ZoneScoped;
+        glDeleteTextures(1, &m_textureID);
+    }
+
     void Cubemap::Bind(uint32_t slot)
     {
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);

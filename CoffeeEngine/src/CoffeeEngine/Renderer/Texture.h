@@ -134,6 +134,7 @@ namespace Coffee {
         Cubemap() = default;
         Cubemap(const std::filesystem::path& path);
         Cubemap(const std::vector<std::filesystem::path>& paths);
+        ~Cubemap();
 
         void Bind(uint32_t slot) override;;
         uint32_t GetID() override { return m_textureID; };
