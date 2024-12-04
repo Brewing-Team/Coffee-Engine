@@ -24,6 +24,8 @@ namespace Coffee {
         SRGB8,
         RGBA8,
         SRGBA8,
+        R32F,
+        RGB32F,
         RGBA32F,
         DEPTH24STENCIL8
     };
@@ -146,6 +148,10 @@ namespace Coffee {
         static Ref<Cubemap> Load(const std::filesystem::path& path);
         static Ref<Cubemap> Create(const std::vector<std::filesystem::path>& paths);
     private:
+
+        void LoadStandardCubeMap(const std::filesystem::path& path);
+        void LoadHDRCubeMap(const std::filesystem::path& path);
+
         friend class cereal::access;
 
         template<class Archive>
@@ -171,6 +177,7 @@ namespace Coffee {
     private:
         TextureProperties m_Properties;
         std::vector<unsigned char> m_Data;
+        std::vector<float> m_HDRData;
         uint32_t m_textureID;
         int m_Width, m_Height;
     };
