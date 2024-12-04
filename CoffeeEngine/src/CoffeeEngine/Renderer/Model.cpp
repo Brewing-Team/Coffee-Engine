@@ -182,7 +182,7 @@ namespace Coffee {
         }
     }
 
-    Ref<Texture> Model::LoadTexture(aiMaterial* material, aiTextureType type)
+    Ref<Texture2D> Model::LoadTexture2D(aiMaterial* material, aiTextureType type)
     {
         aiString textureName;
         material->GetTexture(type, 0, &textureName);
@@ -197,22 +197,22 @@ namespace Coffee {
 
         bool srgb = (type == aiTextureType_DIFFUSE || type == aiTextureType_EMISSIVE);
 
-        return Texture::Load(texturePath, srgb);
+        return Texture2D::Load(texturePath, srgb);
     }
 
     MaterialTextures Model::LoadMaterialTextures(aiMaterial* material)
     {
         MaterialTextures matTextures;
 
-        matTextures.albedo = LoadTexture(material, aiTextureType_DIFFUSE);
-        matTextures.normal = LoadTexture(material, aiTextureType_NORMALS);
-        matTextures.metallic = LoadTexture(material, aiTextureType_METALNESS);
-        matTextures.roughness = LoadTexture(material, aiTextureType_DIFFUSE_ROUGHNESS);
-        matTextures.ao = LoadTexture(material, aiTextureType_AMBIENT);
+        matTextures.albedo = LoadTexture2D(material, aiTextureType_DIFFUSE);
+        matTextures.normal = LoadTexture2D(material, aiTextureType_NORMALS);
+        matTextures.metallic = LoadTexture2D(material, aiTextureType_METALNESS);
+        matTextures.roughness = LoadTexture2D(material, aiTextureType_DIFFUSE_ROUGHNESS);
+        matTextures.ao = LoadTexture2D(material, aiTextureType_AMBIENT);
 
-        if(matTextures.ao == nullptr) matTextures.ao = LoadTexture(material, aiTextureType_LIGHTMAP);
+        if(matTextures.ao == nullptr) matTextures.ao = LoadTexture2D(material, aiTextureType_LIGHTMAP);
 
-        matTextures.emissive = LoadTexture(material, aiTextureType_EMISSIVE);
+        matTextures.emissive = LoadTexture2D(material, aiTextureType_EMISSIVE);
 
         return matTextures;
     }

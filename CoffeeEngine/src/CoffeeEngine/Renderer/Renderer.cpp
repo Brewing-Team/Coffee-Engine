@@ -28,10 +28,10 @@ namespace Coffee {
 
     Ref<Framebuffer> Renderer::s_MainFramebuffer;
     Ref<Framebuffer> Renderer::s_PostProcessingFramebuffer;
-    Ref<Texture> Renderer::s_MainRenderTexture;
-    Ref<Texture> Renderer::s_EntityIDTexture;
-    Ref<Texture> Renderer::s_PostProcessingTexture;
-    Ref<Texture> Renderer::s_DepthTexture;
+    Ref<Texture2D> Renderer::s_MainRenderTexture;
+    Ref<Texture2D> Renderer::s_EntityIDTexture;
+    Ref<Texture2D> Renderer::s_PostProcessingTexture;
+    Ref<Texture2D> Renderer::s_DepthTexture;
 
     Ref<Mesh> Renderer::s_ScreenQuad;
 

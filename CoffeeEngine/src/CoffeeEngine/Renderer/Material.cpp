@@ -11,7 +11,7 @@
 
 namespace Coffee {
 
-    Ref<Texture> Material::s_MissingTexture;
+    Ref<Texture2D> Material::s_MissingTexture;
     Ref<Shader> Material::s_StandardShader;
 
      Material::Material() : Resource(ResourceType::Material)
@@ -28,7 +28,7 @@ namespace Coffee {
 
         m_Name = name;
 
-        s_MissingTexture = Texture::Load("assets/textures/UVMap-Grid.jpg");
+        s_MissingTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
         s_StandardShader  = s_StandardShader ? s_StandardShader : CreateRef<Shader>("StandardShader", std::string(standardShaderSource));
 
         m_MaterialTextures.albedo = s_MissingTexture;

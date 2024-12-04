@@ -57,7 +57,7 @@ namespace Coffee {
         Ref<UniformBuffer> CameraUniformBuffer; ///< Uniform buffer for camera data.
         Ref<UniformBuffer> RenderDataUniformBuffer; ///< Uniform buffer for render data.
 
-        Ref<Texture> RenderTexture; ///< Render texture.
+        Ref<Texture2D> RenderTexture; ///< Render texture.
 
         std::vector<RenderCommand> renderQueue; ///< Render queue.
     };
@@ -155,7 +155,7 @@ namespace Coffee {
          * @brief Gets the render texture.
          * @return A reference to the render texture.
          */
-        static const Ref<Texture>& GetRenderTexture() { return s_RendererData.RenderTexture; }
+        static const Ref<Texture2D>& GetRenderTexture() { return s_RendererData.RenderTexture; }
 
         /**
          * @brief Retrieves the texture associated with the entity ID.
@@ -166,7 +166,7 @@ namespace Coffee {
          * 
          * @return A constant reference to the entity ID texture.
          */
-        static const Ref<Texture>& GetEntityIDTexture() { return s_EntityIDTexture; }
+        static const Ref<Texture2D>& GetEntityIDTexture() { return s_EntityIDTexture; }
 
         static glm::vec4 GetEntityIDAtPixel(int x, int y) { return s_MainFramebuffer->GetPixelColor(x, y, 1); }
 
@@ -197,10 +197,10 @@ namespace Coffee {
         static RendererStats s_Stats; ///< Renderer statistics.
         static RenderSettings s_RenderSettings; ///< Render settings.
 
-        static Ref<Texture> s_MainRenderTexture; ///< Main render texture.
-        static Ref<Texture> s_EntityIDTexture; ///< Entity ID texture.
-        static Ref<Texture> s_PostProcessingTexture; ///< Post-processing texture.
-        static Ref<Texture> s_DepthTexture; ///< Depth texture.
+        static Ref<Texture2D> s_MainRenderTexture; ///< Main render texture.
+        static Ref<Texture2D> s_EntityIDTexture; ///< Entity ID texture.
+        static Ref<Texture2D> s_PostProcessingTexture; ///< Post-processing texture.
+        static Ref<Texture2D> s_DepthTexture; ///< Depth texture.
 
         static Ref<Framebuffer> s_MainFramebuffer; ///< Main framebuffer.
         static Ref<Framebuffer> s_PostProcessingFramebuffer; ///< Post-processing framebuffer.

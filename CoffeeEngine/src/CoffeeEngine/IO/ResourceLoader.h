@@ -17,6 +17,7 @@ namespace Coffee {
     class Mesh;
     class Material;
     class Texture;
+    class Texture2D;
 
     /**
      * @class ResourceLoader
@@ -44,8 +45,8 @@ namespace Coffee {
          * @param cache Whether the texture should be cached.
          * @return A reference to the loaded texture.
          */
-        static Ref<Texture> LoadTexture(const std::filesystem::path& path, bool srgb = true, bool cache = true);
-        static Ref<Texture> LoadTexture(UUID uuid);
+        static Ref<Texture2D> LoadTexture2D(const std::filesystem::path& path, bool srgb = true, bool cache = true);
+        static Ref<Texture2D> LoadTexture2D(UUID uuid);
 
         /**
          * @brief Loads a model from a file.

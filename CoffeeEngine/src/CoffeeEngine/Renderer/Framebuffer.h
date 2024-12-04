@@ -56,7 +56,7 @@ namespace Coffee {
          * @param colorAttachments The list of color attachments.
          * @warning This function is not finished, does not work, and is slow. Do not use it 🫡.
          */
-        void SetDrawBuffers(std::initializer_list<Ref<Texture>> colorAttachments);
+        void SetDrawBuffers(std::initializer_list<Ref<Texture2D>> colorAttachments);
 
         /**
          * @brief Sets the draw buffers for the framebuffer.
@@ -87,26 +87,26 @@ namespace Coffee {
          * @brief Attaches a color texture to the framebuffer.
          * @param texture The color texture to attach.
          */
-        void AttachColorTexture(Ref<Texture>& texture);
+        void AttachColorTexture(Ref<Texture2D>& texture);
 
         /**
          * @brief Attaches a depth texture to the framebuffer.
          * @param texture The depth texture to attach.
          */
-        void AttachDepthTexture(Ref<Texture>& texture);
+        void AttachDepthTexture(Ref<Texture2D>& texture);
 
         /**
          * @brief Gets the color texture at the specified index.
          * @param index The index of the color texture.
          * @return A reference to the color texture.
          */
-        const Ref<Texture>& GetColorTexture(uint32_t index = 0) const { return m_ColorTextures[index]; }
+        const Ref<Texture2D>& GetColorTexture(uint32_t index = 0) const { return m_ColorTextures[index]; }
 
         /**
          * @brief Gets the depth texture.
          * @return A reference to the depth texture.
          */
-        const Ref<Texture>& GetDepthTexture() const { return m_DepthTexture; }
+        const Ref<Texture2D>& GetDepthTexture() const { return m_DepthTexture; }
 
         /**
          * @brief Creates a framebuffer with the specified width, height, and attachments.
@@ -125,8 +125,8 @@ namespace Coffee {
 
         std::vector<ImageFormat> m_Attachments; ///< The list of image formats for the attachments.
 
-        std::vector<Ref<Texture>> m_ColorTextures; ///< The list of color textures.
-        Ref<Texture> m_DepthTexture; ///< The depth texture.
+        std::vector<Ref<Texture2D>> m_ColorTextures; ///< The list of color textures.
+        Ref<Texture2D> m_DepthTexture; ///< The depth texture.
     };
 
     /** @} */

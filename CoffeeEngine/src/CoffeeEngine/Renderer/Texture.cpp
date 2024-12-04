@@ -48,16 +48,16 @@ namespace Coffee {
         }
     }
 
-    Texture::Texture(const TextureProperties& properties)
+    Texture2D::Texture2D(const TextureProperties& properties)
         : m_Properties(properties), m_Width(properties.Width), m_Height(properties.Height)
     {
         ZoneScoped;
 
-        Texture(m_Width, m_Height, m_Properties.Format);
+        Texture2D(m_Width, m_Height, m_Properties.Format);
     }
 
-    Texture::Texture(uint32_t width, uint32_t height, ImageFormat imageFormat)
-        : Resource(ResourceType::Texture), m_Width(width), m_Height(height), m_Properties({ imageFormat, width, height })
+    Texture2D::Texture2D(uint32_t width, uint32_t height, ImageFormat imageFormat)
+        : Texture(), m_Width(width), m_Height(height), m_Properties({ imageFormat, width, height })
     {
         ZoneScoped;
 
@@ -79,8 +79,8 @@ namespace Coffee {
         glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     }
 
-    Texture::Texture(const std::filesystem::path& path, bool srgb)
-        : Resource(ResourceType::Texture)
+    Texture2D::Texture2D(const std::filesystem::path& path, bool srgb)
+        : Texture()
     {
         ZoneScoped;
 
@@ -141,21 +141,21 @@ namespace Coffee {
         }
     }
 
-    Texture::~Texture()
+    Texture2D::~Texture2D()
     {
         ZoneScoped;
 
         glDeleteTextures(1, &m_textureID);
     }
 
-    void Texture::Bind(uint32_t slot)
+    void Texture2D::Bind(uint32_t slot)
     {
         ZoneScoped;
 
         glBindTextureUnit(slot, m_textureID);
     }
 
-    void Texture::Resize(uint32_t width, uint32_t height)
+    void Texture2D::Resize(uint32_t width, uint32_t height)
     {
         ZoneScoped;
 
@@ -181,12 +181,11 @@ namespace Coffee {
         //Add an option to choose the anisotropic filtering level
         glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
 
-
         //Te code above is the same as the constructor but for some reason it doesn't work
-        //Texture(m_Width, m_Height, m_Properties.Format);
+        //Texture2D(m_Width, m_Height, m_Properties.Format);
     }
 
-    void Texture::Clear(glm::vec4 color)
+    void Texture2D::Clear(glm::vec4 color)
     {
         ZoneScoped;
 
@@ -196,7 +195,7 @@ namespace Coffee {
         glClearTexImage(m_textureID, 0, format, GL_FLOAT, &color);
     }
 
-    void Texture::SetData(void* data, uint32_t size)
+    void Texture2D::SetData(void* data, uint32_t size)
     {
         ZoneScoped;
 
@@ -205,14 +204,14 @@ namespace Coffee {
         glGenerateTextureMipmap(m_textureID);
     }
 
-    Ref<Texture> Texture::Load(const std::filesystem::path& path, bool srgb)
+    Ref<Texture2D> Texture2D::Load(const std::filesystem::path& path, bool srgb)
     {
-        return ResourceLoader::LoadTexture(path, srgb);
+        return ResourceLoader::LoadTexture2D(path, srgb);
     }
 
-    Ref<Texture> Texture::Create(uint32_t width, uint32_t height, ImageFormat format)
+    Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)
     {
-        return CreateRef<Texture>(width, height, format);
+        return CreateRef<Texture2D>(width, height, format);
     }
 
 }

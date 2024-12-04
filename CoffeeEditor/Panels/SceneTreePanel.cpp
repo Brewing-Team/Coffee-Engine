@@ -328,7 +328,7 @@ namespace Coffee {
         if(entity.HasComponent<MaterialComponent>())
         {
             // Move this function to another site
-            auto DrawTextureWidget = [&](const std::string& label, Ref<Texture>& texture)
+            auto DrawTextureWidget = [&](const std::string& label, Ref<Texture2D>& texture)
             {
                 auto& materialComponent = entity.GetComponent<MaterialComponent>();
                 uint32_t textureID = texture ? texture->GetID() : 0;
@@ -365,7 +365,7 @@ namespace Coffee {
                         const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
                         if(resource->GetType() == ResourceType::Texture)
                         {
-                            const Ref<Texture>& t = std::static_pointer_cast<Texture>(resource);
+                            const Ref<Texture2D>& t = std::static_pointer_cast<Texture2D>(resource);
                             texture = t;
                         }
                     }
@@ -384,7 +384,7 @@ namespace Coffee {
                         std::string path = FileDialog::OpenFile({}).string();
                         if(!path.empty())
                         {
-                            Ref<Texture> t = Texture::Load(path);
+                            Ref<Texture2D> t = Texture2D::Load(path);
                             texture = t;
                         }
                     }

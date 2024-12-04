@@ -63,12 +63,12 @@ namespace Coffee {
      */
     struct MaterialTextures // Temporal
     {
-        Ref<Texture> albedo; ///< The albedo texture.
-        Ref<Texture> normal; ///< The normal map texture.
-        Ref<Texture> metallic; ///< The metallic texture.
-        Ref<Texture> roughness; ///< The roughness texture.
-        Ref<Texture> ao; ///< The ambient occlusion texture.
-        Ref<Texture> emissive; ///< The emissive texture.
+        Ref<Texture2D> albedo; ///< The albedo texture.
+        Ref<Texture2D> normal; ///< The normal map texture.
+        Ref<Texture2D> metallic; ///< The metallic texture.
+        Ref<Texture2D> roughness; ///< The roughness texture.
+        Ref<Texture2D> ao; ///< The ambient occlusion texture.
+        Ref<Texture2D> emissive; ///< The emissive texture.
 
         private:
             friend class cereal::access;
@@ -92,12 +92,12 @@ namespace Coffee {
                 UUID albedoUUID, normalUUID, metallicUUID, roughnessUUID, aoUUID, emissiveUUID;
                 archive(albedoUUID, normalUUID, metallicUUID, roughnessUUID, aoUUID, emissiveUUID);
 
-                albedo = ResourceLoader::LoadTexture(albedoUUID);
-                normal = ResourceLoader::LoadTexture(normalUUID);
-                metallic = ResourceLoader::LoadTexture(metallicUUID);
-                roughness = ResourceLoader::LoadTexture(roughnessUUID);
-                ao = ResourceLoader::LoadTexture(aoUUID);
-                emissive = ResourceLoader::LoadTexture(emissiveUUID);
+                albedo = ResourceLoader::LoadTexture2D(albedoUUID);
+                normal = ResourceLoader::LoadTexture2D(normalUUID);
+                metallic = ResourceLoader::LoadTexture2D(metallicUUID);
+                roughness = ResourceLoader::LoadTexture2D(roughnessUUID);
+                ao = ResourceLoader::LoadTexture2D(aoUUID);
+                emissive = ResourceLoader::LoadTexture2D(emissiveUUID);
             }
     };
 
@@ -217,7 +217,7 @@ namespace Coffee {
         MaterialProperties m_MaterialProperties; ///< The properties of the material.
         MaterialRenderSettings m_MaterialRenderSettings; ///< The render settings of the material.
         Ref<Shader> m_Shader; ///< The shader used with the material.
-        static Ref<Texture> s_MissingTexture; ///< The texture to use when a texture is missing.
+        static Ref<Texture2D> s_MissingTexture; ///< The texture to use when a texture is missing.
         static Ref<Shader> s_StandardShader; ///< The standard shader to use with the material. (When the material be a base class of PBRMaterial and ShaderMaterial this should be moved to PBRMaterial)
     };
 

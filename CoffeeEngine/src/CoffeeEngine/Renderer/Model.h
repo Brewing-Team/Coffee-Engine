@@ -104,7 +104,7 @@ namespace Coffee {
          * @param type The Assimp texture type.
          * @return A reference to the loaded texture.
          */
-        Ref<Texture> LoadTexture(aiMaterial* material, aiTextureType type);
+        Ref<Texture2D> LoadTexture2D(aiMaterial* material, aiTextureType type);
 
         /**
          * @brief Loads material textures from the Assimp material.

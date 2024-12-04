@@ -78,7 +78,7 @@ namespace Coffee {
                     }
                     else
                     {
-                        Ref<Texture> depthTexture = Texture::Create(m_Width, m_Height, imageFormat);
+                        Ref<Texture2D> depthTexture = Texture2D::Create(m_Width, m_Height, imageFormat);
                         m_DepthTexture = depthTexture;
                         glNamedFramebufferTexture(m_fboID, GL_DEPTH_STENCIL_ATTACHMENT, depthTexture->GetID(), 0);
                     }
@@ -93,7 +93,7 @@ namespace Coffee {
                     }
                     else
                     {
-                        Ref<Texture> colorTexture = Texture::Create(m_Width, m_Height, imageFormat);
+                        Ref<Texture2D> colorTexture = Texture2D::Create(m_Width, m_Height, imageFormat);
                         m_ColorTextures.push_back(colorTexture);
                         glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + m_ColorTextures.size() - 1, colorTexture->GetID(), 0);
                     }
@@ -144,7 +144,7 @@ namespace Coffee {
         return result;
     }
 
-    void Framebuffer::SetDrawBuffers(std::initializer_list<Ref<Texture>> colorAttachments)
+    void Framebuffer::SetDrawBuffers(std::initializer_list<Ref<Texture2D>> colorAttachments)
     {
         ZoneScoped;
 
@@ -178,7 +178,7 @@ namespace Coffee {
         glNamedFramebufferDrawBuffers(m_fboID, drawBuffers.size(), drawBuffers.data());
     }
 
-    void Framebuffer::AttachColorTexture(Ref<Texture>& texture)
+    void Framebuffer::AttachColorTexture(Ref<Texture2D>& texture)
     {
         ZoneScoped;
 
@@ -187,7 +187,7 @@ namespace Coffee {
         glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + m_ColorTextures.size() - 1, texture->GetID(), 0);
     }
 
-    void Framebuffer::AttachDepthTexture(Ref<Texture>& texture)
+    void Framebuffer::AttachDepthTexture(Ref<Texture2D>& texture)
     {
         ZoneScoped;
 

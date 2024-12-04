@@ -56,7 +56,7 @@ namespace Coffee {
         {
             case ResourceType::Texture:
             {
-                LoadTexture(path);
+                LoadTexture2D(path);
                 break;
             }
             case ResourceType::Model:
@@ -92,11 +92,11 @@ namespace Coffee {
         }
     }
 
-    Ref<Texture> ResourceLoader::LoadTexture(const std::filesystem::path& path, bool srgb, bool cache)
+    Ref<Texture2D> ResourceLoader::LoadTexture2D(const std::filesystem::path& path, bool srgb, bool cache)
     {
         if(GetResourceTypeFromExtension(path) != ResourceType::Texture)
         {
-            COFFEE_CORE_ERROR("ResourceLoader::Load<Texture>: Resource is not a texture!");
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Texture2D>: Resource is not a texture!");
             return nullptr;
         }
 
@@ -104,27 +104,27 @@ namespace Coffee {
 
         if(ResourceRegistry::Exists(uuid))
         {
-            return ResourceRegistry::Get<Texture>(uuid);
+            return ResourceRegistry::Get<Texture2D>(uuid);
         }
 
-        const Ref<Texture>& texture = s_Importer.ImportTexture(path, uuid, srgb, cache);
+        const Ref<Texture2D>& texture = s_Importer.ImportTexture2D(path, uuid, srgb, cache);
         texture->SetUUID(uuid);
 
         ResourceRegistry::Add(uuid, texture);
         return texture;
     }
 
-    Ref<Texture> ResourceLoader::LoadTexture(UUID uuid)
+    Ref<Texture2D> ResourceLoader::LoadTexture2D(UUID uuid)
     {
         if(uuid == UUID::null)
             return nullptr;
 
         if(ResourceRegistry::Exists(uuid))
         {
-            return ResourceRegistry::Get<Texture>(uuid);
+            return ResourceRegistry::Get<Texture2D>(uuid);
         }
 
-        const Ref<Texture>& texture = s_Importer.ImportTexture(uuid);
+        const Ref<Texture2D>& texture = s_Importer.ImportTexture2D(uuid);
 
         ResourceRegistry::Add(uuid, texture);
         return texture;
