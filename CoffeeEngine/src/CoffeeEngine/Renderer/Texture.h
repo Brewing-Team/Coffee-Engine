@@ -59,7 +59,13 @@ namespace Coffee {
         friend class cereal::access;
         
         template<class Archive>
-        void serialize(Archive& archive)
+        void save(Archive& archive) const
+        {
+            archive(cereal::base_class<Resource>(this));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
         {
             archive(cereal::base_class<Resource>(this));
         }
@@ -94,13 +100,13 @@ namespace Coffee {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(m_Properties, m_Data, m_Width, m_Height, cereal::base_class<Resource>(this));
+            archive(m_Properties, m_Data, m_Width, m_Height, cereal::base_class<Texture>(this));
         }
 
         template <class Archive>
         void load(Archive& archive)
         {
-            archive(m_Properties, m_Data, m_Width, m_Height, cereal::base_class<Resource>(this));
+            archive(m_Properties, m_Data, m_Width, m_Height, cereal::base_class<Texture>(this));
         }
 
         template <class Archive>
@@ -111,7 +117,7 @@ namespace Coffee {
             construct(properties.Width, properties.Height, properties.Format);
 
             data(construct->m_Data, construct->m_Width, construct->m_Height,
-                 cereal::base_class<Resource>(construct.ptr()));
+                 cereal::base_class<Texture>(construct.ptr()));
             construct->m_Properties = properties;
             construct->SetData(construct->m_Data.data(), construct->m_Data.size());
         }
@@ -122,52 +128,54 @@ namespace Coffee {
         int m_Width, m_Height;
     };
 
-/*     class TextureCubemap : public Texture
+    class Cubemap : public Texture
     {
     public:
-        TextureCubemap() = default;
-        TextureCubemap(const std::filesystem::path& path);
-        TextureCubemap(const std::vector<std::filesystem::path>& paths);
-        ~TextureCubemap();
+        Cubemap() = default;
+        Cubemap(const std::filesystem::path& path);
+        Cubemap(const std::vector<std::filesystem::path>& paths);
 
         void Bind(uint32_t slot) override;;
-        //uint32_t GetID() override { return m_textureID; };
+        uint32_t GetID() override { return m_textureID; };
 
-        static Ref<TextureCubemap> Load(const std::filesystem::path& path);
-        static Ref<TextureCubemap> Create(const std::vector<std::filesystem::path>& paths);
+        uint32_t GetWidth() override { return 0; };
+        uint32_t GetHeight() override { return 0; };
+        ImageFormat GetImageFormat() override { return ImageFormat::RGBA8; };
+
+        static Ref<Cubemap> Load(const std::filesystem::path& path);
+        static Ref<Cubemap> Create(const std::vector<std::filesystem::path>& paths);
     private:
         friend class cereal::access;
 
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(m_Data, m_textureID, cereal::base_class<Resource>(this));
+            archive(m_textureID, cereal::base_class<Resource>(this));
         }
 
         template <class Archive>
         void load(Archive& archive)
         {
-            archive(m_Data, m_textureID, cereal::base_class<Resource>(this));
+            archive(m_textureID, cereal::base_class<Resource>(this));
         }
 
 /*         template <class Archive>
-        static void load_and_construct(Archive& data, cereal::construct<TextureCubemap>& construct)
+        static void load_and_construct(Archive& data, cereal::construct<Cubemap>& construct)
         {
             std::vector<unsigned char> data;
             data(data);
             construct(data);
-        }
+        }*/
 
     private:
-        std::vector<unsigned char> m_Data;
         uint32_t m_textureID;
-    }; */
+    };
 
 }
 
 CEREAL_REGISTER_TYPE(Coffee::Texture);
 CEREAL_REGISTER_TYPE(Coffee::Texture2D);
-//CEREAL_REGISTER_TYPE(Coffee::TextureCubemap);
+CEREAL_REGISTER_TYPE(Coffee::Cubemap);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Resource, Coffee::Texture);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Texture, Coffee::Texture2D);
-//CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Texture, Coffee::TextureCubemap);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Texture, Coffee::Cubemap);

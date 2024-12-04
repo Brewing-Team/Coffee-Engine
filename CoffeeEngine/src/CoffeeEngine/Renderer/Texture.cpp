@@ -92,9 +92,9 @@ namespace Coffee {
         int nrComponents;
         stbi_set_flip_vertically_on_load(true);
         unsigned char* data = stbi_load(m_FilePath.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
-        
+
         m_Properties.Width = m_Width, m_Properties.Height = m_Height;
-        
+
         if(data)
         {
             m_Data = std::vector<unsigned char>(data, data + m_Width * m_Height * nrComponents);
@@ -214,4 +214,48 @@ namespace Coffee {
         return CreateRef<Texture2D>(width, height, format);
     }
 
-}
+    Cubemap::Cubemap(const std::vector<std::filesystem::path>& paths)
+    {
+        ZoneScoped;
+        glGenTextures(1, &m_textureID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
+
+        int width, height, nrChannels;
+        for (unsigned int i = 0; i < paths.size(); i++)
+        {
+            unsigned char* data = stbi_load(paths[i].string().c_str(), &width, &height, &nrChannels, 0);
+            if (data)
+            {
+                GLenum format;
+                if (nrChannels == 1)
+                    format = GL_RED;
+                else if (nrChannels == 3)
+                    format = GL_RGB;
+                else if (nrChannels == 4)
+                    format = GL_RGBA;
+
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+                stbi_image_free(data);
+            }
+            else
+            {
+                COFFEE_CORE_ERROR("Cubemap texture failed to load at path: {0}", paths[i].string());
+                stbi_image_free(data);
+            }
+        }
+
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    };
+    Cubemap::Cubemap(const std::filesystem::path& path) {}
+    void Cubemap::Bind(uint32_t slot)
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
+    }
+    Ref<Cubemap> Cubemap::Load(const std::filesystem::path& path) { return nullptr; }
+    Ref<Cubemap> Cubemap::Create(const std::vector<std::filesystem::path>& paths) { return nullptr; }
+
+} // namespace Coffee
