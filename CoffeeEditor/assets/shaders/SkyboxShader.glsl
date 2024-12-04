@@ -18,13 +18,15 @@ void main()
     mat4 view2 = mat4(mat3(view));
 
     TexCoord = aPosition;
-    gl_Position = projection * view2 * vec4(aPosition, 1.0);
+    vec4 pos = projection * view2 * vec4(aPosition, 1.0);
+    gl_Position = pos.xyww;
 }
 
 #[fragment]
 
 #version 450 core
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 EntityID;
 
 in vec3 TexCoord;
 
@@ -33,4 +35,5 @@ uniform samplerCube skybox;
 void main()
 {
     FragColor = texture(skybox, TexCoord);
+    EntityID = vec4(-1.0, 0.0, 0.0, 0.0);
 }
