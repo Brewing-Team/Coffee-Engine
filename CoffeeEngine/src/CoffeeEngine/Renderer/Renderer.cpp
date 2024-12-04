@@ -38,8 +38,26 @@ namespace Coffee {
     Ref<Shader> Renderer::s_ToneMappingShader;
     Ref<Shader> Renderer::s_FinalPassShader;
 
+    static Ref<Cubemap> s_EnvironmentMap;
+    static Ref<Mesh> s_SkyboxMesh;
+    static Ref<Shader> s_SkyboxShader;
+
     void Renderer::Init()
     {
+        std::vector<std::filesystem::path> paths = {
+            "assets/textures/skybox/right.jpg",
+            "assets/textures/skybox/left.jpg",
+            "assets/textures/skybox/top.jpg",
+            "assets/textures/skybox/bottom.jpg",
+            "assets/textures/skybox/front.jpg",
+            "assets/textures/skybox/back.jpg"
+        };
+        s_EnvironmentMap = CreateRef<Cubemap>(paths);
+
+        s_SkyboxMesh = PrimitiveMesh::CreateCube();
+
+        s_SkyboxShader = CreateRef<Shader>("assets/shaders/SkyboxShader.glsl");
+
         ZoneScoped;
 
         RendererAPI::Init();
@@ -119,6 +137,12 @@ namespace Coffee {
         s_RendererData.RenderDataUniformBuffer->SetData(&s_RendererData.renderData, sizeof(RendererData::RenderData));
 
         // Sort the render queue to minimize state changes
+
+        // Test drawing the skybox
+        glDepthMask(GL_FALSE);
+        s_SkyboxShader->Bind();
+        RendererAPI::DrawIndexed(s_SkyboxMesh->GetVertexArray());
+        glDepthMask(GL_TRUE);
 
         for(const auto& command : s_RendererData.renderQueue)
         {
