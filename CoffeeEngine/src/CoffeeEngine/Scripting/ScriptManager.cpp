@@ -15,15 +15,15 @@ namespace Coffee {
         backends[script.GetLanguage()]->ExecuteFile(script.GetPath());
     }
 
-    void ScriptManager::RegisterFunction(const std::string& name, std::function<void()> func) {
+    void ScriptManager::RegisterFunction(const std::string& script, const std::string& name, std::function<void()> func) {
         for(auto& backend : backends) {
-            backend.second->RegisterFunction(func, name);
+            backend.second->RegisterFunction(script, func, name);
         }
     }
 
-    void ScriptManager::BindFunction(const std::string& name, std::function<void()>& func) {
+    void ScriptManager::BindFunction(const std::string& script, const std::string& name, std::function<void()>& func) {
         for(auto& backend : backends) {
-            backend.second->BindFunction(name, func);
+            backend.second->BindFunction(script, name, func);
         }
     }
 

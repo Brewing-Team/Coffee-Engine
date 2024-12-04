@@ -512,33 +512,41 @@ namespace Coffee {
                 // print the exposed variables
                 for (auto& variable : exposedVariables)
                 {
+                    auto it = LuaBackend::scriptEnvironments.find(scriptComponent.script.GetPath().string());
+                    if (it == LuaBackend::scriptEnvironments.end()) {
+                        COFFEE_CORE_ERROR("Script environment for {0} not found", scriptComponent.script.GetPath().string());
+                        continue;
+                    }
+
+                    sol::environment& env = it->second;
+
                     switch (variable.type)
                     {
                     case sol::type::boolean: {
-                        bool value = LuaBackend::luaState[variable.name];
+                        bool value = env[variable.name];
                         if (ImGui::Checkbox(variable.name.c_str(), &value))
                         {
-                            LuaBackend::luaState[variable.name] = value;
+                            env[variable.name] = value;
                         }
                         break;
                     }
                     case sol::type::number: {
-                        float number = LuaBackend::luaState[variable.name];
+                        float number = env[variable.name];
                         if (ImGui::InputFloat(variable.name.c_str(), &number))
                         {
-                            LuaBackend::luaState[variable.name] = number;
+                            env[variable.name] = number;
                         }
                         break;
                     }
                     case sol::type::string: {
-                        std::string str = LuaBackend::luaState[variable.name];
+                        std::string str = env[variable.name];
                         char buffer[256];
                         memset(buffer, 0, sizeof(buffer));
                         strcpy(buffer, str.c_str());
 
                         if (ImGui::InputText(variable.name.c_str(), buffer, sizeof(buffer)))
                         {
-                            LuaBackend::luaState[variable.name] = std::string(buffer);
+                            env[variable.name] = std::string(buffer);
                         }
                         break;
                     }
@@ -551,7 +559,6 @@ namespace Coffee {
                     }
                 }
             }
-
         }
 
         ImGui::Separator();

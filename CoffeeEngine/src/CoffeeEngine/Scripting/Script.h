@@ -45,9 +45,9 @@ namespace Coffee
             auto& scriptComponent = registry.get<ScriptComponent>(entity);
             
             ScriptManager::ExecuteScriptFromFile(scriptComponent.script);
-            ScriptManager::BindFunction("OnCreate", scriptComponent.script.OnCreate);
-            ScriptManager::BindFunction("OnUpdate", scriptComponent.script.OnUpdate);
-            ScriptManager::BindFunction("OnDestroy", scriptComponent.script.OnDestroy);
+            ScriptManager::BindFunction(scriptComponent.script.GetPath().string(), "OnCreate", scriptComponent.script.OnCreate);
+            ScriptManager::BindFunction(scriptComponent.script.GetPath().string(), "OnUpdate", scriptComponent.script.OnUpdate);
+            ScriptManager::BindFunction(scriptComponent.script.GetPath().string(), "OnDestroy", scriptComponent.script.OnDestroy);
 
             scriptComponent.script.OnCreate();
         }

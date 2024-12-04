@@ -10,6 +10,7 @@
 namespace Coffee {
 
     sol::state LuaBackend::luaState;
+    std::unordered_map<std::string, sol::environment> LuaBackend::scriptEnvironments;
 
     void BindKeyCodesToLua(sol::state& lua, sol::table& inputTable)
     {
@@ -306,7 +307,6 @@ namespace Coffee {
         luaState.set_function("log_critical", [](const std::string& message) {
             COFFEE_CORE_CRITICAL("{0}", message);
         });
-
         # pragma endregion
 
         # pragma region Bind Input Functions
@@ -435,7 +435,9 @@ namespace Coffee {
 
     void LuaBackend::ExecuteScript(const std::string& script) {
         try {
-            luaState.script(script);
+            sol::environment env(luaState, sol::create, luaState.globals());
+            scriptEnvironments[script] = env;
+            luaState.script(script, env);
         } catch (const sol::error& e) {
             COFFEE_CORE_ERROR("[Lua Error]: {0}", e.what());
         }
@@ -443,22 +445,32 @@ namespace Coffee {
 
     void LuaBackend::ExecuteFile(const std::filesystem::path& filepath) {
         try {
-            luaState.script_file(filepath.string());
+            sol::environment env(luaState, sol::create, luaState.globals());
+            scriptEnvironments[filepath.string()] = env;
+            luaState.script_file(filepath.string(), env);
         } catch (const sol::error& e) {
             COFFEE_CORE_ERROR("[Lua Error]: {0}", e.what());
         }
     }
 
-    void LuaBackend::RegisterFunction(std::function<void()> func, const std::string& name)
-    {
-        luaState.set_function(name, func);
-        COFFEE_CORE_INFO("Registered Lua function {0}", name);
+    void LuaBackend::RegisterFunction(const std::string& script, std::function<void()> func, const std::string& name) {
+        auto it = scriptEnvironments.find(script);
+        if (it != scriptEnvironments.end()) {
+            it->second.set_function(name, func);
+            COFFEE_CORE_INFO("Registered Lua function {0} in script {1}", name, script);
+        } else {
+            COFFEE_CORE_ERROR("Script environment for {0} not found", script);
+        }
     }
 
-    void LuaBackend::BindFunction(const std::string& name, std::function<void()>& func)
-    {
-        func = luaState[name];
-        COFFEE_CORE_INFO("Bound Lua function {0}", name);
+    void LuaBackend::BindFunction(const std::string& script, const std::string& name, std::function<void()>& func) {
+        auto it = scriptEnvironments.find(script);
+        if (it != scriptEnvironments.end()) {
+            func = it->second[name];
+            COFFEE_CORE_INFO("Bound Lua function {0} in script {1}", name, script);
+        } else {
+            COFFEE_CORE_ERROR("Script environment for {0} not found", script);
+        }
     }
 
     void LuaBackend::RegisterVariable(const std::string& name, void* variable)
@@ -478,12 +490,20 @@ namespace Coffee {
         std::smatch match;
         std::string::const_iterator searchStart(script.cbegin());
 
+        auto it = scriptEnvironments.find(scriptPath);
+        if (it == scriptEnvironments.end()) {
+            COFFEE_CORE_ERROR("Script environment for {0} not found", scriptPath);
+            return variables;
+        }
+
+        sol::environment& env = it->second;
+
         while (std::regex_search(searchStart, script.cend(), match, combinedRegex)) {
             LuaVariable variable;
             if (match[1].matched) {
                 variable.name = match[1];
                 variable.value = match[2];
-                variable.type = luaState[variable.name].get_type();
+                variable.type = env[variable.name].get_type();
             } else if (match[3].matched) {
                 variable.name = "header";
                 variable.value = match[3];

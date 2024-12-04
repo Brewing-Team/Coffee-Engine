@@ -22,12 +22,12 @@ namespace Coffee {
             void Initialize() override;
             void ExecuteScript(const std::string& script) override;
             void ExecuteFile(const std::filesystem::path& filepath) override;
-            void RegisterFunction(std::function<void()> func, const std::string& name) override;
-            void BindFunction(const std::string& name, std::function<void()>& func) override;
+            void RegisterFunction(const std::string& script, std::function<void()> func, const std::string& name) override;
+            void BindFunction(const std::string& script, const std::string& name, std::function<void()>& func) override;
             void RegisterVariable(const std::string& name, void* variable) override;
             static std::vector<LuaVariable> MapVariables(const std::string& script);
             static sol::state luaState;
-
+            static std::unordered_map<std::string, sol::environment> scriptEnvironments;
     };
 
 } // namespace Coffee
