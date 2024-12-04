@@ -252,29 +252,54 @@ namespace Coffee {
     };
     Cubemap::Cubemap(const std::filesystem::path& path)
     {
+        ZoneScoped;
+
+        m_FilePath = path;
+        m_Name = path.filename().string();
+
+        m_Properties.srgb = false;
+
         // Load the combined image
-        int width, height, nrChannels;
-        unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &nrChannels, 0);
+        int nrChannels;
+        unsigned char* data = stbi_load(path.string().c_str(), &m_Width, &m_Height, &nrChannels, 0);
         if (!data) {
-            std::cerr << "Failed to load cubemap texture: " << path << std::endl;
+            COFFEE_CORE_ERROR("Failed to load cubemap texture: {0} (REASON: {1})", m_FilePath.string(), stbi_failure_reason());
             return;
         }
+
+        m_Data = std::vector<unsigned char>(data, data + m_Width * m_Height * nrChannels);
+        stbi_image_free(data);
+
+        switch (nrChannels)
+        {
+            case 1:
+                m_Properties.Format = ImageFormat::R8;
+            break;
+            case 3:
+                m_Properties.Format = ImageFormat::RGB8;
+            break;
+            case 4:
+                m_Properties.Format = ImageFormat::RGBA8;
+            break;
+        }
+
+        int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
+
+        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
 
         // Verify layout dimensions (should be square with faces in cross shape)
-        int faceSize = width / 4;
-        if (width != faceSize * 4 || height != faceSize * 3) {
-            std::cerr << "Image is not a valid cubemap cross layout!" << std::endl;
-            stbi_image_free(data);
+        int faceSize = m_Width / 4;
+        if (m_Width != faceSize * 4 || m_Height != faceSize * 3) {
+            COFFEE_CORE_ERROR("Cubemap texture layout is invalid: {0}", m_FilePath.string());
+            m_Data.clear();
             return;
         }
 
-        // Generate and bind the cubemap texture
-        GLuint cubemap;
-        glGenTextures(1, &cubemap);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
+        glGenTextures(1, &m_textureID);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
 
-        // Define the order of the faces and their offsets in the image
-        GLenum targets[6] = {
+        uint32_t targets[6] = {
             GL_TEXTURE_CUBE_MAP_POSITIVE_X, // +X
             GL_TEXTURE_CUBE_MAP_NEGATIVE_X, // -X
             GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // +Y
@@ -303,7 +328,7 @@ namespace Coffee {
             for (int y = 0; y < faceSize; ++y) {
                 memcpy(
                     faceBuffer + y * faceSize * nrChannels,
-                    data + ((offsetY + y) * width + offsetX) * nrChannels,
+                    m_Data.data() + ((offsetY + y) * m_Width + offsetX) * nrChannels,
                     faceSize * nrChannels
                 );
             }
@@ -311,14 +336,12 @@ namespace Coffee {
             // Upload the face data
             glTexImage2D(
                 targets[i],
-                0, nrChannels == 4 ? GL_RGBA : GL_RGB, faceSize, faceSize,
-                0, nrChannels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, faceBuffer
+                0, internalFormat, faceSize, faceSize,
+                0, format, GL_UNSIGNED_BYTE, faceBuffer
             );
 
             delete[] faceBuffer;
         }
-
-        stbi_image_free(data);
 
         // Set cubemap texture parameters
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

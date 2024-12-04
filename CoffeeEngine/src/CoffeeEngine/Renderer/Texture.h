@@ -141,7 +141,7 @@ namespace Coffee {
 
         uint32_t GetWidth() override { return 0; };
         uint32_t GetHeight() override { return 0; };
-        ImageFormat GetImageFormat() override { return ImageFormat::RGBA8; };
+        ImageFormat GetImageFormat() override { return m_Properties.Format; };
 
         static Ref<Cubemap> Load(const std::filesystem::path& path);
         static Ref<Cubemap> Create(const std::vector<std::filesystem::path>& paths);
@@ -169,7 +169,10 @@ namespace Coffee {
         }*/
 
     private:
+        TextureProperties m_Properties;
+        std::vector<unsigned char> m_Data;
         uint32_t m_textureID;
+        int m_Width, m_Height;
     };
 
 }
