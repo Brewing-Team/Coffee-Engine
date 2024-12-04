@@ -254,50 +254,65 @@ namespace Coffee {
     {
         // Load the combined image
         int width, height, nrChannels;
-        stbi_set_flip_vertically_on_load(false);
         unsigned char* data = stbi_load(path.string().c_str(), &width, &height, &nrChannels, 0);
         if (!data) {
-            COFFEE_CORE_ERROR("Failed to load cubemap texture: {0}", path.string());
+            std::cerr << "Failed to load cubemap texture: " << path << std::endl;
             return;
         }
 
-        // Calculate the face dimensions
-        int faceWidth = width / 6;
-        int faceHeight = height;
+        // Verify layout dimensions (should be square with faces in cross shape)
+        int faceSize = width / 4;
+        if (width != faceSize * 4 || height != faceSize * 3) {
+            std::cerr << "Image is not a valid cubemap cross layout!" << std::endl;
+            stbi_image_free(data);
+            return;
+        }
 
         // Generate and bind the cubemap texture
-        glGenTextures(1, &m_textureID);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
+        GLuint cubemap;
+        glGenTextures(1, &cubemap);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
 
-        // Extract and upload each face
+        // Define the order of the faces and their offsets in the image
         GLenum targets[6] = {
-            GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-            GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
-            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X, // +X
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_X, // -X
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Y, // +Y
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, // -Y
+            GL_TEXTURE_CUBE_MAP_POSITIVE_Z, // +Z
+            GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  // -Z
         };
 
+        // Offsets for each face in the cross layout
+        int offsets[6][2] = {
+            {2, 1}, // +X
+            {0, 1}, // -X
+            {1, 0}, // +Y
+            {1, 2}, // -Y
+            {1, 1}, // +Z
+            {3, 1}  // -Z
+        };
+
+        // Extract and upload each face
         for (int i = 0; i < 6; ++i) {
-            // Calculate the offset in the combined image
-            unsigned char* faceData = data + (i * faceWidth * nrChannels);
+            int offsetX = offsets[i][0] * faceSize;
+            int offsetY = offsets[i][1] * faceSize;
 
             // Create a temporary buffer for the face
-            unsigned char* faceBuffer = new unsigned char[faceWidth * faceHeight * nrChannels];
-            for (int y = 0; y < faceHeight; ++y) {
+            unsigned char* faceBuffer = new unsigned char[faceSize * faceSize * nrChannels];
+            for (int y = 0; y < faceSize; ++y) {
                 memcpy(
-                    faceBuffer + y * faceWidth * nrChannels,
-                    faceData + y * width * nrChannels,
-                    faceWidth * nrChannels
+                    faceBuffer + y * faceSize * nrChannels,
+                    data + ((offsetY + y) * width + offsetX) * nrChannels,
+                    faceSize * nrChannels
                 );
             }
 
             // Upload the face data
             glTexImage2D(
                 targets[i],
-                0, GL_RGBA, faceWidth, faceHeight,
-                0, GL_RGBA, GL_UNSIGNED_BYTE, faceBuffer
+                0, nrChannels == 4 ? GL_RGBA : GL_RGB, faceSize, faceSize,
+                0, nrChannels == 4 ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, faceBuffer
             );
 
             delete[] faceBuffer;
