@@ -1,4 +1,5 @@
 #include "ResourceSaver.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceFormat.h"
 #include "CoffeeEngine/IO/CacheManager.h"
 #include <cereal/archives/binary.hpp>
@@ -13,7 +14,10 @@ namespace Coffee
         {
         case Coffee::ResourceType::Unknown:
             break;
-        case Coffee::ResourceType::Texture:
+        case Coffee::ResourceType::Texture2D:
+            return ResourceFormat::Binary;
+            break;
+        case ResourceType::Cubemap:
             return ResourceFormat::Binary;
             break;
         case Coffee::ResourceType::Model:

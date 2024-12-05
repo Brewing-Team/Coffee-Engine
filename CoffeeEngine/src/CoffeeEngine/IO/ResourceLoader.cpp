@@ -54,9 +54,14 @@ namespace Coffee {
 
         switch (type)
         {
-            case ResourceType::Texture:
+            case ResourceType::Texture2D:
             {
                 LoadTexture2D(path);
+                break;
+            }
+            case ResourceType::Cubemap:
+            {
+                LoadCubemap(path);
                 break;
             }
             case ResourceType::Model:
@@ -94,7 +99,7 @@ namespace Coffee {
 
     Ref<Texture2D> ResourceLoader::LoadTexture2D(const std::filesystem::path& path, bool srgb, bool cache)
     {
-        if(GetResourceTypeFromExtension(path) != ResourceType::Texture)
+        if(GetResourceTypeFromExtension(path) != ResourceType::Texture2D)
         {
             COFFEE_CORE_ERROR("ResourceLoader::Load<Texture2D>: Resource is not a texture!");
             return nullptr;

@@ -363,7 +363,7 @@ namespace Coffee {
                     if(const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
                     {
                         const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
-                        if(resource->GetType() == ResourceType::Texture)
+                        if(resource->GetType() == ResourceType::Texture2D)
                         {
                             const Ref<Texture2D>& t = std::static_pointer_cast<Texture2D>(resource);
                             texture = t;
