@@ -78,7 +78,7 @@ namespace Coffee {
     }
 
     Texture2D::Texture2D(uint32_t width, uint32_t height, ImageFormat imageFormat)
-        : Texture(), m_Width(width), m_Height(height), m_Properties({ imageFormat, width, height })
+        : Texture(ResourceType::Texture2D), m_Width(width), m_Height(height), m_Properties({ imageFormat, width, height })
     {
         ZoneScoped;
 
@@ -101,7 +101,7 @@ namespace Coffee {
     }
 
     Texture2D::Texture2D(const std::filesystem::path& path, bool srgb)
-        : Texture()
+        : Texture(ResourceType::Texture2D)
     {
         ZoneScoped;
 
@@ -167,6 +167,11 @@ namespace Coffee {
         ZoneScoped;
 
         glDeleteTextures(1, &m_textureID);
+
+        if(m_Data.size() > 0)
+        {
+            m_Data.clear();
+        }
     }
 
     void Texture2D::Bind(uint32_t slot)
@@ -235,7 +240,7 @@ namespace Coffee {
         return CreateRef<Texture2D>(width, height, format);
     }
 
-    Cubemap::Cubemap(const std::vector<std::filesystem::path>& paths)
+    Cubemap::Cubemap(const std::vector<std::filesystem::path>& paths) : Texture(ResourceType::Cubemap)
     {
         ZoneScoped;
         glGenTextures(1, &m_textureID);
@@ -271,7 +276,7 @@ namespace Coffee {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     };
-    Cubemap::Cubemap(const std::filesystem::path& path)
+    Cubemap::Cubemap(const std::filesystem::path& path) : Texture(ResourceType::Cubemap)
     {
         ZoneScoped;
 
@@ -495,7 +500,13 @@ namespace Coffee {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     }
 
-    Ref<Cubemap> Cubemap::Load(const std::filesystem::path& path) { return nullptr; }
-    Ref<Cubemap> Cubemap::Create(const std::vector<std::filesystem::path>& paths) { return nullptr; }
+    Ref<Cubemap> Cubemap::Load(const std::filesystem::path& path)
+    {
+        return ResourceLoader::LoadCubemap(path);
+    }
+    Ref<Cubemap> Cubemap::Create(const std::filesystem::path& path)
+    {
+        return CreateRef<Cubemap>(path);
+    }
 
 } // namespace Coffee

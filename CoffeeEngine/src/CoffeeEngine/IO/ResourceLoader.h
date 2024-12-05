@@ -9,6 +9,7 @@
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
 #include "CoffeeEngine/Renderer/Shader.h"
+#include "CoffeeEngine/Renderer/Texture.h"
 #include <filesystem>
 
 namespace Coffee {
@@ -47,6 +48,9 @@ namespace Coffee {
          */
         static Ref<Texture2D> LoadTexture2D(const std::filesystem::path& path, bool srgb = true, bool cache = true);
         static Ref<Texture2D> LoadTexture2D(UUID uuid);
+
+        static Ref<Cubemap> LoadCubemap(const std::filesystem::path& path);
+        static Ref<Cubemap> LoadCubemap(UUID uuid);
 
         /**
          * @brief Loads a model from a file.

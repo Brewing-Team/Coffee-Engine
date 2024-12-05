@@ -54,7 +54,7 @@ namespace Coffee {
         };
         s_EnvironmentMap = CreateRef<Cubemap>(paths);*/
 
-        s_EnvironmentMap = CreateRef<Cubemap>("assets/textures/StandardCubeMap.hdr");
+        s_EnvironmentMap = /* CreateRef<Cubemap>("assets/textures/StandardCubeMap.hdr"); */ Cubemap::Load("assets/textures/StandardCubeMap.hdr");
 
         s_SkyboxMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
 

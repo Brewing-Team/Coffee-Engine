@@ -1,5 +1,6 @@
 #include "ResourceImporter.h"
 #include "CoffeeEngine/Renderer/Material.h"
+#include "CoffeeEngine/Renderer/Texture.h"
 #include "ResourceSaver.h"
 #include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -29,7 +30,7 @@ namespace Coffee {
         }
         else
         {
-            COFFEE_WARN("ResourceImporter::ImportTexture: Texture {0} not found in cache. Creating new texture.", path.string());
+            COFFEE_WARN("ResourceImporter::ImportTexture2D: Texture2D {0} not found in cache. Creating new texture.", path.string());
             Ref<Texture2D> texture = CreateRef<Texture2D>(path, srgb);
             ResourceSaver::SaveToCache(std::to_string(uuid), texture); //TODO: Add the UUID to the cache filename
             return texture;
@@ -49,11 +50,45 @@ namespace Coffee {
         }
         else
         {
-            COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache.", (uint64_t)uuid);
+            COFFEE_WARN("ResourceImporter::ImportTexture2D: Texture2D {0} not found in cache.", (uint64_t)uuid);
             return nullptr;
         }
     }
 
+    Ref<Cubemap> ResourceImporter::ImportCubemap(const std::filesystem::path& path, const UUID& uuid)
+    {
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(std::to_string(uuid));
+
+        if (std::filesystem::exists(cachedFilePath))
+        {
+            const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
+            return std::static_pointer_cast<Cubemap>(resource);
+        }
+        else
+        {
+            COFFEE_WARN("ResourceImporter::ImportCubemap: Cubemap {0} not found in cache. Creating new cubemap.", path.string());
+            Ref<Cubemap> cubemap = CreateRef<Cubemap>(path);
+            ResourceSaver::SaveToCache(std::to_string(uuid), cubemap);
+            return cubemap;
+        }
+    }
+    Ref<Cubemap> ResourceImporter::ImportCubemap(const UUID& uuid)
+    {
+        std::string uuidString = std::to_string(uuid);
+
+        std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuidString);
+
+        if(std::filesystem::exists(cachedFilePath))
+        {
+            const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
+            return std::static_pointer_cast<Cubemap>(resource);
+        }
+        else
+        {
+            COFFEE_WARN("ResourceImporter::ImportCubemap: Cubemap {0} not found in cache.", (uint64_t)uuid);
+            return nullptr;
+        }
+    }
 
     Ref<Model> ResourceImporter::ImportModel(const std::filesystem::path& path, bool cache)
     {

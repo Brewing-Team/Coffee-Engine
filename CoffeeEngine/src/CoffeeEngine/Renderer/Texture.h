@@ -50,6 +50,7 @@ namespace Coffee {
     {
     public:
         Texture() : Resource(ResourceType::Texture) {};
+        Texture(ResourceType type) : Resource(type) {};
         virtual ~Texture() = default;
 
         virtual void Bind(uint32_t slot) = 0;
@@ -147,7 +148,7 @@ namespace Coffee {
         ImageFormat GetImageFormat() override { return m_Properties.Format; };
 
         static Ref<Cubemap> Load(const std::filesystem::path& path);
-        static Ref<Cubemap> Create(const std::vector<std::filesystem::path>& paths);
+        static Ref<Cubemap> Create(const std::filesystem::path& path);
     private:
 
         void LoadStandardFromFile(const std::filesystem::path& path);

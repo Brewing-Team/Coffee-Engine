@@ -130,6 +130,32 @@ namespace Coffee {
         return texture;
     }
 
+    Ref<Cubemap> ResourceLoader::LoadCubemap(const std::filesystem::path& path)
+    {
+        if(GetResourceTypeFromExtension(path) != ResourceType::Cubemap)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Cubemap>: Resource is not a cubemap!");
+            return nullptr;
+        }
+
+        UUID uuid = GetUUIDFromImportFile(path);
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Cubemap>(uuid);
+        }
+
+        const Ref<Cubemap>& cubemap = s_Importer.ImportCubemap(path, uuid);
+        cubemap->SetUUID(uuid);
+        cubemap->SetName(path.filename().string());
+
+        ResourceRegistry::Add(uuid, cubemap);
+        return cubemap;
+    }
+    Ref<Cubemap> ResourceLoader::LoadCubemap(UUID uuid)
+    {
+    }
+
     Ref<Model> ResourceLoader::LoadModel(const std::filesystem::path& path, bool cache)
     {
         if(GetResourceTypeFromExtension(path) != ResourceType::Model)

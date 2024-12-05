@@ -11,7 +11,11 @@ namespace Coffee {
 
         if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
         {
-            return ResourceType::Texture;
+            return ResourceType::Texture2D;
+        }
+        else if(extension == ".hdr")
+        {
+            return ResourceType::Cubemap;
         }
         else if(extension == ".glb" || extension == ".gltf" || extension == ".fbx" || extension == ".obj")
         {
@@ -29,8 +33,10 @@ namespace Coffee {
     {
         switch (type)
         {
-        case ResourceType::Texture:
-            return "Texture";
+        case ResourceType::Texture2D:
+            return "Textur2D";
+        case ResourceType::Cubemap:
+            return "Cubemap";
         case ResourceType::Model:
             return "Model";
         case ResourceType::Mesh:

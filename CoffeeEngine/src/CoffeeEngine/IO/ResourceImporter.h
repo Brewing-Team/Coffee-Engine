@@ -9,6 +9,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceFormat.h"
+#include "CoffeeEngine/Renderer/Texture.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
 #include <string>
@@ -40,6 +41,8 @@ namespace Coffee {
          */
         Ref<Texture2D> ImportTexture2D(const std::filesystem::path& path, const UUID& uuid, bool srgb, bool cache);
         Ref<Texture2D> ImportTexture2D(const UUID& uuid);
+        Ref<Cubemap> ImportCubemap(const std::filesystem::path& path, const UUID& uuid);
+        Ref<Cubemap> ImportCubemap(const UUID& uuid);
         Ref<Model> ImportModel(const std::filesystem::path& path, bool cache);
         Ref<Mesh> ImportMesh(const std::string& name, const UUID& uuid, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material);
         Ref<Mesh> ImportMesh(const UUID& uuid);
