@@ -135,35 +135,38 @@ namespace Coffee {
     public:
         Cubemap() = default;
         Cubemap(const std::filesystem::path& path);
+        // This way of loading a cubemap is deprecated because is not compatible with the serialization system and the resource management.
         Cubemap(const std::vector<std::filesystem::path>& paths);
         ~Cubemap();
 
         void Bind(uint32_t slot) override;;
         uint32_t GetID() override { return m_textureID; };
 
-        uint32_t GetWidth() override { return 0; };
-        uint32_t GetHeight() override { return 0; };
+        uint32_t GetWidth() override { return m_Width; };
+        uint32_t GetHeight() override { return m_Height; };
         ImageFormat GetImageFormat() override { return m_Properties.Format; };
 
         static Ref<Cubemap> Load(const std::filesystem::path& path);
         static Ref<Cubemap> Create(const std::vector<std::filesystem::path>& paths);
     private:
 
-        void LoadStandardCubeMap(const std::filesystem::path& path);
-        void LoadHDRCubeMap(const std::filesystem::path& path);
+        void LoadStandardFromFile(const std::filesystem::path& path);
+        void LoadHDRFromFile(const std::filesystem::path& path);
+        void LoadStandardFromData(const std::vector<unsigned char>& data);
+        void LoadHDRFromData(const std::vector<float>& data);
 
         friend class cereal::access;
 
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(m_textureID, cereal::base_class<Resource>(this));
+            archive(m_Properties, m_Data, m_HDRData, m_Width, m_Height, cereal::base_class<Texture>(this));
         }
 
         template <class Archive>
         void load(Archive& archive)
         {
-            archive(m_textureID, cereal::base_class<Resource>(this));
+            archive(m_Properties, m_Data, m_HDRData, m_Width, m_Height, cereal::base_class<Texture>(this));
         }
 
 /*         template <class Archive>

@@ -52,6 +52,23 @@ namespace Coffee {
         }
     }
 
+    int ImageFormatToChannelCount(ImageFormat format)
+    {
+        switch(format)
+        {
+            case ImageFormat::R8: return 1; break;
+            case ImageFormat::RG8: return 2; break;
+            case ImageFormat::RGB8: return 3; break;
+            case ImageFormat::SRGB8: return 3; break;
+            case ImageFormat::RGBA8: return 4; break;
+            case ImageFormat::SRGBA8: return 4; break;
+            case ImageFormat::R32F: return 1; break;
+            case ImageFormat::RGB32F: return 3; break;
+            case ImageFormat::RGBA32F: return 4; break;
+            case ImageFormat::DEPTH24STENCIL8: return 1; break;
+        }
+    }
+
     Texture2D::Texture2D(const TextureProperties& properties)
         : m_Properties(properties), m_Width(properties.Width), m_Height(properties.Height)
     {
@@ -265,11 +282,11 @@ namespace Coffee {
 
         if(path.extension() == ".hdr")
         {
-            LoadHDRCubeMap(path);
+            LoadHDRFromFile(path);
         }
         else
         {
-            LoadStandardCubeMap(path);
+            LoadStandardFromFile(path);
         }
     }
 
@@ -284,7 +301,7 @@ namespace Coffee {
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
     }
 
-    void Cubemap::LoadStandardCubeMap(const std::filesystem::path& path)
+    void Cubemap::LoadStandardFromFile(const std::filesystem::path& path)
     {
         // Load the combined image
         int nrChannels;
@@ -309,6 +326,43 @@ namespace Coffee {
                 m_Properties.Format = ImageFormat::RGBA8;
             break;
         }
+
+        LoadStandardFromData(m_Data);
+    }
+
+    void Cubemap::LoadHDRFromFile(const std::filesystem::path& path)
+    {
+        int nrChannels;
+        float* data = stbi_loadf(path.string().c_str(), &m_Width, &m_Height, &nrChannels, 0);
+        if (!data) {
+            COFFEE_CORE_ERROR("Failed to load cubemap texture: {0} (REASON: {1})", m_FilePath.string(), stbi_failure_reason());
+            return;
+        }
+        
+        m_HDRData = std::vector<float>(data, data + m_Width * m_Height * nrChannels);
+        stbi_image_free(data);
+
+        switch (nrChannels)
+        {
+            case 1:
+                m_Properties.Format = ImageFormat::R32F;
+                break;
+            case 3:
+                m_Properties.Format = ImageFormat::RGB32F;
+                break;
+            case 4:
+                m_Properties.Format = ImageFormat::RGBA32F;
+                break;
+        }
+        
+        LoadHDRFromData(m_HDRData);
+    }
+
+    void Cubemap::LoadStandardFromData(const std::vector<unsigned char>& data)
+    {
+        m_Data = data;
+
+        int nrChannels = ImageFormatToChannelCount(m_Properties.Format);
 
         int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
 
@@ -335,7 +389,6 @@ namespace Coffee {
             GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  // -Z
         };
 
-        // Offsets for each face in the cross layout
         int offsets[6][2] = {
             {2, 1}, // +X
             {0, 1}, // -X
@@ -345,12 +398,10 @@ namespace Coffee {
             {3, 1}  // -Z
         };
 
-        // Extract and upload each face
         for (int i = 0; i < 6; ++i) {
             int offsetX = offsets[i][0] * faceSize;
             int offsetY = offsets[i][1] * faceSize;
 
-            // Create a temporary buffer for the face
             unsigned char* faceBuffer = new unsigned char[faceSize * faceSize * nrChannels];
             for (int y = 0; y < faceSize; ++y) {
                 memcpy(
@@ -360,7 +411,6 @@ namespace Coffee {
                 );
             }
 
-            // Upload the face data
             glTexImage2D(
                 targets[i],
                 0, internalFormat, faceSize, faceSize,
@@ -370,7 +420,6 @@ namespace Coffee {
             delete[] faceBuffer;
         }
 
-        // Set cubemap texture parameters
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -378,38 +427,17 @@ namespace Coffee {
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
     }
 
-    void Cubemap::LoadHDRCubeMap(const std::filesystem::path& path)
+    void Cubemap::LoadHDRFromData(const std::vector<float>& data)
     {
-        // Load the combined image
-        int nrChannels;
-        float* data = stbi_loadf(path.string().c_str(), &m_Width, &m_Height, &nrChannels, 0);
-        if (!data) {
-            COFFEE_CORE_ERROR("Failed to load cubemap texture: {0} (REASON: {1})", m_FilePath.string(), stbi_failure_reason());
-            return;
-        }
-        
-        m_HDRData = std::vector<float>(data, data + m_Width * m_Height * nrChannels);
-        stbi_image_free(data);
-        
-        switch (nrChannels)
-        {
-            case 1:
-                m_Properties.Format = ImageFormat::R32F;
-                break;
-            case 3:
-                m_Properties.Format = ImageFormat::RGB32F;
-                break;
-            case 4:
-                m_Properties.Format = ImageFormat::RGBA32F;
-                break;
-        }
+        m_HDRData = data;
+
+        int nrChannels = ImageFormatToChannelCount(m_Properties.Format);
         
         int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
         
         GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
         GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
         
-        // Verify layout dimensions (should be square with faces in cross shape)
         int faceSize = m_Width / 4;
         if (m_Width != faceSize * 4 || m_Height != faceSize * 3) {
             COFFEE_CORE_ERROR("Cubemap texture layout is invalid: {0}", m_FilePath.string());
@@ -429,7 +457,6 @@ namespace Coffee {
             GL_TEXTURE_CUBE_MAP_NEGATIVE_Z  // -Z
         };
         
-        // Offsets for each face in the cross layout
         int offsets[6][2] = {
             {2, 1}, // +X
             {0, 1}, // -X
@@ -439,12 +466,10 @@ namespace Coffee {
             {3, 1}  // -Z
         };
         
-        // Extract and upload each face
         for (int i = 0; i < 6; ++i) {
             int offsetX = offsets[i][0] * faceSize;
             int offsetY = offsets[i][1] * faceSize;
         
-            // Create a temporary buffer for the face
             float* faceBuffer = new float[faceSize * faceSize * nrChannels];
             for (int y = 0; y < faceSize; ++y) {
                 memcpy(
@@ -454,7 +479,6 @@ namespace Coffee {
                 );
             }
         
-            // Upload the face data
             glTexImage2D(
                 targets[i],
                 0, internalFormat, faceSize, faceSize,
@@ -464,7 +488,6 @@ namespace Coffee {
             delete[] faceBuffer;
         }
         
-        // Set cubemap texture parameters
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
