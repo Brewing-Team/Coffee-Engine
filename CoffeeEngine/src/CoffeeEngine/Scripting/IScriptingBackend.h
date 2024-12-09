@@ -33,9 +33,9 @@ namespace Coffee {
              * @param name The name of the function.
              * @param func The function to register.
              */
-            virtual void RegisterFunction(const std::string& script, std::function<void()> func, const std::string& name) = 0;
+            virtual void RegisterFunction(const std::string& script, std::function<int()> func, const std::string& name) = 0;
 
-            virtual void BindFunction(const std::string& script, const std::string& name, std::function<void()>& func) = 0;
+            virtual void BindFunction(const std::string& script, const std::string& name, std::function<int()>& func) = 0;
 
             virtual void RegisterVariable(const std::string& name, void* variable) = 0;
 

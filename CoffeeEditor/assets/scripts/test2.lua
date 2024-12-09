@@ -12,6 +12,7 @@ function OnCreate()
     log_error("OnCreate()")
     log_warning("OnCreate()")
     log_critical("OnCreate()")
+    return 1
 end
 
 function OnUpdate()
@@ -30,11 +31,10 @@ function OnUpdate()
     log("INT 2: " .. exampleInt)
     log("FLOAT 2: " .. exampleFloat)
     log("STRING 2: " .. exampleString)
-
-    local entityTag = self.GetComponent("TagComponent").tag
-    print("Entity tag: " .. entityTag)
+    return 1
 end
 
 function on_destroy()
     -- print("OnDestroy()")
+    return 1
 end

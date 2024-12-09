@@ -14,9 +14,9 @@ namespace Coffee
         Script(const std::filesystem::path& filepath, ScriptingLanguage language)
             : m_Language(language), m_Path(filepath) {}
 
-        std::function<void()> OnCreate;
-        std::function<void()> OnUpdate;
-        std::function<void()> OnDestroy;
+        std::function<int()> OnCreate;
+        std::function<int()> OnUpdate;
+        std::function<int()> OnDestroy;
 
         const std::filesystem::path& GetPath() const { return m_Path; }
         const ScriptingLanguage& GetLanguage() const { return m_Language; }

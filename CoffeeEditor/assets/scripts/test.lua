@@ -12,10 +12,15 @@ function OnCreate()
     log_error("OnCreate()")
     log_warning("OnCreate()")
     log_critical("OnCreate()")
+    return 1
 end
 
 function OnUpdate()
     --log("OnUpdate()")
+
+    local entityTag = entity:GetComponent(entity)
+    --print("Entity tag: " .. entityTag)
+
     if input.is_key_pressed(input.keycode.SPACE) then
         log("SPACE")
     end
@@ -30,11 +35,10 @@ function OnUpdate()
     log("INT: " .. exampleInt)
     log("FLOAT: " .. exampleFloat)
     log("STRING: " .. exampleString)
-
-    local entityTag = self.GetComponent("TagComponent").tag
-    print("Entity tag: " .. entityTag)
+    return 1
 end
 
 function on_destroy()
     -- print("OnDestroy()")
+    return 1
 end

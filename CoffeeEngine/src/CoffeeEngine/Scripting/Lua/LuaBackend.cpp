@@ -7,6 +7,8 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 
+#define SOL_PRINT_ERRORS 1
+
 namespace Coffee {
 
     sol::state LuaBackend::luaState;
@@ -348,7 +350,7 @@ namespace Coffee {
             }
         },
 
-        "GetComponent", [this](Entity& self, const std::string& componentName) -> sol::object {
+/*        "GetComponent", [this](Entity& self, const std::string& componentName) -> sol::object {
             if (componentName == "TagComponent") {
                 return sol::make_object(luaState, self.GetComponent<TagComponent>());
             } else if (componentName == "TransformComponent") {
@@ -356,6 +358,10 @@ namespace Coffee {
             } else {
                 throw std::runtime_error("Unknown component type");
             }
+        },*/
+
+        "GetComponent", [this](Entity& self) -> sol::object {
+            return sol::make_object(luaState, self.GetComponent<TagComponent>());
         },
 
         "HasComponent", [](Entity& self, const std::string& componentName) -> bool {
@@ -385,7 +391,7 @@ namespace Coffee {
         #pragma endregion
 
         # pragma region Bind Components Functions
-        luaState.new_usertype<TagComponent>("tag_component",
+        luaState.new_usertype<TagComponent>("TagComponent",
             sol::constructors<TagComponent(), TagComponent(const std::string&)>(),
             "tag", &TagComponent::Tag
         );
@@ -453,7 +459,7 @@ namespace Coffee {
         }
     }
 
-    void LuaBackend::RegisterFunction(const std::string& script, std::function<void()> func, const std::string& name) {
+    void LuaBackend::RegisterFunction(const std::string& script, std::function<int()> func, const std::string& name) {
         auto it = scriptEnvironments.find(script);
         if (it != scriptEnvironments.end()) {
             it->second.set_function(name, func);
@@ -463,7 +469,7 @@ namespace Coffee {
         }
     }
 
-    void LuaBackend::BindFunction(const std::string& script, const std::string& name, std::function<void()>& func) {
+    void LuaBackend::BindFunction(const std::string& script, const std::string& name, std::function<int()>& func) {
         auto it = scriptEnvironments.find(script);
         if (it != scriptEnvironments.end()) {
             func = it->second[name];

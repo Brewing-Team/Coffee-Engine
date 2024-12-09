@@ -18,8 +18,8 @@ namespace Coffee {
     public:
         static void RegisterBackend(ScriptingLanguage language, std::shared_ptr<IScriptingBackend> backend);
         static void ExecuteScriptFromFile(Script script);
-        static void RegisterFunction(const std::string& script, const std::string& name, std::function<void()> func);
-        static void BindFunction(const std::string& script, const std::string& name, std::function<void()>& func);
+        static void RegisterFunction(const std::string& script, const std::string& name, std::function<int()> func);
+        static void BindFunction(const std::string& script, const std::string& name, std::function<int()>& func);
         static void RegisterVariable(const std::string& name, void* variable);
 
     private:
