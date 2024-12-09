@@ -159,6 +159,7 @@ namespace Coffee {
     }
     Ref<Cubemap> ResourceLoader::LoadCubemap(UUID uuid)
     {
+        return nullptr;
     }
 
     Ref<Model> ResourceLoader::LoadModel(const std::filesystem::path& path, bool cache)
