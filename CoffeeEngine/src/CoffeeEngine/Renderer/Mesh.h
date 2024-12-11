@@ -40,16 +40,27 @@ namespace Coffee {
         private:
             friend class cereal::access;
 
+            template<class Archive>
+            void serialize(Archive& archive)
+            {
+                archive(Position, TexCoords, Normals, Tangent, Bitangent);
+            }
+    };
+
+    /**
+    * @brief Structure representing an axis-aligned bounding box (AABB).
+    */
+    struct AABB {
         glm::vec3 min = glm::vec3(0.0f); ///< The minimum point of the AABB.
         glm::vec3 max = glm::vec3(0.0f); ///< The maximum point of the AABB.
 
         AABB() = default;
 
         /**
-         * @brief Constructs an AABB with specified minimum and maximum points.
-         * @param min The minimum point of the AABB.
-         * @param max The maximum point of the AABB.
-         */
+        * @brief Constructs an AABB with specified minimum and maximum points.
+        * @param min The minimum point of the AABB.
+        * @param max The maximum point of the AABB.
+        */
         AABB(const glm::vec3& min, const glm::vec3& max)
             : min(min), max(max) {}
 
@@ -66,11 +77,11 @@ namespace Coffee {
         bool Contains(const glm::vec3& point) const
         {
             return point.x >= min.x && point.x <= max.x &&
-                   point.y >= min.y && point.y <= max.y &&
-                   point.z >= min.z && point.z <= max.z;
+                point.y >= min.y && point.y <= max.y &&
+                point.z >= min.z && point.z <= max.z;
         }
     };
-
+    
     /**
      * @brief Structure representing an oriented bounding box (OBB).
      */

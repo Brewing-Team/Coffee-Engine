@@ -77,8 +77,8 @@ namespace Coffee {
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        Ref<Shader> missingShader = Shader::Create("assets/shaders/MissingShader.vert", "assets/shaders/MissingShader.frag");
-        missingMaterial = CreateRef<Material>(missingShader);
+        Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
+        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
 
         // TODO move this
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
