@@ -1,6 +1,8 @@
 #include "Scene.h"
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Core/DataStructures/Octree.h"
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
@@ -86,6 +88,12 @@ namespace Coffee {
 
         Entity scriptEntity2 = CreateEntity("Script2");
         scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
+        
+        // TEST ------------------------------
+        for(int i = 0; i < 25; i++)
+        {
+            m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
+        }
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
