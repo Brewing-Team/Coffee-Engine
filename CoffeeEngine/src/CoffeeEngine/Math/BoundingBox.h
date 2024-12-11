@@ -25,6 +25,23 @@ namespace Coffee {
         AABB(const glm::vec3& min, const glm::vec3& max)
             : min(min), max(max) {}
 
+        glm::vec3 GetCenter() const
+        {
+            return (min + max) / 2.0f;
+        }
+
+        glm::vec3 GetHalfSize() const
+        {
+            return (max - min) / 2.0f;
+        }
+
+        bool Contains(const glm::vec3& point) const
+        {
+            return point.x >= min.x && point.x <= max.x &&
+                point.y >= min.y && point.y <= max.y &&
+                point.z >= min.z && point.z <= max.z;
+        }
+
         private:
             friend class cereal::access;
 
