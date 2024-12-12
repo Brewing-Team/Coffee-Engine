@@ -86,8 +86,8 @@ namespace Coffee {
         Entity scriptEntity = CreateEntity("Script");
         scriptEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
 
-        Entity scriptEntity2 = CreateEntity("Script2");
-        scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
+        //Entity scriptEntity2 = CreateEntity("Script2");
+        //scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
         
         // TEST ------------------------------
         for(int i = 0; i < 25; i++)

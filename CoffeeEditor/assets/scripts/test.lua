@@ -18,7 +18,8 @@ end
 function OnUpdate()
     --log("OnUpdate()")
 
-    local entityTag = entity:GetComponent(entity)
+    local entityTag = entity:GetComponent("TagComponent")
+    log(entityTag)
     --print("Entity tag: " .. entityTag)
 
     if input.is_key_pressed(input.keycode.SPACE) then
