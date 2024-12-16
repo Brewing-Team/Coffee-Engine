@@ -372,15 +372,15 @@ namespace Coffee {
                 if (componentName == "TagComponent") {
                     return sol::make_object(luaState, self->GetComponent<TagComponent>());
                 } else if (componentName == "TransformComponent") {
-                    return sol::make_object(luaState, self->GetComponent<TransformComponent>());
+                    return sol::make_object(luaState, std::ref(self->GetComponent<TransformComponent>()));
                 } else if (componentName == "CameraComponent") {
-                    return sol::make_object(luaState, self->GetComponent<CameraComponent>());
+                    return sol::make_object(luaState, std::ref(self->GetComponent<CameraComponent>()));
                 } else if (componentName == "MeshComponent") {
-                    return sol::make_object(luaState, self->GetComponent<MeshComponent>());
+                    return sol::make_object(luaState, std::ref(self->GetComponent<MeshComponent>()));
                 } else if (componentName == "MaterialComponent") {
-                    return sol::make_object(luaState, self->GetComponent<MaterialComponent>());
+                    return sol::make_object(luaState, std::ref(self->GetComponent<MaterialComponent>()));
                 } else if (componentName == "LightComponent") {
-                    return sol::make_object(luaState, self->GetComponent<LightComponent>());
+                    return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 }
                 return sol::nil;
             },
