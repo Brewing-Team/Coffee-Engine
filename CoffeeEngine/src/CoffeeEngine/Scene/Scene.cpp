@@ -84,8 +84,12 @@ namespace Coffee {
         // TODO move this
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
+        camera.AddComponent<ScriptComponent>("assets/scripts/CameraController.lua", ScriptingLanguage::Lua, m_Registry);
+
         Entity scriptEntity = CreateEntity("Script");
-        scriptEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
+        //scriptEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
+        scriptEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        scriptEntity.AddComponent<MaterialComponent>();
 
         //Entity scriptEntity2 = CreateEntity("Script2");
         //scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
@@ -172,6 +176,25 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
+
+        for (auto& entity : scriptView)
+        {
+            Entity scriptEntity{entity, this};
+
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+
+            ScriptManager::RegisterVariable(scriptComponent.script.GetPath(), "entity", (void*)&scriptEntity);
+
+            auto update = scriptComponent.script.OnUpdate();
+            if(!update.valid())
+            {
+               sol::error err = update;
+               COFFEE_CORE_ERROR("Error executing script: {0}", err.what());
+            }
+        }
+
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::BeginScene(*camera, cameraTransform);
         
@@ -205,25 +228,6 @@ namespace Coffee {
             lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
             Renderer::Submit(lightComponent);
-        }
-
-        // Get all entities with ScriptComponent
-        auto scriptView = m_Registry.view<ScriptComponent>();
-
-        for (auto& entity : scriptView)
-        {
-            Entity scriptEntity{entity, this};
-
-            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
-
-            ScriptManager::RegisterVariable(scriptComponent.script.GetPath(), "entity", (void*)&scriptEntity);
-
-            auto update = scriptComponent.script.OnUpdate();
-            if(!update.valid())
-            {
-               sol::error err = update;
-               COFFEE_CORE_ERROR("Error executing script: {0}", err.what());
-            }
         }
 
         Renderer::EndScene();

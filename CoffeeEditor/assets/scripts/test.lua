@@ -20,16 +20,25 @@ function OnUpdate()
 
     local entityTag = entity:GetComponent("TagComponent").tag
     log(entityTag)
-    --print("Entity tag: " .. entityTag)
 
-    print("Type of entity:", type(entity))
-
-    local entityPosition = entity:GetComponent("TransformComponent").position
+    local transform = entity:GetComponent("TransformComponent")
+    local entityPosition = transform.position
     log(tostring(entityPosition.x) .. ", " .. tostring(entityPosition.y) .. ", " .. tostring(entityPosition.z))
 
-    if input.is_key_pressed(input.keycode.SPACE) then
-        log("SPACE")
+    if input.is_key_pressed(input.keycode.W) then
+        entityPosition.y = entityPosition.y + 0.01
     end
+    if input.is_key_pressed(input.keycode.A) then
+        entityPosition.x = entityPosition.x - 0.01
+    end
+    if input.is_key_pressed(input.keycode.S) then
+        entityPosition.y = entityPosition.y - 0.01
+    end
+    if input.is_key_pressed(input.keycode.D) then
+        entityPosition.x = entityPosition.x + 0.01
+    end
+
+    log(tostring(entityPosition.x) .. ", " .. tostring(entityPosition.y) .. ", " .. tostring(entityPosition.z))
 
     if input.is_mouse_button_pressed(input.mousecode.LEFT) then
         log("LEFT")
