@@ -2,6 +2,8 @@
 
 #include "CoffeeEngine/Scripting/ScriptManager.h"
 #include <entt/entity/registry.hpp>
+#include <sol/forward.hpp>
+#include <sol/sol.hpp>
 
 #include <functional>
 #include <filesystem>
@@ -14,9 +16,9 @@ namespace Coffee
         Script(const std::filesystem::path& filepath, ScriptingLanguage language)
             : m_Language(language), m_Path(filepath) {}
 
-        std::function<int()> OnCreate;
-        std::function<int()> OnUpdate;
-        std::function<int()> OnDestroy;
+        sol::protected_function OnCreate;
+        sol::protected_function OnUpdate;
+        sol::protected_function OnDestroy;
 
         const std::filesystem::path& GetPath() const { return m_Path; }
         const ScriptingLanguage& GetLanguage() const { return m_Language; }

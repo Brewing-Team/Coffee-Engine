@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
@@ -216,7 +217,12 @@ namespace Coffee {
 
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
 
-            scriptComponent.script.OnUpdate();
+            auto update = scriptComponent.script.OnUpdate();
+            if(!update.valid())
+            {
+               sol::error err = update;
+               COFFEE_CORE_ERROR("Error executing script: {0}", err.what());
+            }
         }
 
         Renderer::EndScene();

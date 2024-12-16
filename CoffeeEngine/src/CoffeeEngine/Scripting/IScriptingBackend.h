@@ -1,6 +1,7 @@
 #pragma once
 #include <filesystem>
 #include <functional>
+#include <sol/forward.hpp>
 #include <string>
 
 namespace Coffee {
@@ -35,7 +36,7 @@ namespace Coffee {
              */
             virtual void RegisterFunction(const std::string& script, std::function<int()> func, const std::string& name) = 0;
 
-            virtual void BindFunction(const std::string& script, const std::string& name, std::function<int()>& func) = 0;
+            virtual void BindFunction(const std::string& script, const std::string& name, sol::protected_function& func) = 0;
 
             virtual void RegisterVariable(const std::string& name, void* variable) = 0;
 

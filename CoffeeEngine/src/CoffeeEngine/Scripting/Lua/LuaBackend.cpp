@@ -484,7 +484,7 @@ namespace Coffee {
         }
     }
 
-    void LuaBackend::BindFunction(const std::string& script, const std::string& name, std::function<int()>& func) {
+    void LuaBackend::BindFunction(const std::string& script, const std::string& name, sol::protected_function& func) {
         auto it = scriptEnvironments.find(script);
         if (it != scriptEnvironments.end()) {
             func = it->second[name];

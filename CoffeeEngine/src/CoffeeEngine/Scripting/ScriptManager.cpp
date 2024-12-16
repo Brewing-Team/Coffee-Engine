@@ -21,7 +21,7 @@ namespace Coffee {
         }
     }
 
-    void ScriptManager::BindFunction(const std::string& script, const std::string& name, std::function<int()>& func) {
+    void ScriptManager::BindFunction(const std::string& script, const std::string& name, sol::protected_function& func) {
         for(auto& backend : backends) {
             backend.second->BindFunction(script, name, func);
         }
