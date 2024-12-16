@@ -18,9 +18,14 @@ end
 function OnUpdate()
     --log("OnUpdate()")
 
-    local entityTag = entity:GetComponent("TagComponent")
+    local entityTag = entity:GetComponent("TagComponent").tag
     log(entityTag)
     --print("Entity tag: " .. entityTag)
+
+    print("Type of entity:", type(entity))
+
+    local entityPosition = entity:GetComponent("TransformComponent").position
+    log(tostring(entityPosition.x) .. ", " .. tostring(entityPosition.y) .. ", " .. tostring(entityPosition.z))
 
     if input.is_key_pressed(input.keycode.SPACE) then
         log("SPACE")
@@ -31,11 +36,6 @@ function OnUpdate()
         local x, y = input.get_mouse_position()
         log("Mouse position: (" .. x .. ", " .. y .. ")")
     end
-
-    log("BOOL: " .. tostring(exampleBool))
-    log("INT: " .. exampleInt)
-    log("FLOAT: " .. exampleFloat)
-    log("STRING: " .. exampleString)
     return 1
 end
 

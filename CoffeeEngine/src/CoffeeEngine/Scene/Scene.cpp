@@ -213,9 +213,10 @@ namespace Coffee {
         for (auto& entity : scriptView)
         {
             Entity scriptEntity{entity, this};
-            ScriptManager::RegisterVariable("entity", (void*)&scriptEntity);
 
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+
+            ScriptManager::RegisterVariable(scriptComponent.script.GetPath(), "entity", (void*)&scriptEntity);
 
             auto update = scriptComponent.script.OnUpdate();
             if(!update.valid())

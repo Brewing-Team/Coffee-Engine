@@ -21,7 +21,7 @@ namespace Coffee {
         static void ExecuteScriptFromFile(Script script);
         static void RegisterFunction(const std::string& script, const std::string& name, std::function<int()> func);
         static void BindFunction(const std::string& script, const std::string& name, sol::protected_function& func);
-        static void RegisterVariable(const std::string& name, void* variable);
+        static void RegisterVariable(const std::string& script, const std::string& name, void* variable);
 
     private:
         static std::unordered_map<ScriptingLanguage, Ref<IScriptingBackend>> backends;

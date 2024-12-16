@@ -335,73 +335,88 @@ namespace Coffee {
         # pragma region Bind Timer Functions
         # pragma endregion
 
+        # pragma region Bind GLM Functions
+        luaState.new_usertype<glm::vec2>("vec2",
+            sol::constructors<glm::vec2(), glm::vec2(float), glm::vec2(float, float)>(),
+            "x", &glm::vec2::x,
+            "y", &glm::vec2::y
+        );
+
+        luaState.new_usertype<glm::vec3>("vec3",
+            sol::constructors<glm::vec3(), glm::vec3(float), glm::vec3(float, float, float)>(),
+            "x", &glm::vec3::x,
+            "y", &glm::vec3::y,
+            "z", &glm::vec3::z
+        );
+        #pragma endregion
+
         #pragma region Bind Entity Functions
         luaState.new_usertype<Entity>("Entity",
             sol::constructors<Entity(), Entity(entt::entity, Scene*)>(),
-            "AddComponent", [](Entity& self, const std::string& componentName) {
+            "AddComponent", [](Entity* self, const std::string& componentName) {
                 if (componentName == "TagComponent") {
-                    self.AddComponent<TagComponent>();
+                    self->AddComponent<TagComponent>();
                 } else if (componentName == "TransformComponent") {
-                    self.AddComponent<TransformComponent>();
+                    self->AddComponent<TransformComponent>();
                 } else if (componentName == "CameraComponent") {
-                    self.AddComponent<CameraComponent>();
+                    self->AddComponent<CameraComponent>();
                 } else if (componentName == "MeshComponent") {
-                    self.AddComponent<MeshComponent>();
+                    self->AddComponent<MeshComponent>();
                 } else if (componentName == "MaterialComponent") {
-                    self.AddComponent<MaterialComponent>();
+                    self->AddComponent<MaterialComponent>();
                 } else if (componentName == "LightComponent") {
-                    self.AddComponent<LightComponent>();
+                    self->AddComponent<LightComponent>();
                 }
             },
-            "GetComponent", [this](Entity& self, const std::string& componentName) -> sol::object {
+            "GetComponent", [this](Entity* self, const std::string& componentName) -> sol::object {
                 if (componentName == "TagComponent") {
-                    return sol::make_object(luaState, self.GetComponent<TagComponent>());
+                    return sol::make_object(luaState, self->GetComponent<TagComponent>());
                 } else if (componentName == "TransformComponent") {
-                    return sol::make_object(luaState, self.GetComponent<TransformComponent>());
+                    return sol::make_object(luaState, self->GetComponent<TransformComponent>());
                 } else if (componentName == "CameraComponent") {
-                    return sol::make_object(luaState, self.GetComponent<CameraComponent>());
+                    return sol::make_object(luaState, self->GetComponent<CameraComponent>());
                 } else if (componentName == "MeshComponent") {
-                    return sol::make_object(luaState, self.GetComponent<MeshComponent>());
+                    return sol::make_object(luaState, self->GetComponent<MeshComponent>());
                 } else if (componentName == "MaterialComponent") {
-                    return sol::make_object(luaState, self.GetComponent<MaterialComponent>());
+                    return sol::make_object(luaState, self->GetComponent<MaterialComponent>());
                 } else if (componentName == "LightComponent") {
-                    return sol::make_object(luaState, self.GetComponent<LightComponent>());
+                    return sol::make_object(luaState, self->GetComponent<LightComponent>());
                 }
                 return sol::nil;
             },
-            "HasComponent", [](Entity& self, const std::string& componentName) -> bool {
+            "HasComponent", [](Entity* self, const std::string& componentName) -> bool {
                 if (componentName == "TagComponent") {
-                    return self.HasComponent<TagComponent>();
+                    return self->HasComponent<TagComponent>();
                 } else if (componentName == "TransformComponent") {
-                    return self.HasComponent<TransformComponent>();
+                    return self->HasComponent<TransformComponent>();
                 } else if (componentName == "CameraComponent") {
-                    return self.HasComponent<CameraComponent>();
+                    return self->HasComponent<CameraComponent>();
                 } else if (componentName == "MeshComponent") {
-                    return self.HasComponent<MeshComponent>();
+                    return self->HasComponent<MeshComponent>();
                 } else if (componentName == "MaterialComponent") {
-                    return self.HasComponent<MaterialComponent>();
+                    return self->HasComponent<MaterialComponent>();
                 } else if (componentName == "LightComponent") {
-                    return self.HasComponent<LightComponent>();
+                    return self->HasComponent<LightComponent>();
                 }
                 return false;
             },
-            "RemoveComponent", [](Entity& self, const std::string& componentName) {
+            "RemoveComponent", [](Entity* self, const std::string& componentName) {
                 if (componentName == "TagComponent") {
-                    self.RemoveComponent<TagComponent>();
+                    self->RemoveComponent<TagComponent>();
                 } else if (componentName == "TransformComponent") {
-                    self.RemoveComponent<TransformComponent>();
+                    self->RemoveComponent<TransformComponent>();
                 } else if (componentName == "CameraComponent") {
-                    self.RemoveComponent<CameraComponent>();
+                    self->RemoveComponent<CameraComponent>();
                 } else if (componentName == "MeshComponent") {
-                    self.RemoveComponent<MeshComponent>();
+                    self->RemoveComponent<MeshComponent>();
                 } else if (componentName == "MaterialComponent") {
-                    self.RemoveComponent<MaterialComponent>();
+                    self->RemoveComponent<MaterialComponent>();
                 } else if (componentName == "LightComponent") {
-                    self.RemoveComponent<LightComponent>();
+                    self->RemoveComponent<LightComponent>();
                 }
             },
             "SetParent", &Entity::SetParent,
-            "IsValid", [](Entity& self) { return static_cast<bool>(self); }
+            "IsValid", [](Entity* self) { return static_cast<bool>(*self); }
         );
         #pragma endregion
 
@@ -494,9 +509,15 @@ namespace Coffee {
         }
     }
 
-    void LuaBackend::RegisterVariable(const std::string& name, void* variable)
+    void LuaBackend::RegisterVariable(const std::string& script, const std::string& name, void* variable)
     {
-        luaState[name] = variable;
+        auto it = scriptEnvironments.find(script);
+        if (it != scriptEnvironments.end()) {
+            it->second[name] = (Entity*)variable;
+            COFFEE_CORE_INFO("Registered Lua variable {0} in script {1}", name, script);
+        } else {
+            COFFEE_CORE_ERROR("Script environment for {0} not found", script);
+        }
     }
 
     // This function will check all the variables from the script and map them to a cpp map so we can expose them in the editor

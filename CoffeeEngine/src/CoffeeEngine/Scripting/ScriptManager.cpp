@@ -27,9 +27,9 @@ namespace Coffee {
         }
     }
 
-    void ScriptManager::RegisterVariable(const std::string& name, void* variable) {
+    void ScriptManager::RegisterVariable(const std::string& script, const std::string& name, void* variable) {
         for(auto& backend : backends) {
-            backend.second->RegisterVariable(name, variable);
+            backend.second->RegisterVariable(script, name, variable);
         }
     }
 

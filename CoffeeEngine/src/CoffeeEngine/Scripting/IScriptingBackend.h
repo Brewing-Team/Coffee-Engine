@@ -38,7 +38,7 @@ namespace Coffee {
 
             virtual void BindFunction(const std::string& script, const std::string& name, sol::protected_function& func) = 0;
 
-            virtual void RegisterVariable(const std::string& name, void* variable) = 0;
+            virtual void RegisterVariable(const std::string& script, const std::string& name, void* variable) = 0;
 
     };
 
