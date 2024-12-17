@@ -1,5 +1,5 @@
 Acknowledgements
-----------------
+================
 
 This project makes use of several open-source libraries and resources
 that have greatly contributed to its development. Special thanks to the
