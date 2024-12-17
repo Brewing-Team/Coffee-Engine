@@ -9,12 +9,14 @@ Welcome to Coffee's Engine documentation!
    about/system_requirments
    about/acknowledgements
    about/list_of_features
+   about/pitch
 
 .. toctree::
    :maxdepth: 2
    :caption: Getting started
 
-   getting_started/index
+   getting_started/configuring_an_ide/index
+   getting_started/styling
 
 .. toctree::
    :hidden:
@@ -22,3 +24,11 @@ Welcome to Coffee's Engine documentation!
    :caption: Class reference:
 
    classes/index
+   classes/core
+   classes/events
+   classes/imgui
+   classes/io
+   classes/project
+   classes/rederer
+   classes/scene
+
