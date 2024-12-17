@@ -93,6 +93,7 @@ The project uses clang-format to enforce a consistent coding style. There is als
 
 .. code-block:: cpp
    :linenos:
+
     // Includes
     #include <iostream>
     #include <vector>
