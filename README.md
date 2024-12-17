@@ -2,7 +2,7 @@
 [![Publish Documentation](https://github.com/Brewing-Team/Coffee-Engine/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/Brewing-Team/Coffee-Engine/actions/workflows/publish-docs.yml)
 
 <p align="center">
-    <img src="/Resources/temporal-logo.webp?raw=true" width="256" height="256">
+    <img src="/Resources/logo-wip.png?raw=true" width="350" height="350">
 </p>
 
 **Coffee Engine is a Beautiful and Cross-platform 3D Game Engine written in C++ using OpenGL and SDL3.** </br> 
