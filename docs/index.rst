@@ -23,7 +23,6 @@ Welcome to Coffee's Engine documentation!
    :maxdepth: 2
    :caption: Class reference:
 
-   classes/index
    classes/core
    classes/events
    classes/imgui
