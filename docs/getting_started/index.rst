@@ -212,6 +212,12 @@ class MyClass
 };
 ```
 
+.. toctree::
+   :maxdepth: 1
+   :name: toc-contributing-to-the-engine-environment
+
+   configuring_an_ide/index
+
 Features (WIP)
 ==============
 
