@@ -15,7 +15,7 @@ Welcome to Coffee's Engine documentation!
    :maxdepth: 2
    :caption: Getting started
 
-   getting_started/configuring_an_ide/index
+   getting_started/configuring_an_ide/engine_development
    getting_started/styling
 
 .. toctree::

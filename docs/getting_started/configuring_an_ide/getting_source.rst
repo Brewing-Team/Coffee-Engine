@@ -1,3 +1,5 @@
+.. _Getting the source:
+
 Getting the source
 ==================
 
