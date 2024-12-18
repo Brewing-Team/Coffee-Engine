@@ -2,7 +2,7 @@ Welcome to Coffee's Engine documentation!
 =========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: About
 
    about/introduction
@@ -12,7 +12,7 @@ Welcome to Coffee's Engine documentation!
    about/pitch
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Getting started
 
    getting_started/configuring_an_ide/engine_development
@@ -20,7 +20,7 @@ Welcome to Coffee's Engine documentation!
 
 .. toctree::
    :hidden:
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Class reference:
 
    classes/core
