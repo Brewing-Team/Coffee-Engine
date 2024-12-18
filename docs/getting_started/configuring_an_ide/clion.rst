@@ -32,7 +32,7 @@ Then press `OK`.
 .. figure:: img/coffee4.png
    :align: center
 
-- Then in the CMake tab, it will automatically start downloading the dependencies and compiling them. This process may take a while, up to 20 minutes. When the terminal shows "[Finished]", you're ready to go.
+- Then in the CMake tab, it will automatically start downloading the dependencies and compiling them. This process may take a while, up to ~5-15 minutes. When the terminal shows "[Finished]", you're ready to go.
 
 .. figure:: img/coffee5.png
    :align: center
