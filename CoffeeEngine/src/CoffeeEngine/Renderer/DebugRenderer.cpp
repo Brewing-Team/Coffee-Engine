@@ -23,6 +23,12 @@ namespace Coffee {
 
     Ref<Shader> DebugRenderer::m_DebugShader;
 
+    constexpr size_t MaxVertices = 20000;
+    DebugVertex DebugRenderer::m_LineVertices[MaxVertices];
+    DebugVertex DebugRenderer::m_CircleVertices[MaxVertices];
+    int DebugRenderer::m_LineVertexCount = 0;
+    int DebugRenderer::m_CircleVertexCount = 0;
+
     void DebugRenderer::Init()
     {
         m_DebugShader = CreateRef<Shader>("DebugLineShader", std::string(debugLineShaderSource));
@@ -33,32 +39,53 @@ namespace Coffee {
         };
 
         m_LineVertexArray = VertexArray::Create();
-        m_LineVertexBuffer = VertexBuffer::Create(2 * sizeof(DebugVertex));
+        m_LineVertexBuffer = VertexBuffer::Create(MaxVertices * sizeof(DebugVertex));
         m_LineVertexBuffer->SetLayout(DebugVertexLayout);
         m_LineVertexArray->AddVertexBuffer(m_LineVertexBuffer);
 
         m_CircleVertexArray = VertexArray::Create();
-        m_CircleVertexBuffer = VertexBuffer::Create(64 * sizeof(DebugVertex));
+        m_CircleVertexBuffer = VertexBuffer::Create(MaxVertices * sizeof(DebugVertex));
         m_CircleVertexBuffer->SetLayout(DebugVertexLayout);
         m_CircleVertexArray->AddVertexBuffer(m_CircleVertexBuffer);
+
+        m_Framebuffer = Framebuffer::Create(1280, 720, {ImageFormat::RGBA8});
+        m_RenderTexture = m_Framebuffer->GetColorTexture(0);
     }
 
     void DebugRenderer::Shutdown()
     {
     }
 
+    void DebugRenderer::Flush()
+    {
+        // Get the current Framebuffer and store it
+        // Bind the framebuffer to render the debug lines
+        // Restore the previous framebuffer
+
+        if (m_LineVertexCount > 0)
+        {
+            m_LineVertexBuffer->SetData(m_LineVertices, m_LineVertexCount * sizeof(DebugVertex));
+            m_DebugShader->Bind();
+            RendererAPI::DrawLines(m_LineVertexArray, m_LineVertexCount, 1.0f);
+            m_LineVertexCount = 0;
+        }
+
+        if (m_CircleVertexCount > 0)
+        {
+            m_CircleVertexBuffer->SetData(m_CircleVertices, m_CircleVertexCount * sizeof(DebugVertex));
+            m_DebugShader->Bind();
+            RendererAPI::DrawLines(m_CircleVertexArray, m_CircleVertexCount, 1.0f);
+            m_CircleVertexCount = 0;
+        }
+    }
+
     void DebugRenderer::DrawLine(const glm::vec3& start, const glm::vec3& end, glm::vec4 color, float lineWidth)
     {
-        DebugVertex vertices[2] = {
-            {start, color},
-            {end, color}
-        };
-
-        m_LineVertexBuffer->SetData(vertices, sizeof(vertices));
-
-        m_DebugShader->Bind();
-
-        RendererAPI::DrawLines(m_LineVertexArray, 2, lineWidth);
+        if (m_LineVertexCount + 2 <= MaxVertices)
+        {
+            m_LineVertices[m_LineVertexCount++] = {start, color};
+            m_LineVertices[m_LineVertexCount++] = {end, color};
+        }
     }
 
     void DebugRenderer::DrawCircle(const glm::vec3& position, float radius, const glm::quat& rotation, glm::vec4 color, float lineWidth)
@@ -66,42 +93,32 @@ namespace Coffee {
         const int segments = 32;
         const float angleStep = 2.0f * 3.14159f / segments;
 
-        DebugVertex vertices[segments * 2];
-
         for(int i = 0; i < segments; i++)
         {
+            if (m_CircleVertexCount + 2 > MaxVertices)
+                break;
+
             float cx = cos(i * angleStep) * radius;
             float cy = sin(i * angleStep) * radius;
             glm::vec3 p0 = position + glm::toMat3(rotation) * glm::vec3(cx, cy, 0.0f);
-
-            vertices[i] = { p0, color };
 
             cx = cos((i + 1) * angleStep) * radius;
             cy = sin((i + 1) * angleStep) * radius;
             glm::vec3 p1 = position + glm::toMat3(rotation) * glm::vec3(cx, cy, 0.0f);
 
-            vertices[i + segments] = { p1, color };
+            m_CircleVertices[m_CircleVertexCount++] = {p0, color};
+            m_CircleVertices[m_CircleVertexCount++] = {p1, color};
         }
-
-        m_CircleVertexBuffer->SetData(vertices, sizeof(vertices));
-
-        m_DebugShader->Bind();
-
-        RendererAPI::DrawLines(m_CircleVertexArray, segments * 2, lineWidth);
     }
 
     void DebugRenderer::DrawSphere(const glm::vec3& position, float radius, const glm::vec4& color, float lineWidth)
     {
         DrawCircle(position, radius, glm::quat(), color, lineWidth);
-        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), color,
-                   lineWidth);
-        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), color,
-                   lineWidth);
+        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), color, lineWidth);
+        DrawCircle(position, radius, glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), color, lineWidth);
     }
 
-    // TODO fix this function, currently is not drawing the bounding box at all
-    void DebugRenderer::DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size,
-                                const glm::vec4& color, const bool& isCentered, float lineWidth)
+    void DebugRenderer::DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size, const glm::vec4& color, const bool& isCentered, float lineWidth)
     {
         glm::vec3 halfSize = size * 0.5f;
         glm::vec3 vertices[8];
@@ -158,7 +175,6 @@ namespace Coffee {
         DrawLine(glm::vec3(max.x, min.y, min.z), glm::vec3(max.x, min.y, max.z), color, lineWidth);
         DrawLine(glm::vec3(max.x, max.y, min.z), glm::vec3(max.x, max.y, max.z), color, lineWidth);
         DrawLine(glm::vec3(min.x, max.y, min.z), glm::vec3(min.x, max.y, max.z), color, lineWidth);
-
     }
 
     void DebugRenderer::DrawBox(const AABB& aabb, const glm::vec4& color, float lineWidth)
@@ -175,44 +191,8 @@ namespace Coffee {
         }
     }
 
-
     void DebugRenderer::DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength, glm::vec4 color, float lineWidth)
     {
-        //===============ARROW TRANSLATION FROM ARROW GIZMO GODOT=============
-/*         const int arrow_points = 7;
-        const float arrow_length = 1.5f;
-
-        glm::vec3 arrow[arrow_points] = {
-            glm::vec3(0, 0, -1),
-            glm::vec3(0, 0.8f, 0),
-            glm::vec3(0, 0.3f, 0),
-            glm::vec3(0, 0.3f, arrow_length),
-            glm::vec3(0, -0.3f, arrow_length),
-            glm::vec3(0, -0.3f, 0),
-            glm::vec3(0, -0.8f, 0)
-        };
-
-        const int arrow_sides = 2;
-
-        std::vector<DebugVertex> vertices;
-
-        for (int i = 0; i < arrow_sides; i++) {
-            for (int j = 0; j < arrow_points; j++) {
-                glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::pi<float>() * i / arrow_sides, glm::vec3(0, 0, 1));
-
-                glm::vec3 v1 = arrow[j] - glm::vec3(0, 0, arrow_length);
-                glm::vec3 v2 = arrow[(j + 1) % arrow_points] - glm::vec3(0, 0, arrow_length);
-
-                glm::vec3 transformed_v1 = glm::vec3(rotation * glm::vec4(v1, 1.0f));
-                glm::vec3 transformed_v2 = glm::vec3(rotation * glm::vec4(v2, 1.0f));
-
-                vertices.push_back({transformed_v1, color});
-                vertices.push_back({transformed_v2, color});
-            }
-        } */
-
-        //====================================================================
-
         const int arrow_points = 7;
         const float arrow_length = fixedLength ? 1.5f : glm::length(end - start);
 
@@ -227,8 +207,6 @@ namespace Coffee {
         };
 
         const int arrow_sides = 2;
-
-        std::vector<DebugVertex> vertices;
 
         glm::vec3 direction = glm::normalize(end - start);
         glm::vec3 up = glm::vec3(0, 1, 0);
@@ -246,6 +224,9 @@ namespace Coffee {
 
         for (int i = 0; i < arrow_sides; i++) {
             for (int j = 0; j < arrow_points; j++) {
+                if (m_CircleVertexCount + 2 > MaxVertices)
+                    break;
+
                 glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::pi<float>() * i / arrow_sides, glm::vec3(0, 0, 1));
 
                 glm::vec3 v1 = arrow[j] - glm::vec3(0, 0, arrow_length);
@@ -254,16 +235,10 @@ namespace Coffee {
                 glm::vec3 transformed_v1 = glm::vec3(transform * rotation * glm::vec4(v1, 1.0f));
                 glm::vec3 transformed_v2 = glm::vec3(transform * rotation * glm::vec4(v2, 1.0f));
 
-                vertices.push_back({transformed_v1, color});
-                vertices.push_back({transformed_v2, color});
+                m_CircleVertices[m_CircleVertexCount++] = {transformed_v1, color};
+                m_CircleVertices[m_CircleVertexCount++] = {transformed_v2, color};
             }
         }
-
-        m_CircleVertexBuffer->SetData(vertices.data(), vertices.size() * sizeof(DebugVertex));
-
-        m_DebugShader->Bind();
-
-        RendererAPI::DrawLines(m_CircleVertexArray, vertices.size(), lineWidth);
     }
 
     void DebugRenderer::DrawArrow(const glm::vec3& origin, const glm::vec3& direction, float length, glm::vec4 color, float lineWidth)

@@ -209,6 +209,8 @@ namespace Coffee {
             RendererAPI::SetDepthMask(true);
         }
 
+        DebugRenderer::Flush();
+
         //Final Pass
         s_RendererData.RenderTexture = s_MainRenderTexture;
 
