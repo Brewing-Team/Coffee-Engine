@@ -4,12 +4,14 @@
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Renderer/Camera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
+#include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "entt/entity/entity.hpp"
@@ -228,6 +230,82 @@ namespace Coffee {
 
                 ImGui::Text("Scale");
                 ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale),  0.1f);
+            }
+        }
+
+        if(entity.HasComponent<CameraComponent>())
+        {
+            auto& cameraComponent = entity.GetComponent<CameraComponent>();
+            SceneCamera& sceneCamera = cameraComponent.Camera;
+            bool isCollapsingHeaderOpen = true;
+            if(ImGui::CollapsingHeader("Camera", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Text("Projection Type");
+                if(ImGui::BeginCombo("##Projection Type", sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE ? "Perspective" : "Orthographic"))
+                {
+                    if(ImGui::Selectable("Perspective", sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE))
+                    {
+                        sceneCamera.SetProjectionType(Camera::ProjectionType::PERSPECTIVE);
+                    }
+                    if(ImGui::Selectable("Orthographic", sceneCamera.GetProjectionType() == Camera::ProjectionType::ORTHOGRAPHIC))
+                    {
+                        sceneCamera.SetProjectionType(Camera::ProjectionType::ORTHOGRAPHIC);
+                    }
+                    ImGui::EndCombo();
+                }
+
+                if(sceneCamera.GetProjectionType() == Camera::ProjectionType::PERSPECTIVE)
+                {
+                    ImGui::Text("Field of View");
+                    float fov = sceneCamera.GetFOV();
+                    if (ImGui::DragFloat("##Field of View", &fov, 0.1f, 0.0f, 180.0f))
+                    {
+                        sceneCamera.SetFOV(fov);
+                    }
+
+                    ImGui::Text("Near Clip");
+                    float nearClip = sceneCamera.GetNearClip();
+                    if (ImGui::DragFloat("##Near Clip", &nearClip, 0.1f))
+                    {
+                        sceneCamera.SetNearClip(nearClip);
+                    }
+
+                    ImGui::Text("Far Clip");
+                    float farClip = sceneCamera.GetFarClip();
+                    if (ImGui::DragFloat("##Far Clip", &farClip, 0.1f))
+                    {
+                        sceneCamera.SetFarClip(farClip);
+                    }
+                }
+
+                if(sceneCamera.GetProjectionType() == Camera::ProjectionType::ORTHOGRAPHIC)
+                {
+                    ImGui::Text("Orthographic Size");
+                    float orthoSize = sceneCamera.GetFOV();
+                    if (ImGui::DragFloat("##Orthographic Size", &orthoSize, 0.1f))
+                    {
+                        sceneCamera.SetFOV(orthoSize);
+                    }
+
+                    ImGui::Text("Near Clip");
+                    float nearClip = sceneCamera.GetNearClip();
+                    if (ImGui::DragFloat("##Near Clip", &nearClip, 0.1f))
+                    {
+                        sceneCamera.SetNearClip(nearClip);
+                    }
+
+                    ImGui::Text("Far Clip");
+                    float farClip = sceneCamera.GetFarClip();
+                    if (ImGui::DragFloat("##Far Clip", &farClip, 0.1f))
+                    {
+                        sceneCamera.SetFarClip(farClip);
+                    }
+                }
+
+                if(!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<CameraComponent>();
+                }
             }
         }
 
@@ -480,15 +558,6 @@ namespace Coffee {
                 {
                     entity.RemoveComponent<MaterialComponent>();
                 }
-            }
-        }
-        
-        if (entity.HasComponent<CameraComponent>())
-        {
-            auto& cameraComponent = entity.GetComponent<CameraComponent>();
-            bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("Camera", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
             }
         }
 
