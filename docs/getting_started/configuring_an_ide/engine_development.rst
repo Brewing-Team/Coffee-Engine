@@ -19,8 +19,8 @@ For easy development of Coffee-Engine we recommend this IDEs:
    :maxdepth: 1
    :name: toc-devel-configuring_an_ide
 
-    visual_studio
-    clion
-    visual_studio_code
+   clion
+   visual_studio
+   visual_studio_code
 
 Other IDE's and editors have being tested (KDevelop and neovim), but is apt to you to learn how to configure it.
