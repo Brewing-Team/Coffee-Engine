@@ -48,8 +48,8 @@ namespace Coffee {
         m_CircleVertexBuffer->SetLayout(DebugVertexLayout);
         m_CircleVertexArray->AddVertexBuffer(m_CircleVertexBuffer);
 
-        m_Framebuffer = Framebuffer::Create(1280, 720, {ImageFormat::RGBA8});
-        m_RenderTexture = m_Framebuffer->GetColorTexture(0);
+        //m_Framebuffer = Framebuffer::Create(1280, 720, {ImageFormat::RGBA8});
+        //m_RenderTexture = m_Framebuffer->GetColorTexture(0);
     }
 
     void DebugRenderer::Shutdown()

@@ -153,8 +153,8 @@ namespace Coffee {
         static int m_LineVertexCount;
         static int m_CircleVertexCount;
 
-        static Ref<Framebuffer> m_Framebuffer;
-        static Ref<Texture2D> m_RenderTexture;
+        //static Ref<Framebuffer> m_Framebuffer;
+        //static Ref<Texture2D> m_RenderTexture;
     };
 
     /** @} */
