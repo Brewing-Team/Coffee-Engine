@@ -3,6 +3,7 @@
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Model.h"
+#include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include <CoffeeEngine/IO/ResourceUtils.h>
 #include <IconsLucide.h>
@@ -46,6 +47,24 @@ namespace Coffee {
         ImGui::End();
     }
 
+    // Function to format file size
+    std::string FormatFileSize(std::uintmax_t size)
+    {
+        const char* units[] = { "B", "KB", "MB", "GB", "TB" };
+        int unitIndex = 0;
+        double displaySize = static_cast<double>(size);
+
+        while (displaySize >= 1024 && unitIndex < 4)
+        {
+            displaySize /= 1024;
+            ++unitIndex;
+        }
+
+        char formattedSize[20];
+        snprintf(formattedSize, sizeof(formattedSize), "%.2f %s", displaySize, units[unitIndex]);
+        return std::string(formattedSize);
+    }
+
     void ContentBrowserPanel::DisplayDirectoryContents(const std::filesystem::path& directory, int depth)
     {
         for (auto& directoryEntry : std::filesystem::directory_iterator(directory))
@@ -57,7 +76,7 @@ namespace Coffee {
                 continue;
             }
 
-            if(directory.stem() == ".CoffeeEngine")
+            if(directoryEntry.is_directory() and directoryEntry.path().filename().string().front() == '.')
             {
                 continue;
             }
@@ -72,15 +91,37 @@ namespace Coffee {
             const char* icon = directoryEntry.is_directory() ? ICON_LC_FOLDER : ICON_LC_FILE;
             if (!directoryEntry.is_directory())
             {
-                std::string extension = path.extension().string();
-                if (extension == ".png" || extension == ".jpg" || extension == ".jpeg")
-                    icon = ICON_LC_IMAGE;
-                else if (extension == ".obj" || extension == ".fbx" || extension == ".gltf")
-                    icon = ICON_LC_BOX;
-                else if (extension == ".TeaProject")
-                    icon = ICON_LC_COFFEE;
+                ResourceType type = GetResourceTypeFromExtension(path);
 
-                // Add more file type checks as needed
+                switch (type)
+                {
+                    using enum ResourceType;
+                    
+                    case Texture2D:
+                        icon = ICON_LC_IMAGE;
+                        break;
+                    case Model:
+                        icon = ICON_LC_BOX;
+                        break;
+                    /* case Material:
+                        icon = ICON_LC_PAINT;
+                        break; */
+                    case Shader:
+                        icon = ICON_LC_SQUARE_CHART_GANTT;
+                        break;
+                    case Cubemap:
+                        icon = ICON_LC_IMAGES;
+                        break;
+                    /* case Scene:
+                        icon = ICON_LC_CLAPPERBOARD;
+                        break; */
+                    case Unknown:
+                        icon = ICON_LC_FILE_QUESTION;
+                        break;
+                    default:
+                        icon = ICON_LC_FILE;
+                        break;
+                }
             }
 
             if (ImGui::TreeNodeEx((std::string(icon) + " " + filenameString).c_str(), flags))
@@ -93,6 +134,48 @@ namespace Coffee {
                     ImGui::EndDragDropSource();
                 }
 
+                if(ImGui::IsItemHovered())
+                {
+                    if(directoryEntry.is_directory())
+                    {
+                        ImGui::BeginTooltip();
+                        ImGui::Text("%s", filenameString.c_str());
+                        ImGui::Text("Type: Directory");
+                        ImGui::EndTooltip();
+                    }
+                    else
+                    {
+                        Ref<Resource> resource = ResourceRegistry::Get<Resource>(path.filename().string());
+                        
+                        ImGui::BeginTooltip();
+                        
+                        switch (resource->GetType())
+                        {
+                            case ResourceType::Texture2D:
+                            {
+                                Ref<Texture2D> texture = std::static_pointer_cast<Texture2D>(resource);
+                                ImGui::Image((void*)(intptr_t)texture->GetID(), ImVec2(64, 64));
+                                ImGui::SameLine();
+                                ImGui::BeginGroup();
+                                ImGui::Text("%s", resource->GetName().c_str());
+                                ImGui::Text("Size: %s", FormatFileSize(std::filesystem::directory_entry(path).file_size()).c_str());
+                                ImGui::Text("Type: %s", ResourceTypeToString(resource->GetType()).c_str());
+                                //ImGui::Text("Image Format: %s", ImageFormatToString(texture->GetImageFormat()).c_str());
+                                ImGui::Text("Dimensions: %d x %d", texture->GetWidth(), texture->GetHeight());
+                                ImGui::EndGroup();
+                                break;
+                            }
+                            default:
+                                ImGui::Text("%s", resource->GetName().c_str());
+                                ImGui::Text("Size: %s", FormatFileSize(std::filesystem::directory_entry(path).file_size()).c_str());
+                                ImGui::Text("Type: %s", ResourceTypeToString(resource->GetType()).c_str());
+                                break;
+                        }
+
+                        ImGui::EndTooltip();
+                    }
+                }
+
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
                 {
                     m_SelectedDirectory = path;
@@ -100,6 +183,7 @@ namespace Coffee {
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
                 {
                     // Handle right-click actions
+                    // Open context menu
                 }
 
                 if (directoryEntry.is_directory())
