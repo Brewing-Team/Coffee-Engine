@@ -82,6 +82,15 @@ namespace Coffee {
          */
         static bool Exists(const std::string& name) { return m_NameToUUID.find(name) != m_NameToUUID.end(); }
 
+        static void Remove(UUID uuid)
+        {
+            if (Exists(uuid))
+            {
+                m_NameToUUID.erase(m_Resources[uuid]->GetName());
+                m_Resources.erase(uuid);
+            }
+        }
+
         /**
          * @brief Clears all resources from the registry.
          */

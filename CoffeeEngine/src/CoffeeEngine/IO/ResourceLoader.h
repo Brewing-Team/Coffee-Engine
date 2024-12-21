@@ -70,6 +70,9 @@ namespace Coffee {
         static Ref<Material> LoadMaterial(const std::string& name, MaterialTextures& materialTextures);
         static Ref<Material> LoadMaterial(UUID uuid);
 
+        static void RemoveResource(UUID uuid);
+        static void RemoveResource(const std::filesystem::path& path);
+
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
     private:
         struct ImportData

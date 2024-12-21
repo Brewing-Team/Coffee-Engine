@@ -1,6 +1,7 @@
 #include "ResourceLoader.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -291,6 +292,73 @@ namespace Coffee {
 
         ResourceRegistry::Add(uuid, material);
         return material;
+    }
+
+    void ResourceLoader::RemoveResource(UUID uuid) // Think if would be better to pass the Resource as parameter
+    {
+        if(!ResourceRegistry::Exists(uuid))
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::RemoveResource: Resource {0} does not exist!", (uint64_t)uuid);
+            return;
+        }
+
+        // Remove the Cache file and all dependencies(TODO)
+        std::filesystem::path cacheFilePath = CacheManager::GetCachePath() / (std::to_string(uuid) + ".res");
+        if(std::filesystem::exists(cacheFilePath))
+        {
+            std::filesystem::remove(cacheFilePath);
+        }
+
+        const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(uuid);
+
+        const std::filesystem::path& resourcePath = resource->GetPath();
+        std::filesystem::path importFilePath = resourcePath;
+        importFilePath.replace_extension(".import");
+
+        if(std::filesystem::exists(importFilePath))
+        {
+            std::filesystem::remove(importFilePath);
+        }
+
+        if(std::filesystem::exists(resourcePath))
+        {
+            std::filesystem::remove(resourcePath);
+        }
+
+        ResourceRegistry::Remove(uuid);
+    }
+
+    void ResourceLoader::RemoveResource(const std::filesystem::path& path)
+    {
+        UUID uuid = GetUUIDFromImportFile(path);
+        
+        // Remove the Cache file and all dependencies(TODO)
+        std::filesystem::path cacheFilePath = CacheManager::GetCachePath() / (std::to_string(uuid) + ".res");
+        if(std::filesystem::exists(cacheFilePath))
+        {
+            std::filesystem::remove(cacheFilePath);
+        }
+
+        const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(uuid);
+
+        const std::filesystem::path& resourcePath = resource->GetPath();
+        std::filesystem::path importFilePath = resourcePath;
+        importFilePath.replace_extension(".import");
+
+        if(std::filesystem::exists(importFilePath))
+        {
+            std::filesystem::remove(importFilePath);
+        }
+
+        if(std::filesystem::exists(resourcePath))
+        {
+            std::filesystem::remove(resourcePath);
+        }
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            ResourceRegistry::Remove(uuid);
+        }
     }
 
     void ResourceLoader::GenerateImportFile(const std::filesystem::path& path)

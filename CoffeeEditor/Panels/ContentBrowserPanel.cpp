@@ -1,5 +1,6 @@
 #include "ContentBrowserPanel.h"
 #include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -7,8 +8,10 @@
 #include "CoffeeEngine/Scene/Scene.h"
 #include <CoffeeEngine/IO/ResourceUtils.h>
 #include <IconsLucide.h>
+#include <SDL3/SDL_misc.h>
 #include <filesystem>
 #include <imgui.h>
+#include <string>
 
 namespace Coffee {
 
@@ -190,6 +193,70 @@ namespace Coffee {
                     DisplayDirectoryContents(path, depth + 1);
 
                 ImGui::TreePop();
+            }
+            if (ImGui::BeginPopupContextItem())
+            {
+                // Show dependencies
+                // Show owners
+                // ----------------
+                // Copy path
+                // Copy absolute path
+                // Copy UUID
+                // Rename
+                // Duplicate
+                // Delete
+                // ----------------
+                // Reimport
+                // ----------------
+                // Show in Explorer
+
+                if (ImGui::MenuItem("Copy Path"))
+                {
+                    ImGui::SetClipboardText(path.string().c_str());
+                }
+
+                if (ImGui::MenuItem("Copy Absolute Path"))
+                {
+                    ImGui::SetClipboardText(std::filesystem::absolute(path).string().c_str());
+                }
+
+                if (ImGui::MenuItem("Copy UUID"))
+                {
+                    const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(path.filename().string());
+                    ImGui::SetClipboardText(std::to_string(resource->GetUUID()).c_str());
+                }
+
+                if (ImGui::MenuItem("Rename", nullptr, false, false))
+                {
+                    // Rename the file
+                }
+
+                if (ImGui::MenuItem("Duplicate", nullptr, false, false))
+                {
+                    // Duplicate the file
+                }
+
+                if (ImGui::MenuItem("Delete"))
+                {
+                    ResourceLoader::RemoveResource(path);
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Reimport", nullptr, false, false))
+                {
+                    // Reimport the file
+                }
+
+                ImGui::Separator();
+
+                if (ImGui::MenuItem("Show in Explorer"))
+                {
+                    // TODO: Abstract this to library independent code
+                    SDL_OpenURL(("file://" + std::filesystem::absolute(path).string()).c_str());
+                }
+
+                ImGui::EndPopup();
             }
         }
     }
