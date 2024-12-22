@@ -37,6 +37,11 @@ namespace Coffee {
         void OnOverlayRender();
         void ResizeViewport(float width, float height);
 
+        // Editor State
+        void OnScenePlay();
+        void OnScenePause();
+        void OnSceneStop();
+
         //Project Management
         void NewProject();
         void OpenProject();

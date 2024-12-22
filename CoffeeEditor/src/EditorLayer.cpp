@@ -1,6 +1,7 @@
 #include "EditorLayer.h"
 
 #include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/Core/Input.h"
@@ -53,7 +54,7 @@ namespace Coffee {
 
         m_EditorCamera = EditorCamera(45.0f);
 
-        m_ActiveScene->OnInit();
+        m_ActiveScene->OnInitEditor();
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
         m_ContentBrowserPanel.SetContext(m_ActiveScene);
@@ -179,7 +180,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        m_ActiveScene->OnExit();
+        m_ActiveScene->OnExitEditor();
     }
 
     void EditorLayer::OnImGuiRender()
@@ -251,13 +252,13 @@ namespace Coffee {
                 case SceneState::Edit:
                     if(ImGui::Button(ICON_LC_PLAY))
                     {
-                        m_SceneState = SceneState::Play;
+                        OnScenePlay();
                     }
                 break;
                 case SceneState::Play:
-                    if(ImGui::Button(ICON_LC_PAUSE))
+                    if(ImGui::Button(ICON_LC_SQUARE))
                     {
-                        m_SceneState = SceneState::Edit;
+                        OnSceneStop();
                     }
                 break;
             }
@@ -536,7 +537,7 @@ namespace Coffee {
         Renderer::BeginOverlay(m_EditorCamera);
 
         Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
-        static Entity lastSelectedEntity;
+        static Entity lastSelectedEntity;  
 
         if(selectedEntity)
         {
@@ -616,6 +617,41 @@ namespace Coffee {
         m_ViewportSize = { width, height };
     }
 
+    void EditorLayer::OnScenePlay()
+    {
+        if(m_ActiveScene->m_FilePath.empty())
+        {
+            COFFEE_ERROR("Scene is not saved! Please save the scene before playing.");
+            return;
+        }
+
+        m_SceneState = SceneState::Play;
+
+        Scene::Save(m_EditorScene->m_FilePath, m_EditorScene);
+
+        m_ActiveScene = Scene::Load(m_ActiveScene->m_FilePath);
+        m_ActiveScene->OnInitRuntime();
+
+        m_SceneTreePanel.SetContext(m_ActiveScene);
+        m_SceneTreePanel.SetSelectedEntity(Entity());
+        m_ContentBrowserPanel.SetContext(m_ActiveScene);
+    }
+
+    void EditorLayer::OnSceneStop()
+    {
+        COFFEE_CORE_ASSERT(m_SceneState == SceneState::Play)
+        
+        m_ActiveScene->OnExitRuntime();
+
+        m_SceneState = SceneState::Edit;
+
+        m_ActiveScene = m_EditorScene;
+
+        m_SceneTreePanel.SetContext(m_ActiveScene);
+        m_SceneTreePanel.SetSelectedEntity(Entity());
+        m_ContentBrowserPanel.SetContext(m_ActiveScene);
+    }
+
     void EditorLayer::NewProject()
     {
         FileDialogArgs args;
@@ -659,8 +695,9 @@ namespace Coffee {
 
     void EditorLayer::NewScene()
     {
-        m_ActiveScene = CreateRef<Scene>();
-        m_ActiveScene->OnInit();
+        m_EditorScene = CreateRef<Scene>();
+        m_ActiveScene = m_EditorScene;
+        m_ActiveScene->OnInitEditor();
 
         m_SceneTreePanel = SceneTreePanel();
 
@@ -674,10 +711,11 @@ namespace Coffee {
         args.Filters = {{"Coffee Scene", "TeaScene"}};
         const std::filesystem::path& path = FileDialog::OpenFile(args);
 
-        if (!path.empty())
+        if (!path.empty() and path.extension() == ".TeaScene")
         {
-            m_ActiveScene = Scene::Load(path);
-            m_ActiveScene->OnInit();
+            m_EditorScene = Scene::Load(path);
+            m_ActiveScene = m_EditorScene;
+            m_ActiveScene->OnInitEditor();
 
             m_SceneTreePanel = SceneTreePanel();
 

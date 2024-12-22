@@ -28,6 +28,7 @@ namespace Coffee {
     class Octree
     {
     public:
+        Octree();
         Octree(const AABB& bounds, int maxObjectsPerNode = 8, int maxDepth = 5);
         ~Octree();
 

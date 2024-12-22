@@ -88,6 +88,11 @@ namespace Coffee {
             m_Scene->m_Registry.remove<T>(m_EntityHandle);
         }
 
+        bool IsValid() const 
+        {
+            return m_Scene->m_Registry.valid(m_EntityHandle);
+        }
+
         /**
          * @brief Check if the entity is valid.
          * @return True if the entity is valid, false otherwise.
