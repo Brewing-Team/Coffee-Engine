@@ -82,7 +82,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        Entity light = CreateEntity("Directional Light");
+       /*  Entity light = CreateEntity("Directional Light");
         light.AddComponent<LightComponent>().Color = {1.0f, 0.9f, 0.85f};
         light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f};
         
@@ -96,7 +96,7 @@ namespace Coffee {
         for(int i = 0; i < 25; i++)
         {
             m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
-        }
+        } */
     }
 
     void Scene::OnInitRuntime()
@@ -272,6 +272,15 @@ namespace Coffee {
         
         scene->m_FilePath = path;
 
+        auto view = scene->m_Registry.view<entt::entity>();
+        for (auto entity : view)
+        {
+            auto& tag = scene->m_Registry.get<TagComponent>(entity);
+            auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
+
+            COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
+        }
+
         return scene;
     }
 
@@ -296,6 +305,15 @@ namespace Coffee {
             .get<LightComponent>(archive);
         
         scene->m_FilePath = path;
+
+        auto view = scene->m_Registry.view<entt::entity>();
+        for (auto entity : view)
+        {
+            auto& tag = scene->m_Registry.get<TagComponent>(entity);
+            auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
+
+            COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
+        }
     }
 
     // Is possible that this function will be moved to the SceneTreePanel but for now it will stay here

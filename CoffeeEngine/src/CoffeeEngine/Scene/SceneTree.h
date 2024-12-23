@@ -71,7 +71,17 @@ namespace Coffee {
          * @param archive The archive.
          */
         template<class Archive>
-        void serialize(Archive& archive)
+/*         void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Parent", m_Parent), cereal::make_nvp("First", m_First), cereal::make_nvp("Next", m_Next), cereal::make_nvp("Prev", m_Prev));
+        } */
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("Parent", m_Parent), cereal::make_nvp("First", m_First), cereal::make_nvp("Next", m_Next), cereal::make_nvp("Prev", m_Prev));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
         {
             archive(cereal::make_nvp("Parent", m_Parent), cereal::make_nvp("First", m_First), cereal::make_nvp("Next", m_Next), cereal::make_nvp("Prev", m_Prev));
         }

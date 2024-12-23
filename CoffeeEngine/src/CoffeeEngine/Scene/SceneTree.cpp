@@ -37,6 +37,10 @@ namespace Coffee {
             }
             else
             {
+                if(parentHierarchy.m_First == entity)
+                {
+                    return;
+                }
                 //Get the last child of the parent
                 auto lastEntity = parentHierarchy.m_First;
                 auto lastHierarchy = registry.try_get<HierarchyComponent>(lastEntity);
@@ -45,8 +49,11 @@ namespace Coffee {
                     lastEntity = lastHierarchy->m_Next;
                     lastHierarchy = registry.try_get<HierarchyComponent>(lastEntity);
                 }
-                lastHierarchy->m_Next = entity;
-                lastHierarchy->m_Prev = lastEntity;
+                if (lastHierarchy != nullptr)
+                {
+                    lastHierarchy->m_Next = entity;
+                    lastHierarchy->m_Prev = lastEntity;
+                }
             }
         }
     }
