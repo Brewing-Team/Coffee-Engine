@@ -208,7 +208,11 @@ namespace Coffee {
         Ref<Material> material; ///< The material reference.
 
         MaterialComponent()
-            : material(Material::Create()) {}
+        {
+            // FIXME: The first time the Default Material is created, the UUID is not saved in the cache and each time the engine is started the Default Material is created again.
+            Ref<Material> m = Material::Create("Default Material");
+            material = m;
+        }
         MaterialComponent(const MaterialComponent&) = default;
         MaterialComponent(Ref<Material> material)
             : material(material) {}

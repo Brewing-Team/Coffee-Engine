@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
+#include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -56,6 +57,8 @@ namespace Coffee {
 
         Ref<UniformBuffer> CameraUniformBuffer; ///< Uniform buffer for camera data.
         Ref<UniformBuffer> RenderDataUniformBuffer; ///< Uniform buffer for render data.
+
+        Ref<Material> DefaultMaterial; ///< Default material.
 
         Ref<Texture2D> RenderTexture; ///< Render texture.
 

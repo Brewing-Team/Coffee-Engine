@@ -19,8 +19,6 @@
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
 
-#include "CoffeeEngine/Embedded/MissingShader.inl"
-
 #include <cstdint>
 #include <cstdlib>
 #include <glm/detail/type_quat.hpp>
@@ -33,9 +31,6 @@
 #include <fstream>
 
 namespace Coffee {
-
-    //TEMPORAL
-    static Ref<Material> missingMaterial;
 
     Scene::Scene() : m_Octree({glm::vec3(-10.0f), glm::vec3(10.0f)}, 2, 5)
     {
@@ -89,9 +84,6 @@ namespace Coffee {
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
-        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
-
         // TEST ------------------------------
         for(int i = 0; i < 25; i++)
         {
@@ -127,7 +119,7 @@ namespace Coffee {
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
-            Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : missingMaterial;
+            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
             //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
             Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
@@ -213,7 +205,7 @@ namespace Coffee {
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
-            Ref<Material> material = (materialComponent and materialComponent->material) ? materialComponent->material : missingMaterial;
+            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
             Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
         }

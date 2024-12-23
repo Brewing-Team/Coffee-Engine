@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
@@ -11,6 +12,7 @@
 
 #include "CoffeeEngine/Embedded/ToneMappingShader.inl"
 #include "CoffeeEngine/Embedded/FinalPassShader.inl"
+#include "CoffeeEngine/Embedded/MissingShader.inl"
 
 #include <cstdint>
 #include <glm/fwd.hpp>
@@ -67,6 +69,9 @@ namespace Coffee {
 
         s_RendererData.CameraUniformBuffer = UniformBuffer::Create(sizeof(RendererData::CameraData), 0);
         s_RendererData.RenderDataUniformBuffer = UniformBuffer::Create(sizeof(RendererData::RenderData), 1);
+
+        Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
+        s_RendererData.DefaultMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
 
         s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA32F, ImageFormat::RGB8, ImageFormat::DEPTH24STENCIL8 });
         s_PostProcessingFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8 });
@@ -142,13 +147,16 @@ namespace Coffee {
 
         for(const auto& command : s_RendererData.renderQueue)
         {
-            // TODO: Move the missing material to the Renderer class and instead of continue if is nullptr use the missing material
-            if(command.material == nullptr)
-                continue;
-            
-            command.material->Use();
+            Material* material = command.material.get();
 
-            const Ref<Shader>& shader = command.material->GetShader();
+            if(material == nullptr)
+            {
+                material = s_RendererData.DefaultMaterial.get();
+            }
+            
+            material->Use();
+
+            const Ref<Shader>& shader = material->GetShader();
 
             shader->Bind();
             shader->setMat4("model", command.transform);
