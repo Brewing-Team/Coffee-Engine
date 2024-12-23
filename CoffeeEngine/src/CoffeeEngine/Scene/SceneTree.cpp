@@ -37,23 +37,28 @@ namespace Coffee {
             }
             else
             {
-                if(parentHierarchy.m_First == entity)
-                {
-                    return;
-                }
                 //Get the last child of the parent
                 auto lastEntity = parentHierarchy.m_First;
                 auto lastHierarchy = registry.try_get<HierarchyComponent>(lastEntity);
                 while(lastHierarchy != nullptr && lastHierarchy->m_Next != entt::null)
                 {
-                    lastEntity = lastHierarchy->m_Next;
-                    lastHierarchy = registry.try_get<HierarchyComponent>(lastEntity);
+                    auto nextEntity = lastHierarchy->m_Next;
+                    auto nextHierarchy = registry.try_get<HierarchyComponent>(nextEntity);
+
+                    if(nextHierarchy == nullptr)
+                    {
+                        break;
+                    }
+
+                    lastEntity = nextEntity;
+                    lastHierarchy = nextHierarchy;
                 }
-                if (lastHierarchy != nullptr)
+                if (lastEntity == entity)
                 {
-                    lastHierarchy->m_Next = entity;
-                    lastHierarchy->m_Prev = lastEntity;
+                    return;
                 }
+                lastHierarchy->m_Next = entity;
+                lastHierarchy->m_Prev = lastEntity;
             }
         }
     }

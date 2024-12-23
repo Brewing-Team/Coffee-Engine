@@ -142,6 +142,10 @@ namespace Coffee {
 
         for(const auto& command : s_RendererData.renderQueue)
         {
+            // TODO: Move the missing material to the Renderer class and instead of continue if is nullptr use the missing material
+            if(command.material == nullptr)
+                continue;
+            
             command.material->Use();
 
             const Ref<Shader>& shader = command.material->GetShader();
