@@ -549,7 +549,7 @@ namespace Coffee {
 
                 if(meshComponent.drawAABB)
                 {
-                    const AABB& aabb = meshComponent.mesh->GetAABB(transform);
+                    const AABB& aabb = meshComponent.mesh->GetAABB().CalculateTransformedAABB(transform);
                     DebugRenderer::DrawBox(aabb, {0.27f, 0.52f, 0.53f, 1.0f});
                 }
 

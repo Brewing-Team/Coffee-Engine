@@ -96,61 +96,6 @@ namespace Coffee {
          */
         const AABB& GetAABB() { return m_AABB; }
 
-        // TODO doc
-        static bool Intersects(const AABB& a, const glm::vec3& aPos, const AABB& b, const glm::vec3& bPos)
-        {
-            glm::vec3 aMin = a.min + aPos;
-            glm::vec3 aMax = a.max + aPos;
-            glm::vec3 bMin = b.min + bPos;
-            glm::vec3 bMax = b.max + bPos;
-
-            return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
-                   (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
-                   (aMin.z <= bMax.z && aMax.z >= bMin.z);
-        }
-
-        /**
-         * @brief Gets the transformed axis-aligned bounding box (AABB) of the mesh.
-         * @param transform The transformation matrix.
-         * @return The transformed AABB.
-         */
-        AABB GetAABB(const glm::mat4& transform)
-        {
-            const AABB& aabb = GetAABB();
-
-            // Compute the 8 corners of the AABB
-            glm::vec3 corners[8] = {
-                aabb.min,
-                glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z),
-                glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z),
-                glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z),
-                glm::vec3(aabb.max.x, aabb.min.y, aabb.min.z),
-                glm::vec3(aabb.max.x, aabb.min.y, aabb.max.z),
-                glm::vec3(aabb.max.x, aabb.max.y, aabb.min.z),
-                aabb.max
-            };
-
-            // Transform the corners
-            glm::vec3 transformedCorners[8];
-            for (int i = 0; i < 8; ++i) {
-                transformedCorners[i] = glm::vec3(transform * glm::vec4(corners[i], 1.0f));
-            }
-
-            // Find the new min and max points
-            glm::vec3 newMin = transformedCorners[0];
-            glm::vec3 newMax = transformedCorners[0];
-
-            for (int i = 1; i < 8; ++i) {
-                newMin = glm::min(newMin, transformedCorners[i]);
-                newMax = glm::max(newMax, transformedCorners[i]);
-            }
-
-            // Create the transformed AABB
-            AABB transformedAABB(newMin, newMax);
-
-            return transformedAABB;
-        }
-
         /**
          * @brief Gets the oriented bounding box (OBB) of the mesh.
          * @param transform The transformation matrix.

@@ -1,12 +1,13 @@
 #include "Octree.h"
 
+#include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 
 namespace Coffee {
 
     void Octree::Insert(OctreeNode& node, const ObjectContainer& object)
     {
-        if (!node.aabb.Contains(object.position))
+        if (node.aabb.Intersect(object.position) != IntersectionType::Inside)
             return;
 
         if (node.isLeaf) {

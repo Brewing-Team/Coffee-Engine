@@ -7,6 +7,12 @@
 
 namespace Coffee {
 
+    enum class IntersectionType {
+        Outside,
+        Inside,
+        Intersect
+    };
+
     /**
      * @brief Structure representing an axis-aligned bounding box (AABB).
      */
@@ -35,11 +41,79 @@ namespace Coffee {
             return (max - min) / 2.0f;
         }
 
-        bool Contains(const glm::vec3& point) const
+        AABB CalculateTransformedAABB(const glm::mat4& transform) const
         {
-            return point.x >= min.x && point.x <= max.x &&
-                point.y >= min.y && point.y <= max.y &&
-                point.z >= min.z && point.z <= max.z;
+            AABB aabb = *this;
+
+            // Compute the 8 corners of the AABB
+            glm::vec3 corners[8] = {
+                aabb.min,
+                glm::vec3(aabb.min.x, aabb.min.y, aabb.max.z),
+                glm::vec3(aabb.min.x, aabb.max.y, aabb.min.z),
+                glm::vec3(aabb.min.x, aabb.max.y, aabb.max.z),
+                glm::vec3(aabb.max.x, aabb.min.y, aabb.min.z),
+                glm::vec3(aabb.max.x, aabb.min.y, aabb.max.z),
+                glm::vec3(aabb.max.x, aabb.max.y, aabb.min.z),
+                aabb.max
+            };
+
+            // Transform the corners
+            glm::vec3 transformedCorners[8];
+            for (int i = 0; i < 8; ++i) {
+                transformedCorners[i] = glm::vec3(transform * glm::vec4(corners[i], 1.0f));
+            }
+
+            // Find the new min and max points
+            glm::vec3 newMin = transformedCorners[0];
+            glm::vec3 newMax = transformedCorners[0];
+
+            for (int i = 1; i < 8; ++i) {
+                newMin = glm::min(newMin, transformedCorners[i]);
+                newMax = glm::max(newMax, transformedCorners[i]);
+            }
+
+            // Create the transformed AABB
+            AABB transformedAABB(newMin, newMax);
+
+            return transformedAABB;
+        }
+
+        IntersectionType Intersect(const AABB& other, const glm::mat4& thisTransform, const glm::mat4& otherTransform) const {
+            // Transform the other AABB to the current AABB's local space
+            glm::mat4 inverseThisTransform = glm::inverse(thisTransform);
+            glm::mat4 relativeTransform = inverseThisTransform * otherTransform;
+            AABB transformedOther = other.CalculateTransformedAABB(relativeTransform);
+
+            // Perform the intersection test in local space
+            if (max.x < transformedOther.min.x || min.x > transformedOther.max.x) return IntersectionType::Outside;
+            if (max.y < transformedOther.min.y || min.y > transformedOther.max.y) return IntersectionType::Outside;
+            if (max.z < transformedOther.min.z || min.z > transformedOther.max.z) return IntersectionType::Outside;
+
+            if (min.x < transformedOther.min.x && max.x > transformedOther.max.x &&
+                min.y < transformedOther.min.y && max.y > transformedOther.max.y &&
+                min.z < transformedOther.min.z && max.z > transformedOther.max.z) return IntersectionType::Inside;
+
+            return IntersectionType::Intersect;
+        }
+
+        // Used when the AABB's min and max points are in local space of the object
+        IntersectionType Intersect(const glm::mat4& thisTransform, const glm::vec3& point) const {
+            const AABB& transformedAABB = CalculateTransformedAABB(thisTransform);
+
+            if (point.x < transformedAABB.min.x || point.x > transformedAABB.max.x) return IntersectionType::Outside;
+            if (point.y < transformedAABB.min.y || point.y > transformedAABB.max.y) return IntersectionType::Outside;
+            if (point.z < transformedAABB.min.z || point.z > transformedAABB.max.z) return IntersectionType::Outside;
+
+            return IntersectionType::Inside;
+        }
+
+        // Used when the AABB's min and max points are in world space
+        IntersectionType Intersect(const glm::vec3& point) const {
+            if (point.x < min.x || point.x > max.x) return IntersectionType::Outside;
+            if (point.y < min.y || point.y > max.y) return IntersectionType::Outside;
+            if (point.z < min.z || point.z > max.z) return IntersectionType::Outside;
+
+            return IntersectionType::Inside;
         }
 
         private:
