@@ -19,6 +19,7 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
+#include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "Panels/SceneTreePanel.h"
 #include "entt/entity/entity.hpp"
@@ -559,7 +560,9 @@ namespace Coffee {
                 DebugRenderer::DrawBox(obb, {0.99f, 0.50f, 0.09f, 1.0f});
 
 
-            } else if (selectedEntity != lastSelectedEntity) {
+            }
+            else if (selectedEntity != lastSelectedEntity)
+            {
                 // TODO generate defaults bounding boxes for when the entity does not have a mesh component
                 lastSelectedEntity = selectedEntity;
                 COFFEE_CORE_WARN("Not printing bounding box: Selected entity {0} does not have a MeshComponent.", selectedEntity.GetComponent<TagComponent>().Tag);
@@ -589,6 +592,18 @@ namespace Coffee {
                 /* case LightComponent::Type::SpotLight:
                 break;    */         
             }
+        }
+
+        auto cameraView = m_ActiveScene->GetAllEntitiesWithComponents<CameraComponent, TransformComponent>();
+
+        for(auto entity : cameraView)
+        {
+            auto& cameraComponent = cameraView.get<CameraComponent>(entity);
+            auto& transformComponent = cameraView.get<TransformComponent>(entity);
+
+            glm::mat4 viewProjection = cameraComponent.Camera.GetProjection() * glm::inverse(transformComponent.GetWorldTransform());
+
+            DebugRenderer::DrawFrustum(viewProjection, {0.99f, 0.50f, 0.09f, 1.0f});
         }
 
         DebugRenderer::DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);

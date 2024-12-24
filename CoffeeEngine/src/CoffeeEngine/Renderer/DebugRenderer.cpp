@@ -246,4 +246,41 @@ namespace Coffee {
         glm::vec3 end = origin - direction * length;
         DrawArrow(origin, end, false, color, lineWidth);
     }
+
+    void DebugRenderer::DrawFrustum(const glm::mat4& viewProjection, const glm::vec4& color, float lineWidth)
+    {
+        glm::mat4 invVP = glm::inverse(viewProjection);
+
+        glm::vec3 frustumCorners[8] = {
+            glm::vec3(-1.0f, -1.0f, -1.0f),
+            glm::vec3(1.0f, -1.0f, -1.0f),
+            glm::vec3(1.0f, 1.0f, -1.0f),
+            glm::vec3(-1.0f, 1.0f, -1.0f),
+            glm::vec3(-1.0f, -1.0f, 1.0f),
+            glm::vec3(1.0f, -1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(-1.0f, 1.0f, 1.0f)
+        };
+
+        for (int i = 0; i < 8; i++) {
+            glm::vec4 clipSpace = invVP * glm::vec4(frustumCorners[i], 1.0f);
+            clipSpace /= clipSpace.w;
+            frustumCorners[i] = clipSpace;
+        }
+
+        DrawLine(frustumCorners[0], frustumCorners[1], color, lineWidth);
+        DrawLine(frustumCorners[1], frustumCorners[2], color, lineWidth);
+        DrawLine(frustumCorners[2], frustumCorners[3], color, lineWidth);
+        DrawLine(frustumCorners[3], frustumCorners[0], color, lineWidth);
+
+        DrawLine(frustumCorners[4], frustumCorners[5], color, lineWidth);
+        DrawLine(frustumCorners[5], frustumCorners[6], color, lineWidth);
+        DrawLine(frustumCorners[6], frustumCorners[7], color, lineWidth);
+        DrawLine(frustumCorners[7], frustumCorners[4], color, lineWidth);
+
+        DrawLine(frustumCorners[0], frustumCorners[4], color, lineWidth);
+        DrawLine(frustumCorners[1], frustumCorners[5], color, lineWidth);
+        DrawLine(frustumCorners[2], frustumCorners[6], color, lineWidth);
+        DrawLine(frustumCorners[3], frustumCorners[7], color, lineWidth);
+    }
 }

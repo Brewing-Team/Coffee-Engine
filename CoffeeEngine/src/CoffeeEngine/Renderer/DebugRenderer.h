@@ -138,6 +138,10 @@ namespace Coffee {
          */
         static void DrawArrow(const glm::vec3& origin, const glm::vec3& direction, float length, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
+        //static void DrawFrustum(const Frustum& frustum, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        static void DrawFrustum(const glm::mat4& viewProjection, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        //static void DrawFrustum(const glm::mat4& transform, float aspect, float fov, float near, float far, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
+
     private:
         static Ref<VertexArray> m_LineVertexArray;
         static Ref<VertexBuffer> m_LineVertexBuffer;
