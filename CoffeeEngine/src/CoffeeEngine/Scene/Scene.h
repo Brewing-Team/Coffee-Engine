@@ -55,7 +55,7 @@ namespace Coffee {
         /**
          * @brief Initialize the scene.
          */
-        void OnInitEditor(); // add differentiation between editor and game
+        void OnInitEditor();
         void OnInitRuntime();
 
         /**
