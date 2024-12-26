@@ -6,6 +6,7 @@
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Scene/Components.h"
@@ -93,7 +94,21 @@ namespace Coffee {
 
     void Scene::OnInitRuntime()
     {
+        ZoneScoped;
 
+        m_SceneTree->Update();
+
+        auto view = m_Registry.view<MeshComponent>();
+
+        for (auto& entity : view)
+        {
+            auto& meshComponent = view.get<MeshComponent>(entity);
+            auto& transformComponent = m_Registry.get<TransformComponent>(entity);
+
+            ObjectContainer<Ref<Mesh>> objectContainer = {transformComponent.GetWorldTransform(), meshComponent.GetMesh()->GetAABB(), meshComponent.GetMesh()};
+
+            m_Octree.Insert(objectContainer);
+        }
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
@@ -192,6 +207,8 @@ namespace Coffee {
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::BeginScene(*camera, cameraTransform);
+
+        m_Octree.DebugDraw();
         
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();

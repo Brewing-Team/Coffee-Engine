@@ -78,6 +78,7 @@ namespace Coffee {
             return transformedAABB;
         }
 
+        // Used when the AABB's min and max points are in local space of the object
         IntersectionType Intersect(const AABB& other, const glm::mat4& thisTransform, const glm::mat4& otherTransform) const {
             // Transform the other AABB to the current AABB's local space
             glm::mat4 inverseThisTransform = glm::inverse(thisTransform);
@@ -92,6 +93,19 @@ namespace Coffee {
             if (min.x < transformedOther.min.x && max.x > transformedOther.max.x &&
                 min.y < transformedOther.min.y && max.y > transformedOther.max.y &&
                 min.z < transformedOther.min.z && max.z > transformedOther.max.z) return IntersectionType::Inside;
+
+            return IntersectionType::Intersect;
+        }
+
+        // Used when the AABB's min and max points are in world space
+        IntersectionType Intersect(const AABB& other) const {
+            if (max.x < other.min.x || min.x > other.max.x) return IntersectionType::Outside;
+            if (max.y < other.min.y || min.y > other.max.y) return IntersectionType::Outside;
+            if (max.z < other.min.z || min.z > other.max.z) return IntersectionType::Outside;
+
+            if (min.x < other.min.x && max.x > other.max.x &&
+                min.y < other.min.y && max.y > other.max.y &&
+                min.z < other.min.z && max.z > other.max.z) return IntersectionType::Inside;
 
             return IntersectionType::Intersect;
         }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include <vector>
@@ -11,9 +12,9 @@ namespace Coffee {
     template <typename T>
     struct ObjectContainer
     {
-        glm::mat4& transform;
-        AABB& aabb;
-        T& object;
+        const glm::mat4& transform;
+        const AABB& aabb;
+        const T& object;
     };
 
     template <typename T>
@@ -58,13 +59,23 @@ namespace Coffee {
     template <typename T>
     void Octree<T>::Insert(OctreeNode<T>& node, const ObjectContainer<T>& object)
     {
-        if (node.localAABB.Intersect(object.position) != IntersectionType::Inside)
-            return;
+        AABB objectTransformedAABB = object.aabb.CalculateTransformedAABB(object.transform);
 
-        if (node.isLeaf) {
-            InsertIntoLeaf(node, object);
-        } else {
-            InsertIntoChild(node, object);
+        switch (node.aabb.Intersect(objectTransformedAABB))
+        {
+            using enum IntersectionType;
+            case Outside:
+                return;
+            case Inside:
+            case Intersect:
+                if (node.isLeaf)
+                {
+                    InsertIntoLeaf(node, object);
+                }
+                else
+                {
+                    InsertIntoChild(node, object);
+                }
         }
     }
 
@@ -79,14 +90,14 @@ namespace Coffee {
 
     template <typename T>
     void Octree<T>::InsertIntoChild(OctreeNode<T>& node, const ObjectContainer<T>& object) {
-        int childIndex = node.GetChildIndex(node.localAABB, object.position);
+        int childIndex = node.GetChildIndex(node.aabb, object.transform[3]);
         Insert(*node.children[childIndex], object);
     }
 
     template <typename T>
     void Octree<T>::RedistributeObjects(OctreeNode<T>& node) {
         for (const auto& obj : node.objectList) {
-            int childIndex = node.GetChildIndex(node.localAABB, obj.position);
+            int childIndex = node.GetChildIndex(node.aabb, obj.transform[3]);
             Insert(*node.children[childIndex], obj);
         }
         node.objectList.clear();
@@ -100,34 +111,33 @@ namespace Coffee {
     template <typename T>
     void Octree<T>::Subdivide(OctreeNode<T>& node)
     {
-        glm::vec3 center = (node.localAABB.min + node.localAABB.max) * 0.5f;
+        glm::vec3 center = (node.aabb.min + node.aabb.max) * 0.5f;
         CreateChildren(node, center);
         node.isLeaf = false;
     }
 
     template <typename T>
     void Octree<T>::CreateChildren(OctreeNode<T>& node, const glm::vec3& center) {
-        node.children[0] = CreateScope<OctreeNode<T>>(AABB(node.localAABB.min, center));
-        node.children[1] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(center.x, node.localAABB.min.y, node.localAABB.min.z),
-                                                        glm::vec3(node.localAABB.max.x, center.y, center.z)));
-        node.children[2] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(node.localAABB.min.x, center.y, node.localAABB.min.z),
-                                                        glm::vec3(center.x, node.localAABB.max.y, center.z)));
-        node.children[3] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(center.x, center.y, node.localAABB.min.z),
-                                                        glm::vec3(node.localAABB.max.x, node.localAABB.max.y, center.z)));
-        node.children[4] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(node.localAABB.min.x, node.localAABB.min.y, center.z),
-                                                        glm::vec3(center.x, center.y, node.localAABB.max.z)));
-        node.children[5] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(center.x, node.localAABB.min.y, center.z),
-                                                        glm::vec3(node.localAABB.max.x, center.y, node.localAABB.max.z)));
-        node.children[6] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(node.localAABB.min.x, center.y, center.z),
-                                                        glm::vec3(center.x, node.localAABB.max.y, node.localAABB.max.z)));
-        node.children[7] = CreateScope<OctreeNode<T>>(AABB(center, node.localAABB.max));
+        node.children[0] = CreateScope<OctreeNode<T>>(AABB(node.aabb.min, center));
+        node.children[1] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(center.x, node.aabb.min.y, node.aabb.min.z),
+                                                        glm::vec3(node.aabb.max.x, center.y, center.z)));
+        node.children[2] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(node.aabb.min.x, center.y, node.aabb.min.z),
+                                                        glm::vec3(center.x, node.aabb.max.y, center.z)));
+        node.children[3] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(center.x, center.y, node.aabb.min.z),
+                                                        glm::vec3(node.aabb.max.x, node.aabb.max.y, center.z)));
+        node.children[4] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(node.aabb.min.x, node.aabb.min.y, center.z),
+                                                        glm::vec3(center.x, center.y, node.aabb.max.z)));
+        node.children[5] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(center.x, node.aabb.min.y, center.z),
+                                                        glm::vec3(node.aabb.max.x, center.y, node.aabb.max.z)));
+        node.children[6] = CreateScope<OctreeNode<T>>(AABB(glm::vec3(node.aabb.min.x, center.y, center.z),
+                                                        glm::vec3(center.x, node.aabb.max.y, node.aabb.max.z)));
+        node.children[7] = CreateScope<OctreeNode<T>>(AABB(center, node.aabb.max));
     }
 
     template <typename T>
     void OctreeNode<T>::DebugDrawAABB()
     {
-        /*AABB transformedAABB = localAABB.Transform(transform);
-        DebugRenderer::DrawBox(transformedAABB.min, transformedAABB.max, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        DebugRenderer::DrawBox(aabb.min, aabb.max, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
         if (!isLeaf)
         {
             for (auto& child : children)
@@ -144,7 +154,6 @@ namespace Coffee {
             AABB aabb = obj.aabb.CalculateTransformedAABB(obj.transform);
             DebugRenderer::DrawBox(aabb.min, aabb.max, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         }
-        */
     }
 
     template <typename T>
@@ -161,8 +170,7 @@ namespace Coffee {
     template <typename T>
     Octree<T>::Octree(const AABB& bounds, int maxObjectsPerNode, int maxDepth) : maxObjectsPerNode(maxObjectsPerNode), maxDepth(maxDepth)
     {
-        rootNode.localAABB = bounds;
-        rootNode.transform = glm::mat4(1.0f);
+        rootNode.aabb = bounds;
     }
 
     template <typename T>
