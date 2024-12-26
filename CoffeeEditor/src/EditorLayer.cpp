@@ -528,7 +528,7 @@ namespace Coffee {
         }
         if(ImGui::Button("Add Point"))
         {
-            m_ActiveScene->m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
+            //m_ActiveScene->m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
         }
         ImGui::End();
     }

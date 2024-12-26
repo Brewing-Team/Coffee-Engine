@@ -2,5 +2,7 @@
 
 namespace Coffee
 {
-
+    struct Frustum
+    {
+    };
 }
