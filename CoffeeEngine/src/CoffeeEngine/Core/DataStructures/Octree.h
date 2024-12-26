@@ -126,7 +126,7 @@ namespace Coffee {
     template <typename T>
     void OctreeNode<T>::DebugDrawAABB()
     {
-        AABB transformedAABB = localAABB.Transform(transform);
+        /*AABB transformedAABB = localAABB.Transform(transform);
         DebugRenderer::DrawBox(transformedAABB.min, transformedAABB.max, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
         if (!isLeaf)
         {
@@ -144,6 +144,7 @@ namespace Coffee {
             AABB aabb = obj.aabb.CalculateTransformedAABB(obj.transform);
             DebugRenderer::DrawBox(aabb.min, aabb.max, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         }
+        */
     }
 
     template <typename T>
