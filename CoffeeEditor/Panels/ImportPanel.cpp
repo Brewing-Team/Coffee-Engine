@@ -1,6 +1,9 @@
 #include "ImportPanel.h"
 
+#include "CoffeeEngine/Core/Application.h"
 #include "imgui.h"
+
+#include <src/EditorLayer.h>
 
 namespace Coffee {
 
@@ -20,15 +23,23 @@ namespace Coffee {
 
         ImGui::Begin("Import");
 
-        // If there is no resource selected, display a message in the center of the panel:
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-        ImGui::TextWrapped("No resource selected!");
-        ImGui::PopStyleColor();
+        if (m_Context)
+        {
+            if (selectedResource)
+            {
+                ImGui::Text("Selected Resource: %s", selectedResource->GetName().c_str());
+            }
+            else
+            {
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+                ImGui::TextWrapped("No resource selected!");
+                ImGui::PopStyleColor();
 
-        // Then another message below the first one with a different color and text:
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-        ImGui::TextWrapped("Select a resource from the content browser to adjust its properties");
-        ImGui::PopStyleColor();
+                ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
+                ImGui::TextWrapped("Select a resource from the content browser to adjust its properties");
+                ImGui::PopStyleColor();
+            }
+        }
 
         ImGui::End();
     }

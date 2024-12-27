@@ -14,6 +14,8 @@ namespace Coffee {
 
             void OnImGuiRender() override;
 
+            Ref<Resource> selectedResource;
+
         private:
             Ref<Scene> m_Context;
     };
