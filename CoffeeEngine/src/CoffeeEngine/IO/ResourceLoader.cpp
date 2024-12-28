@@ -185,7 +185,7 @@ namespace Coffee {
         return model;
     }
 
-    Ref<Mesh> ResourceLoader::LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material)
+    Ref<Mesh> ResourceLoader::LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb)
     {
         if(ResourceRegistry::Exists(name))
         {
@@ -194,7 +194,7 @@ namespace Coffee {
         
         UUID uuid = ResourceRegistry::GetUUIDByName(name);
 
-        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, uuid, vertices, indices, material);
+        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, uuid, vertices, indices, material, aabb);
         mesh->SetName(name);
 
         ResourceRegistry::Add(uuid, mesh);

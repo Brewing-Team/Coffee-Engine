@@ -113,7 +113,7 @@ namespace Coffee {
         }
     }
 
-    Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const UUID& uuid, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material)
+    Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const UUID& uuid, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb)
     {
         // TODO: Think about adding a cache parameter.
 
@@ -133,6 +133,7 @@ namespace Coffee {
             mesh->SetUUID(uuid);
             mesh->SetName(name);
             mesh->SetMaterial(material);
+            mesh->SetAABB(aabb);
             ResourceSaver::SaveToCache(uuidString, mesh);
             return mesh;
         }

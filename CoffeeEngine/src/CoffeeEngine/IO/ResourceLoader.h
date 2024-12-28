@@ -8,6 +8,7 @@
 
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
+#include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include <filesystem>
@@ -60,7 +61,7 @@ namespace Coffee {
          */
         static Ref<Model> LoadModel(const std::filesystem::path& path, bool cache = true);
 
-        static Ref<Mesh> LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material);
+        static Ref<Mesh> LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb);
         static Ref<Mesh> LoadMesh(UUID uuid);
 
         static Ref<Shader> LoadShader(const std::filesystem::path& shaderPath);
