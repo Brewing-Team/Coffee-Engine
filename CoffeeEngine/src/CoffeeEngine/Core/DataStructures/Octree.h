@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
+#include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include <vector>
@@ -43,6 +44,8 @@ namespace Coffee {
         void DebugDraw();
         void Clear();
 
+        std::vector<ObjectContainer<T>> Query(const Frustum& frustum) const;
+
     private:
         void Insert(OctreeNode<T>& node, const ObjectContainer<T>& object);
         void InsertIntoLeaf(OctreeNode<T>& node, const ObjectContainer<T>& object);
@@ -50,6 +53,8 @@ namespace Coffee {
         void RedistributeObjects(OctreeNode<T>& node);
         void Subdivide(OctreeNode<T>& node);
         void CreateChildren(OctreeNode<T>& node, const glm::vec3& center);
+
+        void Query(const OctreeNode<T>& node, const Frustum& frustum, std::vector<ObjectContainer<T>>& results) const;
 
         OctreeNode<T> rootNode;
         int maxObjectsPerNode;
@@ -135,9 +140,42 @@ namespace Coffee {
     }
 
     template <typename T>
+    void Octree<T>::Query(const OctreeNode<T>& node, const Frustum& frustum, std::vector<ObjectContainer<T>>& results) const
+    {
+        if (!frustum.Contains(node.aabb))
+            return;
+
+        for (const auto& object : node.objectList)
+        {
+            if (frustum.Contains(object.aabb.CalculateTransformedAABB(object.transform)))
+                results.push_back(object);
+        }
+    
+        if (node.isLeaf)
+            return;
+    
+        for (const auto& child : node.children)
+        {
+            if (child)
+            {
+                Query(*child, frustum, results);
+            }
+        }
+    }
+
+    template <typename T>
     void OctreeNode<T>::DebugDrawAABB()
     {
-        DebugRenderer::DrawBox(aabb.min, aabb.max, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        // Assuming you have a function to get the number of objects in the node
+        int numObjects = objectList.size();
+
+        // Calculate the color based on the number of objects
+        float green = glm::clamp(numObjects / 10.0f, 0.0f, 1.0f);
+        float red = glm::clamp(1.0f - (numObjects / 10.0f), 0.0f, 1.0f);
+        glm::vec4 color(red, green, 0.0f, 1.0f);
+
+        // Draw the box with the calculated color
+        DebugRenderer::DrawBox(aabb.min, aabb.max, color);
         if (!isLeaf)
         {
             for (auto& child : children)
@@ -196,6 +234,14 @@ namespace Coffee {
             }
         }
         rootNode.isLeaf = true;
+    }
+
+    template <typename T>
+    std::vector<ObjectContainer<T>> Octree<T>::Query(const Frustum& frustum) const
+    {
+        std::vector<ObjectContainer<T>> results;
+        Query(rootNode, frustum, results);
+        return results;
     }
 
 } // namespace Coffee
