@@ -41,6 +41,11 @@ namespace Coffee {
             return (max - min) / 2.0f;
         }
 
+        bool IsValid() const
+        {
+            return min.x < max.x && min.y < max.y && min.z < max.z;
+        }
+
         AABB CalculateTransformedAABB(const glm::mat4& transform) const
         {
             AABB aabb = *this;
@@ -172,6 +177,11 @@ namespace Coffee {
                 glm::vec3(transform * glm::vec4(aabb.max.x, aabb.max.y, aabb.max.z, 1.0f)),
                 glm::vec3(transform * glm::vec4(aabb.min.x, aabb.max.y, aabb.max.z, 1.0f))
                 }) {}
+
+        bool IsValid() const
+        {
+            return corners[0].x <= corners[1].x && corners[0].y <= corners[2].y && corners[0].z <= corners[4].z;
+        }
     };
 
 }
