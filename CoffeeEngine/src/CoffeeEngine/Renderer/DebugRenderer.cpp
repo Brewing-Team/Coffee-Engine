@@ -1,4 +1,5 @@
 #include "DebugRenderer.h"
+#include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Renderer/Buffer.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
@@ -23,7 +24,7 @@ namespace Coffee {
 
     Ref<Shader> DebugRenderer::m_DebugShader;
 
-    constexpr size_t MaxVertices = 20000;
+    constexpr size_t MaxVertices = 100000;
     DebugVertex DebugRenderer::m_LineVertices[MaxVertices];
     DebugVertex DebugRenderer::m_CircleVertices[MaxVertices];
     int DebugRenderer::m_LineVertexCount = 0;
@@ -245,6 +246,29 @@ namespace Coffee {
     {
         glm::vec3 end = origin - direction * length;
         DrawArrow(origin, end, false, color, lineWidth);
+    }
+
+    void DebugRenderer::DrawFrustum(const Frustum& frustum, const glm::vec4& color, float lineWidth)
+    {
+        const glm::vec3* points = frustum.GetPoints();
+        
+        // Draw near plane rectangle
+        DrawLine(points[0], points[1], color, lineWidth);
+        DrawLine(points[0], points[2], color, lineWidth);
+        DrawLine(points[2], points[3], color, lineWidth);
+        DrawLine(points[1], points[3], color, lineWidth);
+        
+        // Draw far plane rectangle
+        DrawLine(points[4], points[5], color, lineWidth);
+        DrawLine(points[4], points[6], color, lineWidth);
+        DrawLine(points[6], points[7], color, lineWidth);
+        DrawLine(points[5], points[7], color, lineWidth);
+        
+        // Draw connecting lines between near and far planes
+        DrawLine(points[0], points[4], color, lineWidth);
+        DrawLine(points[1], points[5], color, lineWidth);
+        DrawLine(points[2], points[6], color, lineWidth);
+        DrawLine(points[3], points[7], color, lineWidth);
     }
 
     void DebugRenderer::DrawFrustum(const glm::mat4& viewProjection, const glm::vec4& color, float lineWidth)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Renderer/Camera.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
@@ -138,7 +139,7 @@ namespace Coffee {
          */
         static void DrawArrow(const glm::vec3& origin, const glm::vec3& direction, float length, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
-        //static void DrawFrustum(const Frustum& frustum, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
+        static void DrawFrustum(const Frustum& frustum, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
         static void DrawFrustum(const glm::mat4& viewProjection, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
         //static void DrawFrustum(const glm::mat4& transform, float aspect, float fov, float near, float far, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
@@ -151,7 +152,7 @@ namespace Coffee {
 
         static Ref<Shader> m_DebugShader;
 
-        static const int MaxVertices = 10000;
+        static const int MaxVertices = 100000;
         static DebugVertex m_LineVertices[MaxVertices];
         static DebugVertex m_CircleVertices[MaxVertices];
         static int m_LineVertexCount;
