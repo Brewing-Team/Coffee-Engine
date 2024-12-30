@@ -21,15 +21,15 @@ namespace Coffee {
         }
     }
 
-    void ScriptManager::BindFunction(const std::string& script, const std::string& name, sol::protected_function& func) {
+    void ScriptManager::BindFunction(const std::string& script, const std::string& name, std::function<int()>& func) {
         for(auto& backend : backends) {
             backend.second->BindFunction(script, name, func);
         }
     }
 
-    void ScriptManager::RegisterVariable(const std::string& script, const std::string& name, void* variable) {
+    void ScriptManager::RegisterVariable(const std::string& name, void* variable) {
         for(auto& backend : backends) {
-            backend.second->RegisterVariable(script, name, variable);
+            backend.second->RegisterVariable(name, variable);
         }
     }
 

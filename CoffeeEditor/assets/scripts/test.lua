@@ -18,33 +18,23 @@ end
 function OnUpdate()
     --log("OnUpdate()")
 
-    local entityTag = entity:GetComponent("TagComponent").tag
-    log(entityTag)
+    local entityTag = entity:GetComponent(entity)
+    --print("Entity tag: " .. entityTag)
 
-    local transform = entity:GetComponent("TransformComponent")
-    local entityPosition = transform.position
-    log(tostring(entityPosition.x) .. ", " .. tostring(entityPosition.y) .. ", " .. tostring(entityPosition.z))
-
-    if input.is_key_pressed(input.keycode.W) then
-        entityPosition.y = entityPosition.y + 0.01
+    if input.is_key_pressed(input.keycode.SPACE) then
+        log("SPACE")
     end
-    if input.is_key_pressed(input.keycode.A) then
-        entityPosition.x = entityPosition.x - 0.01
-    end
-    if input.is_key_pressed(input.keycode.S) then
-        entityPosition.y = entityPosition.y - 0.01
-    end
-    if input.is_key_pressed(input.keycode.D) then
-        entityPosition.x = entityPosition.x + 0.01
-    end
-
-    log(tostring(entityPosition.x) .. ", " .. tostring(entityPosition.y) .. ", " .. tostring(entityPosition.z))
 
     if input.is_mouse_button_pressed(input.mousecode.LEFT) then
         log("LEFT")
         local x, y = input.get_mouse_position()
         log("Mouse position: (" .. x .. ", " .. y .. ")")
     end
+
+    log("BOOL: " .. tostring(exampleBool))
+    log("INT: " .. exampleInt)
+    log("FLOAT: " .. exampleFloat)
+    log("STRING: " .. exampleString)
     return 1
 end
 

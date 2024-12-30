@@ -22,8 +22,7 @@ namespace Coffee {
     class OctreeNode
     {
     public:
-        AABB localAABB;
-        glm::mat4 transform;
+        AABB aabb;
         bool isLeaf = true;
         std::vector<ObjectContainer<T>> objectList;
         std::array<Scope<OctreeNode>, 8> children;

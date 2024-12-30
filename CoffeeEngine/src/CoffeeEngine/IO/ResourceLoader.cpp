@@ -216,12 +216,13 @@ namespace Coffee {
 
     Ref<Shader> ResourceLoader::LoadShader(const std::filesystem::path& shaderPath)
     {
-        if(ResourceRegistry::Exists(name))
+        if(GetResourceTypeFromExtension(shaderPath) != ResourceType::Shader)
         {
-            return ResourceRegistry::Get<Mesh>(name);
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Shader>: Resource is not a shader!");
+            return nullptr;
         }
 
-        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, vertices, indices);
+        UUID uuid = GetUUIDFromImportFile(shaderPath);
 
         if(ResourceRegistry::Exists(uuid))
         {
