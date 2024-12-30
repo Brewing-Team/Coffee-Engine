@@ -18,6 +18,14 @@ namespace Coffee {
 
         private:
             Ref<Scene> m_Context;
+
+            // TODO remove temp mockup variables
+            bool srgb = false;
+            bool flipY = false;
+            bool flipX = false;
+            float globalScale;
+            bool ignoreLight = false;
+            bool ignoreCamera = false;
     };
 
 }

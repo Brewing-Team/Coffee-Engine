@@ -27,7 +27,70 @@ namespace Coffee {
         {
             if (selectedResource)
             {
+                ResourceType type = selectedResource->GetType();
+
                 ImGui::Text("Selected Resource: %s", selectedResource->GetName().c_str());
+                ImGui::Separator();
+                switch (type)
+                {
+                    using enum ResourceType;
+                    case Unknown:
+                        break;
+                    case Texture:
+                        ImGui::Text("Texture Properties");
+                        ImGui::Checkbox("sRGB", &srgb);
+                        ImGui::Checkbox("Flip Y", &flipY);
+                        ImGui::Checkbox("Flip X", &flipX);
+
+                        ImGui::Separator();
+                        ImGui::Button("Reimport");
+
+                        break;
+                    case Texture2D:
+                        ImGui::Text("Texture Properties");
+                        ImGui::Checkbox("sRGB", &srgb);
+                        ImGui::Checkbox("Flip Y", &flipY);
+                        ImGui::Checkbox("Flip X", &flipX);
+
+                        ImGui::Separator();
+                        ImGui::Button("Reimport");
+
+                        break;
+                    case Cubemap:
+                        break;
+                case Model:
+                        ImGui::Text("Model Properties");
+                        ImGui::Separator();
+                        ImGui::InputFloat("Global Scale", &globalScale);
+
+                        ImGui::Text("Camera Properties");
+                        ImGui::Separator();
+                        ImGui::Checkbox("Ignore Cameras", &ignoreCamera);
+
+                        ImGui::Text("Light Properties");
+                        ImGui::Separator();
+                        ImGui::Checkbox("Ignore Lights", &ignoreLight);
+
+                        ImGui::Separator();
+                        ImGui::Button("Reimport");
+
+                        break;
+                    case Mesh:
+
+                        ImGui::Separator();
+                        ImGui::Button("Reimport");
+                        break;
+                    case Shader:
+
+                        ImGui::Separator();
+                        ImGui::Button("Reimport");
+                        break;
+                    case Material:
+
+                        ImGui::Separator();
+                        ImGui::Button("Reimport");
+                        break;
+                }
             }
             else
             {
