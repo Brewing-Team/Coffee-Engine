@@ -2,13 +2,12 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
-#include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
-#include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
@@ -33,7 +32,7 @@
 
 namespace Coffee {
 
-    Scene::Scene() : m_Octree({glm::vec3(-10.0f), glm::vec3(10.0f)}, 2, 5)
+    Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
     }
@@ -209,8 +208,22 @@ namespace Coffee {
         Renderer::BeginScene(*camera, cameraTransform);
 
         m_Octree.DebugDraw();
+
+        // Get all the static meshes from the Octree
+
+        glm::mat4 testProjection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
+
+        Frustum frustum = Frustum(camera->GetProjection() /* testProjection */ * glm::inverse(cameraTransform));
+        DebugRenderer::DrawFrustum(frustum, glm::vec4(1.0f), 1.0f);
+
+        auto meshes = m_Octree.Query(frustum);
+
+        for(auto& mesh : meshes)
+        {
+            Renderer::Submit(RenderCommand{mesh.transform, mesh.object, mesh.object->GetMaterial(), 0});
+        }
         
-        // Get all entities with ModelComponent and TransformComponent
+/*         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
         // Loop through each entity with the specified components
@@ -225,7 +238,7 @@ namespace Coffee {
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
             Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
-        }
+        } */
 
         //Get all entities with LightComponent and TransformComponent
         auto lightView = m_Registry.view<LightComponent, TransformComponent>();
