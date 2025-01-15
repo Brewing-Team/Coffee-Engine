@@ -127,4 +127,4 @@ This project makes use of several open-source libraries and resources that have 
 - **[LearnOpenGL](https://learnopengl.com/)**: Comprehensive OpenGL tutorial and resource site.
 - **[Hazel](https://github.com/TheCherno/Hazel)**: A small game engine developed by TheCherno as part of his game engine series.
 - **[Godot](https://godotengine.org/)**: An advanced, feature-packed, multi-platform 2D and 3D open-source game engine.
-- **[skypjack on software](https://skypjack.github.io/)**: Blog and resources on software development by skypjack.
+- **[skypjack on software](https://skypjack.github.io/)**: Blog and resources on software development by skypjack. 
