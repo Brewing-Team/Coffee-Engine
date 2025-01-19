@@ -35,5 +35,5 @@ uniform samplerCube skybox;
 void main()
 {
     FragColor = texture(skybox, TexCoord);
-    EntityID = vec4(-1.0, 0.0, 0.0, 0.0);
+    EntityID = vec4(1.0, 1.0, 1.0, 1.0);
 }

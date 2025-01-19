@@ -149,7 +149,7 @@ namespace Coffee {
 
                     uint32_t entityID = (r << 0) | (g << 8) | (b << 16);
 
-                    Entity hoveredEntity = entityID == -1 ? Entity() : Entity((entt::entity)entityID, m_ActiveScene.get());
+                    Entity hoveredEntity = entityID == 16777215 ? Entity() : Entity((entt::entity)entityID, m_ActiveScene.get());
 
                     m_SceneTreePanel.SetSelectedEntity(hoveredEntity);
                 }
