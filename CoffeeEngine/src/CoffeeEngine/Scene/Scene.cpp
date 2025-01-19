@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
@@ -84,11 +85,21 @@ namespace Coffee {
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        // TEST ------------------------------
-        for(int i = 0; i < 25; i++)
-        {
-            m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
-        } */
+        Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
+        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
+
+        // TODO move this
+        ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
+
+        camera.AddComponent<ScriptComponent>("assets/scripts/CameraController.lua", ScriptingLanguage::Lua, m_Registry);
+
+        Entity scriptEntity = CreateEntity("Script");
+        //scriptEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
+        scriptEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        scriptEntity.AddComponent<MaterialComponent>();
+
+        //Entity scriptEntity2 = CreateEntity("Script2");
+        //scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor*/
     }
 
     void Scene::OnInitRuntime()
