@@ -17,11 +17,7 @@ namespace Coffee {
     class ScriptManager {
     public:
         static void RegisterBackend(ScriptingLanguage language, std::shared_ptr<IScriptingBackend> backend);
-        static void ExecuteScriptFromFile(Script script);
-        static void RegisterFunction(const std::string& script, const std::string& name, std::function<int()> func);
-        static void BindFunction(const std::string& script, const std::string& name, std::function<int()>& func);
-        static void RegisterVariable(const std::string& name, void* variable);
-
+        static void RemoveBackend(ScriptingLanguage language);
     private:
         static std::unordered_map<ScriptingLanguage, Ref<IScriptingBackend>> backends;
     };
