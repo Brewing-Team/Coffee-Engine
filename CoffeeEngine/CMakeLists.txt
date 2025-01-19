@@ -60,7 +60,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Tracy::TracyClient
     nfd::nfd
     icon_font_cpp_headers
-    WWISE
+    Wwise
     ${LUA_LIBRARIES}
 )
 
