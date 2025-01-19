@@ -90,3 +90,5 @@ else()
 target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=0)
 message(STATUS "COFFEE_DEBUG DISABLED!")
 endif()
+
+add_definitions(-DUNICODE -D_UNICODE)
