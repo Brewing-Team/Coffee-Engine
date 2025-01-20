@@ -20,6 +20,8 @@ set(SAMPLES_DIR "${WWISE_SDK_DIR}/samples")
 file(GLOB_RECURSE SOURCES
     "${SAMPLES_DIR}/SoundEngine/Common/*.h"
     "${SAMPLES_DIR}/SoundEngine/Common/*.cpp"
+    "${SAMPLES_DIR}/SoundEngine/Win32/*.h"
+    "${SAMPLES_DIR}/SoundEngine/Win32/*.cpp"
 )
 
 # Add a library target for Wwise
