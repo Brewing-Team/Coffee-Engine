@@ -18,14 +18,8 @@ set(SAMPLES_DIR "${WWISE_SDK_DIR}/samples")
 
 # Gather sources
 file(GLOB_RECURSE SOURCES
-    "${WWISE_SDK_DIR}/source/StreamManager/Common/*.cpp"
-    "${WWISE_SDK_DIR}/source/StreamManager/Common/*.h"
-    "${WWISE_SDK_DIR}/source/StreamManager/Win32/*.cpp"
-    "${WWISE_SDK_DIR}/source/StreamManager/Win32/*.h"
     "${SAMPLES_DIR}/SoundEngine/Common/*.h"
     "${SAMPLES_DIR}/SoundEngine/Common/*.cpp"
-    "${SAMPLES_DIR}/SoundEngine/Win32/*.cpp"
-    "${SAMPLES_DIR}/SoundEngine/Win32/*.cpp"
 )
 
 # Add a library target for Wwise
@@ -36,9 +30,6 @@ target_include_directories(${PROJECT_NAME}
     PUBLIC "${WWISE_SDK_DIR}/include"
               "${SAMPLES_DIR}/SoundEngine/Common"
               "${SAMPLES_DIR}/SoundEngine/Win32"
-              "${WWISE_SDK_DIR}/source/StreamManager/Common"
-              "${WWISE_SDK_DIR}/source/StreamManager/Win32"
-
 )
 
 # Platform-specific configurations (adjust as needed)
