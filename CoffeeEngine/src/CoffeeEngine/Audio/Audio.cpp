@@ -1,71 +1,63 @@
 #include "Audio.h"
 
-#include "assert.h"
-
 #include "AK/IBytes.h"
 #include <AK/SoundEngine/Common/AkTypes.h>
+#include <cassert>
 
-#include "AK/SoundEngine/Common/AkMemoryMgr.h"			// Memory Manager interface
-#include <AK/SoundEngine/Common/AkMemoryMgrModule.h>
-#include "AK/SoundEngine/Common/AkStreamMgrModule.h"
-
-#include "AK/SoundEngine/Common/IAkStreamMgr.h"			// Streaming Manager
-#include "AK/Tools/Common/AkPlatformFuncs.h"			// Thread defines
-
-#include "AK/SoundEngine/Common/AkSoundEngine.h"		// Sound engine
-
-#include "AK/MusicEngine/Common/AkMusicEngine.h"		// Music Engine
-
-#include "AK/SpatialAudio/Common/AkSpatialAudio.h"
-
-#include "AkFilePackageLowLevelIODeferred.h"
-
-
-#include <AK/Plugin/AllPluginsFactories.h>
+#include <AK/MusicEngine/Common/AkMusicEngine.h>     // Music Engine
+#include <AK/Plugin/AllPluginsFactories.h>           // Plugin factories
+#include <AK/SoundEngine/Common/AkMemoryMgr.h>       // Memory Manager interface
+#include <AK/SoundEngine/Common/AkModule.h>  
+#include <AK/SoundEngine/Common/AkSoundEngine.h>     // Sound Engine
+#include <AK/SoundEngine/Common/AkStreamMgrModule.h> // Stream Manager
+#include <AK/SpatialAudio/Common/AkSpatialAudio.h>   // Spatial Audio
 
 #ifndef AK_OPTIMIZED
-#include "AK/Comm/AkCommunication.h"
+#include <AK/Comm/AkCommunication.h> // Communication (for debug builds)
 #endif
 
-CAkFilePackageLowLevelIODeferred* g_lowLevelIO;
+#include "AkFilePackageLowLevelIODeferred.h" // File I/O
 
-namespace Coffee {
+namespace Coffee
+{
+
+    // Global pointer for the low-level IO
+    CAkFilePackageLowLevelIODeferred* g_lowLevelIO = nullptr;
 
     void Audio::Init()
     {
+        // Initialize the Memory Manager
         AkMemSettings memSettings;
         AK::MemoryMgr::GetDefaultSettings(memSettings);
 
         if (AK::MemoryMgr::Init(&memSettings) != AK_Success)
         {
-            assert(!"Could not create the memory manager.");
+            assert(!"Could not create the Memory Manager.");
+            return;
         }
 
+        // Initialize the Stream Manager
         AkStreamMgrSettings stmSettings;
         AK::StreamMgr::GetDefaultSettings(stmSettings);
 
-        // Customize the Stream Manager settings here.
-
         if (!AK::StreamMgr::Create(stmSettings))
         {
-            assert(!"Could not create the Streaming Manager");
+            assert(!"Could not create the Stream Manager.");
+            return;
         }
 
-        //
-        // Create a streaming device.
-        // Note that you can override the default low-level I/O module with your own.
-        //
+        // Create the low-level IO manager
         AkDeviceSettings deviceSettings;
         AK::StreamMgr::GetDefaultDeviceSettings(deviceSettings);
 
         g_lowLevelIO = new CAkFilePackageLowLevelIODeferred();
+        if (g_lowLevelIO->Init(deviceSettings) != AK_Success)
+        {
+            assert(!"Could not initialize the Low-Level IO.");
+            return;
+        }
 
-
-        // Customize the streaming device settings here.
-
-        // CAkFilePackageLowLevelIODeferred::Init() creates a streaming device
-        // in the Stream Manager, and registers itself as the File Location Resolver.
-
+        // Initialize the Sound Engine
         AkInitSettings initSettings;
         AkPlatformInitSettings platformInitSettings;
         AK::SoundEngine::GetDefaultInitSettings(initSettings);
@@ -74,44 +66,62 @@ namespace Coffee {
         if (AK::SoundEngine::Init(&initSettings, &platformInitSettings) != AK_Success)
         {
             assert(!"Could not initialize the Sound Engine.");
+            return;
         }
 
-        AkMusicSettings musicInit;
-        AK::MusicEngine::GetDefaultInitSettings(musicInit);
+        // Initialize the Music Engine
+        AkMusicSettings musicInitSettings;
+        AK::MusicEngine::GetDefaultInitSettings(musicInitSettings);
 
-        if (AK::MusicEngine::Init(&musicInit) != AK_Success)
+        if (AK::MusicEngine::Init(&musicInitSettings) != AK_Success)
         {
             assert(!"Could not initialize the Music Engine.");
+            return;
         }
 
-        AkSpatialAudioInitSettings settings; // The constructor fills AkSpatialAudioInitSettings with the recommended default settings.
-        if (AK::SpatialAudio::Init(settings) != AK_Success)
+        // Initialize the Spatial Audio module
+        AkSpatialAudioInitSettings spatialAudioSettings;
+        if (AK::SpatialAudio::Init(spatialAudioSettings) != AK_Success)
         {
-            assert(!"Could not initialize the Spatial Audio.");
+            assert(!"Could not initialize the Spatial Audio module.");
+            return;
         }
 
 #ifndef AK_OPTIMIZED
+        // Initialize the Communication module (debug builds only)
         AkCommSettings commSettings;
         AK::Comm::GetDefaultInitSettings(commSettings);
+
         if (AK::Comm::Init(commSettings) != AK_Success)
         {
-            assert(!"Could not initialize communication.");
+            assert(!"Could not initialize the Communication module.");
+            return;
         }
 #endif // AK_OPTIMIZED
     }
 
     void Audio::Shutdown()
     {
+#ifndef AK_OPTIMIZED
+        // Terminate the Communication module
         AK::Comm::Term();
-        //AK::SpatialAudio::Term();
+#endif // AK_OPTIMIZED
+
+        // Terminate the Music Engine
         AK::MusicEngine::Term();
+
+        // Terminate the Sound Engine
         AK::SoundEngine::Term();
 
-
-        if ( AK::IAkStreamMgr::Get() )
+        // Destroy the Stream Manager and terminate the low-level IO
+        if (AK::IAkStreamMgr::Get())
+        {
+            g_lowLevelIO->Term();
+            delete g_lowLevelIO;
             AK::IAkStreamMgr::Get()->Destroy();
+        }
 
+        // Terminate the Memory Manager
         AK::MemoryMgr::Term();
     }
-
-}
+} // namespace Coffee

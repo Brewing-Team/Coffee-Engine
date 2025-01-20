@@ -92,8 +92,6 @@ namespace Coffee {
         {
             m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
         } */
-
-        Audio::Init();
     }
 
     void Scene::OnInitRuntime()
