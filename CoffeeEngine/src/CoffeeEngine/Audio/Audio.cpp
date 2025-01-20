@@ -52,6 +52,11 @@ namespace Coffee
             return;
     }
 
+    void Audio::ProcessAudio()
+    {
+        AK::SoundEngine::RenderAudio();
+    }
+
     bool Audio::InitializeMemoryManager()
     {
         AkMemSettings memSettings;

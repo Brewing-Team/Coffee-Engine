@@ -20,6 +20,11 @@ namespace Coffee {
          */
         static void Shutdown();
 
+        /**
+         * @brief Processes audio.
+         */
+        static void ProcessAudio();
+
     private:
 
         /**

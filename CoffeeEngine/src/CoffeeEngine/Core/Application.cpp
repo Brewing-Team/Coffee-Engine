@@ -93,6 +93,9 @@ namespace Coffee
             //Poll and handle events
             ProcessEvents();
 
+            //Process audio
+            Audio::ProcessAudio();
+
             //Update and render
             {
                 ZoneScopedN("LayerStack Update");
