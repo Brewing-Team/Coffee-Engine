@@ -33,27 +33,53 @@ namespace Coffee
 
     void Audio::Init()
     {
-        // Initialize the Memory Manager
+        if (!InitializeMemoryManager())
+            return;
+
+        if (!InitializeStreamManager())
+            return;
+
+        if (!InitializeLowLevelIO())
+            return;
+
+        if (!InitializeSoundEngine())
+            return;
+
+        if (!InitializeMusicEngine())
+            return;
+
+        if (!InitializeSpatialAudio())
+            return;
+    }
+
+    bool Audio::InitializeMemoryManager()
+    {
         AkMemSettings memSettings;
         AK::MemoryMgr::GetDefaultSettings(memSettings);
 
         if (AK::MemoryMgr::Init(&memSettings) != AK_Success)
         {
             assert(!"Could not create the Memory Manager.");
-            return;
+            return false;
         }
+        return true;
+    }
 
-        // Initialize the Stream Manager
+    bool Audio::InitializeStreamManager()
+    {
         AkStreamMgrSettings stmSettings;
         AK::StreamMgr::GetDefaultSettings(stmSettings);
 
         if (!AK::StreamMgr::Create(stmSettings))
         {
             assert(!"Could not create the Stream Manager.");
-            return;
+            return false;
         }
+        return true;
+    }
 
-        // Create the low-level IO manager
+    bool Audio::InitializeLowLevelIO()
+    {
         AkDeviceSettings deviceSettings;
         AK::StreamMgr::GetDefaultDeviceSettings(deviceSettings);
 
@@ -61,10 +87,13 @@ namespace Coffee
         if (g_lowLevelIO->Init(deviceSettings) != AK_Success)
         {
             assert(!"Could not initialize the Low-Level IO.");
-            return;
+            return false;
         }
+        return true;
+    }
 
-        // Initialize the Sound Engine
+    bool Audio::InitializeSoundEngine()
+    {
         AkInitSettings initSettings;
         AkPlatformInitSettings platformInitSettings;
         AK::SoundEngine::GetDefaultInitSettings(initSettings);
@@ -73,39 +102,49 @@ namespace Coffee
         if (AK::SoundEngine::Init(&initSettings, &platformInitSettings) != AK_Success)
         {
             assert(!"Could not initialize the Sound Engine.");
-            return;
+            return false;
         }
+        return true;
+    }
 
-        // Initialize the Music Engine
+    bool Audio::InitializeMusicEngine()
+    {
         AkMusicSettings musicInitSettings;
         AK::MusicEngine::GetDefaultInitSettings(musicInitSettings);
 
         if (AK::MusicEngine::Init(&musicInitSettings) != AK_Success)
         {
             assert(!"Could not initialize the Music Engine.");
-            return;
+            return false;
         }
+        return true;
+    }
 
-        // Initialize the Spatial Audio module
+    bool Audio::InitializeSpatialAudio()
+    {
         AkSpatialAudioInitSettings spatialAudioSettings;
         if (AK::SpatialAudio::Init(spatialAudioSettings) != AK_Success)
         {
             assert(!"Could not initialize the Spatial Audio module.");
-            return;
+            return false;
         }
+        return true;
+    }
 
 #ifndef AK_OPTIMIZED
-        // Initialize the Communication module (debug builds only)
+    bool Audio::InitializeCommunicationModule()
+    {
         AkCommSettings commSettings;
         AK::Comm::GetDefaultInitSettings(commSettings);
 
         if (AK::Comm::Init(commSettings) != AK_Success)
         {
             assert(!"Could not initialize the Communication module.");
-            return;
+            return false;
         }
-#endif // AK_OPTIMIZED
+        return true;
     }
+#endif // AK_OPTIMIZED
 
     void Audio::Shutdown()
     {
