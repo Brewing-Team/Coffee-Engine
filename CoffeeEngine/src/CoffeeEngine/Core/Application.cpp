@@ -33,6 +33,7 @@ namespace Coffee
 
     Application::~Application()
     {
+        Audio::Shutdown();
     }
 
     void Application::PushLayer(Layer* layer)
