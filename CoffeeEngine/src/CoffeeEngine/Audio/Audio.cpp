@@ -2,29 +2,6 @@
 
 #include <cassert>
 
-#include <AK/IBytes.h>
-#include <AK/SoundEngine/Common/AkTypes.h>
-
-#include <AK/MusicEngine/Common/AkMusicEngine.h>     // Music Engine
-#include <AK/Plugin/AllPluginsFactories.h>           // Plugin factories
-#include <AK/SoundEngine/Common/AkMemoryMgr.h>       // Memory Manager interface
-
-#include <AK/SoundEngine/Common/AkSoundEngine.h>     // Sound Engine
-#include <AK/SoundEngine/Common/AkStreamMgrModule.h> // Stream Manager
-#include <AK/SpatialAudio/Common/AkSpatialAudio.h>   // Spatial Audio
-
-#if AK_WWISESDK_VERSION_MAJOR < 2024
-#include <AK/SoundEngine/Common/AkModule.h> // Default memory manager
-#else
-#include <AK/SoundEngine/Common/AkMemoryMgrModule.h> // Default memory manager
-#endif
-
-#ifndef AK_OPTIMIZED
-#include <AK/Comm/AkCommunication.h> // Communication (for debug builds)
-#endif
-
-#include <AkFilePackageLowLevelIODeferred.h> // File I/O
-
 namespace Coffee
 {
 
@@ -69,7 +46,12 @@ namespace Coffee
         AK::SoundEngine::RegisterGameObj(listenerID);
         AK::SoundEngine::SetDefaultListeners(&listenerID, 1);
 
-        AK::SoundEngine::PostEvent("Play_test_sound", gameObjectID);
+        Play("Play_test_sound", gameObjectID);
+    }
+
+    void Audio::Play(const char* eventName, AkGameObjectID gameObjectID)
+    {
+        AK::SoundEngine::PostEvent(eventName, gameObjectID);
     }
 
     void Audio::ProcessAudio()
