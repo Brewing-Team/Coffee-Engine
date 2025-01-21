@@ -53,6 +53,23 @@ namespace Coffee
 
         if (!InitializeCommunicationModule())
             return;
+
+        g_lowLevelIO->SetBasePath(AKTEXT("assets\\audio\\Wwise Project\\GeneratedSoundBanks\\Windows"));
+
+        AkBankID bankID;
+        AK::SoundEngine::LoadBank("Init.bnk", bankID);
+        AK::SoundEngine::LoadBank("CoffeeEngine.bnk", bankID);
+
+        // Register the game object
+        AkGameObjectID gameObjectID = 100;
+        AK::SoundEngine::RegisterGameObj(gameObjectID);
+
+        // Set the listener
+        AkGameObjectID listenerID = 200;
+        AK::SoundEngine::RegisterGameObj(listenerID);
+        AK::SoundEngine::SetDefaultListeners(&listenerID, 1);
+
+        AK::SoundEngine::PostEvent("Play_test_sound", gameObjectID);
     }
 
     void Audio::ProcessAudio()
@@ -158,6 +175,9 @@ namespace Coffee
 
     void Audio::Shutdown()
     {
+        // Unload the soundbanks
+        AK::SoundEngine::ClearBanks();
+
 #ifndef AK_OPTIMIZED
         // Terminate the Communication module
         AK::Comm::Term();
