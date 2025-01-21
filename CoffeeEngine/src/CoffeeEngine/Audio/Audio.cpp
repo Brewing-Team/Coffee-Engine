@@ -50,6 +50,9 @@ namespace Coffee
 
         if (!InitializeSpatialAudio())
             return;
+
+        if (!InitializeCommunicationModule())
+            return;
     }
 
     void Audio::ProcessAudio()
@@ -136,20 +139,22 @@ namespace Coffee
         return true;
     }
 
-#ifndef AK_OPTIMIZED
     bool Audio::InitializeCommunicationModule()
     {
+#ifndef AK_OPTIMIZED
         AkCommSettings commSettings;
         AK::Comm::GetDefaultInitSettings(commSettings);
+
+        AKPLATFORM::SafeStrCpy(commSettings.szAppNetworkName, "Coffee Engine", AK_COMM_SETTINGS_MAX_STRING_SIZE);
 
         if (AK::Comm::Init(commSettings) != AK_Success)
         {
             assert(!"Could not initialize the Communication module.");
             return false;
         }
+#endif // AK_OPTIMIZED
         return true;
     }
-#endif // AK_OPTIMIZED
 
     void Audio::Shutdown()
     {
