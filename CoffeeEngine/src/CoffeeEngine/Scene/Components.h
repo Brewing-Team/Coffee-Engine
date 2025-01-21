@@ -18,6 +18,7 @@
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include "CoffeeEngine/Scripting/Script.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 
@@ -283,6 +284,40 @@ namespace Coffee {
         {
             archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
+    };
+    
+    // Move it to the Component.h
+    template<typename DerivedScript>
+    struct ScriptComponent
+    {
+        Script<DerivedScript> script;
+
+        ScriptComponent() = default;
+        ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)
+        {
+            switch (language)
+            {
+                using enum ScriptingLanguage;
+            case Lua:
+                script = ScriptManager::CreateScript<DerivedScript>(path, language);
+                break;
+            case cSharp:
+                break;
+            }
+        }
+/* 
+        static void OnConstruct(entt::registry& registry, entt::entity entity)
+        {
+            auto& scriptComponent = registry.get<ScriptComponent<DerivedScript>>(entity);
+
+            if(Editor is in runtime)
+            {
+                ScriptManager::ExecuteScript(scriptComponent.script);
+                script.OnScenetreeEntered();
+            }
+        } */
+
+
     };
 }
 

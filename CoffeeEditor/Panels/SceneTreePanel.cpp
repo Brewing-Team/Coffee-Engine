@@ -560,20 +560,20 @@ namespace Coffee {
                 }
             }
         }
-
-        if (entity.HasComponent<ScriptComponent>())
+        
+        /*if (entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                /*
-                ImGui::Text("Script Name: ");
-                ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
+                
+                //ImGui::Text("Script Name: ");
+                //ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
 
-                ImGui::Text("Script Path: ");
-                ImGui::Text(scriptComponent.script.GetPath().string().c_str());
-                */
+                //ImGui::Text("Script Path: ");
+                //ImGui::Text(scriptComponent.script.GetPath().string().c_str());
+                
 
                 // Get the exposed variables
                 std::vector<LuaVariable> exposedVariables = LuaBackend::MapVariables(scriptComponent.script.GetPath().string());
@@ -628,7 +628,7 @@ namespace Coffee {
                     }
                 }
             }
-        }
+        }*/
 
         ImGui::Separator();
 
@@ -716,7 +716,7 @@ namespace Coffee {
                 }
                 else if(items[item_current] == "Script Component")
                 {
-                    if(!entity.HasComponent<ScriptComponent>())
+                    //if(!entity.HasComponent<ScriptComponent>())
                         //entity.AddComponent<ScriptComponent>();
                         // TODO add script component
                     ImGui::CloseCurrentPopup();

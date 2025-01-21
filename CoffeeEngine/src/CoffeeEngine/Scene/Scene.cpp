@@ -14,8 +14,6 @@
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
-#include "CoffeeEngine/Scripting/ScriptManager.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
@@ -85,11 +83,18 @@ namespace Coffee {
         Entity camera = CreateEntity("Camera");
         camera.AddComponent<CameraComponent>();
 
-        // TEST ------------------------------
-        for(int i = 0; i < 25; i++)
-        {
-            m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
-        } */
+        Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
+        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
+
+        camera.AddComponent<ScriptComponent>("assets/scripts/CameraController.lua", ScriptingLanguage::Lua, m_Registry);
+
+        Entity scriptEntity = CreateEntity("Script");
+        //scriptEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
+        scriptEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        scriptEntity.AddComponent<MaterialComponent>();
+
+        //Entity scriptEntity2 = CreateEntity("Script2");
+        //scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor*/
     }
 
     void Scene::OnInitRuntime()
@@ -187,7 +192,7 @@ namespace Coffee {
         }
 
         // Get all entities with ScriptComponent
-        auto scriptView = m_Registry.view<ScriptComponent>();
+        /*auto scriptView = m_Registry.view<ScriptComponent>();
 
         for (auto& entity : scriptView)
         {
@@ -195,7 +200,7 @@ namespace Coffee {
 
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
 
-            ScriptManager::RegisterVariable(scriptComponent.script.GetPath().string(), "entity", (void*)&scriptEntity);
+            /ScriptManager::RegisterVariable(scriptComponent.script.GetPath().string(), "entity", (void*)&scriptEntity);
 
             auto update = scriptComponent.script.OnUpdate();
             if(!update.valid())
@@ -203,7 +208,7 @@ namespace Coffee {
                sol::error err = update;
                COFFEE_CORE_ERROR("Error executing script: {0}", err.what());
             }
-        }
+        }*/
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::BeginScene(*camera, cameraTransform);

@@ -3,59 +3,39 @@
 #include "CoffeeEngine/Scripting/ScriptManager.h"
 #include <entt/entity/registry.hpp>
 
-#include <functional>
 #include <filesystem>
+#include <functional>
 
 namespace Coffee
 {
+    template<typename DerivedScript>
     class Script
     {
     public:
-        Script(const std::filesystem::path& filepath, ScriptingLanguage language)
-            : m_Language(language), m_Path(filepath) {}
+        virtual void OnReady() = 0;
+        virtual void OnUpdate(float dt) = 0;
+        virtual void OnExit() = 0;
 
-        std::function<int()> OnCreate;
-        std::function<int()> OnUpdate;
-        std::function<int()> OnDestroy;
-
-        const std::filesystem::path& GetPath() const { return m_Path; }
-        const ScriptingLanguage& GetLanguage() const { return m_Language; }
-
-    private:
-        ScriptingLanguage m_Language;
-        std::filesystem::path m_Path;
-    };
-
-    struct ScriptComponent
-    {
-        Script script;
-
-        ScriptComponent() = default;
-        ScriptComponent(const std::filesystem::path& filepath, ScriptingLanguage language, entt::registry& registry)
-            : script(filepath, language)
+        // The function parameter should be more generic
+        template <typename Ret, typename... Args>
+        void RegisterFunction(const std::string& name, std::function<Ret(Args...)> function)
         {
-            registry.on_construct<ScriptComponent>().connect<&ScriptComponent::OnConstruct>();
-            registry.on_destroy<ScriptComponent>().connect<&ScriptComponent::OnDestroy>();
+            static_cast<DerivedScript*>(this)->RegisterFunction(name, function);
         }
-        ScriptComponent(const Script& script)
-            : script(script) {}
+        virtual void CallFunction(const std::string& functionName) = 0;
 
-        static void OnConstruct(entt::registry& registry, entt::entity entity)
+        // The variable parameter should be more generic
+        //virtual void SetVariable(const std::string& name, std::any value) = 0;
+        template <typename T>
+        void SetVariable(const std::string& name, T value)
         {
-            auto& scriptComponent = registry.get<ScriptComponent>(entity);
-            
-            ScriptManager::ExecuteScriptFromFile(scriptComponent.script);
-            ScriptManager::BindFunction(scriptComponent.script.GetPath().string(), "OnCreate", scriptComponent.script.OnCreate);
-            ScriptManager::BindFunction(scriptComponent.script.GetPath().string(), "OnUpdate", scriptComponent.script.OnUpdate);
-            ScriptManager::BindFunction(scriptComponent.script.GetPath().string(), "OnDestroy", scriptComponent.script.OnDestroy);
-
-            scriptComponent.script.OnCreate();
+            static_cast<DerivedScript*>(this)->SetVariable(name, value);
         }
 
-        static void OnDestroy(entt::registry& registry, entt::entity entity)
+        template <typename T>
+        T GetVariable(const std::string& name)
         {
-            auto& scriptComponent = registry.get<ScriptComponent>(entity);
-            scriptComponent.script.OnDestroy();
+            static_cast<DerivedScript*>(this)->GetVariable(name);
         }
     };
 }

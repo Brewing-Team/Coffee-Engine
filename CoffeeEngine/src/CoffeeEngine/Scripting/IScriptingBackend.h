@@ -1,10 +1,11 @@
 #pragma once
-#include <filesystem>
-#include <functional>
-#include <string>
 
+#include <filesystem>
 namespace Coffee {
 
+    template<typename DerivedScript>
+    class Script;
+    
     class IScriptingBackend {
 
         public:
@@ -18,27 +19,19 @@ namespace Coffee {
              */
             virtual void Initialize() = 0;
 
-            /**
-             * @brief Executes a script.
-             *
-             * @param script The script to execute.
-             */
-            virtual void ExecuteScript(const std::string& script) = 0;
+            template<typename DerivedScript>
+            Script<DerivedScript> CreateScript(const std::filesystem::path& path)
+            {
+                return static_cast<DerivedScript*>(this)->CreateScript(path);
+            }
 
-            virtual void ExecuteFile(const std::filesystem::path& filepath) = 0;
+            template<typename DerivedScript>
+            void ExecuteScript(const Script<DerivedScript>& script)
+            {
+                //static_cast<DerivedScript*>(this)->ExecuteScript(script);
+            }
 
-            /**
-             * @brief Registers a function with the scripting backend.
-             *
-             * @param name The name of the function.
-             * @param func The function to register.
-             */
-            virtual void RegisterFunction(const std::string& script, std::function<int()> func, const std::string& name) = 0;
-
-            virtual void BindFunction(const std::string& script, const std::string& name, std::function<int()>& func) = 0;
-
-            virtual void RegisterVariable(const std::string& name, void* variable) = 0;
-
+            virtual void Shutdown() = 0;
     };
 
 } // namespace Coffee

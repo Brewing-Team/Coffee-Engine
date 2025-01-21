@@ -4,15 +4,17 @@
 #include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
+#include <fstream>
+#include <regex>
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 
 #define SOL_PRINT_ERRORS 1
 
 namespace Coffee {
 
     sol::state LuaBackend::luaState;
-    std::unordered_map<std::string, sol::environment> LuaBackend::scriptEnvironments;
 
     void BindKeyCodesToLua(sol::state& lua, sol::table& inputTable)
     {
@@ -439,72 +441,34 @@ namespace Coffee {
 
     }
 
-    void LuaBackend::ExecuteScript(const std::string& script) {
+    LuaScript LuaBackend::CreateScript(const std::string& path) {
+        return LuaScript(path);
+    }
+
+    void LuaBackend::ExecuteScript(const LuaScript& script) {
         try {
-            sol::environment env(luaState, sol::create, luaState.globals());
-            scriptEnvironments[script] = env;
-            luaState.script(script, env);
+            luaState.script(script.GetPath().string(), script.GetEnvironment());
         } catch (const sol::error& e) {
             COFFEE_CORE_ERROR("[Lua Error]: {0}", e.what());
         }
-    }
-
-    void LuaBackend::ExecuteFile(const std::filesystem::path& filepath) {
-        try {
-            sol::environment env(luaState, sol::create, luaState.globals());
-            scriptEnvironments[filepath.string()] = env;
-            luaState.script_file(filepath.string(), env);
-        } catch (const sol::error& e) {
-            COFFEE_CORE_ERROR("[Lua Error]: {0}", e.what());
-        }
-    }
-
-    void LuaBackend::RegisterFunction(const std::string& script, std::function<int()> func, const std::string& name) {
-        auto it = scriptEnvironments.find(script);
-        if (it != scriptEnvironments.end()) {
-            it->second.set_function(name, func);
-            COFFEE_CORE_INFO("Registered Lua function {0} in script {1}", name, script);
-        } else {
-            COFFEE_CORE_ERROR("Script environment for {0} not found", script);
-        }
-    }
-
-    void LuaBackend::BindFunction(const std::string& script, const std::string& name, std::function<int()>& func) {
-        auto it = scriptEnvironments.find(script);
-        if (it != scriptEnvironments.end()) {
-            func = it->second[name];
-            COFFEE_CORE_INFO("Bound Lua function {0} in script {1}", name, script);
-        } else {
-            COFFEE_CORE_ERROR("Script environment for {0} not found", script);
-        }
-    }
-
-    void LuaBackend::RegisterVariable(const std::string& name, void* variable)
-    {
-        luaState[name] = variable;
     }
 
     // This function will check all the variables from the script and map them to a cpp map so we can expose them in the editor
-    std::vector<LuaVariable> LuaBackend::MapVariables(const std::string& scriptPath) {
+    std::vector<LuaVariable> LuaBackend::MapVariables(const LuaScript& script) {
+
         std::vector<LuaVariable> variables;
-        std::ifstream scriptFile(scriptPath);
-        std::string script((std::istreambuf_iterator<char>(scriptFile)), std::istreambuf_iterator<char>());
+        std::ifstream scriptFile(script.GetPath());
+        std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), std::istreambuf_iterator<char>());
 
         std::regex exportRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+))"); // --[[export]] variable = value
         std::regex headerRegex(R"(--\s*\[\[header\]\]\s*(.+))"); // --[[header]] Esto es un header
         std::regex combinedRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+)|--\s*\[\[header\]\]\s*(.+))");
         std::smatch match;
-        std::string::const_iterator searchStart(script.cbegin());
+        std::string::const_iterator searchStart(scriptContent.cbegin());
 
-        auto it = scriptEnvironments.find(scriptPath);
-        if (it == scriptEnvironments.end()) {
-            COFFEE_CORE_ERROR("Script environment for {0} not found", scriptPath);
-            return variables;
-        }
+        const sol::environment& env = script.GetEnvironment();
 
-        sol::environment& env = it->second;
-
-        while (std::regex_search(searchStart, script.cend(), match, combinedRegex)) {
+        while (std::regex_search(searchStart, scriptContent.cend(), match, combinedRegex)) {
             LuaVariable variable;
             if (match[1].matched) {
                 variable.name = match[1];
