@@ -11,6 +11,7 @@
 #include "CoffeeEngine/IO/ResourceFormat.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/IO/ImportSettings.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
 #include <string>
@@ -51,6 +52,10 @@ namespace Coffee {
         Ref<Material> ImportMaterial(const std::string& name, const UUID& uuid);
         Ref<Material> ImportMaterial(const std::string& name, const UUID& uuid, MaterialTextures& materialTextures);
         Ref<Material> ImportMaterial(const UUID& uuid);
+
+        bool ReimportResource(const Ref<Resource>& resource, const ImportSettings& settings);
+        Ref<Texture2D> ImportTexture2D(const std::filesystem::path& path, const UUID& uuid, const TextureImportSettings& settings);
+
     private:
         /**
          * @brief Loads a resource from the cache.

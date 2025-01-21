@@ -6,6 +6,7 @@
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Material.h"
+#include "CoffeeEngine/IO/ImportSettings.h"
 
 #include <cstdint>
 #include <filesystem>
@@ -13,6 +14,40 @@
 #include <string>
 
 namespace Coffee {
+
+    bool ResourceImporter::ReimportResource(const Ref<Resource>& resource, const ImportSettings& settings)
+    {
+        if (!resource) return false;
+
+        auto path = resource->GetPath();
+        auto uuid = resource->GetUUID();
+        
+        switch (settings.GetResourceType()) {
+            case ResourceType::Texture2D: {
+                auto& texSettings = static_cast<const TextureImportSettings&>(settings);
+                auto newResource = ImportTexture2D(path, uuid, texSettings);
+                return newResource != nullptr;
+            }
+            default:
+                return false;
+        }
+    }
+
+    Ref<Texture2D> ResourceImporter::ImportTexture2D(const std::filesystem::path& path, const UUID& uuid, const TextureImportSettings& settings)
+    {
+        if (!std::filesystem::exists(path))
+            return nullptr;
+
+        Ref<Texture2D> texture = CreateRef<Texture2D>(path, settings.sRGB);
+        
+        if (settings.flipY)
+            //texture->FlipY();
+        if (settings.flipX)
+            //texture->FlipX();
+
+        ResourceSaver::SaveToCache(std::to_string(uuid), texture);
+        return texture;
+    }
 
     Ref<Texture2D> ResourceImporter::ImportTexture2D(const std::filesystem::path& path, const UUID& uuid, bool srgb, bool cache)
     {

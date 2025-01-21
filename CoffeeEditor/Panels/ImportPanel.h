@@ -26,6 +26,11 @@ namespace Coffee {
             float globalScale;
             bool ignoreLight = false;
             bool ignoreCamera = false;
+
+            std::unique_ptr<ImportSettings> m_CurrentSettings;
+            void SaveSettings();
+            void LoadSettings();
+            void HandleReimport();
     };
 
 }
