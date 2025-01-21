@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{4E70B0F6-E452-4621-AC81-274B30AEEE9C}" SchemaVersion="123">
+	<SoundBanks>
+		<WorkUnit Name="Default Work Unit" ID="{4E70B0F6-E452-4621-AC81-274B30AEEE9C}" PersistMode="Standalone">
+			<ChildrenList>
+				<SoundBank Name="CoffeeEngine" ID="{6088230F-1954-4D42-9B00-889897951AA0}">
+					<ObjectInclusionList>
+						<ObjectRef Name="Play_test_sound" ID="{8FFE06AF-FCEB-457A-ABC6-265509D09B4D}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
+					</ObjectInclusionList>
+					<ObjectExclusionList/>
+					<GameSyncExclusionList/>
+				</SoundBank>
+			</ChildrenList>
+		</WorkUnit>
+	</SoundBanks>
+</WwiseDocument>

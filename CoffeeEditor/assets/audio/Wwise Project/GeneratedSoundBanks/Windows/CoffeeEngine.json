@@ -1,0 +1,47 @@
+{
+ "SoundBanksInfo": {
+  "Platform": "Windows",
+  "BasePlatform": "Windows",
+  "SchemaVersion": "16",
+  "SoundBankVersion": "154",
+  "SoundBanks": [
+   {
+    "Id": "7401711",
+    "Type": "User",
+    "GUID": "{6088230F-1954-4D42-9B00-889897951AA0}",
+    "Language": "SFX",
+    "Hash": "{EEF996DC-9C74-14CA-08DE-9C76D30F5503}",
+    "ObjectPath": "\\SoundBanks\\Default Work Unit\\CoffeeEngine",
+    "ShortName": "CoffeeEngine",
+    "Path": "CoffeeEngine.bnk",
+    "Media": [
+     {
+      "Id": "760241267",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "test_sound.wav",
+      "CachePath": "B7/{B73DF230-C109-46B4-FAA4-AF2F8F78509B}.wem"
+     }
+    ],
+    "Events": [
+     {
+      "Id": "3211564518",
+      "Name": "Play_test_sound",
+      "ObjectPath": "\\Events\\Default Work Unit\\Play_test_sound",
+      "GUID": "{8FFE06AF-FCEB-457A-ABC6-265509D09B4D}",
+      "DurationType": "OneShot",
+      "DurationMin": "1.8285714",
+      "DurationMax": "1.8285714",
+      "MediaRefs": [
+       {
+        "Id": "760241267"
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "FileHash": "{0532EA6C-9DCF-206A-9043-27392A94F0F7}"
+ }
+}

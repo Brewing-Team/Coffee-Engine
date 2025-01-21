@@ -1,0 +1,6 @@
+Event	ID	Name			Wwise Object Path	Notes
+	3211564518	Play_test_sound			\Default Work Unit\Play_test_sound	
+
+In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
+	760241267	test_sound	D:\GitHub\Coffee-Engine-Audio\CoffeeEditor\assets\audio\Wwise Project\.cache\B7\{B73DF230-C109-46B4-FAA4-AF2F8F78509B}.wem		\Actor-Mixer Hierarchy\Default Work Unit\test_sound		322656
+
