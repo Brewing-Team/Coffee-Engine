@@ -125,7 +125,7 @@ namespace Coffee {
 
     bool EditorLayer::OnMouseButtonPressed(MouseButtonPressedEvent& event)
     {
-        if (event.GetMouseButton() == Mouse::BUTTON_LEFT)
+        if (event.GetMouseButton() == Mouse::ButtonLeft)
         {
             if (m_ViewportHovered && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
             {

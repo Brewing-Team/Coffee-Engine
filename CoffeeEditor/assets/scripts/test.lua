@@ -21,12 +21,12 @@ function OnUpdate()
     local entityTag = entity:GetComponent(entity)
     --print("Entity tag: " .. entityTag)
 
-    if input.is_key_pressed(input.keycode.SPACE) then
-        log("SPACE")
+    if input.is_key_pressed(input.keycode.Space) then
+        log("Space")
     end
 
-    if input.is_mouse_button_pressed(input.mousecode.LEFT) then
-        log("LEFT")
+    if input.is_mouse_button_pressed(input.mousecode.Left) then
+        log("Left")
         local x, y = input.get_mouse_position()
         log("Mouse position: (" .. x .. ", " .. y .. ")")
     end

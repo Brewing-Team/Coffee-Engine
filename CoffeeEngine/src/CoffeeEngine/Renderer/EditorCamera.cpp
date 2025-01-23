@@ -30,9 +30,9 @@ namespace Coffee {
         glm::vec2 delta = (mousePos - m_InitialMousePosition) * 0.01f;
         m_InitialMousePosition = mousePos;
 
-        if (Input::IsMouseButtonPressed(Mouse::BUTTON_MIDDLE))
+        if (Input::IsMouseButtonPressed(Mouse::ButtonMiddle))
         {
-            if (Input::IsKeyPressed(Key::LSHIFT))
+            if (Input::IsKeyPressed(Key::LShift))
             {
                 MousePan(delta);
             }
@@ -41,7 +41,7 @@ namespace Coffee {
                 MouseRotate(delta);
             }
         }
-        else if (Input::IsMouseButtonPressed(Mouse::BUTTON_RIGHT))
+        else if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
         {
             m_CurrentState = CameraState::FLY;
             Fly(delta);
@@ -104,7 +104,7 @@ namespace Coffee {
         glm::vec3 right = GetRightDirection();
         glm::vec3 up = GetUpDirection();
 
-        if (Input::IsKeyPressed(Key::LSHIFT))
+        if (Input::IsKeyPressed(Key::LShift))
         {
             m_CurrentSpeed = m_BaseSpeed * 2.0f;
         }
