@@ -1,11 +1,11 @@
 #pragma once
 
+#include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Scripting/Script.h"
 #include <filesystem>
+
 namespace Coffee {
 
-    template<typename DerivedScript>
-    class Script;
-    
     class IScriptingBackend {
 
         public:
@@ -19,17 +19,9 @@ namespace Coffee {
              */
             virtual void Initialize() = 0;
 
-            template<typename DerivedScript>
-            Script<DerivedScript> CreateScript(const std::filesystem::path& path)
-            {
-                return static_cast<DerivedScript*>(this)->CreateScript(path);
-            }
+            virtual Ref<Script> CreateScript(const std::filesystem::path& path) = 0;
 
-            template<typename DerivedScript>
-            void ExecuteScript(const Script<DerivedScript>& script)
-            {
-                //static_cast<DerivedScript*>(this)->ExecuteScript(script);
-            }
+            virtual void ExecuteScript(const Script& script) = 0;
 
             virtual void Shutdown() = 0;
     };

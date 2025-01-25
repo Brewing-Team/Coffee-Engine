@@ -14,21 +14,20 @@ namespace Coffee {
 
     class ScriptManager {
     public:
-        static void RegisterBackend(ScriptingLanguage language, Scope<IScriptingBackend> backend);
+        static void RegisterBackend(ScriptingLanguage language, Ref<IScriptingBackend> backend);
+        static const IScriptingBackend& GetBackend(ScriptingLanguage language);
         static void RemoveBackend(ScriptingLanguage language);
 
-        template <typename DerivedScript>
-        static Script<DerivedScript> CreateScript(const std::filesystem::path& path, ScriptingLanguage language) {
-            return backends[language]->CreateScript<DerivedScript>(path);
+        static Ref<Script> CreateScript(const std::filesystem::path& path, ScriptingLanguage language) {
+            return backends[language]->CreateScript(path);
         }
 
-        template <typename DerivedScript>
-        static void ExecuteScript(const Script<DerivedScript>& script, ScriptingLanguage language) {
+        static void ExecuteScript(const Script& script, ScriptingLanguage language) {
             backends[language]->ExecuteScript(script);
         }
 
     private:
-        static std::unordered_map<ScriptingLanguage, Scope<IScriptingBackend>> backends;
+        static std::unordered_map<ScriptingLanguage, Ref<IScriptingBackend>> backends;
     };
 
 } // namespace Coffee

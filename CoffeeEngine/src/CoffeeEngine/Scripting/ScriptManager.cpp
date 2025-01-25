@@ -4,11 +4,15 @@
 
 namespace Coffee {
 
-    std::unordered_map<ScriptingLanguage, Scope<IScriptingBackend>> ScriptManager::backends;
+    std::unordered_map<ScriptingLanguage, Ref<IScriptingBackend>> ScriptManager::backends;
 
-    void ScriptManager::RegisterBackend(ScriptingLanguage language, Scope<IScriptingBackend> backend) {
-        backends[language] = std::move(backend);
+    void ScriptManager::RegisterBackend(ScriptingLanguage language, Ref<IScriptingBackend> backend) {
+        backends[language] = backend;
         backend->Initialize();
+    }
+
+    const IScriptingBackend& ScriptManager::GetBackend(ScriptingLanguage language) {
+        return *backends[language];
     }
 
     void ScriptManager::RemoveBackend(ScriptingLanguage language) {

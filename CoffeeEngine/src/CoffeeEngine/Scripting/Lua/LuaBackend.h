@@ -18,8 +18,12 @@ namespace Coffee {
         public:
             void Initialize() override;
             
-            LuaScript CreateScript(const std::string& path);
-            void ExecuteScript(const LuaScript& script);
+            Ref<Script> CreateScript(const std::filesystem::path& path) override;
+            void ExecuteScript(const Script& script) override;
+
+            sol::state& GetLuaState() const { return luaState; }
+
+            void Shutdown() override {}
         private:
             static sol::state luaState;
             static std::vector<LuaVariable> MapVariables(const LuaScript& script);

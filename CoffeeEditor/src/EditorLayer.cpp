@@ -21,6 +21,8 @@
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
+#include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
+#include "CoffeeEngine/Scripting/ScriptManager.h"
 #include "Panels/SceneTreePanel.h"
 #include "entt/entity/entity.hpp"
 #include "imgui_internal.h"
@@ -49,6 +51,8 @@ namespace Coffee {
     void EditorLayer::OnAttach()
     {
         ZoneScoped;
+
+        ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
         m_EditorScene = CreateRef<Scene>();
         m_ActiveScene = m_EditorScene;

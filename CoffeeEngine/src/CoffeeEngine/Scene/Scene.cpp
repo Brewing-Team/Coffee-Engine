@@ -14,6 +14,7 @@
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
+#include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
@@ -22,6 +23,7 @@
 #include <cstdlib>
 #include <glm/detail/type_quat.hpp>
 #include <glm/fwd.hpp>
+#include <memory>
 #include <string>
 #include <tracy/Tracy.hpp>
 
@@ -114,6 +116,27 @@ namespace Coffee {
 
             m_Octree.Insert(objectContainer);
         }
+
+        Entity scriptedEntity = CreateEntity("Scripted Entity");
+        scriptedEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        scriptedEntity.AddComponent<MaterialComponent>();
+        scriptedEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua);
+
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
+
+        for (auto& entity : scriptView)
+        {
+            Entity scriptEntity{entity, this};
+
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("entity", scriptEntity);
+
+            scriptComponent.script->OnReady();
+        }
+
+
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
@@ -192,23 +215,13 @@ namespace Coffee {
         }
 
         // Get all entities with ScriptComponent
-        /*auto scriptView = m_Registry.view<ScriptComponent>();
+        auto scriptView = m_Registry.view<ScriptComponent>();
 
         for (auto& entity : scriptView)
         {
-            Entity scriptEntity{entity, this};
-
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
-
-            /ScriptManager::RegisterVariable(scriptComponent.script.GetPath().string(), "entity", (void*)&scriptEntity);
-
-            auto update = scriptComponent.script.OnUpdate();
-            if(!update.valid())
-            {
-               sol::error err = update;
-               COFFEE_CORE_ERROR("Error executing script: {0}", err.what());
-            }
-        }*/
+            scriptComponent.script->OnUpdate(dt);
+        }
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::BeginScene(*camera, cameraTransform);

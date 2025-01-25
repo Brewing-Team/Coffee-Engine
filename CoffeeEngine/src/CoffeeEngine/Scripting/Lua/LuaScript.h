@@ -1,16 +1,25 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "CoffeeEngine/Scripting/Script.h"
+#include "CoffeeEngine/Scripting/ScriptManager.h"
 #include <sol/sol.hpp>
 
 namespace Coffee {
 
-    class LuaScript : public Script<LuaScript>
+    class LuaScript : public Script
     {
     public:
-        LuaScript(const std::filesystem::path& path);
-        ~LuaScript();
+        LuaScript(const std::filesystem::path& path)
+        {
+            m_Path = path;
+
+            //TODO: Think if this is a good way or store it in another way is better
+            const LuaBackend& backend = static_cast<const LuaBackend&>(ScriptManager::GetBackend(ScriptingLanguage::Lua));
+            m_Environment = sol::environment(backend.GetLuaState(), sol::create, backend.GetLuaState().globals());
+        }
+        ~LuaScript() = default;
 
         void OnReady() override
         {

@@ -19,6 +19,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include "CoffeeEngine/Scripting/Script.h"
+#include "CoffeeEngine/Scripting/ScriptManager.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 
@@ -287,10 +288,9 @@ namespace Coffee {
     };
     
     // Move it to the Component.h
-    template<typename DerivedScript>
     struct ScriptComponent
     {
-        Script<DerivedScript> script;
+        Ref<Script> script;
 
         ScriptComponent() = default;
         ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)
@@ -299,7 +299,7 @@ namespace Coffee {
             {
                 using enum ScriptingLanguage;
             case Lua:
-                script = ScriptManager::CreateScript<DerivedScript>(path, language);
+                script = ScriptManager::CreateScript(path, language);
                 break;
             case cSharp:
                 break;

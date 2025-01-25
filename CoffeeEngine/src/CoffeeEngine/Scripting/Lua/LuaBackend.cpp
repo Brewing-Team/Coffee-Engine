@@ -441,13 +441,14 @@ namespace Coffee {
 
     }
 
-    LuaScript LuaBackend::CreateScript(const std::string& path) {
-        return LuaScript(path);
+    Ref<Script> LuaBackend::CreateScript(const std::filesystem::path& path) {
+        return CreateRef<LuaScript>(path);
     }
 
-    void LuaBackend::ExecuteScript(const LuaScript& script) {
+    void LuaBackend::ExecuteScript(const Script& script) {
+        LuaScript& luaScript = static_cast<LuaScript&>(const_cast<Script&>(script));
         try {
-            luaState.script(script.GetPath().string(), script.GetEnvironment());
+            luaState.script_file(luaScript.GetPath().string(), luaScript.GetEnvironment());
         } catch (const sol::error& e) {
             COFFEE_CORE_ERROR("[Lua Error]: {0}", e.what());
         }
