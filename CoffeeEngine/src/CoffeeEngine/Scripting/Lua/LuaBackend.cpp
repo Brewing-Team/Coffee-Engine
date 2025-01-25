@@ -5,6 +5,7 @@
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
 #include <fstream>
+#include <lua.h>
 #include <regex>
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
@@ -331,65 +332,168 @@ namespace Coffee {
             return std::make_tuple(mousePosition.x, mousePosition.y);
         });
 
-        luaState["input"] = inputTable;
+        luaState["Input"] = inputTable;
         # pragma endregion
 
         # pragma region Bind Timer Functions
         # pragma endregion
 
+        # pragma region Bind GLM Functions
+        luaState.new_usertype<glm::vec2>("Vector2",
+            sol::constructors<glm::vec2(), glm::vec2(float), glm::vec2(float, float)>(),
+            "x", &glm::vec2::x,
+            "y", &glm::vec2::y,
+            "normalize", [](const glm::vec2& a) { return glm::normalize(a); },
+            "length", [](const glm::vec2& a) { return glm::length(a); },
+            "length_squared", [](const glm::vec2& a) { return glm::length2(a); },
+            "distance_to", [](const glm::vec2& a, const glm::vec2& b) { return glm::distance(a, b); },
+            "distance_squared_to", [](const glm::vec2& a, const glm::vec2& b) { return glm::distance2(a, b); },
+            "lerp", [](const glm::vec2& a, const glm::vec2& b, float t) { return glm::mix(a, b, t); },
+            "dot", [](const glm::vec2& a, const glm::vec2& b) { return glm::dot(a, b); },
+            "angle_to", [](const glm::vec2& a, const glm::vec2& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
+            "max", [](const glm::vec2& a, const glm::vec2& b) { return glm::max(a, b); },
+            "min", [](const glm::vec2& a, const glm::vec2& b) { return glm::min(a, b); },
+            "abs", [](const glm::vec2& a) { return glm::abs(a); }
+            //TODO: Add more functions
+        );
+
+        luaState.new_usertype<glm::vec3>("Vector3",
+            sol::constructors<glm::vec3(), glm::vec3(float), glm::vec3(float, float, float)>(),
+            "x", &glm::vec3::x,
+            "y", &glm::vec3::y,
+            "z", &glm::vec3::z,
+            "cross", [](const glm::vec3& a, const glm::vec3& b) { return glm::cross(a, b); },
+            "dot", [](const glm::vec3& a, const glm::vec3& b) { return glm::dot(a, b); },
+            "normalize", [](const glm::vec3& a) { return glm::normalize(a); },
+            "length", [](const glm::vec3& a) { return glm::length(a); },
+            "length_squared", [](const glm::vec3& a) { return glm::length2(a); },
+            "distance_to", [](const glm::vec3& a, const glm::vec3& b) { return glm::distance(a, b); },
+            "distance_squared_to", [](const glm::vec3& a, const glm::vec3& b) { return glm::distance2(a, b); },
+            "lerp", [](const glm::vec3& a, const glm::vec3& b, float t) { return glm::mix(a, b, t); },
+            "dot", [](const glm::vec3& a, const glm::vec3& b) { return glm::dot(a, b); },
+            "angle_to", [](const glm::vec3& a, const glm::vec3& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
+            "max", [](const glm::vec3& a, const glm::vec3& b) { return glm::max(a, b); },
+            "min", [](const glm::vec3& a, const glm::vec3& b) { return glm::min(a, b); },
+            "abs", [](const glm::vec3& a) { return glm::abs(a); }
+            //TODO: Add more functions
+        );
+
+        luaState.new_usertype<glm::vec4>("Vector4",
+            sol::constructors<glm::vec4(), glm::vec4(float), glm::vec4(float, float, float, float)>(),
+            "x", &glm::vec4::x,
+            "y", &glm::vec4::y,
+            "z", &glm::vec4::z,
+            "w", &glm::vec4::w,
+            "normalize", [](const glm::vec4& a) { return glm::normalize(a); },
+            "length", [](const glm::vec4& a) { return glm::length(a); },
+            "length_squared", [](const glm::vec4& a) { return glm::length2(a); },
+            "distance_to", [](const glm::vec4& a, const glm::vec4& b) { return glm::distance(a, b); },
+            "distance_squared_to", [](const glm::vec4& a, const glm::vec4& b) { return glm::distance2(a, b); },
+            "lerp", [](const glm::vec4& a, const glm::vec4& b, float t) { return glm::mix(a, b, t); },
+            "dot", [](const glm::vec4& a, const glm::vec4& b) { return glm::dot(a, b); },
+            "angle_to", [](const glm::vec4& a, const glm::vec4& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
+            "max", [](const glm::vec4& a, const glm::vec4& b) { return glm::max(a, b); },
+            "min", [](const glm::vec4& a, const glm::vec4& b) { return glm::min(a, b); },
+            "abs", [](const glm::vec4& a) { return glm::abs(a); }
+            //TODO: Add more functions
+        );
+
+        luaState.new_usertype<glm::mat4>("Mat4",
+            sol::constructors<glm::mat4(), glm::mat4(float)>(),
+            "identity", []() { return glm::mat4(1.0f); },
+            "inverse", [](const glm::mat4& mat) { return glm::inverse(mat); },
+            "transpose", [](const glm::mat4& mat) { return glm::transpose(mat); },
+            "translate", [](const glm::mat4& mat, const glm::vec3& vec) { return glm::translate(mat, vec); },
+            "rotate", [](const glm::mat4& mat, float angle, const glm::vec3& axis) { return glm::rotate(mat, angle, axis); },
+            "scale", [](const glm::mat4& mat, const glm::vec3& vec) { return glm::scale(mat, vec); },
+            "perspective", [](float fovy, float aspect, float near, float far) { return glm::perspective(fovy, aspect, near, far); },
+            "ortho", [](float left, float right, float bottom, float top, float zNear, float zFar) { return glm::ortho(left, right, bottom, top, zNear, zFar); }
+        );
+
+        luaState.new_usertype<glm::quat>("Quaternion",
+            sol::constructors<glm::quat(), glm::quat(float, float, float, float), glm::quat(const glm::vec3&), glm::quat(float, const glm::vec3&)>(),
+            "x", &glm::quat::x,
+            "y", &glm::quat::y,
+            "z", &glm::quat::z,
+            "w", &glm::quat::w,
+            "eulerAngles", [](const glm::quat& q) { return glm::eulerAngles(q); },
+            "toMat4", [](const glm::quat& q) { return glm::toMat4(q); },
+            "normalize", [](const glm::quat& q) { return glm::normalize(q); },
+            "slerp", [](const glm::quat& a, const glm::quat& b, float t) { return glm::slerp(a, b, t); }
+        );
+        # pragma endregion
+
+        #pragma endregion
+
         #pragma region Bind Entity Functions
 
         luaState.new_usertype<Entity>("Entity",
-        sol::constructors<Entity(), Entity(entt::entity, Scene*)>(),
-
-        "AddComponent", [](Entity& self, const std::string& componentName) {
-            if (componentName == "TagComponent") {
-                self.AddComponent<TagComponent>();
-            } else if (componentName == "TransformComponent") {
-                self.AddComponent<TransformComponent>();
-            } else {
-                throw std::runtime_error("Unknown component type");
-            }
-        },
-
-/*        "GetComponent", [this](Entity& self, const std::string& componentName) -> sol::object {
-            if (componentName == "TagComponent") {
-                return sol::make_object(luaState, self.GetComponent<TagComponent>());
-            } else if (componentName == "TransformComponent") {
-                return sol::make_object(luaState, self.GetComponent<TransformComponent>());
-            } else {
-                throw std::runtime_error("Unknown component type");
-            }
-        },*/
-
-        "GetComponent", [this](Entity& self) -> sol::object {
-            return sol::make_object(luaState, self.GetComponent<TagComponent>());
-        },
-
-        "HasComponent", [](Entity& self, const std::string& componentName) -> bool {
-            if (componentName == "TagComponent") {
-                return self.HasComponent<TagComponent>();
-            } else if (componentName == "TransformComponent") {
-                return self.HasComponent<TransformComponent>();
-            } else {
-                throw std::runtime_error("Unknown component type");
-            }
-        },
-
-        "RemoveComponent", [](Entity& self, const std::string& componentName) {
-            if (componentName == "TagComponent") {
-                self.RemoveComponent<TagComponent>();
-            } else if (componentName == "TransformComponent") {
-                self.RemoveComponent<TransformComponent>();
-            } else {
-                throw std::runtime_error("Unknown component type");
-            }
-        },
-
-        "SetParent", &Entity::SetParent,
-        "IsValid", [](Entity& self) { return static_cast<bool>(self); }
-    );
-
+            sol::constructors<Entity(), Entity(entt::entity, Scene*)>(),
+            "add_component", [](Entity* self, const std::string& componentName) {
+                if (componentName == "TagComponent") {
+                    self->AddComponent<TagComponent>();
+                } else if (componentName == "TransformComponent") {
+                    self->AddComponent<TransformComponent>();
+                } else if (componentName == "CameraComponent") {
+                    self->AddComponent<CameraComponent>();
+                } else if (componentName == "MeshComponent") {
+                    self->AddComponent<MeshComponent>();
+                } else if (componentName == "MaterialComponent") {
+                    self->AddComponent<MaterialComponent>();
+                } else if (componentName == "LightComponent") {
+                    self->AddComponent<LightComponent>();
+                }
+            },
+            "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
+                if (componentName == "TagComponent") {
+                    return sol::make_object(luaState, self->GetComponent<TagComponent>());
+                } else if (componentName == "TransformComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<TransformComponent>()));
+                } else if (componentName == "CameraComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<CameraComponent>()));
+                } else if (componentName == "MeshComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<MeshComponent>()));
+                } else if (componentName == "MaterialComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<MaterialComponent>()));
+                } else if (componentName == "LightComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
+                }
+                return sol::nil;
+            },
+            "has_component", [](Entity* self, const std::string& componentName) -> bool {
+                if (componentName == "TagComponent") {
+                    return self->HasComponent<TagComponent>();
+                } else if (componentName == "TransformComponent") {
+                    return self->HasComponent<TransformComponent>();
+                } else if (componentName == "CameraComponent") {
+                    return self->HasComponent<CameraComponent>();
+                } else if (componentName == "MeshComponent") {
+                    return self->HasComponent<MeshComponent>();
+                } else if (componentName == "MaterialComponent") {
+                    return self->HasComponent<MaterialComponent>();
+                } else if (componentName == "LightComponent") {
+                    return self->HasComponent<LightComponent>();
+                }
+                return false;
+            },
+            "remove_component", [](Entity* self, const std::string& componentName) {
+                if (componentName == "TagComponent") {
+                    self->RemoveComponent<TagComponent>();
+                } else if (componentName == "TransformComponent") {
+                    self->RemoveComponent<TransformComponent>();
+                } else if (componentName == "CameraComponent") {
+                    self->RemoveComponent<CameraComponent>();
+                } else if (componentName == "MeshComponent") {
+                    self->RemoveComponent<MeshComponent>();
+                } else if (componentName == "MaterialComponent") {
+                    self->RemoveComponent<MaterialComponent>();
+                } else if (componentName == "LightComponent") {
+                    self->RemoveComponent<LightComponent>();
+                }
+            },
+            "set_parent", &Entity::SetParent,
+            "is_valid", [](Entity* self) { return static_cast<bool>(*self); }
+        );
         #pragma endregion
 
         # pragma region Bind Components Functions
@@ -439,6 +543,15 @@ namespace Coffee {
         );
         # pragma endregion
 
+        # pragma region Bind Scene Functions
+
+        luaState.new_usertype<Scene>("Scene",
+            "create_entity", &Scene::CreateEntity,
+            "destroy_entity", &Scene::DestroyEntity
+        );
+
+        # pragma endregion
+
     }
 
     Ref<Script> LuaBackend::CreateScript(const std::filesystem::path& path) {
@@ -450,7 +563,7 @@ namespace Coffee {
         try {
             luaState.script_file(luaScript.GetPath().string(), luaScript.GetEnvironment());
         } catch (const sol::error& e) {
-            COFFEE_CORE_ERROR("[Lua Error]: {0}", e.what());
+            COFFEE_CORE_ERROR("Lua: {0}", e.what());
         }
     }
 
@@ -460,6 +573,8 @@ namespace Coffee {
         std::vector<LuaVariable> variables;
         std::ifstream scriptFile(script.GetPath());
         std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), std::istreambuf_iterator<char>());
+
+        // TODO: The regex should be --[[export]] local variable = value
 
         std::regex exportRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+))"); // --[[export]] variable = value
         std::regex headerRegex(R"(--\s*\[\[header\]\]\s*(.+))"); // --[[header]] Esto es un header

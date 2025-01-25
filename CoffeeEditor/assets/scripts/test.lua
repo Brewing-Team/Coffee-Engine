@@ -6,36 +6,18 @@
 --[[export]] exampleString = "Hello, ImGui!"
 --[[export]] exampleBool = true
 
-function OnCreate()
+function OnReady()
     print("OnCreate()")
     log("OnCreate()")
     log_error("OnCreate()")
     log_warning("OnCreate()")
     log_critical("OnCreate()")
-    return 1
 end
 
 function OnUpdate()
-    --log("OnUpdate()")
-
-    local entityTag = entity:GetComponent(entity)
-    --print("Entity tag: " .. entityTag)
-
-    if input.is_key_pressed(input.keycode.Space) then
-        log("Space")
-    end
-
-    if input.is_mouse_button_pressed(input.mousecode.Left) then
-        log("Left")
-        local x, y = input.get_mouse_position()
-        log("Mouse position: (" .. x .. ", " .. y .. ")")
-    end
-
-    log("BOOL: " .. tostring(exampleBool))
-    log("INT: " .. exampleInt)
-    log("FLOAT: " .. exampleFloat)
-    log("STRING: " .. exampleString)
-    return 1
+    transform = self:get_component("TransformComponent"):get_world_transform()
+    translation = Vector3.new(1.0, 2.0, 3.0)
+    transform:translate(translation)
 end
 
 function on_destroy()

@@ -131,7 +131,7 @@ namespace Coffee {
 
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
 
-            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("entity", scriptEntity);
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("self", scriptEntity);
 
             scriptComponent.script->OnReady();
         }

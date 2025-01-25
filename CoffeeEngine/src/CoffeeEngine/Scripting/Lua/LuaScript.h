@@ -26,14 +26,14 @@ namespace Coffee {
             ScriptManager::ExecuteScript(*this, ScriptingLanguage::Lua);
             const sol::protected_function& onReady = m_Environment["OnReady"];
             if (!onReady.valid()) {
-                COFFEE_CORE_ERROR("[Lua Error]: OnReady function is not valid.");
+                COFFEE_CORE_ERROR("Lua: OnReady function is not valid.");
                 return;
             }
 
             const sol::protected_function_result& result = onReady();
             if (!result.valid()) {
                 sol::error err = result;
-                COFFEE_CORE_ERROR("[Lua Error]: {0}", err.what());
+                COFFEE_CORE_ERROR("Lua: {0}", err.what());
             }
         }
 
@@ -41,14 +41,14 @@ namespace Coffee {
         {
             const sol::protected_function& onUpdate = m_Environment["OnUpdate"];
             if (!onUpdate.valid()) {
-                COFFEE_CORE_ERROR("[Lua Error]: OnUpdate function is not valid.");
+                COFFEE_CORE_ERROR("Lua: OnUpdate function is not valid.");
                 return;
             }
 
             const sol::protected_function_result& result = onUpdate(dt);
             if (!result.valid()) {
                 sol::error err = result;
-                COFFEE_CORE_ERROR("[Lua Error]: {0}", err.what());
+                COFFEE_CORE_ERROR("Lua: {0}", err.what());
             }
         }
 
@@ -56,14 +56,14 @@ namespace Coffee {
         {
             const sol::protected_function& onExit = m_Environment["OnExit"];
             if (!onExit.valid()) {
-                COFFEE_CORE_ERROR("[Lua Error]: OnExit function is not valid.");
+                COFFEE_CORE_ERROR("Lua: OnExit function is not valid.");
                 return;
             }
 
             const sol::protected_function_result& result = onExit();
             if (!result.valid()) {
                 sol::error err = result;
-                COFFEE_CORE_ERROR("[Lua Error]: {0}", err.what());
+                COFFEE_CORE_ERROR("Lua: {0}", err.what());
             }
         }
 
@@ -77,14 +77,14 @@ namespace Coffee {
         {
             const sol::protected_function& function = m_Environment[functionName];
             if (!function.valid()) {
-                COFFEE_CORE_ERROR("[Lua Error]: Function {0} is not valid.", functionName);
+                COFFEE_CORE_ERROR("Lua: Function {0} is not valid.", functionName);
                 return;
             }
 
             const sol::protected_function_result& result = function();
             if (!result.valid()) {
                 sol::error err = result;
-                COFFEE_CORE_ERROR("[Lua Error]: {0}", err.what());
+                COFFEE_CORE_ERROR("Lua: {0}", err.what());
             }
         }
 
