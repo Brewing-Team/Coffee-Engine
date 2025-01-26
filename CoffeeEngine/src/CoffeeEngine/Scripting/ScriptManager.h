@@ -22,7 +22,7 @@ namespace Coffee {
             return backends[language]->CreateScript(path);
         }
 
-        static void ExecuteScript(const Script& script, ScriptingLanguage language) {
+        static void ExecuteScript(Script& script, ScriptingLanguage language) {
             backends[language]->ExecuteScript(script);
         }
 

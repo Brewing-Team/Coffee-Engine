@@ -558,13 +558,14 @@ namespace Coffee {
         return CreateRef<LuaScript>(path);
     }
 
-    void LuaBackend::ExecuteScript(const Script& script) {
+    void LuaBackend::ExecuteScript(Script& script) {
         LuaScript& luaScript = static_cast<LuaScript&>(const_cast<Script&>(script));
         try {
             luaState.script_file(luaScript.GetPath().string(), luaScript.GetEnvironment());
         } catch (const sol::error& e) {
             COFFEE_CORE_ERROR("Lua: {0}", e.what());
         }
+        script.ParseScript();
     }
 
 } // namespace Coffee

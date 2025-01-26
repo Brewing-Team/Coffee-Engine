@@ -47,9 +47,10 @@ namespace Coffee
         template <typename T>
         T GetVariable(const std::string& name);
 
-        inline const std::unordered_map<std::string, ExportedVariable>& GetExportedVariables() const { return m_ExportedVariables; }
-    protected:
         virtual void ParseScript() = 0;
+
+        inline std::unordered_map<std::string, ExportedVariable>& GetExportedVariables() { return m_ExportedVariables; }
+    protected:
         std::unordered_map<std::string, ExportedVariable> m_ExportedVariables;
     };
 }

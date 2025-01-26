@@ -119,7 +119,7 @@ namespace Coffee {
                 ExportedVariable variable;
                 if (match[1].matched) {
                     variable.name = match[1];
-                    variable.value = match[2];
+                    AssignSol2VariableToStdAny(m_Environment[variable.name], variable.value);
                     variable.type = Sol2TypeToExportedVariableType(m_Environment[variable.name].get_type());
                 } else if (match[3].matched) {
                     variable.name = "header";
@@ -138,6 +138,26 @@ namespace Coffee {
         const std::filesystem::path& GetPath() const { return m_Path; }
         const sol::environment& GetEnvironment() const { return m_Environment; }
     private:
+
+        void AssignSol2VariableToStdAny(sol::object object, std::any& value)
+        {
+            switch (object.get_type())
+            {
+            case sol::type::boolean:
+                value = object.as<bool>();
+                break;
+            case sol::type::number:
+                value = object.as<float>();
+                break;
+            case sol::type::string:
+                value = object.as<std::string>();
+                break;
+            default:
+                value = object.as<int>();
+                break;
+            }
+        }
+
         ExportedVariableType Sol2TypeToExportedVariableType(sol::type type)
         {
             switch (type)

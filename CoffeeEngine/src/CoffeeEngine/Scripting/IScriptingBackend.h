@@ -21,7 +21,7 @@ namespace Coffee {
 
             virtual Ref<Script> CreateScript(const std::filesystem::path& path) = 0;
 
-            virtual void ExecuteScript(const Script& script) = 0;
+            virtual void ExecuteScript(Script& script) = 0;
 
             virtual void Shutdown() = 0;
     };

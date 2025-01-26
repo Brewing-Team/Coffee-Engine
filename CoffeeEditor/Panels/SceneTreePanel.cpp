@@ -13,18 +13,21 @@
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
+#include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
 #include <IconsLucide.h>
 
 #include <CoffeeEngine/Scripting/Script.h>
+#include <any>
 #include <array>
 #include <cstdint>
 #include <cstring>
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
+#include <memory>
 #include <string>
 
 namespace Coffee {
@@ -575,10 +578,10 @@ namespace Coffee {
                 
 
                 // Get the exposed variables
-                const auto& exposedVariables = scriptComponent.script->GetExportedVariables();
+                auto& exposedVariables = scriptComponent.script->GetExportedVariables();
 
                 // print the exposed variables
-                for (const auto& [name, variable] : exposedVariables)
+                for (auto& [name, variable] : exposedVariables)
                 {
                     switch (variable.type)
                     {
@@ -587,7 +590,8 @@ namespace Coffee {
                         bool value = variable.value.has_value() ? std::any_cast<bool>(variable.value) : false;
                         if (ImGui::Checkbox(name.c_str(), &value))
                         {
-                            scriptComponent.script->SetVariable(name, value);
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
                         }
                         break;
                     }
@@ -596,7 +600,8 @@ namespace Coffee {
                         int value = variable.value.has_value() ? std::any_cast<int>(variable.value) : 0;
                         if (ImGui::InputInt(name.c_str(), &value))
                         {
-                            scriptComponent.script->SetVariable(name, value);
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
                         }
                         break;
                     }
@@ -605,7 +610,8 @@ namespace Coffee {
                         float value = variable.value.has_value() ? std::any_cast<float>(variable.value) : 0.0f;
                         if (ImGui::InputFloat(name.c_str(), &value))
                         {
-                            scriptComponent.script->SetVariable(name, value);
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
                         }
                         break;
                     }
@@ -617,7 +623,8 @@ namespace Coffee {
                         strcpy(buffer, value.c_str());
                         if (ImGui::InputText(name.c_str(), buffer, sizeof(buffer)))
                         {
-                            scriptComponent.script->SetVariable(name, std::string(buffer));
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, std::string(buffer));
+                            variable.value = std::string(buffer);
                         }
                         break;
                     }
@@ -725,6 +732,7 @@ namespace Coffee {
             ImGui::EndPopup();
         }
     }
+}
 
 
     // UI functions for scenetree menus

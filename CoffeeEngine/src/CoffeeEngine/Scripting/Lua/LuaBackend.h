@@ -13,7 +13,7 @@ namespace Coffee {
             void Initialize() override;
             
             Ref<Script> CreateScript(const std::filesystem::path& path) override;
-            void ExecuteScript(const Script& script) override;
+            void ExecuteScript(Script& script) override;
 
             sol::state& GetLuaState() const { return luaState; }
 
