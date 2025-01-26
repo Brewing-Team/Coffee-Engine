@@ -13,7 +13,6 @@
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
@@ -561,7 +560,7 @@ namespace Coffee {
             }
         }
         
-        /*if (entity.HasComponent<ScriptComponent>())
+        if (entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
             bool isCollapsingHeaderOpen = true;
@@ -576,59 +575,55 @@ namespace Coffee {
                 
 
                 // Get the exposed variables
-                std::vector<LuaVariable> exposedVariables = LuaBackend::MapVariables(scriptComponent.script.GetPath().string());
+                const auto& exposedVariables = scriptComponent.script->GetExportedVariables();
 
                 // print the exposed variables
-                for (auto& variable : exposedVariables)
+                for (const auto& [name, variable] : exposedVariables)
                 {
-                    auto it = LuaBackend::scriptEnvironments.find(scriptComponent.script.GetPath().string());
-                    if (it == LuaBackend::scriptEnvironments.end()) {
-                        COFFEE_CORE_ERROR("Script environment for {0} not found", scriptComponent.script.GetPath().string());
-                        continue;
-                    }
-
-                    sol::environment& env = it->second;
-
                     switch (variable.type)
                     {
-                    case sol::type::boolean: {
-                        bool value = env[variable.name];
-                        if (ImGui::Checkbox(variable.name.c_str(), &value))
+                    case ExportedVariableType::Bool:
+                    {
+                        bool value = variable.value.has_value() ? std::any_cast<bool>(variable.value) : false;
+                        if (ImGui::Checkbox(name.c_str(), &value))
                         {
-                            env[variable.name] = value;
+                            scriptComponent.script->SetVariable(name, value);
                         }
                         break;
                     }
-                    case sol::type::number: {
-                        float number = env[variable.name];
-                        if (ImGui::InputFloat(variable.name.c_str(), &number))
+                    case ExportedVariableType::Int:
+                    {
+                        int value = variable.value.has_value() ? std::any_cast<int>(variable.value) : 0;
+                        if (ImGui::InputInt(name.c_str(), &value))
                         {
-                            env[variable.name] = number;
+                            scriptComponent.script->SetVariable(name, value);
                         }
                         break;
                     }
-                    case sol::type::string: {
-                        std::string str = env[variable.name];
+                    case ExportedVariableType::Float:
+                    {
+                        float value = variable.value.has_value() ? std::any_cast<float>(variable.value) : 0.0f;
+                        if (ImGui::InputFloat(name.c_str(), &value))
+                        {
+                            scriptComponent.script->SetVariable(name, value);
+                        }
+                        break;
+                    }
+                    case ExportedVariableType::String:
+                    {
+                        std::string value = variable.value.has_value() ? std::any_cast<std::string>(variable.value) : "";
                         char buffer[256];
                         memset(buffer, 0, sizeof(buffer));
-                        strcpy(buffer, str.c_str());
-
-                        if (ImGui::InputText(variable.name.c_str(), buffer, sizeof(buffer)))
+                        strcpy(buffer, value.c_str());
+                        if (ImGui::InputText(name.c_str(), buffer, sizeof(buffer)))
                         {
-                            env[variable.name] = std::string(buffer);
+                            scriptComponent.script->SetVariable(name, std::string(buffer));
                         }
-                        break;
-                    }
-                    case sol::type::none: {
-                        ImGui::SeparatorText(variable.value.c_str());
-                        break;
-                    }
-                    default:
                         break;
                     }
                 }
             }
-        }*/
+        }
 
         ImGui::Separator();
 

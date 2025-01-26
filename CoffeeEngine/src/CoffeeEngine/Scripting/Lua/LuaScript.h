@@ -4,7 +4,9 @@
 #include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "CoffeeEngine/Scripting/Script.h"
 #include "CoffeeEngine/Scripting/ScriptManager.h"
+#include <regex>
 #include <sol/sol.hpp>
+#include <fstream>
 
 namespace Coffee {
 
@@ -100,10 +102,57 @@ namespace Coffee {
             return m_Environment[name];
         }
 
+        void ParseScript() override
+        {
+            std::ifstream scriptFile(m_Path);
+            std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), std::istreambuf_iterator<char>());
+
+            // TODO: The regex should be --[[export]] local variable = value
+
+            std::regex exportRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+))"); // --[[export]] variable = value
+            std::regex headerRegex(R"(--\s*\[\[header\]\]\s*(.+))"); // --[[header]] Esto es un header
+            std::regex combinedRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+)|--\s*\[\[header\]\]\s*(.+))");
+            std::smatch match;
+            std::string::const_iterator searchStart(scriptContent.cbegin());
+
+            while (std::regex_search(searchStart, scriptContent.cend(), match, combinedRegex)) {
+                ExportedVariable variable;
+                if (match[1].matched) {
+                    variable.name = match[1];
+                    variable.value = match[2];
+                    variable.type = Sol2TypeToExportedVariableType(m_Environment[variable.name].get_type());
+                } else if (match[3].matched) {
+                    variable.name = "header";
+                    variable.value = match[3];
+                    variable.type = ExportedVariableType::None;
+                }
+
+                // Store the variable in the vector
+                m_ExportedVariables[variable.name] = variable;
+
+                // Move to the next match
+                searchStart = match.suffix().first;
+            }
+        }
+
         const std::filesystem::path& GetPath() const { return m_Path; }
         const sol::environment& GetEnvironment() const { return m_Environment; }
     private:
-
+        ExportedVariableType Sol2TypeToExportedVariableType(sol::type type)
+        {
+            switch (type)
+            {
+            case sol::type::boolean:
+                return ExportedVariableType::Bool;
+            case sol::type::number:
+                return ExportedVariableType::Float;
+            case sol::type::string:
+                return ExportedVariableType::String;
+            default:
+                return ExportedVariableType::Int;
+            }
+        }
+    private:
         std::filesystem::path m_Path;
         sol::environment m_Environment;
     };

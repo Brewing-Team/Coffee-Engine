@@ -6,7 +6,7 @@ local pitch = 0.0
 local lastMouseX, lastMouseY = input.get_mouse_position()
 
 function OnCreate()
-    print("FPS Camera Controller Created")
+    log("FPS Camera Controller Created")
     return 1
 end
 
@@ -37,7 +37,7 @@ function OnUpdate()
 
         transform.rotation = entityRotation
 
-        print("Yaw: " .. yaw .. " Pitch: " .. pitch)
+        log("Yaw: " .. yaw .. " Pitch: " .. pitch)
     end
 
     -- Calculate direction
@@ -96,6 +96,6 @@ function OnUpdate()
 end
 
 function OnDestroy()
-    print("FPS Camera Controller Destroyed")
+    log("FPS Camera Controller Destroyed")
     return 1
 end

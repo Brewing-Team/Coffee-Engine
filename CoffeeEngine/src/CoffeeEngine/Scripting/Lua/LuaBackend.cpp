@@ -567,43 +567,4 @@ namespace Coffee {
         }
     }
 
-    // This function will check all the variables from the script and map them to a cpp map so we can expose them in the editor
-    std::vector<LuaVariable> LuaBackend::MapVariables(const LuaScript& script) {
-
-        std::vector<LuaVariable> variables;
-        std::ifstream scriptFile(script.GetPath());
-        std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), std::istreambuf_iterator<char>());
-
-        // TODO: The regex should be --[[export]] local variable = value
-
-        std::regex exportRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+))"); // --[[export]] variable = value
-        std::regex headerRegex(R"(--\s*\[\[header\]\]\s*(.+))"); // --[[header]] Esto es un header
-        std::regex combinedRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+)|--\s*\[\[header\]\]\s*(.+))");
-        std::smatch match;
-        std::string::const_iterator searchStart(scriptContent.cbegin());
-
-        const sol::environment& env = script.GetEnvironment();
-
-        while (std::regex_search(searchStart, scriptContent.cend(), match, combinedRegex)) {
-            LuaVariable variable;
-            if (match[1].matched) {
-                variable.name = match[1];
-                variable.value = match[2];
-                variable.type = env[variable.name].get_type();
-            } else if (match[3].matched) {
-                variable.name = "header";
-                variable.value = match[3];
-                variable.type = sol::type::none;
-            }
-
-            // Store the variable in the vector
-            variables.push_back(variable);
-
-            // Move to the next match
-            searchStart = match.suffix().first;
-        }
-
-        return variables;
-    }
-
 } // namespace Coffee
