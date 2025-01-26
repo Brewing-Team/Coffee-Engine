@@ -6,18 +6,42 @@
 --[[export]] exampleString = "Hello, ImGui!"
 --[[export]] exampleBool = true
 
+--[[export]] child_amplitude = 2
+
+local parent
+local camera
+
+
+local childs = {}
+local all_entities = {}
+
+local time = 0
+
 function OnReady()
-    print("OnCreate()")
-    log("OnCreate()")
-    log_error("OnCreate()")
-    log_warning("OnCreate()")
-    log_critical("OnCreate()")
+    parent = self:get_parent()
+    parent_name = parent:get_component("TagComponent").tag
+    log("Parent name: " .. parent_name)
+
+    camera = current_scene:get_entity_by_name("Camera")
+    
+    all_entities = current_scene:get_all_entities()
+
+    childs = self:get_children()
 end
 
-function OnUpdate()
-    transform = self:get_component("TransformComponent"):get_world_transform()
-    translation = Vector3.new(1.0, 2.0, 3.0)
-    transform:translate(translation)
+function OnUpdate(delta)
+
+    -- sinuodal movement of the camera
+    camera:get_component("TransformComponent").position = Vector3.new(0, 0, 5 + math.sin(time) * 2)
+
+    for i, entity in ipairs(childs) do
+        local transform = entity:get_component("TransformComponent")
+        transform.position = Vector3.new(math.sin(time + i) * child_amplitude, math.cos(time + i) * child_amplitude, 0)
+        transform.rotation = Vector3.new(time * 100, time * 100, 0)
+    end
+
+    time = time + delta
+
 end
 
 function on_destroy()

@@ -416,7 +416,8 @@ namespace Coffee {
             "y", &glm::quat::y,
             "z", &glm::quat::z,
             "w", &glm::quat::w,
-            "eulerAngles", [](const glm::quat& q) { return glm::eulerAngles(q); },
+            "from_euler", [](const glm::vec3& euler) { return glm::quat(glm::radians(euler)); },
+            "to_euler_angles", [](const glm::quat& q) { return glm::eulerAngles(q); },
             "toMat4", [](const glm::quat& q) { return glm::toMat4(q); },
             "normalize", [](const glm::quat& q) { return glm::normalize(q); },
             "slerp", [](const glm::quat& a, const glm::quat& b, float t) { return glm::slerp(a, b, t); }
@@ -492,6 +493,11 @@ namespace Coffee {
                 }
             },
             "set_parent", &Entity::SetParent,
+            "get_parent", &Entity::GetParent,
+            "get_next_sibling", &Entity::GetNextSibling,
+            "get_prev_sibling", &Entity::GetPrevSibling,
+            "get_child", &Entity::GetChild,
+            "get_children", &Entity::GetChildren,
             "is_valid", [](Entity* self) { return static_cast<bool>(*self); }
         );
         #pragma endregion
@@ -547,7 +553,9 @@ namespace Coffee {
 
         luaState.new_usertype<Scene>("Scene",
             "create_entity", &Scene::CreateEntity,
-            "destroy_entity", &Scene::DestroyEntity
+            "destroy_entity", &Scene::DestroyEntity,
+            "get_entity_by_name", &Scene::GetEntityByName,
+            "get_all_entities", &Scene::GetAllEntities
         );
 
         # pragma endregion

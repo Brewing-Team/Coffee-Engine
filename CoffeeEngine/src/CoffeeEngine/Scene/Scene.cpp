@@ -74,6 +74,34 @@ namespace Coffee {
         m_Registry.destroy((entt::entity)entity);
     }
 
+    Entity Scene::GetEntityByName(const std::string& name)
+    {
+        auto view = m_Registry.view<TagComponent>();
+
+        for(auto entity : view)
+        {
+            auto& tag = view.get<TagComponent>(entity).Tag;
+            if(tag == name)
+                return Entity{entity, this};
+        }
+
+        return Entity{entt::null, this};
+    }
+
+    std::vector<Entity> Scene::GetAllEntities()
+    {
+        std::vector<Entity> entities;
+
+        auto view = m_Registry.view<entt::entity>();
+
+        for(auto entity : view)
+        {
+            entities.push_back(Entity{entity, this});
+        }
+
+        return entities;
+    }
+
     void Scene::OnInitEditor()
     {
         ZoneScoped;
@@ -117,10 +145,27 @@ namespace Coffee {
             m_Octree.Insert(objectContainer);
         }
 
+        Entity parent = CreateEntity("Parent");
+
         Entity scriptedEntity = CreateEntity("Scripted Entity");
-        scriptedEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        scriptedEntity.AddComponent<MeshComponent>();
         scriptedEntity.AddComponent<MaterialComponent>();
         scriptedEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua);
+
+        scriptedEntity.SetParent(parent);
+
+        // Test Get Parent
+        Entity parent2 = scriptedEntity.GetParent();
+        COFFEE_CRITICAL("Parent: {0}", parent2.GetComponent<TagComponent>().Tag);
+
+        for (int i = 0; i < 10; i++)
+        {
+            Entity child = CreateEntity("Child " + std::to_string(i));
+            child.AddComponent<MeshComponent>();
+            child.AddComponent<MaterialComponent>();
+
+            child.SetParent(scriptedEntity);
+        }
 
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
@@ -132,6 +177,7 @@ namespace Coffee {
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
 
             std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("self", scriptEntity);
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("current_scene", this);
 
             scriptComponent.script->OnReady();
         }
@@ -229,10 +275,10 @@ namespace Coffee {
         m_Octree.DebugDraw();
 
         // Get all the static meshes from the Octree
-
+/* 
         glm::mat4 testProjection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
 
-        Frustum frustum = Frustum(camera->GetProjection() /* testProjection */ * glm::inverse(cameraTransform));
+        Frustum frustum = Frustum(camera->GetProjection() * glm::inverse(cameraTransform));
         DebugRenderer::DrawFrustum(frustum, glm::vec4(1.0f), 1.0f);
 
         auto meshes = m_Octree.Query(frustum);
@@ -240,9 +286,9 @@ namespace Coffee {
         for(auto& mesh : meshes)
         {
             Renderer::Submit(RenderCommand{mesh.transform, mesh.object, mesh.object->GetMaterial(), 0});
-        }
+        } */
         
-/*         // Get all entities with ModelComponent and TransformComponent
+        // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
         // Loop through each entity with the specified components
@@ -257,7 +303,7 @@ namespace Coffee {
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
             Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
-        } */
+        }
 
         //Get all entities with LightComponent and TransformComponent
         auto lightView = m_Registry.view<LightComponent, TransformComponent>();

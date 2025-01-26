@@ -7,6 +7,7 @@
 #include "entt/entity/fwd.hpp"
 #include <cstdint>
 #include <utility>
+#include <vector>
 
 namespace Coffee {
 
@@ -132,6 +133,61 @@ namespace Coffee {
         void SetParent(Entity entity) 
         {
            HierarchyComponent::Reparent(m_Scene->m_Registry, m_EntityHandle, entity);
+        }
+
+        Entity GetParent()
+        {
+            const auto& hierarchyComponent = GetComponent<HierarchyComponent>();
+
+            return Entity{ hierarchyComponent.m_Parent, m_Scene };
+        }
+
+        Entity GetNextSibling()
+        {
+            const auto& hierarchyComponent = GetComponent<HierarchyComponent>();
+
+            return Entity{ hierarchyComponent.m_Next, m_Scene };
+        }
+
+        Entity GetPrevSibling()
+        {
+            const auto& hierarchyComponent = GetComponent<HierarchyComponent>();
+
+            return Entity{ hierarchyComponent.m_Prev, m_Scene };
+        }
+
+        Entity GetChild(int index)
+        {
+            const auto& hierarchyComponent = GetComponent<HierarchyComponent>();
+
+            entt::entity curr = hierarchyComponent.m_First;
+            for (int i = 0; i < index; i++)
+            {
+                if (curr == entt::null)
+                    return Entity{ entt::null, m_Scene };
+
+                curr = m_Scene->m_Registry.get<HierarchyComponent>(curr).m_Next;
+            }
+
+            return Entity{ curr, m_Scene };
+        }
+
+        //Get All Children
+
+        std::vector<Entity> GetChildren()
+        {
+            std::vector<Entity> children;
+
+            const auto& hierarchyComponent = GetComponent<HierarchyComponent>();
+
+            entt::entity curr = hierarchyComponent.m_First;
+            while (curr != entt::null)
+            {
+                children.push_back(Entity{ curr, m_Scene });
+                curr = m_Scene->m_Registry.get<HierarchyComponent>(curr).m_Next;
+            }
+
+            return children;
         }
 
     private:
