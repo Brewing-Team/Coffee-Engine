@@ -6,8 +6,8 @@
 				<SoundcasterSession Name="Session" ID="{126447C7-2E63-4603-B887-22AE3954E6B0}">
 					<ModuleList>
 						<Module>
-							<ObjectRef Name="Play_test_sound" ID="{8FFE06AF-FCEB-457A-ABC6-265509D09B4D}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}"/>
-							<Position X="0" Y="0"/>
+							<ObjectRef Name="Play_BackgroundContainer" ID="{A5674ED4-D568-42CC-9D09-49BC9EBD54DC}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}"/>
+							<Position X="1" Y="0"/>
 						</Module>
 					</ModuleList>
 					<RTPCValueList ShowAll="true"/>

@@ -8,6 +8,21 @@ namespace Coffee
     // Global pointer for the low-level IO
     CAkFilePackageLowLevelIODeferred* g_lowLevelIO = nullptr;
 
+    glm::vec3 frontSoundObjectPos(0.0f, 0.0f, 100.0f);
+    glm::vec3 backSoundObjectPos(0.0f, 0.0f, -100.0f);
+
+    float frontSpeed = 50.0f;
+    float backSpeed = 50.0f;
+    bool frontMovingRight = true;
+    bool backMovingUp = true;
+
+    glm::vec3 listenerPos(0.0f, 0.0f, 0.0f);
+    glm::vec3 forward(0.0f, 0.0f, 1.0f);
+    glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+    float listenerSpeed = 50.0f;
+    bool listenerMovingForward = true;
+
     void Audio::Init()
     {
         if (!InitializeMemoryManager())
@@ -37,17 +52,61 @@ namespace Coffee
         AK::SoundEngine::LoadBank("Init.bnk", bankID);
         AK::SoundEngine::LoadBank("CoffeeEngine.bnk", bankID);
 
-        // Register the game object
-        AkGameObjectID gameObjectID = 100;
-        AK::SoundEngine::RegisterGameObj(gameObjectID);
-
         // Set the listener
         AkGameObjectID listenerID = 200;
         AK::SoundEngine::RegisterGameObj(listenerID);
         AK::SoundEngine::SetDefaultListeners(&listenerID, 1);
 
-        Play("Play_test_sound", gameObjectID);
+        SetListenerPosition(listenerPos, forward, up);
+
+        //Play("Play_BackgroundContainer", gameObjectID);
+
+        AkGameObjectID leftSoundObject = 300;
+        AkGameObjectID rightSoundObject = 301;
+        AkGameObjectID frontSoundObject = 302;
+        AkGameObjectID backSoundObject = 303;
+
+        AK::SoundEngine::RegisterGameObj(leftSoundObject);
+        AK::SoundEngine::RegisterGameObj(rightSoundObject);
+        AK::SoundEngine::RegisterGameObj(frontSoundObject);
+        AK::SoundEngine::RegisterGameObj(backSoundObject);
+
+        Play3DSound("Play_test_sound", leftSoundObject, -2000.0f, 0.0f, 0.0f);
+        Play3DSound("Play_test_sound2", rightSoundObject, 2000.0f, 0.0f, 0.0f);
+        Play3DSound("Play_test_sound3", frontSoundObject, 0.0f, 0.0f, 2000.0f);
+        Play3DSound("Play_test_sound4", backSoundObject, 0.0f, 0.0f, -2000.0f);
     }
+
+    void Audio::Set3DPosition(AkGameObjectID gameObjectID, glm::vec3& pos, glm::vec3& forward, glm::vec3& up)
+    {
+        AkSoundPosition newPos;
+        newPos.SetPosition(pos.x, pos.y, pos.z);
+        newPos.SetOrientation(forward.x, forward.y, forward.z, up.x, up.y, up.z);
+
+        AK::SoundEngine::SetPosition(gameObjectID, newPos);
+    }
+
+    void Audio::Play3DSound(const char* eventName, AkGameObjectID gameObjectID, float x, float y, float z)
+    {
+        glm::vec3 position(x, y, z);
+        glm::vec3 forward(0.0f, 0.0f, 1.0f);
+        glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+        Set3DPosition(gameObjectID, position, forward, up);
+
+        AK::SoundEngine::PostEvent(eventName, gameObjectID);
+    }
+
+    void Audio::SetListenerPosition(glm::vec3& pos, glm::vec3& forward, glm::vec3& up)
+    {
+        AkSoundPosition listenerPos;
+        listenerPos.SetPosition(pos.x, pos.y, pos.z);
+        listenerPos.SetOrientation(forward.x, forward.y, forward.z, up.x, up.y, up.z);
+
+        AkGameObjectID listenerID = 200; // ID del listener registrado
+        AK::SoundEngine::SetPosition(listenerID, listenerPos);
+    }
+
 
     void Audio::Play(const char* eventName, AkGameObjectID gameObjectID)
     {
@@ -56,7 +115,50 @@ namespace Coffee
 
     void Audio::ProcessAudio()
     {
+        static float elapsedTime = 0.0f;
+        elapsedTime += 0.001f;
+
+        if (frontMovingRight)
+            frontSoundObjectPos.x += frontSpeed * elapsedTime;
+        else
+            frontSoundObjectPos.x -= frontSpeed * elapsedTime;
+
+        if (frontSoundObjectPos.x > 200.0f)
+            frontMovingRight = false;
+        else if (frontSoundObjectPos.x < -200.0f)
+            frontMovingRight = true;
+
+        if (backMovingUp)
+            backSoundObjectPos.y += backSpeed * elapsedTime;
+        else
+            backSoundObjectPos.y -= backSpeed * elapsedTime;
+
+        if (backSoundObjectPos.y > 200.0f)
+            backMovingUp = false;
+        else if (backSoundObjectPos.y < -200.0f)
+            backMovingUp = true;
+
+        glm::vec3 forward(0.0f, 0.0f, 1.0f);
+        glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+        Set3DPosition(302, frontSoundObjectPos, forward, up);
+        Set3DPosition(303, backSoundObjectPos, forward, up);
+
         AK::SoundEngine::RenderAudio();
+
+        if (listenerMovingForward)
+            listenerPos.z += listenerSpeed * elapsedTime;
+        else
+            listenerPos.z -= listenerSpeed * elapsedTime;
+
+        if (listenerPos.z > 200.0f)
+            listenerMovingForward = false;
+        else if (listenerPos.z < -200.0f)
+            listenerMovingForward = true;
+
+        SetListenerPosition(listenerPos, forward, up);
+
+        elapsedTime = 0.0f;
     }
 
     bool Audio::InitializeMemoryManager()
