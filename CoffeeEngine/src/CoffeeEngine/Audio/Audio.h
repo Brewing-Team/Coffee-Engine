@@ -56,9 +56,16 @@ namespace Coffee {
          */
         static void Play(const char* eventName, AkGameObjectID gameObjectID);
 
+
+        static void SetSwitch(const char* switchGroup, const char* switchState, AkGameObjectID gameObjectID);
+
+        static void PostEvent(const char* eventName, AkGameObjectID gameObjectID);
+
+
         static void Play3DSound(const char* eventName, AkGameObjectID gameObjectID, float x, float y, float z);
         static void Set3DPosition(AkGameObjectID gameObjectID, glm::vec3& pos, glm::vec3& forward, glm::vec3& up);
         static void SetListenerPosition(glm::vec3& pos, glm::vec3& forward, glm::vec3& up);
+
 
     private:
 
