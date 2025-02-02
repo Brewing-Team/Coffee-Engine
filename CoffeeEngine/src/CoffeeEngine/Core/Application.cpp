@@ -5,6 +5,7 @@
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Audio/Audio.h"
+#include "CoffeeEngine/Audio/AudioFootsteps.h"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL.h>
@@ -26,6 +27,7 @@ namespace Coffee
 
         Renderer::Init();
         Audio::Init();
+        AudioFootsteps::Initialize();
 
         m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

@@ -94,7 +94,7 @@ namespace Coffee
 
         Set3DPosition(gameObjectID, position, forward, up);
 
-        AK::SoundEngine::PostEvent(eventName, gameObjectID);
+        PlayEvent(eventName, gameObjectID);
     }
 
     void Audio::SetListenerPosition(glm::vec3& pos, glm::vec3& forward, glm::vec3& up)
@@ -107,10 +107,14 @@ namespace Coffee
         AK::SoundEngine::SetPosition(listenerID, listenerPos);
     }
 
-
-    void Audio::Play(const char* eventName, AkGameObjectID gameObjectID)
+    void Audio::PlayEvent(const char* eventName, AkGameObjectID gameObjectID)
     {
         AK::SoundEngine::PostEvent(eventName, gameObjectID);
+    }
+
+    void Audio::SetSwitch(const char* switchGroup, const char* switchState, AkGameObjectID gameObjectID)
+    {
+        AK::SoundEngine::SetSwitch(switchGroup, switchState, gameObjectID);
     }
 
     void Audio::ProcessAudio()

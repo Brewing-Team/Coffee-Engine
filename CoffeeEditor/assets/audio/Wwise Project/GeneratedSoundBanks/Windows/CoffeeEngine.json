@@ -10,11 +10,19 @@
     "Type": "User",
     "GUID": "{6088230F-1954-4D42-9B00-889897951AA0}",
     "Language": "SFX",
-    "Hash": "{9CD5A47A-2543-57A1-B87A-84286714FD03}",
+    "Hash": "{D36E50C6-568C-3E81-78DF-A8D361EEC7C3}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\CoffeeEngine",
     "ShortName": "CoffeeEngine",
     "Path": "CoffeeEngine.bnk",
     "Media": [
+     {
+      "Id": "30293186",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "bootsWalk.wav",
+      "CachePath": "9B/{9B867C87-2C8F-D144-6D7F-276B85B62C2A}.wem"
+     },
      {
       "Id": "187034672",
       "Language": "SFX",
@@ -22,6 +30,14 @@
       "Location": "Memory",
       "ShortName": "Combat-A-LowBrass_138bpm4-4_L8M-P0.wav",
       "CachePath": "52/{52E43852-FA8C-6DED-6AAB-CFCCC36A1807}.wem"
+     },
+     {
+      "Id": "189916745",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "grassWalk.wav",
+      "CachePath": "45/{452802A4-B931-8BD0-FADC-C00B700BA28A}.wem"
      },
      {
       "Id": "276561864",
@@ -32,12 +48,28 @@
       "CachePath": "73/{73317DAE-A02E-60F5-4AB3-700A1EC322C7}.wem"
      },
      {
+      "Id": "357433118",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "mudWalk.wav",
+      "CachePath": "4F/{4F1A1627-4078-FA5F-3A06-0F7EB26954D0}.wem"
+     },
+     {
       "Id": "505350705",
       "Language": "SFX",
       "Streaming": "false",
       "Location": "Memory",
       "ShortName": "Combat-Bridge-Gtr2_138bpm4-4_L17M-P1B.wav",
       "CachePath": "98/{9861D752-27B3-BA7D-A56D-E5B78B4CA7A2}.wem"
+     },
+     {
+      "Id": "627137966",
+      "Language": "SFX",
+      "Streaming": "false",
+      "Location": "Memory",
+      "ShortName": "SplashingFootsteps.wav",
+      "CachePath": "5F/{5FEBDF98-17B2-EF24-6F85-601DFE67D2DA}.wem"
      },
      {
       "Id": "760241267",
@@ -65,6 +97,78 @@
      }
     ],
     "Events": [
+     {
+      "Id": "1894362767",
+      "Name": "Foot_Player",
+      "ObjectPath": "\\Events\\Default Work Unit\\Foot_Player",
+      "GUID": "{BCF9233E-3CEA-439B-8521-9C87E48EAC46}",
+      "DurationType": "Infinite",
+      "SwitchContainers": [
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "63790334",
+         "Id": "2654748154",
+         "GUID": "{25606F1E-2C56-46CA-BE66-324B37861B88}",
+         "Default": "true"
+        },
+        "MediaRefs": [
+         {
+          "Id": "627137966"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "63790334",
+         "Id": "712897245",
+         "GUID": "{DD1AC388-9BAD-49AD-B5FB-15689C494EAD}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "357433118"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "63790334",
+         "Id": "4248645337",
+         "GUID": "{935442A5-5108-4223-B0CC-1B07630CC93A}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "189916745"
+         }
+        ]
+       },
+       {
+        "SwitchValue": {
+         "GroupType": "Switch",
+         "GroupId": "63790334",
+         "Id": "2305815328",
+         "GUID": "{335B17FA-C4C9-4875-95BD-E7DC383BC106}"
+        },
+        "MediaRefs": [
+         {
+          "Id": "30293186"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "Id": "2955210170",
+      "Name": "Foot_Player_Stop",
+      "ObjectPath": "\\Events\\Default Work Unit\\Foot_Player_Stop",
+      "GUID": "{3E7A3FA4-9555-4F84-95F0-70FFAA4DFB58}",
+      "MaxAttenuation": "0",
+      "DurationType": "OneShot",
+      "DurationMin": "0",
+      "DurationMax": "0"
+     },
      {
       "Id": "1474158143",
       "Name": "Play_BackgroundContainer",
@@ -128,9 +232,43 @@
        }
       ]
      }
+    ],
+    "SwitchGroups": [
+     {
+      "Id": "63790334",
+      "Name": "SurfaceType",
+      "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType",
+      "GUID": "{8B0AA71D-BE8B-4FD1-8F22-68612AF27D8A}",
+      "Switches": [
+       {
+        "Id": "712897245",
+        "Name": "Mud",
+        "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType\\Mud",
+        "GUID": "{DD1AC388-9BAD-49AD-B5FB-15689C494EAD}"
+       },
+       {
+        "Id": "2305815328",
+        "Name": "Boots",
+        "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType\\Boots",
+        "GUID": "{335B17FA-C4C9-4875-95BD-E7DC383BC106}"
+       },
+       {
+        "Id": "2654748154",
+        "Name": "Water",
+        "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType\\Water",
+        "GUID": "{25606F1E-2C56-46CA-BE66-324B37861B88}"
+       },
+       {
+        "Id": "4248645337",
+        "Name": "Grass",
+        "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType\\Grass",
+        "GUID": "{935442A5-5108-4223-B0CC-1B07630CC93A}"
+       }
+      ]
+     }
     ]
    }
   ],
-  "FileHash": "{93CFE53C-CC91-4029-EE31-A4BE138A17D0}"
+  "FileHash": "{F0ACA951-E7A2-B6C2-3A65-A98BDF723865}"
  }
 }

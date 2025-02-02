@@ -54,7 +54,9 @@ namespace Coffee {
          * @param eventName The name of the event.
          * @param gameObjectID The game object ID.
          */
-        static void Play(const char* eventName, AkGameObjectID gameObjectID);
+        static void PlayEvent(const char* eventName, AkGameObjectID gameObjectID);
+
+        static void SetSwitch(const char* switchGroup, const char* switchState, AkGameObjectID gameObjectID);
 
 
         static void SetSwitch(const char* switchGroup, const char* switchState, AkGameObjectID gameObjectID);
