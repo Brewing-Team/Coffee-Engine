@@ -68,6 +68,11 @@ namespace Coffee {
         static void Set3DPosition(AkGameObjectID gameObjectID, glm::vec3& pos, glm::vec3& forward, glm::vec3& up);
         static void SetListenerPosition(glm::vec3& pos, glm::vec3& forward, glm::vec3& up);
 
+        /**
+         * @brief Register a game object.
+         * @param gameObjectID The game object ID.
+         */
+        static void RegisterGameObject(AkGameObjectID gameObjectID);
 
     private:
 

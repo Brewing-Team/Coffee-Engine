@@ -54,7 +54,7 @@ namespace Coffee
 
         // Set the listener
         AkGameObjectID listenerID = 200;
-        AK::SoundEngine::RegisterGameObj(listenerID);
+        RegisterGameObject(listenerID);
         AK::SoundEngine::SetDefaultListeners(&listenerID, 1);
 
         SetListenerPosition(listenerPos, forward, up);
@@ -66,15 +66,20 @@ namespace Coffee
         AkGameObjectID frontSoundObject = 302;
         AkGameObjectID backSoundObject = 303;
 
-        AK::SoundEngine::RegisterGameObj(leftSoundObject);
-        AK::SoundEngine::RegisterGameObj(rightSoundObject);
-        AK::SoundEngine::RegisterGameObj(frontSoundObject);
-        AK::SoundEngine::RegisterGameObj(backSoundObject);
+        RegisterGameObject(leftSoundObject);
+        RegisterGameObject(rightSoundObject);
+        RegisterGameObject(frontSoundObject);
+        RegisterGameObject(backSoundObject);
 
         Play3DSound("Play_test_sound", leftSoundObject, -2000.0f, 0.0f, 0.0f);
         Play3DSound("Play_test_sound2", rightSoundObject, 2000.0f, 0.0f, 0.0f);
         Play3DSound("Play_test_sound3", frontSoundObject, 0.0f, 0.0f, 2000.0f);
         Play3DSound("Play_test_sound4", backSoundObject, 0.0f, 0.0f, -2000.0f);
+    }
+
+    void Audio::RegisterGameObject(AkGameObjectID gameObjectID)
+    {
+        AK::SoundEngine::RegisterGameObj(gameObjectID);
     }
 
     void Audio::Set3DPosition(AkGameObjectID gameObjectID, glm::vec3& pos, glm::vec3& forward, glm::vec3& up)

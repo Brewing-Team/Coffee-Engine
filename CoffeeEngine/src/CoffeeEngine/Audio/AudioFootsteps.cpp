@@ -13,7 +13,7 @@ namespace Coffee {
     void AudioFootsteps::Initialize()
     {
         // Register the listener with Wwise
-        AK::SoundEngine::RegisterGameObj(m_ListenerID);
+        Audio::RegisterGameObject(m_ListenerID);
         AK::SoundEngine::SetDefaultListeners(&m_ListenerID, 2);
     }
 
