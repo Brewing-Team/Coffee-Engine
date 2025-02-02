@@ -66,6 +66,21 @@
     ],
     "Events": [
      {
+      "Id": "1474158143",
+      "Name": "Play_BackgroundContainer",
+      "ObjectPath": "\\Events\\Default Work Unit\\Play_BackgroundContainer",
+      "GUID": "{A5674ED4-D568-42CC-9D09-49BC9EBD54DC}",
+      "DurationType": "Infinite",
+      "MediaRefs": [
+       {
+        "Id": "187034672"
+       },
+       {
+        "Id": "505350705"
+       }
+      ]
+     },
+     {
       "Id": "3211564518",
       "Name": "Play_test_sound",
       "ObjectPath": "\\Events\\Default Work Unit\\Play_test_sound",
