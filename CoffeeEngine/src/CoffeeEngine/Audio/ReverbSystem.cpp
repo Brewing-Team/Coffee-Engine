@@ -1,7 +1,12 @@
 #include "ReverbSystem.h"
 #include <cassert>
 
-namespace Coffee 
+#include <AK/SoundEngine/Common/AkSoundEngine.h>
+#include <unordered_map>
+
+#include <AK/Plugin/AkRoomVerbFXFactory.h>
+
+namespace Coffee
 {
     ReverbSystem::ReverbSystem() 
         : m_nextZoneID(1000)
