@@ -147,6 +147,7 @@ namespace Coffee {
         }
 
         Entity parent = CreateEntity("Parent");
+        parent.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua);
 
         Entity scriptedEntity = CreateEntity("Scripted Entity");
         scriptedEntity.AddComponent<MeshComponent>();

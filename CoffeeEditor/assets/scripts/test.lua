@@ -42,6 +42,12 @@ function OnUpdate(delta)
 
     time = time + delta
 
+    parent_script = parent:get_component("ScriptComponent")
+
+    log(tostring(parent_script.lives))
+
+    parent_script.lives = parent_script.lives + 1
+
 end
 
 function on_destroy()

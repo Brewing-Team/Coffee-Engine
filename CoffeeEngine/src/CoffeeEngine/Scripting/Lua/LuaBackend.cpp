@@ -443,6 +443,8 @@ namespace Coffee {
                     self->AddComponent<MaterialComponent>();
                 } else if (componentName == "LightComponent") {
                     self->AddComponent<LightComponent>();
+                } else if (componentName == "ScriptComponent") {
+                    self->AddComponent<ScriptComponent>();
                 }
             },
             "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
@@ -458,6 +460,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<MaterialComponent>()));
                 } else if (componentName == "LightComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
+                } else if (componentName == "ScriptComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
                 }
                 return sol::nil;
             },
@@ -474,6 +478,8 @@ namespace Coffee {
                     return self->HasComponent<MaterialComponent>();
                 } else if (componentName == "LightComponent") {
                     return self->HasComponent<LightComponent>();
+                } else if (componentName == "ScriptComponent") {
+                    return self->HasComponent<ScriptComponent>();
                 }
                 return false;
             },
@@ -490,6 +496,8 @@ namespace Coffee {
                     self->RemoveComponent<MaterialComponent>();
                 } else if (componentName == "LightComponent") {
                     self->RemoveComponent<LightComponent>();
+                } else if (componentName == "ScriptComponent") {
+                    self->RemoveComponent<ScriptComponent>();
                 }
             },
             "set_parent", &Entity::SetParent,
@@ -549,15 +557,15 @@ namespace Coffee {
         );
 
         luaState.new_usertype<ScriptComponent>("ScriptComponent",
-            sol::constructors<ScriptComponent(), ScriptComponent(const std::string&)>(),
+            sol::constructors<ScriptComponent(), ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)>(),
             sol::meta_function::index, [](ScriptComponent& self, const std::string& key) {
-                return self.script->GetVariable<sol::object>(key);
+                return std::dynamic_pointer_cast<LuaScript>(self.script)->GetVariable<sol::object>(key);
             },
             sol::meta_function::new_index, [](ScriptComponent& self, const std::string& key, sol::object value) {
-                self.script->SetVariable(key, value);
+                std::dynamic_pointer_cast<LuaScript>(self.script)->SetVariable(key, value);
             },
             sol::meta_function::call, [](ScriptComponent& self, const std::string& functionName, sol::variadic_args args) {
-                self.script->CallFunction(functionName);
+                std::dynamic_pointer_cast<LuaScript>(self.script)->CallFunction(functionName);
             }
         );
         # pragma endregion
