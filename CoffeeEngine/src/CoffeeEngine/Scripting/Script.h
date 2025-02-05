@@ -37,6 +37,7 @@ namespace Coffee
         // The function parameter should be more generic
         template <typename Ret, typename... Args>
         void RegisterFunction(const std::string& name, std::function<Ret(Args...)> function);
+        // TODO: Add support for variadic arguments
         virtual void CallFunction(const std::string& functionName) = 0;
 
         // The variable parameter should be more generic

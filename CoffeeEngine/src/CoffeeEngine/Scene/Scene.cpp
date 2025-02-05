@@ -145,7 +145,44 @@ namespace Coffee {
 
             m_Octree.Insert(objectContainer);
         }
-        AudioFootsteps::StartLoopingSound();
+
+        Entity parent = CreateEntity("Parent");
+
+        Entity scriptedEntity = CreateEntity("Scripted Entity");
+        scriptedEntity.AddComponent<MeshComponent>();
+        scriptedEntity.AddComponent<MaterialComponent>();
+        scriptedEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua);
+
+        scriptedEntity.SetParent(parent);
+
+        // Test Get Parent
+        Entity parent2 = scriptedEntity.GetParent();
+        COFFEE_CRITICAL("Parent: {0}", parent2.GetComponent<TagComponent>().Tag);
+
+        for (int i = 0; i < 10; i++)
+        {
+            Entity child = CreateEntity("Child " + std::to_string(i));
+            child.AddComponent<MeshComponent>();
+            child.AddComponent<MaterialComponent>();
+
+            child.SetParent(scriptedEntity);
+        }
+
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
+
+        for (auto& entity : scriptView)
+        {
+            Entity scriptEntity{entity, this};
+
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("self", scriptEntity);
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("current_scene", this);
+
+            scriptComponent.script->OnReady();
+        }
+
 
     }
 
