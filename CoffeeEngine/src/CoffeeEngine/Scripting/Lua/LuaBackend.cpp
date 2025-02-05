@@ -547,6 +547,19 @@ namespace Coffee {
             "angle", &LightComponent::Angle,
             "type", &LightComponent::type
         );
+
+        luaState.new_usertype<ScriptComponent>("ScriptComponent",
+            sol::constructors<ScriptComponent(), ScriptComponent(const std::string&)>(),
+            sol::meta_function::index, [](ScriptComponent& self, const std::string& key) {
+                return self.script->GetVariable<sol::object>(key);
+            },
+            sol::meta_function::new_index, [](ScriptComponent& self, const std::string& key, sol::object value) {
+                self.script->SetVariable(key, value);
+            },
+            sol::meta_function::call, [](ScriptComponent& self, const std::string& functionName, sol::variadic_args args) {
+                self.script->CallFunction(functionName);
+            }
+        );
         # pragma endregion
 
         # pragma region Bind Scene Functions
