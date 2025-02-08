@@ -146,29 +146,6 @@ namespace Coffee {
             m_Octree.Insert(objectContainer);
         }
 
-        Entity parent = CreateEntity("Parent");
-        parent.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua);
-
-        Entity scriptedEntity = CreateEntity("Scripted Entity");
-        scriptedEntity.AddComponent<MeshComponent>();
-        scriptedEntity.AddComponent<MaterialComponent>();
-        scriptedEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua);
-
-        scriptedEntity.SetParent(parent);
-
-        // Test Get Parent
-        Entity parent2 = scriptedEntity.GetParent();
-        COFFEE_CRITICAL("Parent: {0}", parent2.GetComponent<TagComponent>().Tag);
-
-        for (int i = 0; i < 10; i++)
-        {
-            Entity child = CreateEntity("Child " + std::to_string(i));
-            child.AddComponent<MeshComponent>();
-            child.AddComponent<MaterialComponent>();
-
-            child.SetParent(scriptedEntity);
-        }
-
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
 
@@ -183,8 +160,6 @@ namespace Coffee {
 
             scriptComponent.script->OnReady();
         }
-
-
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
