@@ -628,6 +628,31 @@ namespace Coffee {
                         }
                         break;
                     }
+                    case ExportedVariableType::Entity:
+                    {
+                        Entity value = variable.value.has_value() ? std::any_cast<Entity>(variable.value) : Entity{};
+                        if (ImGui::Button(name.c_str()))
+                        {
+                            ImGui::OpenPopup("EntityPopup");
+                        }
+                        if (ImGui::BeginPopup("EntityPopup"))
+                        {
+                            auto view = m_Context->m_Registry.view<TagComponent>();
+                            for (auto entityID : view)
+                            {
+                                Entity e{ entityID, m_Context.get() };
+                                auto& tag = e.GetComponent<TagComponent>().Tag;
+                                if (ImGui::Selectable(tag.c_str()))
+                                {
+                                    value = e;
+                                    std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                                    variable.value = value;
+                                }
+                            }
+                            ImGui::EndPopup();
+                        }
+                        break;
+                    }
                 }
             }
         }

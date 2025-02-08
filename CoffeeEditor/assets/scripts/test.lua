@@ -8,11 +8,11 @@
 
 --[[export]] child_amplitude = 2
 
-local parent
+--[[export]] parent = nil
 local camera
 
 
-local childs = {}
+--[[export]] childs = {}
 local all_entities = {}
 
 local time = 0

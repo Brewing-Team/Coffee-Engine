@@ -9,7 +9,7 @@ namespace Coffee {
 
     GraphicsContext::GraphicsContext(SDL_Window* windowHandle) : m_WindowHandle(windowHandle)
     {
-		COFFEE_CORE_ASSERT(windowHandle, "Window handle is null!")
+		COFFEE_CORE_ASSERT(windowHandle, "Window handle is null!");
     }
 
     GraphicsContext::~GraphicsContext()

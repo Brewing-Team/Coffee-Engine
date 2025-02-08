@@ -594,7 +594,6 @@ namespace Coffee {
         } catch (const sol::error& e) {
             COFFEE_CORE_ERROR("Lua: {0}", e.what());
         }
-        script.ParseScript();
     }
 
 } // namespace Coffee

@@ -1,12 +1,15 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "CoffeeEngine/Scripting/Script.h"
 #include "CoffeeEngine/Scripting/ScriptManager.h"
 #include <regex>
+#include <sol/forward.hpp>
 #include <sol/sol.hpp>
 #include <fstream>
+#include <sol/types.hpp>
 
 namespace Coffee {
 
@@ -37,6 +40,8 @@ namespace Coffee {
                 sol::error err = result;
                 COFFEE_CORE_ERROR("Lua: {0}", err.what());
             }
+
+            ParseScript();
         }
 
         void OnUpdate(float dt) override
@@ -107,7 +112,7 @@ namespace Coffee {
             std::ifstream scriptFile(m_Path);
             std::string scriptContent((std::istreambuf_iterator<char>(scriptFile)), std::istreambuf_iterator<char>());
 
-            // TODO: The regex should be --[[export]] local variable = value
+            // TODO: Add support for local variables
 
             std::regex exportRegex(R"(--\[\[export\]\]\s+(\w+)\s*=\s*(.+))"); // --[[export]] variable = value
             std::regex headerRegex(R"(--\s*\[\[header\]\]\s*(.+))"); // --[[header]] Esto es un header
@@ -120,7 +125,7 @@ namespace Coffee {
                 if (match[1].matched) {
                     variable.name = match[1];
                     AssignSol2VariableToStdAny(m_Environment[variable.name], variable.value);
-                    variable.type = Sol2TypeToExportedVariableType(m_Environment[variable.name].get_type());
+                    variable.type = Sol2VariableToExportedVariableType(m_Environment[variable.name]);
                 } else if (match[3].matched) {
                     variable.name = "header";
                     variable.value = match[3];
@@ -152,15 +157,27 @@ namespace Coffee {
             case sol::type::string:
                 value = object.as<std::string>();
                 break;
+            case sol::type::userdata:
+                if(object.is<Entity>())
+                {
+                    value = object.as<Entity>();
+                }
+                else {
+                    value = nullptr;
+                }
+                break;
+            case sol::type::nil:
+                value = nullptr;
+                break;
             default:
-                value = object.as<int>();
+                value = nullptr;
                 break;
             }
         }
 
-        ExportedVariableType Sol2TypeToExportedVariableType(sol::type type)
+        ExportedVariableType Sol2VariableToExportedVariableType(sol::object object)
         {
-            switch (type)
+            switch (object.get_type())
             {
             case sol::type::boolean:
                 return ExportedVariableType::Bool;
@@ -168,8 +185,15 @@ namespace Coffee {
                 return ExportedVariableType::Float;
             case sol::type::string:
                 return ExportedVariableType::String;
+            case sol::type::userdata:
+                if (object.is<Entity>()) {
+                    return ExportedVariableType::Entity;
+                }
+                else {
+                    return ExportedVariableType::None;
+                }
             default:
-                return ExportedVariableType::Int;
+                return ExportedVariableType::None;
             }
         }
     private:
