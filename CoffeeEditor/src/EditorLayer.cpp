@@ -690,6 +690,7 @@ namespace Coffee {
         {
             Project::New(path);
             Project::SaveActive();
+            Project::Load(path);
             Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - Coffee Engine");
         }
         else
