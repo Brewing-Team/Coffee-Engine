@@ -59,6 +59,7 @@ namespace Coffee {
         Ref<UniformBuffer> RenderDataUniformBuffer; ///< Uniform buffer for render data.
 
         Ref<Material> DefaultMaterial; ///< Default material.
+        Ref<Mesh> MissingMesh; ///< Missing mesh.
 
         Ref<Texture2D> RenderTexture; ///< Render texture.
 

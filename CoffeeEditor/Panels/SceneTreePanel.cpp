@@ -352,7 +352,8 @@ namespace Coffee {
             {
                 ImGui::Text("Mesh");
                 ImGui::SameLine();
-                if(ImGui::Button(meshComponent.GetMesh()->GetName().c_str(), {64, 32}))
+                const std::string& meshName = meshComponent.GetMesh() ? meshComponent.GetMesh()->GetName() : "Missing Mesh!!";
+                if(ImGui::Button(meshName.c_str(), {64, 32}))
                 {
                     ImGui::OpenPopup("MeshPopup");
                 }

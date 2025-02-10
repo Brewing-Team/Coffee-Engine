@@ -163,9 +163,6 @@ namespace Coffee {
 
         MeshComponent()
         {
-            // TEMPORAL! In the future use for example MeshComponent() : mesh(MeshFactory(PrimitiveType::MeshText))
-            Ref<Model> m = Model::Load("assets/models/MissingMesh.glb");
-            mesh = m->GetMeshes()[0];
         }
         MeshComponent(const MeshComponent&) = default;
         MeshComponent(Ref<Mesh> mesh)

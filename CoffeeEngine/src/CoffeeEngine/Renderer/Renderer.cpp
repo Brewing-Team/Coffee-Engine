@@ -73,6 +73,10 @@ namespace Coffee {
         Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
         s_RendererData.DefaultMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
 
+        // TODO: This is a hack to get the missing mesh add it to the PrimitiveMesh class
+        Ref<Model> m = Model::Load("assets/models/MissingMesh.glb");
+        s_RendererData.MissingMesh = m->GetMeshes()[0];
+
         s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA32F, ImageFormat::RGB8, ImageFormat::DEPTH24STENCIL8 });
         s_PostProcessingFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8 });
 
@@ -173,12 +177,19 @@ namespace Coffee {
 
             shader->setVec3("entityID", entityIDVec3);
 
-            RendererAPI::DrawIndexed(command.mesh->GetVertexArray());
+            Mesh* mesh = command.mesh.get();
+            
+            if(mesh == nullptr)
+            {
+                mesh = s_RendererData.MissingMesh.get();
+            }
+            
+            RendererAPI::DrawIndexed(mesh->GetVertexArray());
 
             s_Stats.DrawCalls++;
 
-            s_Stats.VertexCount += command.mesh->GetVertices().size();
-            s_Stats.IndexCount += command.mesh->GetIndices().size();
+            s_Stats.VertexCount += mesh->GetVertices().size();
+            s_Stats.IndexCount += mesh->GetIndices().size();
         }
 
         // Test drawing the skybox

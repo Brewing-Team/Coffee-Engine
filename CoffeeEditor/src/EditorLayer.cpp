@@ -582,13 +582,13 @@ namespace Coffee {
 
                 if(meshComponent.drawAABB)
                 {
-                    const AABB& aabb = meshComponent.mesh->GetAABB().CalculateTransformedAABB(transform);
+                    const AABB& aabb = meshComponent.mesh ? meshComponent.mesh->GetAABB().CalculateTransformedAABB(transform) : AABB();
                     DebugRenderer::DrawBox(aabb, {0.27f, 0.52f, 0.53f, 1.0f});
                 }
 
                 // ----------------------------------
 
-                OBB obb = meshComponent.mesh->GetOBB(transform);
+                OBB obb = meshComponent.mesh ? meshComponent.mesh->GetOBB(transform) : OBB();
                 DebugRenderer::DrawBox(obb, {0.99f, 0.50f, 0.09f, 1.0f});
 
 
