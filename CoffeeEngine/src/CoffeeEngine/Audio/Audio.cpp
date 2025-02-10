@@ -54,12 +54,16 @@ namespace Coffee
 
         // Set the listener
         AkGameObjectID listenerID = 200;
+
+        ReverbSystem::Initialize();
+
         RegisterGameObject(listenerID);
+
         AK::SoundEngine::SetDefaultListeners(&listenerID, 1);
 
-        SetListenerPosition(listenerPos, forward, up);
+        Play("Play_test_sound", gameObjectID);
 
-        //Play("Play_BackgroundContainer", gameObjectID);
+        SetListenerPosition(listenerPos, forward, up);
 
         AkGameObjectID leftSoundObject = 300;
         AkGameObjectID rightSoundObject = 301;
@@ -125,6 +129,36 @@ namespace Coffee
     void Audio::ProcessAudio()
     {
         ReverbSystem::Update();
+      
+        static float elapsedTime = 0.0f;
+        elapsedTime += 0.001f;
+
+        if (frontMovingRight)
+            frontSoundObjectPos.x += frontSpeed * elapsedTime;
+        else
+            frontSoundObjectPos.x -= frontSpeed * elapsedTime;
+
+        if (frontSoundObjectPos.x > 200.0f)
+            frontMovingRight = false;
+        else if (frontSoundObjectPos.x < -200.0f)
+            frontMovingRight = true;
+
+        if (backMovingUp)
+            backSoundObjectPos.y += backSpeed * elapsedTime;
+        else
+            backSoundObjectPos.y -= backSpeed * elapsedTime;
+
+        if (backSoundObjectPos.y > 200.0f)
+            backMovingUp = false;
+        else if (backSoundObjectPos.y < -200.0f)
+            backMovingUp = true;
+
+        glm::vec3 forward(0.0f, 0.0f, 1.0f);
+        glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+        Set3DPosition(302, frontSoundObjectPos, forward, up);
+        Set3DPosition(303, backSoundObjectPos, forward, up);
+
         AK::SoundEngine::RenderAudio();
 
         if (listenerMovingForward)
