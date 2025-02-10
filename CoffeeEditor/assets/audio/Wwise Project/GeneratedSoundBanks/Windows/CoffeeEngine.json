@@ -10,7 +10,7 @@
     "Type": "User",
     "GUID": "{6088230F-1954-4D42-9B00-889897951AA0}",
     "Language": "SFX",
-    "Hash": "{D36E50C6-568C-3E81-78DF-A8D361EEC7C3}",
+    "Hash": "{A2DB3A7F-A9BF-FD34-0152-FAFCEFAEF624}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\CoffeeEngine",
     "ShortName": "CoffeeEngine",
     "Path": "CoffeeEngine.bnk",
@@ -96,6 +96,18 @@
       "CachePath": "3D/{3D0AD3CB-F9AF-8981-C3FA-41A8401E0603}.wem"
      }
     ],
+    "Plugins": {
+     "Custom": [
+      {
+       "Id": "1059792370",
+       "Name": "RoomVerb (Custom)",
+       "ObjectPath": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\\MediumRoomVerb\\[Effect Slot [0]: (RoomVerb)]\\RoomVerb (Custom)",
+       "GUID": "{3B71926A-77CD-4268-AB04-046D5691BAA6}",
+       "LibName": "Wwise RoomVerb",
+       "LibId": "7733251"
+      }
+     ]
+    },
     "Events": [
      {
       "Id": "1894362767",
@@ -233,6 +245,29 @@
       ]
      }
     ],
+    "Busses": [
+     {
+      "Id": "3803692087",
+      "Name": "Master Audio Bus",
+      "ObjectPath": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus",
+      "GUID": "{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}"
+     }
+    ],
+    "AuxBusses": [
+     {
+      "Id": "4091100022",
+      "Name": "MediumRoomVerb",
+      "ObjectPath": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\\MediumRoomVerb",
+      "GUID": "{E0A9728C-D1BE-436A-ABBB-E41C5B8C2647}",
+      "PluginRefs": {
+       "Custom": [
+        {
+         "Id": "1059792370"
+        }
+       ]
+      }
+     }
+    ],
     "SwitchGroups": [
      {
       "Id": "63790334",
@@ -269,6 +304,6 @@
     ]
    }
   ],
-  "FileHash": "{F0ACA951-E7A2-B6C2-3A65-A98BDF723865}"
+  "FileHash": "{78FA322E-E56A-3A6C-FDD6-2E63AE2BE21F}"
  }
 }
