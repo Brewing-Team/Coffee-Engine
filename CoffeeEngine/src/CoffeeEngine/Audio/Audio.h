@@ -23,6 +23,8 @@
 #include <AkFilePackageLowLevelIODeferred.h> // File I/O
 
 #include <glm/vec3.hpp>
+#include <vector>
+#include <string>
 
 namespace Coffee {
 
@@ -67,6 +69,14 @@ namespace Coffee {
          * @param gameObjectID The game object ID.
          */
         static void RegisterGameObject(AkGameObjectID gameObjectID);
+
+        struct AudioBank
+        {
+            std::string name;
+            std::vector<std::string> events;
+        };
+
+        static std::vector<AudioBank*> audioBanks;
 
     private:
 
@@ -114,6 +124,8 @@ namespace Coffee {
         static bool InitializeCommunicationModule();
 #endif // AK_OPTIMIZED
 
+
+        static bool LoadAudioBanks();
     };
 
 }

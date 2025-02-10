@@ -3,6 +3,9 @@
 #include "ReverbSystem.h"
 
 #include <cassert>
+#include <fstream>
+#include <sstream>
+#include <rapidjson/document.h>
 
 namespace Coffee
 {
@@ -24,6 +27,8 @@ namespace Coffee
 
     float listenerSpeed = 50.0f;
     bool listenerMovingForward = true;
+
+    std::vector<Audio::AudioBank*> Audio::audioBanks;
 
     void Audio::Init()
     {
@@ -50,9 +55,7 @@ namespace Coffee
 
         g_lowLevelIO->SetBasePath(AKTEXT("assets\\audio\\Wwise Project\\GeneratedSoundBanks\\Windows"));
 
-        AkBankID bankID;
-        AK::SoundEngine::LoadBank("Init.bnk", bankID);
-        AK::SoundEngine::LoadBank("CoffeeEngine.bnk", bankID);
+        LoadAudioBanks();
 
         // Set the listener
         AkGameObjectID listenerID = 200;
@@ -272,6 +275,59 @@ namespace Coffee
             return false;
         }
 #endif // AK_OPTIMIZED
+        return true;
+    }
+
+    bool Audio::LoadAudioBanks()
+    {
+        std::ifstream file("Assets\\Audio\\Wwise Project\\GeneratedSoundBanks\\Windows\\SoundbanksInfo.json");
+        if (!file.is_open())
+            return false;
+
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        file.close();
+
+        rapidjson::Document banksInfo;
+        if (banksInfo.Parse(buffer.str().c_str()).HasParseError()
+            || !banksInfo.HasMember("SoundBanksInfo")
+            || !banksInfo["SoundBanksInfo"].HasMember("SoundBanks"))
+        {
+            return false;
+        }
+
+        const auto& soundBanks = banksInfo["SoundBanksInfo"]["SoundBanks"];
+        if (!soundBanks.IsArray())
+            return false;
+
+        for (const auto& bankData : soundBanks.GetArray())
+        {
+            if (!bankData.HasMember("ShortName") || !bankData["ShortName"].IsString())
+                continue;
+
+            const std::string shortName = bankData["ShortName"].GetString();
+
+            auto audioBank = new AudioBank();
+            audioBank->name = shortName;
+
+            if (bankData.HasMember("Events") && bankData["Events"].IsArray())
+            {
+                for (const auto& eventData : bankData["Events"].GetArray())
+                {
+                    if (eventData.HasMember("Name") && eventData["Name"].IsString())
+                    {
+                        std::string eventName = eventData["Name"].GetString();
+                        audioBank->events.push_back(eventName);
+                    }
+                }
+            }
+
+            AkBankID bankID;
+            AK::SoundEngine::LoadBank(audioBank->name.c_str(), bankID);
+
+            audioBanks.push_back(audioBank);
+        }
+
         return true;
     }
 
