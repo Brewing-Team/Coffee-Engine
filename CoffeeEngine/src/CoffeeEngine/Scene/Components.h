@@ -287,10 +287,13 @@ namespace Coffee {
 
     struct AudioSourceComponent
     {
-        AudioSourceComponent() = default;
+        AudioSourceComponent()
+        {
+            Audio::RegisterAudioSourceComponent(*this);
+        }
 
         AkGameObjectID gameObjectID;
-        Audio::AudioBank* audioBank;
+        Audio::AudioBank* audioBank = nullptr;
         std::string audioBankName;
         std::string eventName;
         float volume = 1.f;

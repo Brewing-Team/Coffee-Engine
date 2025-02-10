@@ -1,11 +1,11 @@
 #include "Audio.h"
 
+#include "CoffeeEngine/Scene/Components.h"
 #include "ReverbSystem.h"
 
 #include <cassert>
 #include <fstream>
 #include <sstream>
-#include <rapidjson/document.h>
 
 namespace Coffee
 {
@@ -29,6 +29,7 @@ namespace Coffee
     bool listenerMovingForward = true;
 
     std::vector<Audio::AudioBank*> Audio::audioBanks;
+    std::vector<AudioSourceComponent*> Audio::audioSources;
 
     void Audio::Init()
     {
@@ -135,6 +136,14 @@ namespace Coffee
     void Audio::SetVolume(AkGameObjectID gameObjectID, float newVolume)
     {
         AK::SoundEngine::SetGameObjectOutputBusVolume(gameObjectID, AK_INVALID_GAME_OBJECT, newVolume);
+    }
+
+    void Audio::RegisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent)
+    {
+        audioSources.push_back(&audioSourceComponent);
+        audioSourceComponent.gameObjectID = audioSources.size();
+
+        RegisterGameObject(audioSourceComponent.gameObjectID);
     }
 
     void Audio::ProcessAudio()

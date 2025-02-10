@@ -28,6 +28,8 @@
 
 namespace Coffee {
 
+    struct AudioSourceComponent;
+
     /**
      * @class Audio
      * @brief Manages audio systems including memory, sound, music, and spatial audio.
@@ -79,6 +81,10 @@ namespace Coffee {
         static std::vector<AudioBank*> audioBanks;
 
         static void SetVolume(AkGameObjectID gameObjectID, float newVolume);
+
+        static std::vector<AudioSourceComponent*> audioSources;
+
+        static void RegisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent);
 
     private:
 
