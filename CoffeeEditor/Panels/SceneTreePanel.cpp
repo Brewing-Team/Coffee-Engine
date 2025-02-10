@@ -605,6 +605,17 @@ namespace Coffee {
                     }
                     ImGui::EndCombo();
                 }
+
+                if (ImGui::Checkbox("Mute", &audioSourceComponent.mute))
+                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.mute ? 0.f : audioSourceComponent.volume);
+
+                if (ImGui::SliderFloat("Volume", &audioSourceComponent.volume, 0.f, 1.f))
+                {
+                    if (audioSourceComponent.mute)
+                        audioSourceComponent.mute = false;
+
+                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
+                }
             }
         }
 

@@ -78,6 +78,8 @@ namespace Coffee {
 
         static std::vector<AudioBank*> audioBanks;
 
+        static void SetVolume(AkGameObjectID gameObjectID, float newVolume);
+
     private:
 
         /**

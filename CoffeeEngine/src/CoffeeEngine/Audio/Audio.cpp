@@ -132,6 +132,11 @@ namespace Coffee
         AK::SoundEngine::SetSwitch(switchGroup, switchState, gameObjectID);
     }
 
+    void Audio::SetVolume(AkGameObjectID gameObjectID, float newVolume)
+    {
+        AK::SoundEngine::SetGameObjectOutputBusVolume(gameObjectID, AK_INVALID_GAME_OBJECT, newVolume);
+    }
+
     void Audio::ProcessAudio()
     {
         ReverbSystem::Update();
