@@ -1,5 +1,4 @@
 #include "ReverbSystem.h"
-#include <cassert>
 
 #include <AK/SoundEngine/Common/AkSoundEngine.h>
 #include <unordered_map>
@@ -8,10 +7,13 @@
 
 namespace Coffee
 {
-    ReverbSystem::ReverbSystem() 
-        : m_nextZoneID(1000)
-    {
-    }
+    AkGameObjectID m_nextZoneID= 1000;
+    AkAuxBusID m_mediumRoomBusID;
+    std::unordered_map<AkGameObjectID, ReverbZoneParams> m_zones;
+
+    std::unordered_map<AkGameObjectID, AkVector> m_registeredObjects;
+
+
 
     ReverbSystem::~ReverbSystem()
     {
@@ -20,42 +22,38 @@ namespace Coffee
 
     bool ReverbSystem::Initialize()
     {
-        // Obtener el ID del bus auxiliar "MediumRoomVerb" que creaste en Wwise
         m_mediumRoomBusID = AK::SoundEngine::GetIDFromString("MediumRoomVerb");
-        return true;
+        CreateMediumRoomZone({0,0,0},20);
+        RegisterObject(100,{0,0,0});
+        SetObjectInReverbZone(100,true);
+        return m_mediumRoomBusID != AK_INVALID_UNIQUE_ID;
+
     }
 
     void ReverbSystem::Shutdown()
     {
-        // Limpiar todas las zonas
         for (const auto& zone : m_zones)
         {
             CleanupZone(zone.first);
         }
         m_zones.clear();
+        m_registeredObjects.clear();
     }
 
     AkGameObjectID ReverbSystem::CreateMediumRoomZone(const AkVector& position, float radius)
     {
         AkGameObjectID zoneID = m_nextZoneID++;
 
-        // Registrar el objeto de juego para la zona de reverb
         AKRESULT result = AK::SoundEngine::RegisterGameObj(zoneID, "MediumRoomReverbZone");
         if (result != AK_Success)
         {
             return AK_INVALID_GAME_OBJECT;
         }
 
-        // Configurar la zona
         ReverbZoneParams params;
         params.position = position;
         params.radius = radius;
-
-        // Guardar los parámetros de la zona
         m_zones[zoneID] = params;
-
-        // Configurar el envío al bus de reverb
-        AK::SoundEngine::SetGameObjectOutputBusVolume(zoneID, m_mediumRoomBusID, REVERB_LEVEL_ENABLED);
 
         return zoneID;
     }
@@ -78,12 +76,52 @@ namespace Coffee
 
     void ReverbSystem::SetObjectInReverbZone(AkGameObjectID objectID, bool isInZone)
     {
-        float level = isInZone ? REVERB_LEVEL_ENABLED : REVERB_LEVEL_DISABLED;
-        AK::SoundEngine::SetGameObjectOutputBusVolume(objectID, m_mediumRoomBusID, level);
+        AkAuxSendValue auxSend;
+        auxSend.listenerID = AK_INVALID_GAME_OBJECT;
+        auxSend.auxBusID = m_mediumRoomBusID;
+        auxSend.fControlValue = isInZone ? REVERB_LEVEL_ENABLED : REVERB_LEVEL_DISABLED;
+
+        AK::SoundEngine::SetGameObjectAuxSendValues(objectID, &auxSend, 1);
+    }
+
+    void ReverbSystem::RegisterObject(AkGameObjectID objectID, const AkVector& position)
+    {
+        m_registeredObjects[objectID] = position;
+    }
+
+    void ReverbSystem::UnregisterObject(AkGameObjectID objectID)
+    {
+        m_registeredObjects.erase(objectID);
+    }
+
+    void ReverbSystem::UpdateObjectPosition(AkGameObjectID objectID, const AkVector& position)
+    {
+        m_registeredObjects[objectID] = position;
+    }
+
+    void ReverbSystem::Update()
+    {
+        for (const auto& zone : m_zones)
+        {
+            for (auto& object : m_registeredObjects)
+            {
+                bool isInZone = IsObjectInZone(object.second, zone.second);
+                SetObjectInReverbZone(object.first, isInZone);
+            }
+        }
     }
 
     void ReverbSystem::CleanupZone(AkGameObjectID zoneID)
     {
         AK::SoundEngine::UnregisterGameObj(zoneID);
+    }
+
+    bool ReverbSystem::IsObjectInZone(const AkVector& objectPos, const ReverbZoneParams& zoneParams)
+    {
+        float dx = objectPos.X - zoneParams.position.X;
+        float dy = objectPos.Y - zoneParams.position.Y;
+        float dz = objectPos.Z - zoneParams.position.Z;
+        float distanceSquared = dx * dx + dy * dy + dz * dz;
+        return distanceSquared <= (zoneParams.radius * zoneParams.radius);
     }
 }

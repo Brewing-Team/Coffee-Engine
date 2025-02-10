@@ -1,4 +1,5 @@
 #include "CoffeeEngine/Core/Application.h"
+
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
