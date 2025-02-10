@@ -27,6 +27,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 
+#include "CoffeeEngine/Audio/Audio.h"
 
 namespace Coffee {
     /**
@@ -283,38 +284,15 @@ namespace Coffee {
             archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
     };
-    
-    // Move it to the Component.h
-    struct ScriptComponent
+
+    struct AudioSourceComponent
     {
-        Ref<Script> script;
+        AudioSourceComponent() = default;
 
-        ScriptComponent() = default;
-        ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)
-        {
-            switch (language)
-            {
-                using enum ScriptingLanguage;
-            case Lua:
-                script = ScriptManager::CreateScript(path, language);
-                break;
-            case cSharp:
-                break;
-            }
-        }
-/* 
-        static void OnConstruct(entt::registry& registry, entt::entity entity)
-        {
-            auto& scriptComponent = registry.get<ScriptComponent<DerivedScript>>(entity);
-
-            if(Editor is in runtime)
-            {
-                ScriptManager::ExecuteScript(scriptComponent.script);
-                script.OnScenetreeEntered();
-            }
-        } */
-
-
+        AkGameObjectID gameObjectID;
+        Audio::AudioBank* audioBank;
+        std::string audioBankName;
+        std::string eventName;
     };
 }
 

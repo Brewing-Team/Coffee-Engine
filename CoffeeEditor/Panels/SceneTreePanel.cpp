@@ -563,7 +563,51 @@ namespace Coffee {
                 }
             }
         }
-        
+
+        if (entity.HasComponent<AudioSourceComponent>())
+        {
+            auto& audioSourceComponent = entity.GetComponent<AudioSourceComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Audio Source", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (!Audio::audioBanks.empty() && ImGui::BeginCombo("Audio Bank", audioSourceComponent.audioBankName.c_str()))
+                {
+                    for (auto* bank : Audio::audioBanks)
+                    {
+                        const bool isSelected = (audioSourceComponent.audioBankName == bank->name);
+
+                        if (ImGui::Selectable(bank->name.c_str()))
+                        {
+                            audioSourceComponent.audioBank = bank;
+                            audioSourceComponent.audioBankName = bank->name;
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                if (audioSourceComponent.audioBank && ImGui::BeginCombo("Audio Clip", audioSourceComponent.eventName.c_str()))
+                {
+                    for (const auto& event : audioSourceComponent.audioBank->events)
+                    {
+                        const bool isSelected = audioSourceComponent.eventName == event;
+
+                        if (ImGui::Selectable(event.c_str()))
+                        {
+                            audioSourceComponent.eventName = event;
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+            }
+        }
+
         if (entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
@@ -678,7 +722,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Lua Script Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -740,6 +784,12 @@ namespace Coffee {
                 {
                     if(!entity.HasComponent<CameraComponent>())
                         entity.AddComponent<CameraComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Source Component")
+                {
+                    if(!entity.HasComponent<AudioSourceComponent>())
+                        entity.AddComponent<AudioSourceComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Script Component")
