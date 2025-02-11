@@ -631,6 +631,20 @@ namespace Coffee {
             }
         }
 
+        if (entity.HasComponent<AudioListenerComponent>())
+        {
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Audio Listener", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<AudioListenerComponent>();
+            }
+        }
+
         if (entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
@@ -745,7 +759,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Lua Script Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Lua Script Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -813,6 +827,12 @@ namespace Coffee {
                 {
                     if(!entity.HasComponent<AudioSourceComponent>())
                         entity.AddComponent<AudioSourceComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Listener Component")
+                {
+                    if(!entity.HasComponent<AudioListenerComponent>())
+                        entity.AddComponent<AudioListenerComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Script Component")

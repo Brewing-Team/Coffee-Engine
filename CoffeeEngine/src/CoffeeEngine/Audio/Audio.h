@@ -29,6 +29,7 @@
 namespace Coffee {
 
     struct AudioSourceComponent;
+    struct AudioListenerComponent;
 
     /**
      * @class Audio
@@ -89,6 +90,10 @@ namespace Coffee {
         static void RegisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent);
 
         static void UnregisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent);
+
+        static std::vector<AudioListenerComponent*> audioListeners;
+
+        static void RegisterAudioListenerComponent(AudioListenerComponent& audioListenerComponent);
 
     private:
 

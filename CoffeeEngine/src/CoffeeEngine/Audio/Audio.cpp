@@ -30,6 +30,7 @@ namespace Coffee
 
     std::vector<Audio::AudioBank*> Audio::audioBanks;
     std::vector<AudioSourceComponent*> Audio::audioSources;
+    std::vector<AudioListenerComponent*> Audio::audioListeners;
 
     void Audio::Init()
     {
@@ -156,6 +157,15 @@ namespace Coffee
         audioSources.erase(std::ranges::find(audioSources, &audioSourceComponent));
 
         UnregisterGameObject(audioSourceComponent.gameObjectID);
+    }
+
+    void Audio::RegisterAudioListenerComponent(AudioListenerComponent& audioListenerComponent)
+    {
+        audioListeners.push_back(&audioListenerComponent);
+        audioListenerComponent.gameObjectID = audioListeners.size() + 100;
+
+        RegisterGameObject(audioListenerComponent.gameObjectID);
+        AK::SoundEngine::SetDefaultListeners(&audioListenerComponent.gameObjectID, audioListeners.size());
     }
 
     void Audio::ProcessAudio()
