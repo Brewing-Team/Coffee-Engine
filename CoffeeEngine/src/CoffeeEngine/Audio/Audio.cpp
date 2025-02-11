@@ -93,6 +93,11 @@ namespace Coffee
         AK::SoundEngine::RegisterGameObj(gameObjectID);
     }
 
+    void Audio::UnregisterGameObject(AkGameObjectID gameObjectID)
+    {
+        AK::SoundEngine::UnregisterGameObj(gameObjectID);
+    }
+
     void Audio::Set3DPosition(AkGameObjectID gameObjectID, glm::vec3& pos, glm::vec3& forward, glm::vec3& up)
     {
         AkSoundPosition newPos;
@@ -144,6 +149,13 @@ namespace Coffee
         audioSourceComponent.gameObjectID = audioSources.size();
 
         RegisterGameObject(audioSourceComponent.gameObjectID);
+    }
+
+    void Audio::UnregisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent)
+    {
+        audioSources.erase(std::ranges::find(audioSources, &audioSourceComponent));
+
+        UnregisterGameObject(audioSourceComponent.gameObjectID);
     }
 
     void Audio::ProcessAudio()

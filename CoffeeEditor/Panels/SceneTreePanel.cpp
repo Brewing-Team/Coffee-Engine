@@ -576,10 +576,16 @@ namespace Coffee {
                     {
                         const bool isSelected = (audioSourceComponent.audioBankName == bank->name);
 
-                        if (ImGui::Selectable(bank->name.c_str()))
+                        if (bank->name != "Init" && ImGui::Selectable(bank->name.c_str()))
                         {
-                            audioSourceComponent.audioBank = bank;
-                            audioSourceComponent.audioBankName = bank->name;
+                            if (audioSourceComponent.audioBank != bank)
+                            {
+                                audioSourceComponent.audioBank = bank;
+                                audioSourceComponent.audioBankName = bank->name;
+
+                                if (!audioSourceComponent.eventName.empty())
+                                    audioSourceComponent.eventName.clear();
+                            }
                         }
 
                         if (isSelected)
@@ -616,6 +622,12 @@ namespace Coffee {
 
                     Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
                 }
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                Audio::UnregisterAudioSourceComponent(audioSourceComponent);
+                entity.RemoveComponent<AudioSourceComponent>();
             }
         }
 

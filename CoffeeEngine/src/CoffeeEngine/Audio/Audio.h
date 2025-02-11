@@ -72,6 +72,8 @@ namespace Coffee {
          */
         static void RegisterGameObject(AkGameObjectID gameObjectID);
 
+        static void UnregisterGameObject(AkGameObjectID gameObjectID);
+
         struct AudioBank
         {
             std::string name;
@@ -85,6 +87,8 @@ namespace Coffee {
         static std::vector<AudioSourceComponent*> audioSources;
 
         static void RegisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent);
+
+        static void UnregisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent);
 
     private:
 
