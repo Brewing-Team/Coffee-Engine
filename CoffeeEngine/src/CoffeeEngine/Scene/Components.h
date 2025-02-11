@@ -292,7 +292,7 @@ namespace Coffee {
             Audio::RegisterAudioSourceComponent(*this);
         }
 
-        AkGameObjectID gameObjectID;
+        uint64_t gameObjectID;
         Ref<Audio::AudioBank> audioBank;
         std::string audioBankName;
         std::string eventName;
@@ -309,7 +309,7 @@ namespace Coffee {
             Audio::RegisterAudioListenerComponent(*this);
         }
 
-        AkGameObjectID gameObjectID;
+        uint64_t gameObjectID;
 
         glm::mat4 transform;
     };

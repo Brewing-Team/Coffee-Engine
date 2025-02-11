@@ -61,41 +61,91 @@ namespace Coffee {
          * @param eventName The name of the event.
          * @param gameObjectID The game object ID.
          */
-        static void PlayEvent(const char* eventName, AkGameObjectID gameObjectID);
+        static void PlayEvent(const char* eventName, uint64_t gameObjectID);
 
-        static void SetSwitch(const char* switchGroup, const char* switchState, AkGameObjectID gameObjectID);
+        /**
+         * @brief Sets a switch.
+         * @param switchGroup The name of the switch group.
+         * @param switchState The name of the switch state.
+         * @param gameObjectID The game object ID.
+         */
+        static void SetSwitch(const char* switchGroup, const char* switchState, uint64_t gameObjectID);
 
-        static void Play3DSound(const char* eventName, AkGameObjectID gameObjectID, float x, float y, float z);
-        static void Set3DPosition(AkGameObjectID gameObjectID, glm::vec3 pos, glm::vec3 forward, glm::vec3 up);
-        static void SetListenerPosition(glm::vec3& pos, glm::vec3& forward, glm::vec3& up);
+        /**
+         * @brief Sets the position of a game object.
+         * @param gameObjectID The game object ID.
+         * @param pos Position.
+         * @param forward Forward.
+         * @param up Up.
+         */
+        static void Set3DPosition(uint64_t gameObjectID, glm::vec3 pos, glm::vec3 forward, glm::vec3 up);
 
         /**
          * @brief Register a game object.
          * @param gameObjectID The game object ID.
          */
-        static void RegisterGameObject(AkGameObjectID gameObjectID);
+        static void RegisterGameObject(uint64_t gameObjectID);
 
-        static void UnregisterGameObject(AkGameObjectID gameObjectID);
+        /**
+         * @brief Unregister a game object.
+         * @param gameObjectID The game object ID.
+         */
+        static void UnregisterGameObject(uint64_t gameObjectID);
 
+        /**
+         * @brief Audio bank.
+         */
         struct AudioBank
         {
             std::string name;
             std::vector<std::string> events;
         };
 
+        /**
+         * @brief Audio banks.
+         */
         static std::vector<Ref<AudioBank>> audioBanks;
 
-        static void SetVolume(AkGameObjectID gameObjectID, float newVolume);
+        /**
+         * @brief Set the volume of a game object.
+         * @param gameObjectID The game object ID.
+         * @param newVolume The new volume.
+         */
+        static void SetVolume(uint64_t gameObjectID, float newVolume);
 
+        /**
+         * @brief Audio source components.
+         */
         static std::vector<AudioSourceComponent*> audioSources;
 
+        /**
+         * @brief Register an audio source component.
+         * @param audioSourceComponent The audio source component.
+         */
         static void RegisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent);
 
+        /**
+         * @brief Unregister an audio source component.
+         * @param audioSourceComponent The audio source component.
+         */
         static void UnregisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent);
 
+        /**
+         * @brief Audio listener components.
+         */
         static std::vector<AudioListenerComponent*> audioListeners;
 
+        /**
+         * @brief Register an audio listener component.
+         * @param audioListenerComponent The audio listener component.
+         */
         static void RegisterAudioListenerComponent(AudioListenerComponent& audioListenerComponent);
+
+        /**
+         * @brief Unregister an audio listener component.
+         * @param audioListenerComponent The audio listener component.
+         */
+        static void UnregisterAudioListenerComponent(AudioListenerComponent& audioListenerComponent);
 
     private:
 
@@ -143,7 +193,10 @@ namespace Coffee {
         static bool InitializeCommunicationModule();
 #endif // AK_OPTIMIZED
 
-
+        /**
+         * @brief Loads audio banks.
+         * @return True if successful, false otherwise.
+         */
         static bool LoadAudioBanks();
     };
 

@@ -13,8 +13,6 @@ namespace Coffee
 
     std::unordered_map<AkGameObjectID, AkVector> m_registeredObjects;
 
-
-
     ReverbSystem::~ReverbSystem()
     {
         Shutdown();
@@ -24,10 +22,7 @@ namespace Coffee
     {
         m_mediumRoomBusID = AK::SoundEngine::GetIDFromString("MediumRoomVerb");
         CreateMediumRoomZone({0,0,0},20);
-        RegisterObject(100,{0,0,0});
-        SetObjectInReverbZone(100,true);
         return m_mediumRoomBusID != AK_INVALID_UNIQUE_ID;
-
     }
 
     void ReverbSystem::Shutdown()
