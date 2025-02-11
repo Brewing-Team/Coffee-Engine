@@ -64,6 +64,27 @@ namespace Coffee {
         static void PlayEvent(const char* eventName, uint64_t gameObjectID);
 
         /**
+         * @brief Stops an event.
+         * @param eventName The name of the event.
+         * @param gameObjectID The game object ID.
+         */
+        static void StopEvent(const char* eventName, uint64_t gameObjectID);
+
+        /**
+         * @brief Pauses an event.
+         * @param eventName The name of the event.
+         * @param gameObjectID The game object ID.
+         */
+        static void PauseEvent(const char* eventName, uint64_t gameObjectID);
+
+        /**
+         * @brief Resumes an event.
+         * @param eventName The name of the event.
+         * @param gameObjectID The game object ID.
+         */
+        static void ResumeEvent(const char* eventName, uint64_t gameObjectID);
+
+        /**
          * @brief Sets a switch.
          * @param switchGroup The name of the switch group.
          * @param switchState The name of the switch state.

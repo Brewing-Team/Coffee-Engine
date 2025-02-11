@@ -74,6 +74,21 @@ namespace Coffee
         AK::SoundEngine::PostEvent(eventName, gameObjectID);
     }
 
+    void Audio::StopEvent(const char* eventName, uint64_t gameObjectID)
+    {
+        AK::SoundEngine::ExecuteActionOnEvent(eventName, AK::SoundEngine::AkActionOnEventType_Stop, gameObjectID);
+    }
+
+    void Audio::PauseEvent(const char* eventName, uint64_t gameObjectID)
+    {
+        AK::SoundEngine::ExecuteActionOnEvent(eventName, AK::SoundEngine::AkActionOnEventType_Pause, gameObjectID);
+    }
+
+    void Audio::ResumeEvent(const char* eventName, uint64_t gameObjectID)
+    {
+        AK::SoundEngine::ExecuteActionOnEvent(eventName, AK::SoundEngine::AkActionOnEventType_Resume, gameObjectID);
+    }
+
     void Audio::SetSwitch(const char* switchGroup, const char* switchState, uint64_t gameObjectID)
     {
         AK::SoundEngine::SetSwitch(switchGroup, switchState, gameObjectID);
@@ -95,6 +110,9 @@ namespace Coffee
     void Audio::UnregisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent)
     {
         audioSources.erase(std::ranges::find(audioSources, &audioSourceComponent));
+
+        if (!audioSourceComponent.eventName.empty())
+            StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
 
         UnregisterGameObject(audioSourceComponent.gameObjectID);
     }

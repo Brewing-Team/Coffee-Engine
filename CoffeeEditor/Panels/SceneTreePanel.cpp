@@ -584,7 +584,10 @@ namespace Coffee {
                                 audioSourceComponent.audioBankName = bank->name;
 
                                 if (!audioSourceComponent.eventName.empty())
+                                {
                                     audioSourceComponent.eventName.clear();
+                                    Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+                                }
                             }
                         }
 
@@ -603,6 +606,9 @@ namespace Coffee {
 
                         if (ImGui::Selectable(event.c_str()))
                         {
+                            if (!audioSourceComponent.eventName.empty())
+                                Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+
                             audioSourceComponent.eventName = event;
                             Audio::PlayEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
                         }
@@ -634,6 +640,7 @@ namespace Coffee {
 
         if (entity.HasComponent<AudioListenerComponent>())
         {
+            auto& audioListenerComponent = entity.GetComponent<AudioListenerComponent>();
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Audio Listener", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
@@ -642,6 +649,7 @@ namespace Coffee {
 
             if(!isCollapsingHeaderOpen)
             {
+                Audio::UnregisterAudioListenerComponent(audioListenerComponent);
                 entity.RemoveComponent<AudioListenerComponent>();
             }
         }
