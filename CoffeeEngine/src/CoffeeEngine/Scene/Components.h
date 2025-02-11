@@ -293,11 +293,13 @@ namespace Coffee {
         }
 
         AkGameObjectID gameObjectID;
-        Audio::AudioBank* audioBank = nullptr;
+        Ref<Audio::AudioBank> audioBank;
         std::string audioBankName;
         std::string eventName;
         float volume = 1.f;
         bool mute = false;
+
+        glm::mat4 transform;
     };
 
     struct AudioListenerComponent
@@ -308,6 +310,8 @@ namespace Coffee {
         }
 
         AkGameObjectID gameObjectID;
+
+        glm::mat4 transform;
     };
 }
 

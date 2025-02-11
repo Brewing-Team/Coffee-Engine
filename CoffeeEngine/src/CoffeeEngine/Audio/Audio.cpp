@@ -28,7 +28,7 @@ namespace Coffee
     float listenerSpeed = 50.0f;
     bool listenerMovingForward = true;
 
-    std::vector<Audio::AudioBank*> Audio::audioBanks;
+    std::vector<Ref<Audio::AudioBank>> Audio::audioBanks;
     std::vector<AudioSourceComponent*> Audio::audioSources;
     std::vector<AudioListenerComponent*> Audio::audioListeners;
 
@@ -99,12 +99,15 @@ namespace Coffee
         AK::SoundEngine::UnregisterGameObj(gameObjectID);
     }
 
-    void Audio::Set3DPosition(AkGameObjectID gameObjectID, glm::vec3& pos, glm::vec3& forward, glm::vec3& up)
+    void Audio::Set3DPosition(AkGameObjectID gameObjectID, glm::vec3 pos, glm::vec3 forward, glm::vec3 up)
     {
         AkSoundPosition newPos;
-        newPos.SetPosition(pos.x, pos.y, pos.z);
-        newPos.SetOrientation(forward.x, forward.y, forward.z, up.x, up.y, up.z);
+        newPos.SetPosition(pos.x, pos.y, -pos.z);
 
+        forward = glm::normalize(glm::vec3(forward.x, forward.y, -forward.z));
+        up = glm::normalize(up - glm::dot(up, forward) * forward);
+
+        newPos.SetOrientation(forward.x, forward.y, forward.z, up.x, up.y, up.z);
         AK::SoundEngine::SetPosition(gameObjectID, newPos);
     }
 
@@ -343,7 +346,7 @@ namespace Coffee
 
             const std::string shortName = bankData["ShortName"].GetString();
 
-            auto audioBank = new AudioBank();
+            auto audioBank = CreateRef<AudioBank>();
             audioBank->name = shortName;
 
             if (bankData.HasMember("Events") && bankData["Events"].IsArray())
