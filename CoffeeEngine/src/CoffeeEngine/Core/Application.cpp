@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Physics/PhysicsEngine.h"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL.h>
@@ -26,6 +27,8 @@ namespace Coffee
 
         m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);
+
+        PhysicsEngine::Init();
     }
 
     Application::~Application()
@@ -87,6 +90,8 @@ namespace Coffee
 
             //Poll and handle events
             ProcessEvents();
+
+            PhysicsEngine::Update(deltaTime);
 
             //Update and render
             {

@@ -7,6 +7,8 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/RigidBody.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -315,6 +317,33 @@ namespace Coffee {
         } */
 
 
+    };
+
+    struct RigidBodyComponent
+    {
+        Ref<RigidBody> rigidBody;
+
+        RigidBodyComponent() = default;
+        RigidBodyComponent(const RigidBodyConfig& config)
+        {
+            rigidBody = CreateRef<RigidBody>(config);
+        }
+    };
+
+    struct BoxColliderComponent
+    {
+        Collider collider;
+
+        BoxColliderComponent() = default;
+        BoxColliderComponent(const glm::vec3& size, const glm::vec3& offset)
+        {
+            CollisionShapeConfig shapeConfig;
+            shapeConfig.type = CollisionShapeType::Box;
+            shapeConfig.size = size;
+            shapeConfig.offset = offset;
+
+            collider = Collider(shapeConfig);
+        }
     };
 }
 

@@ -37,6 +37,7 @@ find_package(Tracy CONFIG REQUIRED)
 find_package(nfd REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
+find_package(Jolt REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
 add_library(coffee-engine ALIAS ${PROJECT_NAME})
@@ -61,6 +62,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     nfd::nfd
     icon_font_cpp_headers
     ${LUA_LIBRARIES}
+    Jolt::Jolt
 )
 
 # Set this in a profile like (Release + Profile)

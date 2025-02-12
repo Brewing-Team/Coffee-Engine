@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Math/Frustum.h"
+#include "CoffeeEngine/Physics/RigidBody.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
@@ -125,6 +126,38 @@ namespace Coffee {
 
         //Entity scriptEntity2 = CreateEntity("Script2");
         //scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor*/
+
+        Entity PhysicsGroundEntity = CreateEntity("PhysicsGroundEntity");
+        
+        glm::vec3 groundSize = {100.0f, 1.0f, 100.0f};
+
+        PhysicsGroundEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube(groundSize));
+        PhysicsGroundEntity.AddComponent<BoxColliderComponent>(groundSize, glm::vec3(0.0f, 0.0f, 0.0f));
+        
+        RigidBodyConfig groundConfig;
+        groundConfig.motionType = RigidBodyConfig::MotionType::Static;
+        groundConfig.position = glm::vec3(0.0f, -0.5f, 0.0f);
+        groundConfig.collider = PhysicsGroundEntity.GetComponent<BoxColliderComponent>().collider;
+
+        PhysicsGroundEntity.AddComponent<RigidBodyComponent>(groundConfig);
+
+        Entity PhysicsEntity = CreateEntity("PhysicsEntity");
+
+        PhysicsEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+
+        PhysicsEntity.AddComponent<BoxColliderComponent>(glm::vec3(1.0f), glm::vec3(0.0f));
+
+        RigidBodyConfig config;
+        config.motionType = RigidBodyConfig::MotionType::Dynamic;
+        config.gravityFactor = 1.0f;
+        config.position = glm::vec3(0.0f, 5.0f, 0.0f);
+
+        config.collider = PhysicsEntity.GetComponent<BoxColliderComponent>().collider;
+
+        auto& rbc = PhysicsEntity.AddComponent<RigidBodyComponent>(config);
+
+        rbc.rigidBody->SetLinearVelocity({0.0f, -5.0f, 0.0f});
+
     }
 
     void Scene::OnInitRuntime()
@@ -171,6 +204,18 @@ namespace Coffee {
 
         // TEST ------------------------------
         m_Octree.DebugDraw();
+
+        auto physicsView = m_Registry.view<RigidBodyComponent, TransformComponent>();
+
+        for (auto& entity : physicsView)
+        {
+            auto& rigidBodyComponent = physicsView.get<RigidBodyComponent>(entity);
+            auto& transformComponent = physicsView.get<TransformComponent>(entity);
+
+            COFFEE_INFO("Position: {0}, {1}, {2}", rigidBodyComponent.rigidBody->GetPosition().x, rigidBodyComponent.rigidBody->GetPosition().y, rigidBodyComponent.rigidBody->GetPosition().z);
+
+            transformComponent.Position = rigidBodyComponent.rigidBody->GetPosition();
+        }
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
