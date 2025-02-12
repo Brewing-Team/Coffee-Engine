@@ -292,6 +292,8 @@ namespace Coffee
 
     void Audio::Shutdown()
     {
+        AudioZone::Shutdown();
+
         // Unload the soundbanks
         AK::SoundEngine::ClearBanks();
 

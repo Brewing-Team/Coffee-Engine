@@ -18,15 +18,6 @@ namespace Coffee
 
     std::vector<std::string> AudioZone::busNames;
 
-    AudioZone::AudioZone()
-    {
-    }
-
-    AudioZone::~AudioZone()
-    {
-        Shutdown();
-    }
-
     void AudioZone::Shutdown()
     {
         for (const auto& zone : m_zones)
@@ -114,7 +105,7 @@ namespace Coffee
         }
     }
 
-    void AudioZone::CleanupZone(uint64_t zoneID)
+    void AudioZone::CleanupZone(const uint64_t zoneID)
     {
         AK::SoundEngine::UnregisterGameObj(zoneID);
     }
