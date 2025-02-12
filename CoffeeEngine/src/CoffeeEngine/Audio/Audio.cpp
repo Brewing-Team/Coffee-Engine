@@ -1,7 +1,6 @@
 #include "Audio.h"
 
 #include "CoffeeEngine/Scene/Components.h"
-#include "ReverbSystem.h"
 
 #include <cassert>
 #include <fstream>
@@ -44,7 +43,7 @@ namespace Coffee
 
         LoadAudioBanks();
 
-        ReverbSystem::Initialize();
+        AudioZone::SearchAvailableBusChannels();
     }
 
     void Audio::RegisterGameObject(uint64_t gameObjectID)
@@ -67,6 +66,8 @@ namespace Coffee
 
         newPos.SetOrientation(forward.x, forward.y, forward.z, up.x, up.y, up.z);
         AK::SoundEngine::SetPosition(gameObjectID, newPos);
+
+        AudioZone::UpdateObjectPosition(gameObjectID, pos);
     }
 
     void Audio::PlayEvent(const char* eventName, uint64_t gameObjectID)
@@ -135,7 +136,7 @@ namespace Coffee
 
     void Audio::ProcessAudio()
     {
-        ReverbSystem::Update();
+        AudioZone::Update();
 
         AK::SoundEngine::RenderAudio();
     }

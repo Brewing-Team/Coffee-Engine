@@ -21,6 +21,7 @@
 #endif
 
 #include "CoffeeEngine/Core/Base.h"
+#include "AudioZone.h"
 
 #include <AkFilePackageLowLevelIODeferred.h> // File I/O
 

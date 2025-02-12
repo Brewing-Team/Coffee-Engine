@@ -610,6 +610,7 @@ namespace Coffee {
                                 Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
 
                             audioSourceComponent.eventName = event;
+                            AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
                             Audio::PlayEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
                         }
 
@@ -633,6 +634,7 @@ namespace Coffee {
 
             if(!isCollapsingHeaderOpen)
             {
+                AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
                 Audio::UnregisterAudioSourceComponent(audioSourceComponent);
                 entity.RemoveComponent<AudioSourceComponent>();
             }
@@ -651,6 +653,50 @@ namespace Coffee {
             {
                 Audio::UnregisterAudioListenerComponent(audioListenerComponent);
                 entity.RemoveComponent<AudioListenerComponent>();
+            }
+        }
+
+        if (entity.HasComponent<AudioZoneComponent>())
+        {
+            auto& audioZoneComponent = entity.GetComponent<AudioZoneComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Audio Zone", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::BeginCombo("Bus Channels", audioZoneComponent.audioBusName.c_str()))
+                {
+                    for (auto& busName : AudioZone::busNames)
+                    {
+                        const bool isSelected = (audioZoneComponent.audioBusName == busName);
+
+                        if (ImGui::Selectable(busName.c_str()))
+                        {
+                            if (audioZoneComponent.audioBusName != busName)
+                            {
+                                audioZoneComponent.audioBusName = busName;
+                                AudioZone::UpdateReverbZone(audioZoneComponent);
+                            }
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                ImGui::Text("Position");
+                if (ImGui::DragFloat3("##ZonePosition", glm::value_ptr(audioZoneComponent.position), 0.1f)==true)
+                    AudioZone::UpdateReverbZone(audioZoneComponent);
+
+                ImGui::Text("Radius");
+                if (ImGui::SliderFloat("##ZoneRadius", &audioZoneComponent.radius, 1.f, 100.f))
+                    AudioZone::UpdateReverbZone(audioZoneComponent);
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                AudioZone::RemoveReverbZone(audioZoneComponent);
+                entity.RemoveComponent<AudioZoneComponent>();
             }
         }
 
@@ -768,7 +814,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Lua Script Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -842,6 +888,12 @@ namespace Coffee {
                 {
                     if(!entity.HasComponent<AudioListenerComponent>())
                         entity.AddComponent<AudioListenerComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Zone Component")
+                {
+                    if(!entity.HasComponent<AudioZoneComponent>())
+                        entity.AddComponent<AudioZoneComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Script Component")

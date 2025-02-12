@@ -313,6 +313,19 @@ namespace Coffee {
 
         glm::mat4 transform;
     };
+
+    struct AudioZoneComponent
+    {
+        AudioZoneComponent()
+        {
+            AudioZone::CreateZone(*this);
+        }
+
+        uint64_t zoneID = -1;
+        std::string audioBusName;
+        glm::vec3 position = { 0.f, 0.f, 0.f };
+        float radius = 1.f;
+    };
 }
 
 /** @} */
