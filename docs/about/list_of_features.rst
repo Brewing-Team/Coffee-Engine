@@ -1,19 +1,26 @@
 List of Features
-==============
+================
+
+.. admonition:: Work In Progress
+
+	This document is a work in progress and will be updated as the project progresses.
 
 Platforms
 ---------
 
-Using CMake, the project is cross-platform and can be compiled on the following operating systems:
+**Using CMake, the project is cross-platform and can be compiled on the following operating systems:**
 
 - Windows
 - Linux
-- MacOS
 
-It should be possible to compile the project on other platforms as well, but it has not been tested and we don't have plans to do it.
+**It should be possible to compile the project on other platforms as well, but it has not been tested and we don't have plans to do it.**
 
 - Android
 - iOS
+
+**Not Supported Platforms:**
+
+- MacOS (Fuck you Apple for deprecating OpenGL 🖕)
 
 Project Structure
 -----------------
