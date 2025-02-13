@@ -29,6 +29,8 @@
 #include <vector>
 #include <string>
 
+#include <cereal/cereal.hpp>
+
 namespace Coffee {
 
     struct AudioSourceComponent;
@@ -119,8 +121,19 @@ namespace Coffee {
          */
         struct AudioBank
         {
-            std::string name;
-            std::vector<std::string> events;
+            std::string name; ///< The name of the bank.
+            std::vector<std::string> events; ///< The events of the bank.
+
+            /**
+             * @brief Serializes the AudioBank.
+             * @tparam Archive The type of the archive.
+             * @param archive The archive to serialize to.
+             */
+            template<class Archive>
+            void serialize(Archive& archive)
+            {
+                archive(cereal::make_nvp("Name", name), cereal::make_nvp("Events", events));
+            }
         };
 
         /**

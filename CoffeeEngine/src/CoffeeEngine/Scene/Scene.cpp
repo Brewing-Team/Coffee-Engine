@@ -371,7 +371,10 @@ namespace Coffee {
             .get<CameraComponent>(archive)
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive);
+            .get<LightComponent>(archive)
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -405,7 +408,10 @@ namespace Coffee {
             .get<CameraComponent>(archive)
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive);
+            .get<LightComponent>(archive)
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
 

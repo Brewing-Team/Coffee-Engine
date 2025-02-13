@@ -292,14 +292,31 @@ namespace Coffee {
             Audio::RegisterAudioSourceComponent(*this);
         }
 
-        uint64_t gameObjectID;
-        Ref<Audio::AudioBank> audioBank;
-        std::string audioBankName;
-        std::string eventName;
-        float volume = 1.f;
-        bool mute = false;
+        uint64_t gameObjectID; ///< The object ID.
+        Ref<Audio::AudioBank> audioBank; ///< The audio bank.
+        std::string audioBankName; ///< The name of the audio bank.
+        std::string eventName; ///< The name of the event.
+        float volume = 1.f; ///< The volume of the audio source.
+        bool mute = false; ///< True if the audio source is muted.
+        glm::mat4 transform; ///< The transform of the audio source.
 
-        glm::mat4 transform;
+        /**
+         * @brief Serializes the AudioSourceComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to serialize to.
+         */
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("AudioBank", audioBank),
+                    cereal::make_nvp("AudioBankName", audioBankName),
+                    cereal::make_nvp("EventName", eventName),
+                    cereal::make_nvp("Volume", volume),
+                    cereal::make_nvp("Mute", mute),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
     };
 
     struct AudioListenerComponent
@@ -309,9 +326,21 @@ namespace Coffee {
             Audio::RegisterAudioListenerComponent(*this);
         }
 
-        uint64_t gameObjectID;
+        uint64_t gameObjectID; ///< The object ID.
+        glm::mat4 transform; ///< The transform of the audio listener.
 
-        glm::mat4 transform;
+        /**
+         * @brief Serializes the AudioListenerComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to serialize to.
+         */
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
     };
 
     struct AudioZoneComponent
@@ -321,10 +350,25 @@ namespace Coffee {
             AudioZone::CreateZone(*this);
         }
 
-        uint64_t zoneID = -1;
-        std::string audioBusName;
-        glm::vec3 position = { 0.f, 0.f, 0.f };
-        float radius = 1.f;
+        uint64_t zoneID = -1; ///< The zone ID.
+        std::string audioBusName; ///< The name of the audio bus.
+        glm::vec3 position = { 0.f, 0.f, 0.f }; ///< The position of the audio zone.
+        float radius = 1.f; ///< The radius of the audio zone.
+
+        /**
+         * @brief Serializes the AudioZoneComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to serialize to.
+         */
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("ZoneID", zoneID),
+                    cereal::make_nvp("AudioBusName", audioBusName),
+                    cereal::make_nvp("Position", position),
+                    cereal::make_nvp("Radius", radius)
+            );
+        }
     };
 }
 
