@@ -35,45 +35,43 @@ namespace Coffee {
             return;
         }
 
-        std::filesystem::path resourcePath = path;
-
-        if(resourcePath.extension() == ".import")
+        if(path.extension() == ".import")
         {
-            resourcePath = GetPathFromImportFile(path);
-            COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", resourcePath.string());
+            COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", path.string());
+
+            ImportData importData = GetImportData(path);
         }
         else
         {
-            std::filesystem::path importFilePath = resourcePath;
+            std::filesystem::path importFilePath = path;
             importFilePath.replace_extension(".import");
-            if(!std::filesystem::exists(importFilePath))
+            if(std::filesystem::exists(importFilePath))
             {
-                COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Generating import file for {0}", resourcePath.string());
-                GenerateImportFile(resourcePath);
+                return;
             }
-        }
 
-        switch (type)
-        {
-            case ResourceType::Texture2D:
+            switch (type)
             {
-                LoadTexture2D(path);
-                break;
-            }
-            case ResourceType::Cubemap:
-            {
-                LoadCubemap(path);
-                break;
-            }
-            case ResourceType::Model:
-            {
-                LoadModel(path);
-                break;
-            }
-            case ResourceType::Shader:
-            {
-                LoadShader(path);
-                break;
+                case ResourceType::Texture2D:
+                {
+                    LoadTexture2D(path);
+                    break;
+                }
+                case ResourceType::Cubemap:
+                {
+                    LoadCubemap(path);
+                    break;
+                }
+                case ResourceType::Model:
+                {
+                    LoadModel(path);
+                    break;
+                }
+                case ResourceType::Shader:
+                {
+                    LoadShader(path);
+                    break;
+                }
             }
         }
     }
