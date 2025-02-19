@@ -27,7 +27,7 @@ namespace Coffee {
         void OnReady() override
         {
             ScriptManager::ExecuteScript(*this, ScriptingLanguage::Lua);
-            const sol::protected_function& onReady = m_Environment["OnReady"];
+            const sol::protected_function& onReady = m_Environment["on_ready"];
             if (!onReady.valid()) {
                 COFFEE_CORE_ERROR("Lua: OnReady function is not valid.");
                 return;
@@ -44,7 +44,7 @@ namespace Coffee {
 
         void OnUpdate(float dt) override
         {
-            const sol::protected_function& onUpdate = m_Environment["OnUpdate"];
+            const sol::protected_function& onUpdate = m_Environment["on_update"];
             if (!onUpdate.valid()) {
                 COFFEE_CORE_ERROR("Lua: OnUpdate function is not valid.");
                 return;
@@ -59,7 +59,7 @@ namespace Coffee {
 
         void OnExit() override
         {
-            const sol::protected_function& onExit = m_Environment["OnExit"];
+            const sol::protected_function& onExit = m_Environment["on_exit"];
             if (!onExit.valid()) {
                 COFFEE_CORE_ERROR("Lua: OnExit function is not valid.");
                 return;

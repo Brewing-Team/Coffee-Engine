@@ -743,13 +743,8 @@ namespace Coffee {
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                
-                //ImGui::Text("Script Name: ");
-                //ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
-
-                //ImGui::Text("Script Path: ");
-                //ImGui::Text(scriptComponent.script.GetPath().string().c_str());
-                
+                ImGui::Text("Script Path: ");
+                ImGui::Text(scriptComponent.script->GetPath().c_str());
 
                 // Get the exposed variables
                 auto& exposedVariables = scriptComponent.script->GetExportedVariables();
@@ -920,9 +915,43 @@ namespace Coffee {
                 else if(items[item_current] == "Lua Script Component")
                 {
                     if(!entity.HasComponent<ScriptComponent>())
-                        // TODO pop up for the user to select the script or create a new one
-                        // entity.AddComponent<ScriptComponent>("path/to/script.lua", ScriptingLanguage::Lua, m_Context->m_Registry);
-                    ImGui::CloseCurrentPopup();
+                    {
+                        // Pop up a file dialog to select the save location for the new script
+                        FileDialogArgs args;
+                        args.Filters = {{"Lua Script", "lua"}};
+                        args.DefaultName = "NewScript.lua";
+                        const std::filesystem::path& path = FileDialog::SaveFile(args);
+
+                        if (!path.empty())
+                        {
+                            std::ofstream scriptFile(path);
+                            if (scriptFile.is_open())
+                            {
+                                scriptFile << "function on_ready()\n";
+                                scriptFile << "    -- Add initialization code here\n";
+                                scriptFile << "end\n\n";
+                                scriptFile << "function on_update(dt)\n";
+                                scriptFile << "    -- Add update code here\n";
+                                scriptFile << "end\n\n";
+                                scriptFile << "function on_exit()\n";
+                                scriptFile << "    -- Add cleanup code here\n";
+                                scriptFile << "end\n";
+                                scriptFile.close();
+
+                                // Add the script component to the entity
+                                entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
+                            }
+                            else
+                            {
+                                COFFEE_CORE_ERROR("Failed to create Lua script file at: {0}", path.string());
+                            }
+                        }
+                        else
+                        {
+                            COFFEE_CORE_WARN("Create Lua Script: No file selected");
+                        }
+                        ImGui::CloseCurrentPopup();
+                    }
                 }
                 else
                 {
