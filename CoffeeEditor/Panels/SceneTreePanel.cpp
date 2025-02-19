@@ -611,7 +611,6 @@ namespace Coffee {
 
                             audioSourceComponent.eventName = event;
                             AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
-                            Audio::PlayEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
                         }
 
                         if (isSelected)
@@ -629,6 +628,44 @@ namespace Coffee {
                         audioSourceComponent.mute = false;
 
                     Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
+                }
+
+                static bool isPlaying = false;
+                static bool isPaused = false;
+
+                if (!isPlaying)
+                {
+                    if (ImGui::SmallButton("Play"))
+                    {
+                        Audio::PlayEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+                        isPlaying = true;
+                        isPaused = false;
+                    }
+                }
+                else
+                {
+                    if (!isPaused)
+                    {
+                        if (ImGui::SmallButton("Pause"))
+                        {
+                            Audio::PauseEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+                            isPaused = true;
+                        }
+                    }
+                    else if (ImGui::SmallButton("Resume"))
+                    {
+                        Audio::ResumeEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+                        isPaused = false;
+                    }
+
+                    ImGui::SameLine();
+
+                    if (ImGui::SmallButton("Stop"))
+                    {
+                        Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+                        isPlaying = false;
+                        isPaused = false;
+                    }
                 }
             }
 
