@@ -299,6 +299,8 @@ namespace Coffee {
         float volume = 1.f; ///< The volume of the audio source.
         bool mute = false; ///< True if the audio source is muted.
         glm::mat4 transform; ///< The transform of the audio source.
+        bool isPlaying = false; ///< True if the audio source is playing.
+        bool isPaused = false; ///< True if the audio source is paused.
 
         /**
          * @brief Serializes the AudioSourceComponent.

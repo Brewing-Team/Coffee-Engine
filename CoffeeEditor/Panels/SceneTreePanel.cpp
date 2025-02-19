@@ -588,6 +588,9 @@ namespace Coffee {
                                     audioSourceComponent.eventName.clear();
                                     Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
                                 }
+
+                                audioSourceComponent.isPlaying = false;
+                                audioSourceComponent.isPaused = false;
                             }
                         }
 
@@ -611,6 +614,9 @@ namespace Coffee {
 
                             audioSourceComponent.eventName = event;
                             AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
+
+                            audioSourceComponent.isPlaying = false;
+                            audioSourceComponent.isPaused = false;
                         }
 
                         if (isSelected)
@@ -630,32 +636,29 @@ namespace Coffee {
                     Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
                 }
 
-                static bool isPlaying = false;
-                static bool isPaused = false;
-
-                if (!isPlaying)
+                if (!audioSourceComponent.isPlaying)
                 {
                     if (ImGui::SmallButton("Play"))
                     {
                         Audio::PlayEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
-                        isPlaying = true;
-                        isPaused = false;
+                        audioSourceComponent.isPlaying = true;
+                        audioSourceComponent.isPaused = false;
                     }
                 }
                 else
                 {
-                    if (!isPaused)
+                    if (!audioSourceComponent.isPaused)
                     {
                         if (ImGui::SmallButton("Pause"))
                         {
                             Audio::PauseEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
-                            isPaused = true;
+                            audioSourceComponent.isPaused = true;
                         }
                     }
                     else if (ImGui::SmallButton("Resume"))
                     {
                         Audio::ResumeEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
-                        isPaused = false;
+                        audioSourceComponent.isPaused = false;
                     }
 
                     ImGui::SameLine();
@@ -663,8 +666,8 @@ namespace Coffee {
                     if (ImGui::SmallButton("Stop"))
                     {
                         Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
-                        isPlaying = false;
-                        isPaused = false;
+                        audioSourceComponent.isPlaying = false;
+                        audioSourceComponent.isPaused = false;
                     }
                 }
             }
