@@ -16,10 +16,8 @@ namespace Coffee {
     class LuaScript : public Script
     {
     public:
-        LuaScript(const std::filesystem::path& path)
+        LuaScript(const std::filesystem::path& path) : Script(path)
         {
-            m_Path = path;
-
             //TODO: Think if this is a good way or store it in another way is better
             const LuaBackend& backend = static_cast<const LuaBackend&>(ScriptManager::GetBackend(ScriptingLanguage::Lua));
             m_Environment = sol::environment(backend.GetLuaState(), sol::create, backend.GetLuaState().globals());
@@ -140,7 +138,7 @@ namespace Coffee {
             }
         }
 
-        const std::filesystem::path& GetPath() const { return m_Path; }
+        //const std::filesystem::path& GetPath() const { return m_Path; }
         const sol::environment& GetEnvironment() const { return m_Environment; }
     private:
 
@@ -197,7 +195,6 @@ namespace Coffee {
             }
         }
     private:
-        std::filesystem::path m_Path;
         sol::environment m_Environment;
     };
 
