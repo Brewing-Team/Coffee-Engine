@@ -378,31 +378,24 @@ namespace Coffee {
         }
     }
 
-    ResourceLoader::ImportData ResourceLoader::GetImportData(const std::filesystem::path& path)
+    ImportData ResourceLoader::GetImportData(const std::filesystem::path& path)
     {
         ImportData importData;
-
-        std::filesystem::path importFilePath = path;
-        importFilePath.replace_extension(".import");
 
         /* TODO: add the path serialization relative to the project directory.
          * This means that when we load the path from the .import file we need to append the project directory
          * 
         */
 
-        if(std::filesystem::exists(importFilePath))
-        {
-            std::ifstream importFile(importFilePath);
-            cereal::JSONInputArchive archive(importFile);
-            archive(CEREAL_NVP(importData));
+        std::filesystem::path importFilePath = path;
+        importFilePath.replace_extension(".import");
 
-            // Convert the relative path to an absolute path
-            importData.originalPath = s_WorkingDirectory / importData.originalPath;
-        }
-        else
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::GetImportData: .import file does not exist for {0}", path.string());
-        }
+        std::ifstream importFile(importFilePath);
+        cereal::JSONInputArchive archive(importFile);
+        archive(CEREAL_NVP(importData));
+
+        // Convert the relative path to an absolute path
+        importData.originalPath = s_WorkingDirectory / importData.originalPath;
 
         return importData;
     }

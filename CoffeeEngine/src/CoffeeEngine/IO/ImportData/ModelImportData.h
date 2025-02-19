@@ -13,7 +13,7 @@ namespace Coffee {
         template<typename Archive>
         void serialize(Archive& archive)
         {
-            archive(cereal::base_class<ImportData>(this));
+            archive(cereal::base_class<ImportData>(this), CEREAL_NVP(meshUUIDs));
         }
     };
 

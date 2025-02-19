@@ -11,6 +11,9 @@
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
+#include "ImportData/ImportData.h"
+#include "ResourceRegistry.h"
+
 #include <filesystem>
 
 namespace Coffee {
@@ -48,6 +51,37 @@ namespace Coffee {
          * @return A reference to the loaded texture.
          */
         static Ref<Texture2D> LoadTexture2D(const std::filesystem::path& path, bool srgb = true, bool cache = true);
+
+        template <typename T>
+        static Ref<T> LoadResource(const std::filesystem::path& path)
+        {
+            if (HasImportFile(path))
+            {
+                ImportData importData = GetImportData(path);
+
+                if (ResourceRegistry::Exists(importData.uuid))
+                {
+                    return ResourceRegistry::Get<T>(importData.uuid);
+                }
+
+                const Ref<T>& resource = s_Importer.Import<T>(importData);
+                resource->SetUUID(importData.uuid);
+                resource->SetName(path.filename().string());
+
+                ResourceRegistry::Add(importData.uuid, resource);
+                return resource;
+            }
+            else
+            {
+                const Ref<T>& resource = s_Importer.Import<T>(path);
+                const ImportData& importData = resource->GetImportData();
+
+                GenerateImportFile(importData);
+                ResourceRegistry::Add(importData.uuid, resource);
+            }
+        }
+
+        // Rename the functions that take a UUID to GetResource<type>FromUUID
         static Ref<Texture2D> LoadTexture2D(UUID uuid);
 
         static Ref<Cubemap> LoadCubemap(const std::filesystem::path& path);
@@ -79,6 +113,13 @@ namespace Coffee {
         
         static void GenerateImportFile(const std::filesystem::path& path);
         static ImportData GetImportData(const std::filesystem::path& path);
+        static bool HasImportFile(const std::filesystem::path& path)
+        {
+            std::filesystem::path importFilePath = path;
+            importFilePath.replace_extension(".import");
+
+            return std::filesystem::exists(importFilePath);
+        }
 
         static UUID GetUUIDFromImportFile(const std::filesystem::path& path);
         static std::filesystem::path GetPathFromImportFile(const std::filesystem::path& path);
