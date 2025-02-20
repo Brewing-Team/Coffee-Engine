@@ -170,6 +170,7 @@ namespace Coffee {
 
             child.SetParent(scriptedEntity);
         }
+        */
 
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
@@ -185,8 +186,6 @@ namespace Coffee {
 
             scriptComponent.script->OnReady();
         }
-        */
-
 
     }
 
