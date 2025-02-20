@@ -66,7 +66,7 @@ namespace Coffee
 
         inline std::unordered_map<std::string, ExportedVariable>& GetExportedVariables() { return m_ExportedVariables; }
 
-      protected:
+    protected:
         std::filesystem::path m_Path;
         std::unordered_map<std::string, ExportedVariable> m_ExportedVariables;
     };
