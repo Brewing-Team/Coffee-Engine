@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
+#include "CoffeeEngine/Events/MouseEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Audio/Audio.h"
 #include "CoffeeEngine/Audio/AudioFootsteps.h"
