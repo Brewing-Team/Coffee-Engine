@@ -292,23 +292,43 @@ namespace Coffee {
             Audio::RegisterAudioSourceComponent(*this);
         }
 
-        uint64_t gameObjectID; ///< The object ID.
-        Ref<Audio::AudioBank> audioBank; ///< The audio bank.
-        std::string audioBankName; ///< The name of the audio bank.
-        std::string eventName; ///< The name of the event.
-        float volume = 1.f; ///< The volume of the audio source.
-        bool mute = false; ///< True if the audio source is muted.
-        glm::mat4 transform; ///< The transform of the audio source.
-        bool isPlaying = false; ///< True if the audio source is playing.
-        bool isPaused = false; ///< True if the audio source is paused.
-
         /**
-         * @brief Serializes the AudioSourceComponent.
+         * @brief Serializes the ScriptComponent.
+         *
+         * This function serializes the ScriptComponent by storing the script path and language.
+         * Note: Currently, this system only supports Lua scripting language.
+         *
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
         template<class Archive>
-        void serialize(Archive& archive)
+        void save(Archive& archive) const
+        {
+            //std::string scriptPath = script ? script->GetPath().string() : "";
+            archive(cereal::make_nvp("ScriptPath", std::string(script->GetPath().c_str())), cereal::make_nvp("Language", ScriptingLanguage::Lua)); // TODO this system does not support multiple scripting languages
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            std::string scriptPath;
+            ScriptingLanguage language;
+
+            archive(cereal::make_nvp("ScriptPath", scriptPath), cereal::make_nvp("Language", language));
+
+            switch (language)
+            {
+                using enum ScriptingLanguage;
+            case Lua:
+                script = ScriptManager::CreateScript(scriptPath, language);
+                break;
+            case cSharp:
+                // Handle cSharp script loading if needed
+                break;
+            }
+        }
+/* 
+        static void OnConstruct(entt::registry& registry, entt::entity entity)
         {
             archive(cereal::make_nvp("GameObjectID", gameObjectID),
                     cereal::make_nvp("AudioBank", audioBank),
