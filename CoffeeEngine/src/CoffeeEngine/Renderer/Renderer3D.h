@@ -5,6 +5,7 @@
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Renderer/UniformBuffer.h"
@@ -42,7 +43,7 @@ namespace Coffee {
             int lightCount = 0; ///< Number of lights.
         };
 
-        SceneRenderData renderData; ///< Render data.
+        SceneRenderData RenderData; ///< Render data.
 
         Ref<UniformBuffer> SceneRenderDataUniformBuffer; ///< Uniform buffer for render data.
 
@@ -55,7 +56,7 @@ namespace Coffee {
     /**
      * @brief Structure containing renderer statistics.
      */
-    struct RendererStats
+    struct Renderer3DStats
     {
         uint32_t DrawCalls = 0; ///< Number of draw calls.
         uint32_t VertexCount = 0; ///< Number of vertices.
@@ -65,9 +66,8 @@ namespace Coffee {
     /**
      * @brief Structure containing render settings.
      */
-    struct RenderSettings
+    struct Renderer3DSettings
     {
-        bool PostProcessing = true; ///< Enable or disable post-processing.
         bool SSAO = false; ///< Enable or disable SSAO.
         bool Bloom = false; ///< Enable or disable bloom.
         bool FXAA = false; ///< Enable or disable FXAA.
@@ -93,35 +93,6 @@ namespace Coffee {
          */
         static void Shutdown();
 
-        /**
-         * @brief Begins a new scene with the specified editor camera.
-         * @param camera The editor camera.
-         */
-        static void BeginScene(EditorCamera& camera);
-
-        /**
-         * @brief Begins a new scene with the specified camera and transform.
-         * @param camera The camera.
-         * @param transform The transform matrix.
-         */
-        static void BeginScene(Camera& camera, const glm::mat4& transform);
-
-        /**
-         * @brief Ends the current scene.
-         */
-        static void EndScene();
-
-        /**
-         * @brief Begins an overlay with the specified editor camera.
-         * @param camera The editor camera.
-         */
-        static void BeginOverlay(EditorCamera& camera);
-
-        /**
-         * @brief Ends the current overlay.
-         */
-        static void EndOverlay();
-
         static void Submit(const RenderCommand& command);
 
         static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f), uint32_t entityID = 4294967295);
@@ -133,13 +104,13 @@ namespace Coffee {
 
          //Todo change this to a light class and not a component
         static void Submit(const LightComponent& light);
-
-        /**
-         * @brief Resizes the renderer to the specified width and height.
-         * @param width The new width.
-         * @param height The new height.
-         */
-        static void OnResize(uint32_t width, uint32_t height);
+        
+        //static void DepthPrePass(const RenderTarget& target);
+        //static void SSAOPass(const RenderTarget& target);
+        //static void ShadowPass(const RenderTarget& target);
+        static void ForwardPass(const RenderTarget& target);
+        static void SkyboxPass(const RenderTarget& target);
+        static void PostProcessingPass(const RenderTarget& target);
 
         /**
          * @brief Gets the renderer data.
@@ -151,30 +122,27 @@ namespace Coffee {
          * @brief Gets the renderer statistics.
          * @return A reference to the renderer statistics.
          */
-        static const RendererStats& GetStats() { return s_Stats; }
+        static const Renderer3DStats& GetStats() { return s_Stats; }
 
         /**
          * @brief Gets the render settings.
          * @return A reference to the render settings.
          */
-        static RenderSettings& GetRenderSettings() { return s_RenderSettings; }
-
-    private:
-
-        static void ResizeFramebuffers();
+        static Renderer3DSettings& GetRenderSettings() { return s_RenderSettings; }
+        
+        // TODO: Think better name for this
+        /*
+            - Reset Lights Count
+            - Reset Render Queue
+        */
+        static void ResetCalls();
 
     private:
         static Renderer3DData s_RendererData; ///< Renderer data.
-        static RendererStats s_Stats; ///< Renderer statistics.
-        static RenderSettings s_RenderSettings; ///< Render settings.
+        static Renderer3DStats s_Stats; ///< Renderer statistics.
+        static Renderer3DSettings s_RenderSettings; ///< Render settings.
 
-        static Ref<Texture2D> s_MainRenderTexture; ///< Main render texture.
-        static Ref<Texture2D> s_EntityIDTexture; ///< Entity ID texture.
-        static Ref<Texture2D> s_PostProcessingTexture; ///< Post-processing texture.
-        static Ref<Texture2D> s_DepthTexture; ///< Depth texture.
-
-        static Ref<Framebuffer> s_MainFramebuffer; ///< Main framebuffer.
-        static Ref<Framebuffer> s_PostProcessingFramebuffer; ///< Post-processing framebuffer.
+        static Ref<Mesh> s_ScreenQuad; ///< Screen quad mesh.
 
         static Ref<Shader> s_ToneMappingShader; ///< Tone mapping shader.
         static Ref<Shader> s_FinalPassShader; ///< Final pass shader.
