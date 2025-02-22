@@ -33,7 +33,7 @@ namespace Coffee
         }
 
         if (audioZone.zoneID == -1)
-            audioZone.zoneID = m_nextZoneID++;
+            audioZone.zoneID = UUID();
 
         AK::SoundEngine::RegisterGameObj(audioZone.zoneID);
 

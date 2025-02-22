@@ -126,7 +126,7 @@ namespace Coffee
         }
 
         if (audioSourceComponent.gameObjectID == -1)
-            audioSourceComponent.gameObjectID = rand();
+            audioSourceComponent.gameObjectID = UUID();
 
         audioSources.push_back(&audioSourceComponent);
 
@@ -157,7 +157,7 @@ namespace Coffee
         }
 
         if (audioListenerComponent.gameObjectID == -1)
-            audioListenerComponent.gameObjectID = audioListeners.size() + 100;
+            audioListenerComponent.gameObjectID = UUID();
 
         audioListeners.push_back(&audioListenerComponent);
 
