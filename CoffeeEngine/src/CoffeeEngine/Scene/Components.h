@@ -284,38 +284,173 @@ namespace Coffee {
             archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
     };
-    
-    // Move it to the Component.h
-    struct ScriptComponent
+
+    struct AudioSourceComponent
     {
-        Ref<Script> script;
+        uint64_t gameObjectID = -1; ///< The object ID.
+        Ref<Audio::AudioBank> audioBank; ///< The audio bank.
+        std::string audioBankName; ///< The name of the audio bank.
+        std::string eventName; ///< The name of the event.
+        float volume = 1.f; ///< The volume of the audio source.
+        bool mute = false; ///< True if the audio source is muted.
+        bool playOnAwake = false; ///< True if the audio source should play automatically.
+        glm::mat4 transform; ///< The transform of the audio source.
+        bool isPlaying = false; ///< True if the audio source is playing.
+        bool isPaused = false; ///< True if the audio source is paused.
+        bool toDelete = false; ///< True if the audio source should be deleted.
 
-        ScriptComponent() = default;
-        ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)
+        AudioSourceComponent() = default;
+
+        AudioSourceComponent(const AudioSourceComponent& other)
         {
-            switch (language)
-            {
-                using enum ScriptingLanguage;
-            case Lua:
-                script = ScriptManager::CreateScript(path, language);
-                break;
-            case cSharp:
-                break;
-            }
+            *this = other;
         }
-/* 
-        static void OnConstruct(entt::registry& registry, entt::entity entity)
+
+        AudioSourceComponent& operator=(const AudioSourceComponent& other)
         {
-            auto& scriptComponent = registry.get<ScriptComponent<DerivedScript>>(entity);
-
-            if(Editor is in runtime)
+            if (this != &other)
             {
-                ScriptManager::ExecuteScript(scriptComponent.script);
-                script.OnScenetreeEntered();
+                gameObjectID = other.gameObjectID;
+                audioBank = other.audioBank;
+                audioBankName = other.audioBankName;
+                eventName = other.eventName;
+                volume = other.volume;
+                mute = other.mute;
+                playOnAwake = other.playOnAwake;
+                transform = other.transform;
+                isPlaying = other.isPlaying;
+                isPaused = other.isPaused;
+                toDelete = other.toDelete;
+
+                if (!toDelete)
+                {
+                    Audio::RegisterAudioSourceComponent(*this);
+                    AudioZone::RegisterObject(gameObjectID, transform[3]);
+                }
             }
-        } */
+            return *this;
+        }
 
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("AudioBank", audioBank),
+                    cereal::make_nvp("AudioBankName", audioBankName),
+                    cereal::make_nvp("EventName", eventName),
+                    cereal::make_nvp("Volume", volume),
+                    cereal::make_nvp("Mute", mute),
+                    cereal::make_nvp("PlayOnAwake", playOnAwake),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
 
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("AudioBank", audioBank),
+                    cereal::make_nvp("AudioBankName", audioBankName),
+                    cereal::make_nvp("EventName", eventName),
+                    cereal::make_nvp("Volume", volume),
+                    cereal::make_nvp("Mute", mute),
+                    cereal::make_nvp("PlayOnAwake", playOnAwake),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
+    };
+
+    struct AudioListenerComponent
+    {
+        uint64_t gameObjectID = -1; ///< The object ID.
+        glm::mat4 transform; ///< The transform of the audio listener.
+        bool toDelete = false; ///< True if the audio listener should be deleted.
+
+        AudioListenerComponent() = default;
+
+        AudioListenerComponent(const AudioListenerComponent& other)
+        {
+            *this = other;
+        }
+
+        AudioListenerComponent& operator=(const AudioListenerComponent& other)
+        {
+            if (this != &other)
+            {
+                gameObjectID = other.gameObjectID;
+                transform = other.transform;
+                toDelete = other.toDelete;
+
+                if (!toDelete)
+                    Audio::RegisterAudioListenerComponent(*this);
+            }
+            return *this;
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
+    };
+
+    struct AudioZoneComponent
+    {
+        uint64_t zoneID = -1; ///< The zone ID.
+        std::string audioBusName; ///< The name of the audio bus.
+        glm::vec3 position = { 0.f, 0.f, 0.f }; ///< The position of the audio zone.
+        float radius = 1.f; ///< The radius of the audio zone.
+
+        AudioZoneComponent() = default;
+
+        AudioZoneComponent(const AudioZoneComponent& other)
+        {
+            *this = other;
+        }
+
+        AudioZoneComponent& operator=(const AudioZoneComponent& other)
+        {
+            if (this != &other)
+            {
+                zoneID = other.zoneID;
+                audioBusName = other.audioBusName;
+                position = other.position;
+                radius = other.radius;
+
+                AudioZone::CreateZone(*this);
+            }
+            return *this;
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("ZoneID", zoneID),
+                    cereal::make_nvp("AudioBusName", audioBusName),
+                    cereal::make_nvp("Position", position),
+                    cereal::make_nvp("Radius", radius)
+            );
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("ZoneID", zoneID),
+                    cereal::make_nvp("AudioBusName", audioBusName),
+                    cereal::make_nvp("Position", position),
+                    cereal::make_nvp("Radius", radius)
+            );
+        }
     };
 }
 

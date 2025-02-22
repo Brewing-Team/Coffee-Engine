@@ -34,19 +34,15 @@ function OnUpdate(delta)
     -- sinuodal movement of the camera
     camera:get_component("TransformComponent").position = Vector3.new(0, 0, 5 + math.sin(time) * 2)
 
-    for i, entity in ipairs(childs) do
-        local transform = entity:get_component("TransformComponent")
-        transform.position = Vector3.new(math.sin(time + i) * child_amplitude, math.cos(time + i) * child_amplitude, 0)
-        transform.rotation = Vector3.new(time * 100, time * 100, 0)
+    if input.is_key_pressed(input.keycode.Space) then
+        log("Space")
     end
 
-    time = time + delta
-
-    parent_script = parent:get_component("ScriptComponent")
-
-    log(tostring(parent_script.lives))
-
-    parent_script.lives = parent_script.lives + 1
+    if input.is_mouse_button_pressed(input.mousecode.Left) then
+        log("Left")
+        local x, y = input.get_mouse_position()
+        log("Mouse position: (" .. x .. ", " .. y .. ")")
+    end
 
 end
 

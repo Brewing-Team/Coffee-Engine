@@ -145,20 +145,8 @@ namespace Coffee {
             m_Octree.Insert(objectContainer);
         }
 
-        // Get all entities with ScriptComponent
-        auto scriptView = m_Registry.view<ScriptComponent>();
-
-        for (auto& entity : scriptView)
-        {
-            Entity scriptEntity{entity, this};
-
-            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
-
-            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("self", scriptEntity);
-            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("current_scene", this);
-
-            scriptComponent.script->OnReady();
-        }
+        Audio::StopAllEvents();
+        Audio::PlayInitialAudios();
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
@@ -236,14 +224,7 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
-        // Get all entities with ScriptComponent
-        auto scriptView = m_Registry.view<ScriptComponent>();
-
-        for (auto& entity : scriptView)
-        {
-            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
-            scriptComponent.script->OnUpdate(dt);
-        }
+        UpdateAudioComponentsPositions();
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
@@ -296,6 +277,19 @@ namespace Coffee {
             Renderer3D::Submit(lightComponent);
         }
 
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
+
+        for (auto& entity : scriptView)
+        {
+            Entity scriptEntity{entity, this};
+            ScriptManager::RegisterVariable("entity", (void*)&scriptEntity);
+
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+
+            scriptComponent.script.OnUpdate();
+        }
+
         Renderer::EndScene();
     }
 
@@ -332,7 +326,9 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<ScriptComponent>(archive);
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -372,7 +368,9 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<ScriptComponent>(archive);
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
 
