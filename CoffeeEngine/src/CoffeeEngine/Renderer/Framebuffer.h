@@ -113,12 +113,6 @@ namespace Coffee {
         const Ref<Texture2D>& GetDepthTexture() const { return m_DepthTexture; }
 
         /**
-         * @brief Gets the name of the framebuffer.
-         * @return The name of the framebuffer.
-         */
-        const std::string& GetName() const { return m_Name; }
-
-        /**
          * @brief Creates a framebuffer with the specified width, height, and attachments.
          * @param width The width of the framebuffer.
          * @param height The height of the framebuffer.
@@ -128,8 +122,6 @@ namespace Coffee {
         static Ref<Framebuffer> Create(uint32_t width, uint32_t height, std::initializer_list<Attachment> attachments);
 
     private:
-        std::string m_Name; ///< The name of the framebuffer.
-
         uint32_t m_fboID; ///< The ID of the framebuffer object.
 
         uint32_t m_Width; ///< The width of the framebuffer.
