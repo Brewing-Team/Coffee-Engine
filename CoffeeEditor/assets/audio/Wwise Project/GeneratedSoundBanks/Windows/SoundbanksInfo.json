@@ -18,19 +18,11 @@
     "Type": "User",
     "GUID": "{6088230F-1954-4D42-9B00-889897951AA0}",
     "Language": "SFX",
-    "Hash": "{A2DB3A7F-A9BF-FD34-0152-FAFCEFAEF624}",
+    "Hash": "{4DB85838-2E1B-8D05-F775-7CAFE5B47CD9}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\CoffeeEngine",
     "ShortName": "CoffeeEngine",
     "Path": "CoffeeEngine.bnk",
     "Media": [
-     {
-      "Id": "30293186",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "bootsWalk.wav",
-      "CachePath": "9B/{9B867C87-2C8F-D144-6D7F-276B85B62C2A}.wem"
-     },
      {
       "Id": "187034672",
       "Language": "SFX",
@@ -38,14 +30,6 @@
       "Location": "Memory",
       "ShortName": "Combat-A-LowBrass_138bpm4-4_L8M-P0.wav",
       "CachePath": "52/{52E43852-FA8C-6DED-6AAB-CFCCC36A1807}.wem"
-     },
-     {
-      "Id": "189916745",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "grassWalk.wav",
-      "CachePath": "45/{452802A4-B931-8BD0-FADC-C00B700BA28A}.wem"
      },
      {
       "Id": "276561864",
@@ -56,28 +40,12 @@
       "CachePath": "73/{73317DAE-A02E-60F5-4AB3-700A1EC322C7}.wem"
      },
      {
-      "Id": "357433118",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "mudWalk.wav",
-      "CachePath": "4F/{4F1A1627-4078-FA5F-3A06-0F7EB26954D0}.wem"
-     },
-     {
       "Id": "505350705",
       "Language": "SFX",
       "Streaming": "false",
       "Location": "Memory",
       "ShortName": "Combat-Bridge-Gtr2_138bpm4-4_L17M-P1B.wav",
       "CachePath": "98/{9861D752-27B3-BA7D-A56D-E5B78B4CA7A2}.wem"
-     },
-     {
-      "Id": "627137966",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "SplashingFootsteps.wav",
-      "CachePath": "5F/{5FEBDF98-17B2-EF24-6F85-601DFE67D2DA}.wem"
      },
      {
       "Id": "760241267",
@@ -117,78 +85,6 @@
      ]
     },
     "Events": [
-     {
-      "Id": "1894362767",
-      "Name": "Foot_Player",
-      "ObjectPath": "\\Events\\Default Work Unit\\Foot_Player",
-      "GUID": "{BCF9233E-3CEA-439B-8521-9C87E48EAC46}",
-      "DurationType": "Infinite",
-      "SwitchContainers": [
-       {
-        "SwitchValue": {
-         "GroupType": "Switch",
-         "GroupId": "63790334",
-         "Id": "2654748154",
-         "GUID": "{25606F1E-2C56-46CA-BE66-324B37861B88}",
-         "Default": "true"
-        },
-        "MediaRefs": [
-         {
-          "Id": "627137966"
-         }
-        ]
-       },
-       {
-        "SwitchValue": {
-         "GroupType": "Switch",
-         "GroupId": "63790334",
-         "Id": "712897245",
-         "GUID": "{DD1AC388-9BAD-49AD-B5FB-15689C494EAD}"
-        },
-        "MediaRefs": [
-         {
-          "Id": "357433118"
-         }
-        ]
-       },
-       {
-        "SwitchValue": {
-         "GroupType": "Switch",
-         "GroupId": "63790334",
-         "Id": "4248645337",
-         "GUID": "{935442A5-5108-4223-B0CC-1B07630CC93A}"
-        },
-        "MediaRefs": [
-         {
-          "Id": "189916745"
-         }
-        ]
-       },
-       {
-        "SwitchValue": {
-         "GroupType": "Switch",
-         "GroupId": "63790334",
-         "Id": "2305815328",
-         "GUID": "{335B17FA-C4C9-4875-95BD-E7DC383BC106}"
-        },
-        "MediaRefs": [
-         {
-          "Id": "30293186"
-         }
-        ]
-       }
-      ]
-     },
-     {
-      "Id": "2955210170",
-      "Name": "Foot_Player_Stop",
-      "ObjectPath": "\\Events\\Default Work Unit\\Foot_Player_Stop",
-      "GUID": "{3E7A3FA4-9555-4F84-95F0-70FFAA4DFB58}",
-      "MaxAttenuation": "0",
-      "DurationType": "OneShot",
-      "DurationMin": "0",
-      "DurationMax": "0"
-     },
      {
       "Id": "1474158143",
       "Name": "Play_BackgroundContainer",
@@ -275,40 +171,6 @@
        ]
       }
      }
-    ],
-    "SwitchGroups": [
-     {
-      "Id": "63790334",
-      "Name": "SurfaceType",
-      "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType",
-      "GUID": "{8B0AA71D-BE8B-4FD1-8F22-68612AF27D8A}",
-      "Switches": [
-       {
-        "Id": "712897245",
-        "Name": "Mud",
-        "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType\\Mud",
-        "GUID": "{DD1AC388-9BAD-49AD-B5FB-15689C494EAD}"
-       },
-       {
-        "Id": "2305815328",
-        "Name": "Boots",
-        "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType\\Boots",
-        "GUID": "{335B17FA-C4C9-4875-95BD-E7DC383BC106}"
-       },
-       {
-        "Id": "2654748154",
-        "Name": "Water",
-        "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType\\Water",
-        "GUID": "{25606F1E-2C56-46CA-BE66-324B37861B88}"
-       },
-       {
-        "Id": "4248645337",
-        "Name": "Grass",
-        "ObjectPath": "\\Switches\\Default Work Unit\\SurfaceType\\Grass",
-        "GUID": "{935442A5-5108-4223-B0CC-1B07630CC93A}"
-       }
-      ]
-     }
     ]
    },
    {
@@ -316,7 +178,7 @@
     "Type": "User",
     "GUID": "{701ECBBD-9C7B-4030-8CDB-749EE5D1C7B9}",
     "Language": "SFX",
-    "Hash": "{7B55066F-3601-69A3-628F-AB2BBA867211}",
+    "Hash": "{22F7041E-3AB5-82D6-93DE-AD8C0E92A403}",
     "ObjectPath": "Init",
     "ShortName": "Init",
     "Path": "Init.bnk",
@@ -329,6 +191,16 @@
        "GUID": "{3B71926A-77CD-4268-AB04-046D5691BAA6}",
        "LibName": "Wwise RoomVerb",
        "LibId": "7733251"
+      }
+     ],
+     "ShareSets": [
+      {
+       "Id": "2653529179",
+       "Name": "Three_Voices",
+       "ObjectPath": "\\Effects\\Factory Effects\\Harmonizer\\Three_Voices",
+       "GUID": "{71CA20BE-8C1D-4A0C-92AF-BFCE183D5651}",
+       "LibName": "Wwise Harmonizer",
+       "LibId": "9043971"
       }
      ],
      "AudioDevices": [
@@ -359,6 +231,19 @@
      }
     ],
     "AuxBusses": [
+     {
+      "Id": "373392551",
+      "Name": "New_Auxiliary_Bus",
+      "ObjectPath": "\\Master-Mixer Hierarchy\\Default Work Unit\\Master Audio Bus\\New_Auxiliary_Bus",
+      "GUID": "{0DAE6599-DD10-4B9E-93D7-76D99759DEF0}",
+      "PluginRefs": {
+       "ShareSets": [
+        {
+         "Id": "2653529179"
+        }
+       ]
+      }
+     },
      {
       "Id": "4091100022",
       "Name": "MediumRoomVerb",
@@ -886,6 +771,6 @@
     ]
    }
   ],
-  "FileHash": "{E0DA6C40-26FD-8904-FA94-DD8B8E3CA8D7}"
+  "FileHash": "{13A04F48-D1D9-7161-4EBF-C7CA8DE1AD31}"
  }
 }

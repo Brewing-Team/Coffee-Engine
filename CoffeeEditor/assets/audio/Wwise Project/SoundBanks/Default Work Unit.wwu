@@ -8,11 +8,9 @@
 						<ObjectRef Name="Play_BackgroundContainer" ID="{A5674ED4-D568-42CC-9D09-49BC9EBD54DC}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="MediumRoomVerb" ID="{E0A9728C-D1BE-436A-ABBB-E41C5B8C2647}" WorkUnitID="{23999393-1AC3-4B7F-B2F4-C899E2D89A5C}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_test_sound2" ID="{BE8DE821-B5C8-4377-BA22-E24D05DD6217}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
-						<ObjectRef Name="Foot_Player" ID="{BCF9233E-3CEA-439B-8521-9C87E48EAC46}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_test_sound" ID="{0A8F7CF1-331B-4605-9B4F-EC948529B47D}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_test_sound4" ID="{BCBC0DE2-EAF4-462E-A42F-3ED8270F891A}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="Play_test_sound3" ID="{CBA2B51F-779A-4F61-913E-687DA7953BD2}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
-						<ObjectRef Name="Foot_Player_Stop" ID="{3E7A3FA4-9555-4F84-95F0-70FFAA4DFB58}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
 					</ObjectInclusionList>
 					<ObjectExclusionList/>
 					<GameSyncExclusionList/>
