@@ -61,6 +61,13 @@ namespace Coffee {
         uint32_t DrawCalls = 0; ///< Number of draw calls.
         uint32_t VertexCount = 0; ///< Number of vertices.
         uint32_t IndexCount = 0; ///< Number of indices.
+
+        void Reset()
+        {
+            DrawCalls = 0;
+            VertexCount = 0;
+            IndexCount = 0;
+        }
     };
 
     /**
@@ -123,6 +130,7 @@ namespace Coffee {
          * @return A reference to the renderer statistics.
          */
         static const Renderer3DStats& GetStats() { return s_Stats; }
+        static void ResetStats() { s_Stats.Reset(); }
 
         /**
          * @brief Gets the render settings.
