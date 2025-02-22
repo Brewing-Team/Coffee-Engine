@@ -22,7 +22,21 @@ namespace Coffee {
 
         Renderer3D::Init();
 
-        s_RendererData.CameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0);
+        Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
+        s_RendererData.DefaultMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
+
+        // TODO: This is a hack to get the missing mesh add it to the PrimitiveMesh class
+        Ref<Model> m = Model::Load("assets/models/MissingMesh.glb");
+        s_RendererData.MissingMesh = m->GetMeshes()[0];
+
+        s_MainFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA32F, ImageFormat::RGB8, ImageFormat::DEPTH24STENCIL8 });
+        s_PostProcessingFramebuffer = Framebuffer::Create(1280, 720, { ImageFormat::RGBA8 });
+
+        s_MainRenderTexture = s_MainFramebuffer->GetColorTexture(0);
+        s_EntityIDTexture = s_MainFramebuffer->GetColorTexture(1);
+        s_DepthTexture = s_MainFramebuffer->GetDepthTexture();
+
+        s_PostProcessingTexture = s_PostProcessingFramebuffer->GetColorTexture(0);
 
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
     }
@@ -68,6 +82,39 @@ namespace Coffee {
             {
                 return target;
             }
+            
+            material->Use();
+
+            const Ref<Shader>& shader = material->GetShader();
+
+            shader->Bind();
+            shader->setMat4("model", command.transform);
+            shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(command.transform))));
+
+            //REMOVE: This is for the first release of the engine it should be handled differently
+            shader->setBool("showNormals", s_RenderSettings.showNormals);
+
+            // Convert entityID to vec3
+            uint32_t r = (command.entityID & 0x000000FF) >> 0;
+            uint32_t g = (command.entityID & 0x0000FF00) >> 8;
+            uint32_t b = (command.entityID & 0x00FF0000) >> 16;
+            glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
+
+            shader->setVec3("entityID", entityIDVec3);
+
+            Mesh* mesh = command.mesh.get();
+            
+            if(mesh == nullptr)
+            {
+                mesh = s_RendererData.MissingMesh.get();
+            }
+            
+            RendererAPI::DrawIndexed(mesh->GetVertexArray());
+
+            s_Stats.DrawCalls++;
+
+            s_Stats.VertexCount += mesh->GetVertices().size();
+            s_Stats.IndexCount += mesh->GetIndices().size();
         }
 
         return s_RendererData.RenderTargets[0];

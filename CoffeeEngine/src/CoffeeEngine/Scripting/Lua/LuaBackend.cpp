@@ -427,7 +427,6 @@ namespace Coffee {
         #pragma endregion
 
         #pragma region Bind Entity Functions
-
         luaState.new_usertype<Entity>("Entity",
             sol::constructors<Entity(), Entity(entt::entity, Scene*)>(),
             "add_component", [](Entity* self, const std::string& componentName) {
@@ -516,7 +515,7 @@ namespace Coffee {
             "tag", &TagComponent::Tag
         );
 
-        luaState.new_usertype<TransformComponent>("transform_component",
+        luaState.new_usertype<TransformComponent>("TransformComponent",
             sol::constructors<TransformComponent(), TransformComponent(const glm::vec3&)>(),
             "position", &TransformComponent::Position,
             "rotation", &TransformComponent::Rotation,
@@ -527,24 +526,24 @@ namespace Coffee {
             "set_world_transform", &TransformComponent::SetWorldTransform
         );
 
-        luaState.new_usertype<CameraComponent>("camera_component",
+        luaState.new_usertype<CameraComponent>("CameraComponent",
             sol::constructors<CameraComponent()>(),
             "camera", &CameraComponent::Camera
         );
 
-        luaState.new_usertype<MeshComponent>("mesh_component",
+        luaState.new_usertype<MeshComponent>("MeshComponent",
             sol::constructors<MeshComponent(), MeshComponent(Ref<Mesh>)>(),
             "mesh", &MeshComponent::mesh,
             "drawAABB", &MeshComponent::drawAABB,
             "get_mesh", &MeshComponent::GetMesh
         );
 
-        luaState.new_usertype<MaterialComponent>("material_component",
+        luaState.new_usertype<MaterialComponent>("MaterialComponent",
             sol::constructors<MaterialComponent(), MaterialComponent(Ref<Material>)>(),
             "material", &MaterialComponent::material
         );
 
-        luaState.new_usertype<LightComponent>("light_component",
+        luaState.new_usertype<LightComponent>("LightComponent",
             sol::constructors<LightComponent()>(),
             "color", &LightComponent::Color,
             "direction", &LightComponent::Direction,

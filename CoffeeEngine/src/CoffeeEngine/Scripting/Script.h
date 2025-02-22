@@ -39,7 +39,6 @@ namespace Coffee
     {
     public:
         Script() {}
-        Script(const std::filesystem::path& path) : m_Path(path) {}
         virtual void OnReady() = 0;
         virtual void OnUpdate(float dt) = 0;
         virtual void OnExit() = 0;
@@ -60,14 +59,8 @@ namespace Coffee
 
         virtual void ParseScript() = 0;
 
-        std::filesystem::path GetPath() const { return m_Path; }
-
-        bool HasPath() const { return !m_Path.empty(); }
-
         inline std::unordered_map<std::string, ExportedVariable>& GetExportedVariables() { return m_ExportedVariables; }
-
     protected:
-        std::filesystem::path m_Path;
         std::unordered_map<std::string, ExportedVariable> m_ExportedVariables;
     };
 }

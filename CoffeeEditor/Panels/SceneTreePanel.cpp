@@ -563,183 +563,20 @@ namespace Coffee {
                 }
             }
         }
-
-        if (entity.HasComponent<AudioSourceComponent>())
-        {
-            auto& audioSourceComponent = entity.GetComponent<AudioSourceComponent>();
-            bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("Audio Source", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                if (!Audio::audioBanks.empty() && ImGui::BeginCombo("Audio Bank", audioSourceComponent.audioBankName.c_str()))
-                {
-                    for (auto& bank : Audio::audioBanks)
-                    {
-                        const bool isSelected = (audioSourceComponent.audioBankName == bank->name);
-
-                        if (bank->name != "Init" && ImGui::Selectable(bank->name.c_str()))
-                        {
-                            if (audioSourceComponent.audioBank != bank)
-                            {
-                                audioSourceComponent.audioBank = bank;
-                                audioSourceComponent.audioBankName = bank->name;
-
-                                if (!audioSourceComponent.eventName.empty())
-                                {
-                                    audioSourceComponent.eventName.clear();
-                                    Audio::StopEvent(audioSourceComponent);
-                                }
-                            }
-                        }
-
-                        if (isSelected)
-                            ImGui::SetItemDefaultFocus();
-                    }
-
-                    ImGui::EndCombo();
-                }
-
-                if (audioSourceComponent.audioBank && ImGui::BeginCombo("Audio Clip", audioSourceComponent.eventName.c_str()))
-                {
-                    for (const auto& event : audioSourceComponent.audioBank->events)
-                    {
-                        const bool isSelected = audioSourceComponent.eventName == event;
-
-                        if (ImGui::Selectable(event.c_str()))
-                        {
-                            if (!audioSourceComponent.eventName.empty())
-                                Audio::StopEvent(audioSourceComponent);
-
-                            audioSourceComponent.eventName = event;
-                        }
-
-                        if (isSelected)
-                            ImGui::SetItemDefaultFocus();
-                    }
-                    ImGui::EndCombo();
-                }
-
-                ImGui::Checkbox("Play On Awake", &audioSourceComponent.playOnAwake);
-
-                if (ImGui::Checkbox("Mute", &audioSourceComponent.mute))
-                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.mute ? 0.f : audioSourceComponent.volume);
-
-                if (ImGui::SliderFloat("Volume", &audioSourceComponent.volume, 0.f, 1.f))
-                {
-                    if (audioSourceComponent.mute)
-                        audioSourceComponent.mute = false;
-
-                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
-                }
-
-                if (audioSourceComponent.audioBank && !audioSourceComponent.eventName.empty())
-                {
-                    if (!audioSourceComponent.isPlaying)
-                    {
-                        if (ImGui::SmallButton("Play"))
-                        {
-                            Audio::PlayEvent(audioSourceComponent);
-                        }
-                    }
-                    else
-                    {
-                        if (!audioSourceComponent.isPaused)
-                        {
-                            if (ImGui::SmallButton("Pause"))
-                            {
-                                Audio::PauseEvent(audioSourceComponent);
-                            }
-                        }
-                        else if (ImGui::SmallButton("Resume"))
-                        {
-                            Audio::ResumeEvent(audioSourceComponent);
-                        }
-
-                        ImGui::SameLine();
-
-                        if (ImGui::SmallButton("Stop"))
-                        {
-                            Audio::StopEvent(audioSourceComponent);
-                        }
-                    }
-                }
-            }
-
-            if(!isCollapsingHeaderOpen)
-            {
-                AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
-                Audio::UnregisterAudioSourceComponent(audioSourceComponent);
-                entity.RemoveComponent<AudioSourceComponent>();
-            }
-        }
-
-        if (entity.HasComponent<AudioListenerComponent>())
-        {
-            auto& audioListenerComponent = entity.GetComponent<AudioListenerComponent>();
-            bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("Audio Listener", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-
-            }
-
-            if(!isCollapsingHeaderOpen)
-            {
-                Audio::UnregisterAudioListenerComponent(audioListenerComponent);
-                entity.RemoveComponent<AudioListenerComponent>();
-            }
-        }
-
-        if (entity.HasComponent<AudioZoneComponent>())
-        {
-            auto& audioZoneComponent = entity.GetComponent<AudioZoneComponent>();
-            bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("Audio Zone", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                if (ImGui::BeginCombo("Bus Channels", audioZoneComponent.audioBusName.c_str()))
-                {
-                    for (auto& busName : AudioZone::busNames)
-                    {
-                        const bool isSelected = (audioZoneComponent.audioBusName == busName);
-
-                        if (ImGui::Selectable(busName.c_str()))
-                        {
-                            if (audioZoneComponent.audioBusName != busName)
-                            {
-                                audioZoneComponent.audioBusName = busName;
-                                AudioZone::UpdateReverbZone(audioZoneComponent);
-                            }
-                        }
-
-                        if (isSelected)
-                            ImGui::SetItemDefaultFocus();
-                    }
-
-                    ImGui::EndCombo();
-                }
-
-                ImGui::Text("Position");
-                if (ImGui::DragFloat3("##ZonePosition", glm::value_ptr(audioZoneComponent.position), 0.1f)==true)
-                    AudioZone::UpdateReverbZone(audioZoneComponent);
-
-                ImGui::Text("Radius");
-                if (ImGui::SliderFloat("##ZoneRadius", &audioZoneComponent.radius, 1.f, 100.f))
-                    AudioZone::UpdateReverbZone(audioZoneComponent);
-            }
-
-            if(!isCollapsingHeaderOpen)
-            {
-                AudioZone::RemoveReverbZone(audioZoneComponent);
-                entity.RemoveComponent<AudioZoneComponent>();
-            }
-        }
-
+        
         if (entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
+                
+                //ImGui::Text("Script Name: ");
+                //ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
+
                 //ImGui::Text("Script Path: ");
-                //ImGui::Text(scriptComponent.script->GetPath().c_str());
+                //ImGui::Text(scriptComponent.script.GetPath().string().c_str());
+                
 
                 // Get the exposed variables
                 auto& exposedVariables = scriptComponent.script->GetExportedVariables();
@@ -816,7 +653,6 @@ namespace Coffee {
                             ImGui::EndPopup();
                         }
                         break;
-                    }
                     }
                 }
             }
@@ -940,44 +776,10 @@ namespace Coffee {
                 }
                 else if(items[item_current] == "Script Component")
                 {
-                    if(!entity.HasComponent<ScriptComponent>())
-                    {
-                        // Pop up a file dialog to select the save location for the new script
-                        FileDialogArgs args;
-                        args.Filters = {{"Lua Script", "lua"}};
-                        args.DefaultName = "NewScript.lua";
-                        const std::filesystem::path& path = FileDialog::SaveFile(args);
-
-                        if (!path.empty())
-                        {
-                            std::ofstream scriptFile(path);
-                            if (scriptFile.is_open())
-                            {
-                                scriptFile << "function on_ready()\n";
-                                scriptFile << "    -- Add initialization code here\n";
-                                scriptFile << "end\n\n";
-                                scriptFile << "function on_update(dt)\n";
-                                scriptFile << "    -- Add update code here\n";
-                                scriptFile << "end\n\n";
-                                scriptFile << "function on_exit()\n";
-                                scriptFile << "    -- Add cleanup code here\n";
-                                scriptFile << "end\n";
-                                scriptFile.close();
-
-                                // Add the script component to the entity
-                                entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
-                            }
-                            else
-                            {
-                                COFFEE_CORE_ERROR("Failed to create Lua script file at: {0}", path.string());
-                            }
-                        }
-                        else
-                        {
-                            COFFEE_CORE_WARN("Create Lua Script: No file selected");
-                        }
-                        ImGui::CloseCurrentPopup();
-                    }
+                    //if(!entity.HasComponent<ScriptComponent>())
+                        //entity.AddComponent<ScriptComponent>();
+                        // TODO add script component
+                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {
@@ -1063,6 +865,4 @@ void Coffee::SceneTreePanel::ShowCreateEntityMenu()
             }
         }
 
-        ImGui::EndPopup();
-    }
 }

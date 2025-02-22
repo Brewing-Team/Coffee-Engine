@@ -3,6 +3,8 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Math/Frustum.h"
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
@@ -143,8 +145,20 @@ namespace Coffee {
             m_Octree.Insert(objectContainer);
         }
 
-        Audio::StopAllEvents();
-        Audio::PlayInitialAudios();
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
+
+        for (auto& entity : scriptView)
+        {
+            Entity scriptEntity{entity, this};
+
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("self", scriptEntity);
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("current_scene", this);
+
+            scriptComponent.script->OnReady();
+        }
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
@@ -222,7 +236,14 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
-        UpdateAudioComponentsPositions();
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
+
+        for (auto& entity : scriptView)
+        {
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+            scriptComponent.script->OnUpdate(dt);
+        }
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
@@ -257,7 +278,7 @@ namespace Coffee {
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
-            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
+            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -273,19 +294,6 @@ namespace Coffee {
             lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
             Renderer3D::Submit(lightComponent);
-        }
-
-        // Get all entities with ScriptComponent
-        auto scriptView = m_Registry.view<ScriptComponent>();
-
-        for (auto& entity : scriptView)
-        {
-            Entity scriptEntity{entity, this};
-            ScriptManager::RegisterVariable("entity", (void*)&scriptEntity);
-
-            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
-
-            scriptComponent.script.OnUpdate();
         }
 
         Renderer::EndScene();
