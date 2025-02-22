@@ -61,31 +61,27 @@ namespace Coffee {
 
         /**
          * @brief Plays an event.
-         * @param eventName The name of the event.
-         * @param gameObjectID The game object ID.
+         * @param audioSourceComponent The audio source component.
          */
-        static void PlayEvent(const char* eventName, uint64_t gameObjectID);
+        static void PlayEvent(AudioSourceComponent& audioSourceComponent);
 
         /**
          * @brief Stops an event.
-         * @param eventName The name of the event.
-         * @param gameObjectID The game object ID.
+         * @param audioSourceComponent The audio source component.
          */
-        static void StopEvent(const char* eventName, uint64_t gameObjectID);
+        static void StopEvent(AudioSourceComponent& audioSourceComponent);
 
         /**
          * @brief Pauses an event.
-         * @param eventName The name of the event.
-         * @param gameObjectID The game object ID.
+         * @param audioSourceComponent The audio source component.
          */
-        static void PauseEvent(const char* eventName, uint64_t gameObjectID);
+        static void PauseEvent(AudioSourceComponent& audioSourceComponent);
 
         /**
          * @brief Resumes an event.
-         * @param eventName The name of the event.
-         * @param gameObjectID The game object ID.
+         * @param audioSourceComponent The audio source component.
          */
-        static void ResumeEvent(const char* eventName, uint64_t gameObjectID);
+        static void ResumeEvent(AudioSourceComponent& audioSourceComponent);
 
         /**
          * @brief Sets a switch.
@@ -115,6 +111,11 @@ namespace Coffee {
          * @param gameObjectID The game object ID.
          */
         static void UnregisterGameObject(uint64_t gameObjectID);
+
+        /**
+         * @brief Unregister all game objects.
+         */
+        static void UnregisterAllGameObjects();
 
         /**
          * @brief Audio bank.
@@ -181,6 +182,16 @@ namespace Coffee {
          * @param audioListenerComponent The audio listener component.
          */
         static void UnregisterAudioListenerComponent(AudioListenerComponent& audioListenerComponent);
+
+        /**
+         * @brief Play the audio sources chosen to play on awake.
+         */
+        static void PlayInitialAudios();
+
+        /**
+         * @brief Stop all audio events.
+         */
+        static void StopAllEvents();
 
     private:
 

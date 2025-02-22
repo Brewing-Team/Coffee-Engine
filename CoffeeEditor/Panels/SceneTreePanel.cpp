@@ -586,11 +586,8 @@ namespace Coffee {
                                 if (!audioSourceComponent.eventName.empty())
                                 {
                                     audioSourceComponent.eventName.clear();
-                                    Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+                                    Audio::StopEvent(audioSourceComponent);
                                 }
-
-                                audioSourceComponent.isPlaying = false;
-                                audioSourceComponent.isPaused = false;
                             }
                         }
 
@@ -610,13 +607,9 @@ namespace Coffee {
                         if (ImGui::Selectable(event.c_str()))
                         {
                             if (!audioSourceComponent.eventName.empty())
-                                Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+                                Audio::StopEvent(audioSourceComponent);
 
                             audioSourceComponent.eventName = event;
-                            AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
-
-                            audioSourceComponent.isPlaying = false;
-                            audioSourceComponent.isPaused = false;
                         }
 
                         if (isSelected)
@@ -624,6 +617,8 @@ namespace Coffee {
                     }
                     ImGui::EndCombo();
                 }
+
+                ImGui::Checkbox("Play On Awake", &audioSourceComponent.playOnAwake);
 
                 if (ImGui::Checkbox("Mute", &audioSourceComponent.mute))
                     Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.mute ? 0.f : audioSourceComponent.volume);
@@ -636,38 +631,35 @@ namespace Coffee {
                     Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
                 }
 
-                if (!audioSourceComponent.isPlaying)
+                if (audioSourceComponent.audioBank && !audioSourceComponent.eventName.empty())
                 {
-                    if (ImGui::SmallButton("Play"))
+                    if (!audioSourceComponent.isPlaying)
                     {
-                        Audio::PlayEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
-                        audioSourceComponent.isPlaying = true;
-                        audioSourceComponent.isPaused = false;
-                    }
-                }
-                else
-                {
-                    if (!audioSourceComponent.isPaused)
-                    {
-                        if (ImGui::SmallButton("Pause"))
+                        if (ImGui::SmallButton("Play"))
                         {
-                            Audio::PauseEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
-                            audioSourceComponent.isPaused = true;
+                            Audio::PlayEvent(audioSourceComponent);
                         }
                     }
-                    else if (ImGui::SmallButton("Resume"))
+                    else
                     {
-                        Audio::ResumeEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
-                        audioSourceComponent.isPaused = false;
-                    }
+                        if (!audioSourceComponent.isPaused)
+                        {
+                            if (ImGui::SmallButton("Pause"))
+                            {
+                                Audio::PauseEvent(audioSourceComponent);
+                            }
+                        }
+                        else if (ImGui::SmallButton("Resume"))
+                        {
+                            Audio::ResumeEvent(audioSourceComponent);
+                        }
 
-                    ImGui::SameLine();
+                        ImGui::SameLine();
 
-                    if (ImGui::SmallButton("Stop"))
-                    {
-                        Audio::StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
-                        audioSourceComponent.isPlaying = false;
-                        audioSourceComponent.isPaused = false;
+                        if (ImGui::SmallButton("Stop"))
+                        {
+                            Audio::StopEvent(audioSourceComponent);
+                        }
                     }
                 }
             }
@@ -915,7 +907,38 @@ namespace Coffee {
                         entity.AddComponent<CameraComponent>();
                     ImGui::CloseCurrentPopup();
                 }
-                else if(items[item_current] == "Lua Script Component")
+                else if(items[item_current] == "Audio Source Component")
+                {
+                    if(!entity.HasComponent<AudioSourceComponent>())
+                    {
+                        entity.AddComponent<AudioSourceComponent>();
+                        Audio::RegisterAudioSourceComponent(entity.GetComponent<AudioSourceComponent>());
+                        AudioZone::RegisterObject(entity.GetComponent<AudioSourceComponent>().gameObjectID, entity.GetComponent<AudioSourceComponent>().transform[3]);
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Listener Component")
+                {
+                    if(!entity.HasComponent<AudioListenerComponent>())
+                    {
+                        entity.AddComponent<AudioListenerComponent>();
+                        Audio::RegisterAudioListenerComponent(entity.GetComponent<AudioListenerComponent>());
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Zone Component")
+                {
+                    if(!entity.HasComponent<AudioZoneComponent>())
+                    {
+                        entity.AddComponent<AudioZoneComponent>();
+                        AudioZone::CreateZone(entity.GetComponent<AudioZoneComponent>());
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Script Component")
                 {
                     if(!entity.HasComponent<ScriptComponent>())
                     {

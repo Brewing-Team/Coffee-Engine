@@ -16,7 +16,6 @@
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
-#include "CoffeeEngine/Audio/AudioFootsteps.h"
 
 #include <cstdint>
 #include <cstdlib>
@@ -144,47 +143,8 @@ namespace Coffee {
             m_Octree.Insert(objectContainer);
         }
 
-        /*
-        Entity parent = CreateEntity("Parent");
-        parent.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua);
-
-        Entity scriptedEntity = CreateEntity("Scripted Entity");
-        scriptedEntity.AddComponent<MeshComponent>();
-        scriptedEntity.AddComponent<MaterialComponent>();
-        scriptedEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua);
-
-        scriptedEntity.SetParent(parent);
-
-
-        // Test Get Parent
-        Entity parent2 = scriptedEntity.GetParent();
-        COFFEE_CRITICAL("Parent: {0}", parent2.GetComponent<TagComponent>().Tag);
-
-        for (int i = 0; i < 10; i++)
-        {
-            Entity child = CreateEntity("Child " + std::to_string(i));
-            child.AddComponent<MeshComponent>();
-            child.AddComponent<MaterialComponent>();
-
-            child.SetParent(scriptedEntity);
-        }
-        */
-
-        // Get all entities with ScriptComponent
-        auto scriptView = m_Registry.view<ScriptComponent>();
-
-        for (auto& entity : scriptView)
-        {
-            Entity scriptEntity{entity, this};
-
-            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
-
-            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("self", scriptEntity);
-            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("current_scene", this);
-
-            scriptComponent.script->OnReady();
-        }
-
+        Audio::StopAllEvents();
+        Audio::PlayInitialAudios();
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
@@ -198,43 +158,7 @@ namespace Coffee {
         // TEST ------------------------------
         m_Octree.DebugDraw();
 
-        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
-
-        for (auto& entity : audioSourceView)
-        {
-            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
-            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
-
-            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioSourceComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
-                transformComponent.GetWorldTransform()[3],
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-            }
-        }
-
-        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
-
-        for (auto& entity : audioListenerView)
-        {
-            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
-            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
-
-            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioListenerComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
-                    transformComponent.GetWorldTransform()[3],
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-            }
-        }
+        UpdateAudioComponentsPositions();
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
@@ -298,14 +222,7 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
-        // Get all entities with ScriptComponent
-        auto scriptView = m_Registry.view<ScriptComponent>();
-
-        for (auto& entity : scriptView)
-        {
-            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
-            scriptComponent.script->OnUpdate(dt);
-        }
+        UpdateAudioComponentsPositions();
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
@@ -357,6 +274,21 @@ namespace Coffee {
 
             Renderer3D::Submit(lightComponent);
         }
+
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
+
+        for (auto& entity : scriptView)
+        {
+            Entity scriptEntity{entity, this};
+            ScriptManager::RegisterVariable("entity", (void*)&scriptEntity);
+
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+
+            scriptComponent.script.OnUpdate();
+        }
+
+        Renderer::EndScene();
     }
 
     void Scene::OnEvent(Event& e)
@@ -371,7 +303,7 @@ namespace Coffee {
 
     void Scene::OnExitRuntime()
     {
-        AudioFootsteps::StopLoopingSound();
+        Audio::StopAllEvents();
     }
 
     Ref<Scene> Scene::Load(const std::filesystem::path& path)
@@ -403,6 +335,11 @@ namespace Coffee {
             auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
 
             COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
+        }
+
+        for (auto& audioSource : Audio::audioSources)
+        {
+            Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
         }
 
         return scene;
@@ -475,6 +412,48 @@ namespace Coffee {
         {
             parent = modelEntity;
             AddModelToTheSceneTree(scene, c);
+        }
+    }
+
+    void Scene::UpdateAudioComponentsPositions()
+    {
+        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
+
+        for (auto& entity : audioSourceView)
+        {
+            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
+            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
+
+            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioSourceComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
+                transformComponent.GetWorldTransform()[3],
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
+            }
+        }
+
+        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
+
+        for (auto& entity : audioListenerView)
+        {
+            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
+            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
+
+            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioListenerComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
+                    transformComponent.GetWorldTransform()[3],
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+            }
         }
     }
 

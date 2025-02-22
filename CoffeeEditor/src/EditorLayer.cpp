@@ -771,6 +771,9 @@ namespace Coffee {
 
     void EditorLayer::NewScene()
     {
+        AudioZone::RemoveAllReverbZones();
+        Audio::UnregisterAllGameObjects();
+
         m_EditorScene = CreateRef<Scene>();
         m_ActiveScene = m_EditorScene;
         m_ActiveScene->OnInitEditor();

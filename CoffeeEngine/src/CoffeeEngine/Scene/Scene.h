@@ -108,6 +108,11 @@ namespace Coffee {
          */
         static void Save(const std::filesystem::path& path, Ref<Scene> scene);
 
+        /**
+         * @brief Update the positions of the audio components.
+         */
+        void UpdateAudioComponentsPositions();
+
         const std::filesystem::path& GetFilePath() { return m_FilePath; }
     private:
         entt::registry m_Registry;

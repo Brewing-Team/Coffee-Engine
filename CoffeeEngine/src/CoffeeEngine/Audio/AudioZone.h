@@ -35,6 +35,11 @@ namespace Coffee
         static void RemoveReverbZone(const AudioZoneComponent& audioZoneComponent);
 
         /**
+         * @brief Removes all reverb zones.
+         */
+        static void RemoveAllReverbZones();
+
+        /**
          * @brief Registers an object.
          * @param objectID The object ID.
          * @param position The position.

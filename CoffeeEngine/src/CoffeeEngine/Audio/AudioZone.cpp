@@ -20,22 +20,24 @@ namespace Coffee
 
     void AudioZone::Shutdown()
     {
-        for (const auto& zone : m_zones)
-        {
-            CleanupZone(zone.first);
-        }
-        m_zones.clear();
+        RemoveAllReverbZones();
         m_registeredObjects.clear();
     }
 
     void AudioZone::CreateZone(AudioZoneComponent& audioZone)
     {
-        uint64_t zoneID = m_nextZoneID++;
-        audioZone.zoneID = zoneID;
+        for (const auto& zone : m_zones)
+        {
+            if (zone.first == audioZone.zoneID)
+                return;
+        }
 
-        AK::SoundEngine::RegisterGameObj(zoneID);
+        if (audioZone.zoneID == -1)
+            audioZone.zoneID = m_nextZoneID++;
 
-        m_zones[zoneID] = &audioZone;
+        AK::SoundEngine::RegisterGameObj(audioZone.zoneID);
+
+        m_zones[audioZone.zoneID] = &audioZone;
     }
 
     void AudioZone::UpdateReverbZone(const AudioZoneComponent& audioZoneComponent)
@@ -53,6 +55,22 @@ namespace Coffee
     {
         CleanupZone(audioZoneComponent.zoneID);
         m_zones.erase(audioZoneComponent.zoneID);
+    }
+
+    void AudioZone::RemoveAllReverbZones()
+    {
+        std::vector<uint64_t> zoneIDs;
+        for (const auto& zone : m_zones)
+        {
+            zoneIDs.push_back(zone.first);
+        }
+
+        for (const auto& id : zoneIDs)
+        {
+            RemoveReverbZone(*m_zones[id]);
+        }
+
+        m_zones.clear();
     }
 
     void AudioZone::SetObjectInReverbZone(const uint64_t objectID, const std::vector<AudioZoneComponent*>& audioZones)

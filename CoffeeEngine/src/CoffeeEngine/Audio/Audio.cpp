@@ -56,6 +56,19 @@ namespace Coffee
         AK::SoundEngine::UnregisterGameObj(gameObjectID);
     }
 
+    void Audio::UnregisterAllGameObjects()
+    {
+        for (auto& audioSource : audioSources)
+        {
+            UnregisterAudioSourceComponent(*audioSource);
+        }
+
+        for (auto& audioListener : audioListeners)
+        {
+            UnregisterAudioListenerComponent(*audioListener);
+        }
+    }
+
     void Audio::Set3DPosition(uint64_t gameObjectID, glm::vec3 pos, glm::vec3 forward, glm::vec3 up)
     {
         AkSoundPosition newPos;
@@ -66,28 +79,32 @@ namespace Coffee
 
         newPos.SetOrientation(forward.x, forward.y, forward.z, up.x, up.y, up.z);
         AK::SoundEngine::SetPosition(gameObjectID, newPos);
-
-        AudioZone::UpdateObjectPosition(gameObjectID, pos);
     }
 
-    void Audio::PlayEvent(const char* eventName, uint64_t gameObjectID)
+    void Audio::PlayEvent(AudioSourceComponent& audioSourceComponent)
     {
-        AK::SoundEngine::PostEvent(eventName, gameObjectID);
+        AK::SoundEngine::PostEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+        audioSourceComponent.isPlaying = true;
+        audioSourceComponent.isPaused = false;
     }
 
-    void Audio::StopEvent(const char* eventName, uint64_t gameObjectID)
+    void Audio::StopEvent(AudioSourceComponent& audioSourceComponent)
     {
-        AK::SoundEngine::ExecuteActionOnEvent(eventName, AK::SoundEngine::AkActionOnEventType_Stop, gameObjectID);
+        AK::SoundEngine::ExecuteActionOnEvent(audioSourceComponent.eventName.c_str(), AK::SoundEngine::AkActionOnEventType_Stop, audioSourceComponent.gameObjectID);
+        audioSourceComponent.isPlaying = false;
+        audioSourceComponent.isPaused = false;
     }
 
-    void Audio::PauseEvent(const char* eventName, uint64_t gameObjectID)
+    void Audio::PauseEvent(AudioSourceComponent& audioSourceComponent)
     {
-        AK::SoundEngine::ExecuteActionOnEvent(eventName, AK::SoundEngine::AkActionOnEventType_Pause, gameObjectID);
+        AK::SoundEngine::ExecuteActionOnEvent(audioSourceComponent.eventName.c_str(), AK::SoundEngine::AkActionOnEventType_Pause, audioSourceComponent.gameObjectID);
+        audioSourceComponent.isPaused = true;
     }
 
-    void Audio::ResumeEvent(const char* eventName, uint64_t gameObjectID)
+    void Audio::ResumeEvent(AudioSourceComponent& audioSourceComponent)
     {
-        AK::SoundEngine::ExecuteActionOnEvent(eventName, AK::SoundEngine::AkActionOnEventType_Resume, gameObjectID);
+        AK::SoundEngine::ExecuteActionOnEvent(audioSourceComponent.eventName.c_str(), AK::SoundEngine::AkActionOnEventType_Resume, audioSourceComponent.gameObjectID);
+        audioSourceComponent.isPaused = false;
     }
 
     void Audio::SetSwitch(const char* switchGroup, const char* switchState, uint64_t gameObjectID)
@@ -102,26 +119,47 @@ namespace Coffee
 
     void Audio::RegisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent)
     {
+        for (const auto& source : audioSources)
+        {
+            if (source->gameObjectID == audioSourceComponent.gameObjectID)
+                return;
+        }
+
+        if (audioSourceComponent.gameObjectID == -1)
+            audioSourceComponent.gameObjectID = rand();
+
         audioSources.push_back(&audioSourceComponent);
-        audioSourceComponent.gameObjectID = audioSources.size();
 
         RegisterGameObject(audioSourceComponent.gameObjectID);
     }
 
     void Audio::UnregisterAudioSourceComponent(AudioSourceComponent& audioSourceComponent)
     {
-        audioSources.erase(std::ranges::find(audioSources, &audioSourceComponent));
+        if (!audioSourceComponent.eventName.empty() && audioSourceComponent.isPlaying)
+            StopEvent(audioSourceComponent);
 
-        if (!audioSourceComponent.eventName.empty())
-            StopEvent(audioSourceComponent.eventName.c_str(), audioSourceComponent.gameObjectID);
+        audioSourceComponent.toDelete = true;
+
+        AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
 
         UnregisterGameObject(audioSourceComponent.gameObjectID);
+
+        auto it = std::ranges::find(audioSources, &audioSourceComponent);
+        audioSources.erase(it);
     }
 
     void Audio::RegisterAudioListenerComponent(AudioListenerComponent& audioListenerComponent)
     {
+        for (const auto* listener : audioListeners)
+        {
+            if (listener->gameObjectID == audioListenerComponent.gameObjectID)
+                return;
+        }
+
+        if (audioListenerComponent.gameObjectID == -1)
+            audioListenerComponent.gameObjectID = audioListeners.size() + 100;
+
         audioListeners.push_back(&audioListenerComponent);
-        audioListenerComponent.gameObjectID = audioListeners.size() + 100;
 
         RegisterGameObject(audioListenerComponent.gameObjectID);
         AK::SoundEngine::SetDefaultListeners(&audioListenerComponent.gameObjectID, audioListeners.size());
@@ -129,9 +167,30 @@ namespace Coffee
 
     void Audio::UnregisterAudioListenerComponent(AudioListenerComponent& audioListenerComponent)
     {
-        audioListeners.erase(std::ranges::find(audioListeners, &audioListenerComponent));
-
         UnregisterGameObject(audioListenerComponent.gameObjectID);
+
+        audioListenerComponent.toDelete = true;
+
+        auto it = std::ranges::find(audioListeners, &audioListenerComponent);
+        audioListeners.erase(it);
+    }
+
+    void Audio::PlayInitialAudios()
+    {
+        for (auto& audioSource : audioSources)
+        {
+            if (audioSource->playOnAwake)
+                PlayEvent(*audioSource);
+        }
+    }
+
+    void Audio::StopAllEvents()
+    {
+        for (auto& audioSource : audioSources)
+        {
+            if (audioSource->isPlaying)
+                StopEvent(*audioSource);
+        }
     }
 
     void Audio::ProcessAudio()
@@ -293,6 +352,8 @@ namespace Coffee
     void Audio::Shutdown()
     {
         AudioZone::Shutdown();
+
+        UnregisterAllGameObjects();
 
         // Unload the soundbanks
         AK::SoundEngine::ClearBanks();
