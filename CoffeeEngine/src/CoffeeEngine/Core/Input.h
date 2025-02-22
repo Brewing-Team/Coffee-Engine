@@ -54,8 +54,8 @@ namespace Coffee {
 		std::string Name = "Undefined";
 
         // Digital
-        KeyCode KeyPos = Key::Unknown; // Positive keyboard key
-        KeyCode KeyNeg = Key::Unknown; // Negative keyboard key
+        KeyCode KeyPos = Key::UNKNOWN; // Positive keyboard key
+        KeyCode KeyNeg = Key::UNKNOWN; // Negative keyboard key
         ButtonCode ButtonPos = Button::Invalid; // Positive gamepad button
         ButtonCode ButtonNeg = Button::Invalid; // Negative gamepad button
 
