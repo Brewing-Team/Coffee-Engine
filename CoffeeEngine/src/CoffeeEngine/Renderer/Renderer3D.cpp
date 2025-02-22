@@ -100,6 +100,8 @@ namespace Coffee {
 
     void Renderer3D::ForwardPass(const RenderTarget& target)
     {
+        ZoneScoped;
+
         // TODO: Think if this should be done here
         s_RendererData.SceneRenderDataUniformBuffer->SetData(&s_RendererData.RenderData, sizeof(Renderer3DData::RenderData));
 
@@ -163,6 +165,8 @@ namespace Coffee {
     }
     void Renderer3D::SkyboxPass(const RenderTarget& target)
     {
+        ZoneScoped;
+
         // TODO: Think if this should be done here another time
         const Ref<Framebuffer>& forwardBuffer = target.GetFramebuffer("Forward");
 
@@ -179,6 +183,8 @@ namespace Coffee {
 
     void Renderer3D::PostProcessingPass(const RenderTarget &target)
     {
+        ZoneScoped;
+
         //Render All the fancy effects :D
         const Ref<Framebuffer>& forwardBuffer = target.GetFramebuffer("Forward");
         const Ref<Framebuffer>& postBuffer = target.GetFramebuffer("PostProcessing");

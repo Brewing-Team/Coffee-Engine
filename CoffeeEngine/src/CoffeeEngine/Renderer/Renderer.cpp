@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 
 #include <glm/matrix.hpp>
+#include <tracy/Tracy.hpp>
 #include <vector>
 
 namespace Coffee {
@@ -15,6 +16,8 @@ namespace Coffee {
 
     void Renderer::Init()
     {
+        ZoneScoped;
+
         RendererAPI::Init();
 
         Renderer3D::Init();
@@ -26,6 +29,8 @@ namespace Coffee {
 
     void Renderer::Render()
     {
+        ZoneScoped;
+
         for (auto& target : s_RendererData.RenderTargets)
         {
             CameraData cameraData;
@@ -55,6 +60,8 @@ namespace Coffee {
 
     const RenderTarget& Renderer::GetRenderTarget(const std::string& name)
     {
+        ZoneScoped;
+
         for (auto& target : s_RendererData.RenderTargets)
         {
             if (target.GetName() == name)
@@ -68,6 +75,8 @@ namespace Coffee {
 
     RenderTarget& Renderer::AddRenderTarget(const std::string& name, const glm::vec2& size, const std::vector<std::pair<std::string, std::initializer_list<Attachment>>>& framebufferAttachments)
     {
+        ZoneScoped;
+
         s_RendererData.RenderTargets.push_back(RenderTarget(name, size, framebufferAttachments));
         return s_RendererData.RenderTargets.back();
     }
