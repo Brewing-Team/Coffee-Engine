@@ -223,6 +223,9 @@ namespace Coffee {
 
     void Renderer3D::ResetCalls()
     {
+        s_Stats.DrawCalls = 0;
+        s_Stats.VertexCount = 0;
+        s_Stats.IndexCount = 0;
         s_RendererData.RenderData.lightCount = 0;
         s_RendererData.renderQueue.clear();
     }
