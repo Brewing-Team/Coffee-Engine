@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Renderer3D.h"
+#include "Renderer2D.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 
@@ -20,6 +21,7 @@ namespace Coffee {
 
         RendererAPI::Init();
 
+        Renderer2D::Init();
         Renderer3D::Init();
 
         Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
@@ -61,6 +63,17 @@ namespace Coffee {
             {
                 Renderer3D::PostProcessingPass(target);
             }
+            
+            // TODO: Think if this should be done here or in the Renderer2D
+            cameraData.projection = glm::ortho(0.0f, target.GetSize().x, target.GetSize().y, 0.0f, -1.0f, 1.0f);
+            cameraData.view = glm::mat4(1.0f);
+            s_RendererData.CameraUniformBuffer->SetData(&cameraData, sizeof(CameraData));
+            
+            RendererAPI::SetFaceCulling(false);
+
+            Renderer2D::Render(target);
+
+            RendererAPI::SetFaceCulling(true);
         }
 
         // TODO: Think if this should be done here or inside each target?

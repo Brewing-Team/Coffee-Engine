@@ -34,6 +34,8 @@ namespace Coffee {
         const glm::mat4& GetCameraTransform() const { return m_CameraTransform; }
 
         void Resize(uint32_t width, uint32_t height);
+
+        const glm::vec2& GetSize() const { return m_Size; }
     
     private:
         std::string m_Name;
