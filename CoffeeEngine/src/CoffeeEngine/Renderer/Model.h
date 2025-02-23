@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
@@ -7,13 +8,20 @@
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
+
 #include <assimp/scene.h>
 #include <cereal/access.hpp>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
+#include <ozz/animation/offline/animation_builder.h>
+#include <ozz/animation/offline/raw_animation.h>
+#include <ozz/animation/offline/raw_skeleton.h>
+#include <ozz/animation/offline/skeleton_builder.h>
+
 #include <filesystem>
 #include <glm/fwd.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <memory>
 #include <string>
 #include <vector>
@@ -87,16 +95,20 @@ namespace Coffee {
          * @brief Processes a mesh from the Assimp mesh and scene.
          * @param mesh The Assimp mesh.
          * @param scene The Assimp scene.
+         * @param joints The joints.
+         * @param boneMap The bone map.
          * @return A reference to the processed mesh.
          */
-        Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene);
+        Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap);
 
         /**
          * @brief Processes a node from the Assimp node and scene.
          * @param node The Assimp node.
          * @param scene The Assimp scene.
+         * @param joints The joints.
+         * @param boneMap The bone map.
          */
-        void processNode(aiNode* node, const aiScene* scene);
+        void processNode(aiNode* node, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap);
 
         /**
          * @brief Loads a texture from the Assimp material and texture type.
@@ -136,6 +148,35 @@ namespace Coffee {
             }
         }
 
+        static glm::mat4 AiToGlmMat4(const aiMatrix4x4& from)
+        {
+            glm::mat4 to;
+            memcpy(glm::value_ptr(to), &from, sizeof(glm::mat4));
+            return glm::transpose(to);
+        }
+
+        static ozz::math::Transform AiToOzzTransform(const aiMatrix4x4& aiTransform)
+        {
+            aiVector3D scale, translation;
+            aiQuaternion rotation;
+            aiTransform.Decompose(scale, rotation, translation);
+
+            ozz::math::Transform ozzTransform = {
+                ozz::math::Float3(translation.x, translation.y, translation.z),
+                ozz::math::Quaternion(rotation.x, rotation.y, rotation.z, rotation.w),
+                ozz::math::Float3(scale.x, scale.y, scale.z)
+            };
+            return ozzTransform;
+        }
+
+        unsigned int MAX_BONE_INFLUENCE = 4;
+
+        bool ExtractSkeleton(const aiScene* pScene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap, Model& model);
+
+        bool ExtractAnimations(const aiScene* scene, const std::map<std::string, int>& boneMap, Model& model);
+
+        void ExtractJoints(const aiNode* node, int parentIndex, std::vector<Joint>& joints, std::map<std::string, int>& boneMap);
+
     private:
         std::vector<Ref<Mesh>> m_Meshes; ///< The meshes of the model.
 
@@ -145,6 +186,8 @@ namespace Coffee {
         glm::mat4 m_Transform; ///< The transformation matrix of the model.
 
         std::string m_NodeName; ///< The name of the node.
+
+        Ref<AnimationSystem> m_AnimationSystem; ///< The animation system.
     };
 
     /** @} */

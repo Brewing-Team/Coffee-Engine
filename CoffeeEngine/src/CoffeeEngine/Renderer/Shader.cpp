@@ -136,6 +136,14 @@ namespace Coffee {
         glUniformMatrix4fv(location, 1, GL_FALSE, &mat[0][0]);
     }
 
+    void Shader::setMat4v(const std::string& name, const std::vector<glm::mat4>& matrices) const
+    {
+        ZoneScoped;
+
+        GLint location = glGetUniformLocation(m_ShaderID, name.c_str());
+        glUniformMatrix4fv(location, matrices.size(), GL_FALSE, &matrices[0][0][0]);
+    }
+
     Ref<Shader> Shader::Create(const std::filesystem::path& shaderPath)
     {
         ZoneScoped;

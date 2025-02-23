@@ -173,6 +173,9 @@ namespace Coffee {
             auto& transformComponent = view.get<TransformComponent>(entity);
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
+            // TEMPORAL - Animation
+            Renderer::Update(dt);
+
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             

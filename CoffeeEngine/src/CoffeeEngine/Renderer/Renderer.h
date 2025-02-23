@@ -42,7 +42,13 @@ namespace Coffee {
     class Renderer
     {
     public:
-        
+
+        // TEMPORAL - Animation
+        static void Update(float dt) { if (m_AnimationSystem) m_AnimationSystem->Update(dt); }
+
+        /**
+         * @brief Initializes the renderer.
+         */
         static void Init();
         static void Render();
         static void Shutdown();
@@ -56,6 +62,10 @@ namespace Coffee {
         static std::vector<RenderTarget>& GetRenderTargets() { return s_RendererData.RenderTargets; }
 
         static RendererSettings& GetRenderSettings() { return s_RenderSettings; }
+
+    public:
+        // TEMPORAL - Animation
+        static Ref<AnimationSystem> m_AnimationSystem;
 
     private:
         static RendererData s_RendererData; ///< Renderer data.

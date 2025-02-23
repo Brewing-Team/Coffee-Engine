@@ -109,6 +109,8 @@ namespace Coffee {
          */
         void setMat4(const std::string& name, const glm::mat4& mat) const;
 
+        void setMat4v(const std::string& name, const std::vector<glm::mat4>& matrices) const;
+
         /**
          * @brief Creates a shader from the specified vertex and fragment shader paths.
          * @param vertexPath The file path to the vertex shader.
