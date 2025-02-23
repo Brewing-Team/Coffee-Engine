@@ -4,8 +4,9 @@
 namespace Coffee
 {
 
-    using ButtonCode = uint16_t;
-    using AxisCode = uint16_t;
+    using ControllerCode = uint32_t;
+    using ButtonCode = uint8_t;
+    using AxisCode = uint8_t;
 
     namespace Button
     {

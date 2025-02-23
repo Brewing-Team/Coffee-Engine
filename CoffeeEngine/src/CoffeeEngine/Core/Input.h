@@ -3,12 +3,12 @@
 #include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
+#include "CoffeeEngine/Events/ControllerEvent.h"
 
 #include "CoffeeEngine/Events/Event.h"
+#include "CoffeeEngine/Input/Gamepad.h"
 
-#include <SDL3/SDL_gamepad.h>
 #include <glm/glm.hpp>
-#include <unordered_map>
 
 namespace Coffee {
 	// TODO Change for better action map layers method?
@@ -76,6 +76,12 @@ namespace Coffee {
 
 		static InputLayer CurrentInputContext;
 
+
+	    /**
+	     * Initializes the module
+	     */
+        static void Init();
+
 		/**
 		 * Checks if a specific key is currently being pressed.
 		 *
@@ -109,13 +115,16 @@ namespace Coffee {
 		 * @return The y-coordinate of the mouse cursor.
 		 */
 		static float GetMouseY();
+        static void OnAddController(ControllerAddEvent* cEvent);
+        static void OnRemoveController(ControllerRemoveEvent* c_event);
 
-	    static void OnEvent(Event& e);
+        static void OnEvent(Event& e);
 
 	    private:
 	    static std::vector<InputBinding> m_bindings;
 
-	    static Ref<SDL_Gamepad> m_controller;
+	    static Ref<Gamepad> m_activeController;
+	    static std::vector<Ref<Gamepad>> m_gamepads;
 	};
     /** @} */
 }
