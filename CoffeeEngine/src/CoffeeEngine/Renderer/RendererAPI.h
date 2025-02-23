@@ -42,11 +42,13 @@ namespace Coffee {
          */
         static void SetDepthMask(bool enabled);
 
+        static void SetFaceCulling(bool enabled);
+
         /**
          * @brief Draws the indexed vertices from the specified vertex array.
          * @param vertexArray The vertex array containing the vertices to draw.
          */
-        static void DrawIndexed(const Ref<VertexArray>& vertexArray);
+        static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0);
 
         /**
          * @brief Draws lines from the specified vertex array.

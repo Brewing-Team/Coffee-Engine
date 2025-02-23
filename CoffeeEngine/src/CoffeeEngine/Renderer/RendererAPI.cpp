@@ -77,14 +77,39 @@ namespace Coffee {
 		glDepthMask(enabled);
 	}
 
-    void RendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)
+	void RendererAPI::SetFaceCulling(bool enabled)
+	{
+		ZoneScoped;
+
+		if(enabled)
+		{
+			glEnable(GL_CULL_FACE);
+		}
+		else
+		{
+			glDisable(GL_CULL_FACE);
+		}
+	}
+
+    void RendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount)
     {
         ZoneScoped;
 
         vertexArray->Bind();
 		vertexArray->GetVertexBuffers()[0]->Bind();
-		vertexArray->GetIndexBuffer()->Bind();
-        uint32_t count = vertexArray->GetIndexBuffer()->GetCount();
+
+		uint32_t count;
+
+		if(indexCount == 0)
+		{
+			vertexArray->GetIndexBuffer()->Bind();
+			count = vertexArray->GetIndexBuffer()->GetCount();
+		}
+		else
+		{
+			count = indexCount;
+		}
+		
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
 
