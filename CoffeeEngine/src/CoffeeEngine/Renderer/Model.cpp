@@ -61,17 +61,24 @@ namespace Coffee {
         if(!ExtractAnimations(scene, boneMap, *this))
             std::cerr << "Error extracting animations" << std::endl;
 
-        std::cout << "AnimationsCount: " << m_AnimationSystem->GetAnimationController()->GetAnimationCount() << ", BonesCount: " << m_AnimationSystem->GetSkeleton()->GetNumJoints() << std::endl;
-
-        for (const auto& [name, index] : m_AnimationSystem->GetAnimationController()->GetAnimationMap())
+        if (m_AnimationSystem && m_AnimationSystem->GetSkeleton() && m_AnimationSystem->GetAnimationController()
+            && m_AnimationSystem->GetAnimationController()->GetAnimationCount() > 0)
         {
-            std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationSystem->GetAnimationController()->GetAnimation(index)->GetDuration() << std::endl;
+            std::cout << "AnimationsCount: " << m_AnimationSystem->GetAnimationController()->GetAnimationCount() << ", BonesCount: " << m_AnimationSystem->GetSkeleton()->GetNumJoints() << std::endl;
+
+            for (const auto& [name, index] : m_AnimationSystem->GetAnimationController()->GetAnimationMap())
+            {
+                std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationSystem->GetAnimationController()->GetAnimation(index)->GetDuration() << std::endl;
+            }
+
+            // TEMPORAL - Animation
+            Renderer::m_AnimationSystem = m_AnimationSystem;
         }
 
-        // TEMPORAL - Animation
-        Renderer::m_AnimationSystem = m_AnimationSystem;
-
         processNode(scene->mRootNode, scene, joints, boneMap);
+
+        if (m_AnimationSystem && m_AnimationSystem->GetSkeleton())
+            m_AnimationSystem->GetSkeleton()->SetJoints(joints);
     }
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
@@ -227,9 +234,6 @@ namespace Coffee {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
             this->AddMesh(processMesh(mesh, scene, joints, boneMap));
         }
-
-        if (m_AnimationSystem && m_AnimationSystem->GetSkeleton())
-            m_AnimationSystem->GetSkeleton()->SetJoints(joints);
 
         for(uint32_t i = 0; i < node->mNumChildren; i++)
         {
@@ -412,6 +416,7 @@ namespace Coffee {
             m_AnimationSystem = CreateRef<AnimationSystem>();
 
         m_AnimationSystem->SetAnimationController(animController);
+        m_AnimationSystem->SetCurrentAnimation(0);
 
         return true;
     }
