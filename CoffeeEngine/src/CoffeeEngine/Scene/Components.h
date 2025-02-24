@@ -22,6 +22,8 @@
 #include "CoffeeEngine/Scripting/ScriptManager.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
+#include <btBulletDynamicsCommon.h>
+#include "CoffeeEngine/Physics/Collider.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "CoffeeEngine/Project/Project.h"
@@ -474,6 +476,48 @@ namespace Coffee {
             );
         }
     };
+
+    # pragma region RigidbodyComponent
+    enum class RigidBodyType {
+        Static = 0,
+        Dynamic,
+        Kinematic
+    };
+
+    struct CollisionShapeConfig {
+        enum class Type { Box, Sphere, Capsule };
+        Type type = Type::Box;
+        glm::vec3 size = {1.0f, 1.0f, 1.0f};
+        bool isTrigger = false;
+        float mass = 1.0f;
+    };
+
+    struct RigidBodyConfig {
+        CollisionShapeConfig shapeConfig;
+        RigidBodyType type = RigidBodyType::Dynamic;
+        bool UseGravity = true;
+        glm::vec3 Velocity = {0.0f, 0.0f, 0.0f};
+        bool FreezeY = false;
+    };
+
+    struct RigidbodyComponent {
+        RigidBodyConfig cfg;
+        btRigidBody* Body = nullptr;
+        btCollisionShape* Shape = nullptr;
+        btMotionState* MotionState = nullptr;
+
+        RigidbodyComponent() = default;
+        ~RigidbodyComponent() {
+            if (Body) {
+                delete Body->getMotionState();
+                delete Body;
+            }
+            if (Shape) delete Shape;
+            // if (MotionState) delete MotionState;
+        }
+    };
+    # pragma endregion
+
 }
 
 /** @} */

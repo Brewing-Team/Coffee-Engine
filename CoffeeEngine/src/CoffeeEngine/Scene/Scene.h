@@ -2,8 +2,10 @@
 
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Events/Event.h"
+#include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
+#include "CoffeeEngine/Scene/Components.h"
 #include "entt/entity/fwd.hpp"
 
 #include <entt/entt.hpp>
@@ -118,6 +120,7 @@ namespace Coffee {
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
         Octree<Ref<Mesh>> m_Octree;
+        PhysicsWorld physicsWorld;
 
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
@@ -126,7 +129,7 @@ namespace Coffee {
         friend class SceneTree;
         friend class SceneTreePanel;
 
-        //REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!
+        // TODO REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!
         friend class EditorLayer;
     };
 

@@ -676,14 +676,14 @@ namespace Coffee {
         if(m_ActiveScene->m_FilePath.empty())
         {
             COFFEE_ERROR("Scene is not saved! Please save the scene before playing.");
-            return;
+            // return; // TODO uncomment this after testing physics
         }
 
         m_SceneState = SceneState::Play;
 
         Scene::Save(m_EditorScene->m_FilePath, m_EditorScene);
 
-        m_ActiveScene = Scene::Load(m_ActiveScene->m_FilePath);
+        // m_ActiveScene = Scene::Load(m_ActiveScene->m_FilePath); // TODO uncomment this after testing physics
         m_ActiveScene->OnInitRuntime();
 
         m_SceneTreePanel.SetContext(m_ActiveScene);

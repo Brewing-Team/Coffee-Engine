@@ -4,13 +4,13 @@
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Math/Frustum.h"
+#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
-#include "CoffeeEngine/Renderer/Renderer3D.h"
-#include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
@@ -125,6 +125,69 @@ namespace Coffee {
 
         //Entity scriptEntity2 = CreateEntity("Script2");
         //scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor*/
+
+        // ------------------------------ TEMPORAL ------------------------------
+        // --------------------------- Physics testing --------------------------
+        // Create floor (static box)
+        // Create floor entity
+        Entity floorEntity = CreateEntity("Floor");
+        auto& floorTransform = floorEntity.GetComponent<TransformComponent>();
+        floorTransform.Position = {0.0f, -0.25f, 0.0f};
+        floorTransform.Scale = {10.0f, 0.5f, 10.0f};
+
+        auto& floorRb = floorEntity.AddComponent<RigidbodyComponent>();
+        floorRb.cfg.type = RigidBodyType::Static;
+        floorRb.cfg.UseGravity = false;
+        floorRb.cfg.shapeConfig.type = CollisionShapeConfig::Type::Box;
+        floorRb.cfg.shapeConfig.size = {10.0f, 0.5f, 10.0f};
+
+        floorRb.Shape = new btBoxShape(btVector3(5.0f, 0.25f, 5.0f));
+        floorRb.MotionState = new btDefaultMotionState(
+            btTransform(btQuaternion(0, 0, 0, 1),
+            btVector3(floorTransform.Position.x, floorTransform.Position.y, floorTransform.Position.z))
+        );
+
+        btRigidBody::btRigidBodyConstructionInfo floorRbInfo(
+            0.0f,
+            floorRb.MotionState,
+            floorRb.Shape
+        );
+        floorRb.Body = new btRigidBody(floorRbInfo);
+
+        // Create sphere entity
+        Entity sphereEntity = CreateEntity("Sphere");
+        auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
+        sphereTransform.Position = {0.0f, 5.0f, 0.0f};
+        sphereTransform.Scale = {1.0f, 1.0f, 1.0f};
+
+        auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>();
+        sphereRb.cfg.type = RigidBodyType::Dynamic;
+        sphereRb.cfg.UseGravity = true;
+        sphereRb.cfg.shapeConfig.type = CollisionShapeConfig::Type::Sphere;
+        sphereRb.cfg.shapeConfig.size = {0.5f, 0.5f, 0.5f};
+
+        sphereRb.Shape = new btSphereShape(0.5f);
+        sphereRb.MotionState = new btDefaultMotionState(
+            btTransform(btQuaternion(0, 0, 0, 1),
+            btVector3(sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z))
+        );
+
+        btRigidBody::btRigidBodyConstructionInfo sphereRbInfo(
+            1.0f,
+            sphereRb.MotionState,
+            sphereRb.Shape
+        );
+        sphereRb.Body = new btRigidBody(sphereRbInfo);
+
+        // Add visual meshes
+        floorEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+
+        // Add rigidbodies to physics world
+        physicsWorld.addRigidBody(floorRb.Body);
+        physicsWorld.addRigidBody(sphereRb.Body);
+        // ------------------------- END Physics testing ------------------------
+
     }
 
     void Scene::OnInitRuntime()
@@ -227,7 +290,40 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
-        UpdateAudioComponentsPositions();
+        // ------------------------------ TEMPORAL ------------------------------
+        // --------------------------- Physics testing --------------------------
+        physicsWorld.stepSimulation(dt);
+
+        // Update transforms from physics
+        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : viewPhysics)
+        {
+            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.Body && rb.Body->getMotionState())
+            {
+                btTransform trans;
+                rb.Body->getMotionState()->getWorldTransform(trans);
+                transform.Position = {trans.getOrigin().x(), trans.getOrigin().y(), trans.getOrigin().z()};
+            }
+        }
+
+        // Print sphere position
+        auto sphereEntity = GetEntityByName("Sphere");
+        if(sphereEntity)
+        {
+            auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
+            COFFEE_INFO("Sphere position: {0}, {1}, {2}", sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z);
+        }
+        // ------------------------- END Physics testing ------------------------
+
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
+
+        for (auto& entity : scriptView)
+        {
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+            scriptComponent.script->OnUpdate(dt);
+        }
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
@@ -308,7 +404,34 @@ namespace Coffee {
 
     void Scene::OnExitRuntime()
     {
-        Audio::StopAllEvents();
+        // TODO remove temporal code to reset bodies positions
+        auto view = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : view) {
+            auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.Body) {
+                physicsWorld.removeRigidBody(rb.Body);
+
+                // Reset transform
+                Entity e{entity, this};
+                if (e.GetComponent<TagComponent>().Tag == "Sphere") {
+                    transform.Position = {0.0f, 5.0f, 0.0f}; // Reset to initial position
+                }
+                else if (e.GetComponent<TagComponent>().Tag == "Floor") {
+                    transform.Position = {0.0f, -0.25f, 0.0f};
+                }
+
+                // Reset physics state
+                btTransform trans;
+                trans.setIdentity();
+                trans.setOrigin(btVector3(transform.Position.x, transform.Position.y, transform.Position.z));
+
+                rb.Body->setWorldTransform(trans);
+                rb.Body->setInterpolationWorldTransform(trans);
+                rb.Body->setLinearVelocity(btVector3(0,0,0));
+                rb.Body->setAngularVelocity(btVector3(0,0,0));
+                rb.Body->clearForces();
+            }
+        }
     }
 
     Ref<Scene> Scene::Load(const std::filesystem::path& path)
