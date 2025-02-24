@@ -8,6 +8,7 @@
 #include <array>
 #include <cstddef>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <cstdint>
 #include <vector>
@@ -129,6 +130,22 @@ namespace Coffee {
 
     void Renderer2D::Shutdown()
     {
+    }
+
+    void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+    {
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), {position.x, position.y, 0.0f})
+                            * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
+        
+        DrawQuad(transform, color);
+    }
+
+    void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+    {
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), {position.x, position.y, 0.0f})
+                            * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
+        
+        DrawQuad(transform, texture, tilingFactor, tintColor);
     }
 
     void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t entityID)
