@@ -31,24 +31,24 @@ namespace Coffee {
             delete collisionConfig;
         }
 
-        void addRigidBody(btRigidBody* body) {
+        void addRigidBody(btRigidBody* body) const {
             dynamicsWorld->addRigidBody(body);
         }
 
-        void removeRigidBody(btRigidBody* body) {
+        void removeRigidBody(btRigidBody* body) const {
             dynamicsWorld->removeRigidBody(body);
         }
 
-        void stepSimulation(float dt) {
+        void stepSimulation(float dt) const {
             dynamicsWorld->stepSimulation(dt);
         }
 
         // ---- Gravity ----
-        void setGravity(float gravity) {
+        void setGravity(float gravity) const {
             dynamicsWorld->setGravity(btVector3(0, gravity, 0));
         }
 
-        void setGravity(const btVector3& gravity) { dynamicsWorld->setGravity(gravity); }
+        void setGravity(const btVector3& gravity) const { dynamicsWorld->setGravity(gravity); }
         // -----------------
 
         btDiscreteDynamicsWorld* getDynamicsWorld() const { return dynamicsWorld; }

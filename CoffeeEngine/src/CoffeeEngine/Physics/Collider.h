@@ -43,5 +43,5 @@ namespace Coffee {
             shape = new btCapsuleShape(radius, height);
         }
     };
-}
 
+}

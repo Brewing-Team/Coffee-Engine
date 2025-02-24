@@ -135,24 +135,13 @@ namespace Coffee {
         floorTransform.Position = {0.0f, -0.25f, 0.0f};
         floorTransform.Scale = {10.0f, 0.5f, 10.0f};
 
-        auto& floorRb = floorEntity.AddComponent<RigidbodyComponent>();
-        floorRb.cfg.type = RigidBodyType::Static;
-        floorRb.cfg.UseGravity = false;
-        floorRb.cfg.shapeConfig.type = CollisionShapeConfig::Type::Box;
-        floorRb.cfg.shapeConfig.size = {10.0f, 0.5f, 10.0f};
-
-        floorRb.Shape = new btBoxShape(btVector3(5.0f, 0.25f, 5.0f));
-        floorRb.MotionState = new btDefaultMotionState(
-            btTransform(btQuaternion(0, 0, 0, 1),
-            btVector3(floorTransform.Position.x, floorTransform.Position.y, floorTransform.Position.z))
-        );
-
-        btRigidBody::btRigidBodyConstructionInfo floorRbInfo(
-            0.0f,
-            floorRb.MotionState,
-            floorRb.Shape
-        );
-        floorRb.Body = new btRigidBody(floorRbInfo);
+        // Setup floor rigidbody
+        RigidBodyConfig floorConfig;
+        floorConfig.type = RigidBodyType::Static;
+        floorConfig.UseGravity = false;
+        floorConfig.shapeConfig.type = CollisionShapeConfig::Type::Box;
+        floorConfig.shapeConfig.size = floorTransform.Scale;
+        auto& floorRb = floorEntity.AddComponent<RigidbodyComponent>(floorConfig);
 
         // Create sphere entity
         Entity sphereEntity = CreateEntity("Sphere");
@@ -160,32 +149,52 @@ namespace Coffee {
         sphereTransform.Position = {0.0f, 5.0f, 0.0f};
         sphereTransform.Scale = {1.0f, 1.0f, 1.0f};
 
-        auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>();
-        sphereRb.cfg.type = RigidBodyType::Dynamic;
-        sphereRb.cfg.UseGravity = true;
-        sphereRb.cfg.shapeConfig.type = CollisionShapeConfig::Type::Sphere;
-        sphereRb.cfg.shapeConfig.size = {0.5f, 0.5f, 0.5f};
+        // Setup sphere rigidbody
+        RigidBodyConfig sphereConfig;
+        sphereConfig.type = RigidBodyType::Dynamic;
+        sphereConfig.UseGravity = true;
+        sphereConfig.shapeConfig.type = CollisionShapeConfig::Type::Sphere;
+        sphereConfig.shapeConfig.size = {0.5f, 0.5f, 0.5f};
+        sphereConfig.shapeConfig.mass = 1.0f;
+        auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>(sphereConfig);
 
-        sphereRb.Shape = new btSphereShape(0.5f);
-        sphereRb.MotionState = new btDefaultMotionState(
+        // Create physics objects
+        // Floor
+        floorRb.rb->Shape = new btBoxShape(btVector3(floorTransform.Scale.x * 0.5f, floorTransform.Scale.y * 0.5f, floorTransform.Scale.z * 0.5f));
+        floorRb.rb->MotionState = new btDefaultMotionState(
+            btTransform(btQuaternion(0, 0, 0, 1),
+            btVector3(floorTransform.Position.x, floorTransform.Position.y, floorTransform.Position.z))
+        );
+
+        btRigidBody::btRigidBodyConstructionInfo floorRbInfo(
+            0.0f,
+            floorRb.rb->MotionState,
+            floorRb.rb->Shape
+        );
+        floorRb.rb->Body = new btRigidBody(floorRbInfo);
+
+        // Sphere
+        sphereRb.rb->Shape = new btSphereShape(0.5f);
+        sphereRb.rb->MotionState = new btDefaultMotionState(
             btTransform(btQuaternion(0, 0, 0, 1),
             btVector3(sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z))
         );
 
         btRigidBody::btRigidBodyConstructionInfo sphereRbInfo(
             1.0f,
-            sphereRb.MotionState,
-            sphereRb.Shape
+            sphereRb.rb->MotionState,
+            sphereRb.rb->Shape
         );
-        sphereRb.Body = new btRigidBody(sphereRbInfo);
+        sphereRb.rb->Body = new btRigidBody(sphereRbInfo);
+        sphereRb.rb->Body->setRestitution(0.5f);  // Add some bounciness
 
         // Add visual meshes
         floorEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
         sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
 
         // Add rigidbodies to physics world
-        physicsWorld.addRigidBody(floorRb.Body);
-        physicsWorld.addRigidBody(sphereRb.Body);
+        physicsWorld.addRigidBody(floorRb.rb->Body);
+        physicsWorld.addRigidBody(sphereRb.rb->Body);
         // ------------------------- END Physics testing ------------------------
 
     }
@@ -299,10 +308,10 @@ namespace Coffee {
         for (auto entity : viewPhysics)
         {
             auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
-            if (rb.Body && rb.Body->getMotionState())
+            if (rb.rb && rb.rb->Body && rb.rb->Body->getMotionState())
             {
                 btTransform trans;
-                rb.Body->getMotionState()->getWorldTransform(trans);
+                rb.rb->Body->getMotionState()->getWorldTransform(trans);
                 transform.Position = {trans.getOrigin().x(), trans.getOrigin().y(), trans.getOrigin().z()};
             }
         }
@@ -408,8 +417,8 @@ namespace Coffee {
         auto view = m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : view) {
             auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
-            if (rb.Body) {
-                physicsWorld.removeRigidBody(rb.Body);
+            if (rb.rb && rb.rb->Body) {
+                physicsWorld.removeRigidBody(rb.rb->Body);
 
                 // Reset transform
                 Entity e{entity, this};
@@ -425,11 +434,11 @@ namespace Coffee {
                 trans.setIdentity();
                 trans.setOrigin(btVector3(transform.Position.x, transform.Position.y, transform.Position.z));
 
-                rb.Body->setWorldTransform(trans);
-                rb.Body->setInterpolationWorldTransform(trans);
-                rb.Body->setLinearVelocity(btVector3(0,0,0));
-                rb.Body->setAngularVelocity(btVector3(0,0,0));
-                rb.Body->clearForces();
+                rb.rb->Body->setWorldTransform(trans);
+                rb.rb->Body->setInterpolationWorldTransform(trans);
+                rb.rb->Body->setLinearVelocity(btVector3(0,0,0));
+                rb.rb->Body->setAngularVelocity(btVector3(0,0,0));
+                rb.rb->Body->clearForces();
             }
         }
     }
