@@ -1,9 +1,12 @@
 #include "Renderer2D.h"
+#include "CoffeeEngine/Renderer/MSDFData.h"
 #include "CoffeeEngine/Renderer/Shader.h"
+#include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 
 #include "CoffeeEngine/Embedded/QuadShader.inl"
+#include "CoffeeEngine/Embedded/TextShader.inl"
 
 #include <array>
 #include <cstddef>
@@ -63,6 +66,8 @@ namespace Coffee {
 
         std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
         uint32_t TextureSlotIndex = 1; // 0 is reserved for white texture
+
+        Ref<Texture2D> FontAtlasTexture;
     };
 
     struct Renderer2DData
@@ -79,6 +84,8 @@ namespace Coffee {
         Ref<VertexBuffer> TextVertexBuffer;
 
         Ref<Shader> QuadShader;
+        Ref<Shader> LineShader;
+        Ref<Shader> TextShader;
 
         Ref<Texture2D> WhiteTexture;
 
@@ -129,11 +136,26 @@ namespace Coffee {
         s_Renderer2DData.QuadVertexArray->SetIndexBuffer(quadIB);
         quadIndices.clear();
 
+        // Text
+        s_Renderer2DData.TextVertexArray = VertexArray::Create();
+
+        s_Renderer2DData.TextVertexBuffer = VertexBuffer::Create(Batch::MaxVertices * sizeof(TextVertex));
+        BufferLayout textLayout = {
+            {ShaderDataType::Vec3, "a_Position"},
+            {ShaderDataType::Vec4, "a_Color"},
+            {ShaderDataType::Vec2, "a_TexCoord"},
+            {ShaderDataType::Vec3, "a_EntityID"}
+        };
+        s_Renderer2DData.TextVertexBuffer->SetLayout(textLayout);
+        s_Renderer2DData.TextVertexArray->AddVertexBuffer(s_Renderer2DData.TextVertexBuffer);
+        s_Renderer2DData.TextVertexArray->SetIndexBuffer(quadIB);
+
         s_Renderer2DData.WhiteTexture = Texture2D::Create(1, 1, ImageFormat::RGBA8);
         uint32_t whiteTextureData = 0xffffffff;
         s_Renderer2DData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
         s_Renderer2DData.QuadShader = CreateRef<Shader>("QuadShader", std::string(quadShaderSource));
+        s_Renderer2DData.TextShader = CreateRef<Shader>("TextShader", std::string(textShaderSource));
     }
 
     void Renderer2D::Render(const RenderTarget& target)
@@ -159,6 +181,16 @@ namespace Coffee {
 
                 s_Renderer2DData.QuadShader->Bind();
                 RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
+            }
+
+            if(batch.TextIndexCount > 0)
+            {
+                s_Renderer2DData.TextVertexBuffer->SetData(batch.TextVertices.data(), batch.TextVertices.size() * sizeof(TextVertex));
+
+                batch.FontAtlasTexture->Bind(0);
+
+                s_Renderer2DData.TextShader->Bind();
+                RendererAPI::DrawIndexed(s_Renderer2DData.TextVertexArray, batch.TextIndexCount);
             }
         }
 
@@ -301,5 +333,140 @@ namespace Coffee {
         }
 
         batch.QuadIndexCount += 6;
+    }
+
+    void Renderer2D::DrawText(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, uint32_t entityID)
+    {
+        if(s_Renderer2DData.Batches.empty())
+        {
+            s_Renderer2DData.Batches.push_back(Batch());
+        }
+
+        Batch& batch = s_Renderer2DData.Batches.back();
+
+        if(batch.TextIndexCount >= Batch::MaxIndices)
+        {
+            s_Renderer2DData.Batches.push_back(Batch());
+            batch = s_Renderer2DData.Batches.back();
+        }
+
+        const auto& fontGeometry = font->GetMSDFData()->FontGeometry;
+        const auto& metrics = fontGeometry.getMetrics();
+        Ref<Texture2D> fontAtlas = font->GetAtlasTexture();
+        
+        // TODO: Skip to the next batch if the font is different
+        batch.FontAtlasTexture = fontAtlas;
+
+        double x = 0.0;
+		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
+		double y = 0.0;
+
+		const float spaceGlyphAdvance = fontGeometry.getGlyph(' ')->getAdvance();
+
+        for (size_t i = 0; i < text.size(); i++)
+		{
+			char character = text[i];
+			if (character == '\r')
+				continue;
+
+			if (character == '\n')
+			{
+				x = 0;
+				y -= fsScale * metrics.lineHeight + textParams.LineSpacing;
+				continue;
+			}
+
+			if (character == ' ')
+			{
+				float advance = spaceGlyphAdvance;
+				if (i < text.size() - 1)
+				{
+					char nextCharacter = text[i + 1];
+					double dAdvance;
+					fontGeometry.getAdvance(dAdvance, character, nextCharacter);
+					advance = (float)dAdvance;
+				}
+
+				x += fsScale * advance + textParams.Kerning;
+				continue;
+			}
+
+			if (character == '\t')
+			{
+				// NOTE(Yan): is this right?
+				x += 4.0f * (fsScale * spaceGlyphAdvance + textParams.Kerning);
+				continue;
+			}
+
+			auto glyph = fontGeometry.getGlyph(character);
+			if (!glyph)
+				glyph = fontGeometry.getGlyph('?');
+			if (!glyph)
+				return;
+
+			double al, ab, ar, at;
+			glyph->getQuadAtlasBounds(al, ab, ar, at);
+			glm::vec2 texCoordMin((float)al, (float)ab);
+			glm::vec2 texCoordMax((float)ar, (float)at);
+
+			double pl, pb, pr, pt;
+			glyph->getQuadPlaneBounds(pl, pb, pr, pt);
+			glm::vec2 quadMin((float)pl, (float)pb);
+			glm::vec2 quadMax((float)pr, (float)pt);
+
+			quadMin *= fsScale, quadMax *= fsScale;
+			quadMin += glm::vec2(x, y);
+			quadMax += glm::vec2(x, y);
+
+			float texelWidth = 1.0f / fontAtlas->GetWidth();
+			float texelHeight = 1.0f / fontAtlas->GetHeight();
+			texCoordMin *= glm::vec2(texelWidth, texelHeight);
+			texCoordMax *= glm::vec2(texelWidth, texelHeight);
+
+            // Convert entityID to vec3
+            uint32_t r = (entityID & 0x000000FF) >> 0;
+            uint32_t g = (entityID & 0x0000FF00) >> 8;
+            uint32_t b = (entityID & 0x00FF0000) >> 16;
+            glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
+
+            batch.TextVertices.push_back({
+                transform * glm::vec4(quadMin, 0.0f, 1.0f),
+                textParams.Color,
+                texCoordMin,
+                entityIDVec3
+            });
+            
+            batch.TextVertices.push_back({
+                transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f),
+                textParams.Color,
+                { texCoordMin.x, texCoordMax.y },
+                entityIDVec3
+            });
+            
+            batch.TextVertices.push_back({
+                transform * glm::vec4(quadMax, 0.0f, 1.0f),
+                textParams.Color,
+                texCoordMax,
+                entityIDVec3
+            });
+            
+            batch.TextVertices.push_back({
+                transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f),
+                textParams.Color,
+                { texCoordMax.x, texCoordMin.y },
+                entityIDVec3
+            });
+            
+            batch.TextIndexCount += 6;
+
+            if (i < text.size() - 1)
+			{
+				double advance = glyph->getAdvance();
+				char nextCharacter = text[i + 1];
+				fontGeometry.getAdvance(advance, character, nextCharacter);
+
+				x += fsScale * advance + textParams.Kerning;
+			}
+        }
     }
 }
