@@ -62,8 +62,8 @@ namespace Coffee {
     void Input::OnRemoveController(ControllerRemoveEvent* c_event)
     {
         // Remove controller by SDL_Gamepad ID
-        auto pred = [&c_event](Ref<Gamepad> gamepad) {
-            return gamepad->getId() == c_event->Controller;
+        auto pred = [&event](const Ref<Gamepad>& gamepad) {
+            return gamepad->getId() == event->Controller;
         };
         erase_if(m_gamepads, pred);
     }
