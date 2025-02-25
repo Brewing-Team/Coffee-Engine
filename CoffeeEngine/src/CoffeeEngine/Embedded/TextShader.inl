@@ -1,7 +1,7 @@
-// QuadShader.inl
+// TextShader.inl
 #pragma once
 
-const char* quadShaderSource = R""(
+const char* textShaderSource = R""(
 #[vertex]
 
 #version 450 core
@@ -9,8 +9,6 @@ const char* quadShaderSource = R""(
 layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec2 aTexCoord;
-layout (location = 3) in float aTexIndex;
-layout (location = 4) in float aTilingFactor;
 layout (location = 5) in vec3 aEntityID;
 
 layout (std140, binding = 0) uniform camera
@@ -24,19 +22,15 @@ struct VertexData
 {
     vec4 Color;
     vec2 TexCoord;
-    float TilingFactor;
 };
 
 layout (location = 0) out VertexData Output;
-layout (location = 3) out flat float TexIndex;
 layout (location = 4) out flat vec3 entityID;
 
 void main()
 {
     Output.Color = aColor;
     Output.TexCoord = aTexCoord;
-    Output.TilingFactor = aTilingFactor;
-    TexIndex = aTexIndex;
     entityID = aEntityID;
 
     gl_Position = projection * view * vec4(aPosition, 1.0);
@@ -52,23 +46,40 @@ struct VertexData
 {
     vec4 Color;
     vec2 TexCoord;
-    float TilingFactor;
 };
 
 layout (location = 0) in VertexData Input;
-layout (location = 3) in flat float TexIndex;
 layout (location = 4) in flat vec3 entityID;
 
-layout (binding = 0) uniform sampler2D uTextures[32];
+layout (binding = 0) uniform sampler2D u_FontAtlas;
+
+float screenPxRange() {
+	const float pxRange = 2.0; // set to distance field's pixel range
+    vec2 unitRange = vec2(pxRange)/vec2(textureSize(u_FontAtlas, 0));
+    vec2 screenTexSize = vec2(1.0)/fwidth(Input.TexCoord);
+    return max(0.5*dot(unitRange, screenTexSize), 1.0);
+}
+
+float median(float r, float g, float b) {
+    return max(min(r, g), min(max(r, g), b));
+}
 
 void main()
 {
-    vec4 color = texture(uTextures[int(TexIndex)], Input.TexCoord * Input.TilingFactor) * Input.Color;
+    vec4 texColor = Input.Color * texture(u_FontAtlas, Input.TexCoord);
 
-    if (color.a < 0.1)
-        discard;
+	vec3 msd = texture(u_FontAtlas, Input.TexCoord).rgb;
+    float sd = median(msd.r, msd.g, msd.b);
+    float screenPxDistance = screenPxRange()*(sd - 0.5);
+    float opacity = clamp(screenPxDistance + 0.5, 0.0, 1.0);
+	if (opacity == 0.0)
+		discard;
 
-    FragColor = color;
+	vec4 bgColor = vec4(0.0);
+    FragColor = mix(bgColor, Input.Color, opacity);
+	if (FragColor.a == 0.0)
+		discard;
+
     EntityID = vec4(entityID, 1.0f);
 }
 )"";

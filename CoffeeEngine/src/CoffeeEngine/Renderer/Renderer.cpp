@@ -56,9 +56,11 @@ namespace Coffee {
             s_RendererData.CameraUniformBuffer->SetData(&cameraData, sizeof(CameraData));
             
             RendererAPI::SetFaceCulling(false);
+            RendererAPI::SetDepthMask(false);
 
             Renderer2D::Render(target);
 
+            RendererAPI::SetDepthMask(true);
             RendererAPI::SetFaceCulling(true);
         }
 

@@ -60,8 +60,11 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     Tracy::TracyClient
     nfd::nfd
     icon_font_cpp_headers
+    msdf-atlas-gen
     ${LUA_LIBRARIES}
 )
+
+option(MSDF_ATLAS_MSDFGEN_EXTERNAL "Use external msdfgen" ON)
 
 # Set this in a profile like (Release + Profile)
 option(TRACY_ENABLE "Enable Tracy Profiler" ON)
@@ -80,6 +83,7 @@ add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/ImGuizmo)
 add_subdirectory(vendor/IconFontCppHeaders)
+add_subdirectory(vendor/msdf-atlas-gen)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=1)

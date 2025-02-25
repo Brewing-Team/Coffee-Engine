@@ -93,17 +93,8 @@ namespace Coffee {
         vertexArray->Bind();
 		vertexArray->GetVertexBuffers()[0]->Bind();
 
-		uint32_t count;
-
-		if(indexCount == 0)
-		{
-			vertexArray->GetIndexBuffer()->Bind();
-			count = vertexArray->GetIndexBuffer()->GetCount();
-		}
-		else
-		{
-			count = indexCount;
-		}
+		uint32_t count = indexCount ? indexCount : vertexArray->GetIndexBuffer()->GetCount();
+		vertexArray->GetIndexBuffer()->Bind();
 		
         glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, nullptr);
     }
