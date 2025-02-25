@@ -90,6 +90,8 @@ namespace Coffee {
         */
         static Ref<Model> Load(const std::filesystem::path& path);
 
+        const Ref<AnimationSystem>& GetAnimationSystem() const { return m_AnimationSystem; };
+
     private:
         /**
          * @brief Processes a mesh from the Assimp mesh and scene.

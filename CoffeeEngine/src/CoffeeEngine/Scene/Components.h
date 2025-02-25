@@ -384,110 +384,13 @@ namespace Coffee {
         }
     };
 
-    struct AudioListenerComponent
-    {
-        uint64_t gameObjectID = -1; ///< The object ID.
-        glm::mat4 transform; ///< The transform of the audio listener.
-        bool toDelete = false; ///< True if the audio listener should be deleted.
+    class AnimatorComponent {
+    public:
+        AnimatorComponent(const std::shared_ptr<AnimationSystem>& animationSystem)
+            : m_AnimationSystem(animationSystem) {}
 
-        AudioListenerComponent() = default;
-
-        AudioListenerComponent(const AudioListenerComponent& other)
-        {
-            *this = other;
-        }
-
-        AudioListenerComponent& operator=(const AudioListenerComponent& other)
-        {
-            if (this != &other)
-            {
-                gameObjectID = other.gameObjectID;
-                transform = other.transform;
-                toDelete = other.toDelete;
-
-                if (!toDelete)
-                    Audio::RegisterAudioListenerComponent(*this);
-            }
-            return *this;
-        }
-
-        template<class Archive>
-        void save(Archive& archive) const
-        {
-            archive(cereal::make_nvp("GameObjectID", gameObjectID),
-                    cereal::make_nvp("Transform", transform)
-            );
-        }
-
-        template<class Archive>
-        void load(Archive& archive)
-        {
-            archive(cereal::make_nvp("GameObjectID", gameObjectID),
-                    cereal::make_nvp("Transform", transform)
-            );
-        }
+        std::shared_ptr<AnimationSystem> m_AnimationSystem;
     };
-
-    struct AudioZoneComponent
-    {
-        uint64_t zoneID = -1; ///< The zone ID.
-        std::string audioBusName; ///< The name of the audio bus.
-        glm::vec3 position = { 0.f, 0.f, 0.f }; ///< The position of the audio zone.
-        float radius = 1.f; ///< The radius of the audio zone.
-
-        AudioZoneComponent() = default;
-
-        AudioZoneComponent(const AudioZoneComponent& other)
-        {
-            *this = other;
-        }
-
-        AudioZoneComponent& operator=(const AudioZoneComponent& other)
-        {
-            if (this != &other)
-            {
-                zoneID = other.zoneID;
-                audioBusName = other.audioBusName;
-                position = other.position;
-                radius = other.radius;
-
-                AudioZone::CreateZone(*this);
-            }
-            return *this;
-        }
-
-        template<class Archive>
-        void save(Archive& archive) const
-        {
-            archive(cereal::make_nvp("ZoneID", zoneID),
-                    cereal::make_nvp("AudioBusName", audioBusName),
-                    cereal::make_nvp("Position", position),
-                    cereal::make_nvp("Radius", radius)
-            );
-        }
-
-        template<class Archive>
-        void load(Archive& archive)
-        {
-            archive(cereal::make_nvp("ZoneID", zoneID),
-                    cereal::make_nvp("AudioBusName", audioBusName),
-                    cereal::make_nvp("Position", position),
-                    cereal::make_nvp("Radius", radius)
-            );
-        }
-    };
-
-    struct RigidbodyComponent {
-        Ref<Rigidbody> rb;
-
-        RigidbodyComponent() = default;
-        RigidbodyComponent(const RigidbodyComponent&) = default;
-        RigidbodyComponent(const RigidBodyConfig& config) {
-            rb = CreateRef<Rigidbody>();
-            rb->cfg = config;
-        }
-    };
-
 }
 
 /** @} */

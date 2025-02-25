@@ -42,10 +42,6 @@ namespace Coffee {
     class Renderer
     {
     public:
-
-        // TEMPORAL - Animation
-        static void Update(float dt) { if (m_AnimationSystem) m_AnimationSystem->Update(dt); }
-
         /**
          * @brief Initializes the renderer.
          */
