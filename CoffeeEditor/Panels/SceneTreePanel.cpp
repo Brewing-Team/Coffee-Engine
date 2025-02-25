@@ -570,11 +570,13 @@ namespace Coffee {
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                if (ImGui::BeginCombo("Animation", animatorComponent.m_AnimationSystem->GetAnimationController()->GetAnimation(animatorComponent.m_AnimationSystem->GetCurrentAnimationIndex())->GetName().c_str()))
+                const char* animationName = animatorComponent.m_AnimationSystem->GetAnimationController()->GetAnimation(animatorComponent.m_AnimationSystem->GetCurrentAnimationIndex())->GetName().c_str();
+
+                if (ImGui::BeginCombo("Animation", animationName))
                 {
                     for (auto& [name, animation] : animatorComponent.m_AnimationSystem->GetAnimationController()->GetAnimationMap())
                     {
-                        if (ImGui::Selectable(name.c_str()))
+                        if (ImGui::Selectable(name.c_str()) && name != animationName)
                         {
                             animatorComponent.m_AnimationSystem->SetCurrentAnimation(name);
                         }

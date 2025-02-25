@@ -9,15 +9,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/sampling_job.h>
+#include <ozz/animation/runtime/blending_job.h>
 
 namespace Coffee {
 
     class AnimationSystem
     {
     public:
-        AnimationSystem()
-        {
-        }
+        AnimationSystem();
         ~AnimationSystem() = default;
 
         void Update(float deltaTime);
@@ -36,6 +35,7 @@ namespace Coffee {
 
     private:
         void SampleAnimation(float deltaTime, const ozz::animation::Animation& animation, const ozz::animation::Skeleton& skeleton, const std::vector<Joint>& joints, std::vector<glm::mat4>& jointMatrices);
+        void BlendAnimations(float deltaTime, const ozz::animation::Skeleton& skeleton, const std::vector<Joint>& joints, std::vector<glm::mat4>& jointMatrices);
 
         void PrintFloat4x4(const ozz::math::Float4x4& matrix);
 
@@ -50,7 +50,13 @@ namespace Coffee {
         Ref<Skeleton> m_Skeleton;
         Ref<AnimationController> m_AnimationController;
         ozz::animation::SamplingJob::Context m_Context;
+        ozz::animation::BlendingJob::Layer m_BlendLayers[2];
+        ozz::animation::BlendingJob m_BlendJob;
         unsigned int m_CurrentAnimation = 0;
+        unsigned int m_NextAnimation = 0;
         float m_AnimationTime = 0.f;
+        float m_BlendTime = 0.f;
+        float m_BlendDuration = 0.25f;
+        bool m_IsBlending = false;
     };
 }
