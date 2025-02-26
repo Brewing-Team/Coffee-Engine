@@ -53,7 +53,7 @@ namespace Coffee {
         static Ref<Texture2D> LoadTexture2D(const std::filesystem::path& path, bool srgb = true, bool cache = true);
 
         template <typename T>
-        static Ref<T> LoadResource(const std::filesystem::path& path)
+        static Ref<T> Load(const std::filesystem::path& path)
         {
             if (HasImportFile(path))
             {
@@ -84,6 +84,24 @@ namespace Coffee {
                 ResourceRegistry::Add(importData.uuid, resource);
             }
         }
+
+        template<typename T>
+        static Ref<T> Load(UUID uuid)
+        {
+            if (uuid == UUID::null)
+                return nullptr;
+
+            if (ResourceRegistry::Exists(uuid))
+            {
+                return ResourceRegistry::Get<T>(uuid);
+            }
+
+            const Ref<T>& resource = s_Importer.Import<T>(uuid);
+
+            ResourceRegistry::Add(uuid, resource);
+            return resource;
+        }
+
 
         // Rename the functions that take a UUID to GetResource<type>FromUUID
         static Ref<Texture2D> LoadTexture2D(UUID uuid);

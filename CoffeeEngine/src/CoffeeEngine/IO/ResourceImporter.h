@@ -77,12 +77,11 @@ namespace Coffee {
 
                 texImportData.uuid = texture->GetUUID();
 
-                std::string cachedName = data.originalPath.filename().string() + std::to_string(texImportData.uuid) + ".tex";
-                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(cachedName);
+                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(texture->GetName(), texImportData.uuid, ResourceType::Texture2D);
 
                 texImportData.cachedPath = cachedFilePath;
 
-                ResourceSaver::SaveToCache(cachedName, texture);
+                ResourceSaver::SaveToCache(texture->GetName(), texImportData.uuid, texture);
             }
         }
 

@@ -50,4 +50,25 @@ namespace Coffee {
         }
     }
 
+    inline std::string GetResourceExtension(ResourceType type)
+    {
+        switch (type)
+        {
+        case ResourceType::Texture2D:
+            return ".tex";
+        case ResourceType::Cubemap:
+            return ".cubemap";
+        case ResourceType::Model:
+            return ".model";
+        case ResourceType::Mesh:
+            return ".mesh";
+        case ResourceType::Shader:
+            return ".shader";
+        case ResourceType::Material:
+            return ".material";
+        default:
+            return ".unknown";
+        }
+    })
+
 }

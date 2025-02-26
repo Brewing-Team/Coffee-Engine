@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "ResourceUtils.h"
+
 #include <filesystem>
 
 namespace Coffee {
@@ -60,6 +62,12 @@ namespace Coffee {
         {
             std::filesystem::create_directories(m_cachePath);
             return m_cachePath / (filename);
+        }
+
+        static std::filesystem::path GetCachedFilePath(const std::string& name, UUID uuid, ResourceType type)
+        {
+            std::filesystem::create_directories(m_cachePath);
+            return m_cachePath / (name + std::to_string(uuid) + GetResourceExtension(type));
         }
 
     private:

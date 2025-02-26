@@ -57,6 +57,13 @@ namespace Coffee
         Save(cacheFilePath, resource);
     }
 
+    void ResourceSaver::SaveToCache(const std::string& name, const UUID& uuid, const Ref<Resource>& resource)
+    {
+        std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(name, uuid, resource->GetType());
+
+        Save(cacheFilePath, resource);
+    }
+
     void ResourceSaver::BinarySerialization(const std::filesystem::path& path, const Ref<Resource>& resource)
     {
         std::ofstream file{path, std::ios::binary};
