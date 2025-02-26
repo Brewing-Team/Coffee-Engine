@@ -7,6 +7,7 @@
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Renderer/Renderer3D.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
@@ -201,6 +202,36 @@ namespace Coffee {
             lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
             Renderer3D::Submit(lightComponent);
+        }
+
+        // Draw 2d entities (like UI)
+        auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
+        for (auto& entity : uiImageView)
+        {
+            auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
+            auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+
+            if (!uiImageComponent.Visible || uiImageComponent.TexturePath.empty())
+                continue;
+
+            // Load texture by default
+            Ref<Texture2D> texture = Texture2D::Load(uiImageComponent.TexturePath);
+
+            if (!texture)
+                continue;
+
+            // Final transformation
+            glm::mat4 transform = transformComponent.GetWorldTransform() *
+                                  glm::scale(glm::mat4(1.0f), { uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f });
+
+            // Draw quad with the texture
+            Renderer2D::DrawQuad(
+                transform,
+                texture,
+                1.0f, // Tiling factor
+                glm::vec4(1.0f), // Tint color
+                (uint32_t)entity
+            );
         }
     }
 
