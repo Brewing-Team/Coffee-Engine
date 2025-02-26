@@ -28,7 +28,8 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 
-namespace Coffee {
+namespace Coffee
+{
     /**
      * @brief Component representing a tag.
      * @ingroup scene
@@ -174,8 +175,8 @@ namespace Coffee {
          */
         const Ref<Mesh>& GetMesh() const { return mesh; }
 
-        private:
-            friend class cereal::access;
+    private:
+        friend class cereal::access;
         /**
          * @brief Serializes the MeshComponent.
          * @tparam Archive The type of the archive.
@@ -216,8 +217,8 @@ namespace Coffee {
         MaterialComponent(Ref<Material> material)
             : material(material) {}
 
-        private:
-            friend class cereal::access;
+    private:
+        friend class cereal::access;
         /**
          * @brief Serializes the MeshComponent.
          * @tparam Archive The type of the archive.
@@ -323,7 +324,6 @@ namespace Coffee {
             archive(cereal::make_nvp("Elements", Elements));
         }
     };
-
     struct UIImageComponent
     {
         std::string TexturePath; // File
@@ -344,7 +344,6 @@ namespace Coffee {
                     cereal::make_nvp("Visible", Visible));
         }
     };
-
 
 
     // Move it to the Component.h

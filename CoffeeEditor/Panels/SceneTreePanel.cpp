@@ -566,9 +566,9 @@ namespace Coffee {
         }
 
         if (entity.HasComponent<UICanvasComponent>())
-    {
-        auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
-        bool isCollapsingHeaderOpen = true;
+        {
+            auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
+            bool isCollapsingHeaderOpen = true;
 
         // Display the UICanvas header in the inspector
         if (ImGui::CollapsingHeader("UI Canvas", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
@@ -616,6 +616,37 @@ namespace Coffee {
                     glm::vec4(1.0f),               // Tint color (white by default)
                     entityID                        // Entity ID for identification
                 );
+            }
+        }
+
+        if (entity.HasComponent<UIImageComponent>())
+        {
+            auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Show Texture Path in inspector
+                ImGui::Text("Texture Path");
+                ImGui::SameLine();
+                ImGui::Text("%s", uiImageComponent.TexturePath.c_str());
+
+                // Show position
+                ImGui::Text("Position");
+                ImGui::DragFloat2("##Position", glm::value_ptr(uiImageComponent.Position), 0.1f);
+
+                // Show size
+                ImGui::Text("Size");
+                ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
+
+                // Visibility enabled or disabled
+                ImGui::Checkbox("Visible", &uiImageComponent.Visible);
+
+
+                if (!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<UIImageComponent>();
+                }
             }
         }
         
@@ -733,7 +764,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component", "Image Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -803,6 +834,12 @@ namespace Coffee {
                         entity.AddComponent<UICanvasComponent>();
                         auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
                         uiCanvasComponent.CanvasTexture = Texture2D::Load("CoffeeEditor/assets/textures/test.png", true);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Image Component")
+                {
+                    if (!entity.HasComponent<UIImageComponent>())
+                        entity.AddComponent<UIImageComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Script Component")
@@ -895,6 +932,13 @@ namespace Coffee {
                 {
                     Entity e = m_Context->CreateEntity("UI Canvas");
                     e.AddComponent<UICanvasComponent>();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Image")
+                {
+                    Entity e = m_Context->CreateEntity("UI Image");
+                    e.AddComponent<UIImageComponent>();
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
