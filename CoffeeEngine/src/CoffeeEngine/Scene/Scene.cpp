@@ -232,6 +232,29 @@ namespace Coffee {
                 glm::vec4(1.0f), // Tint color
                 (uint32_t)entity
             );
+
+            auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
+            for (auto& entity : uiImageView)
+            {
+                auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
+                auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+
+                if (uiImageComponent.Visible && uiImageComponent.Texture)
+                {
+
+                    glm::mat4 transform = transformComponent.GetWorldTransform() *
+                                          glm::scale(glm::mat4(1.0f), { uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f });
+
+
+                    Renderer2D::DrawQuad(
+                        transform,
+                        uiImageComponent.Texture,
+                        1.0f, // Tiling factor
+                        glm::vec4(1.0f), // Tint color
+                        (uint32_t)entity
+                    );
+                }
+            }
         }
     }
 

@@ -326,14 +326,21 @@ namespace Coffee {
 
     struct UIImageComponent
     {
-        std::string TexturePath; // File
-        glm::vec2 Position = {0.0f, 0.0f}; //Screen position
+        std::string TexturePath; // path
+        Ref<Texture2D> Texture;  // texture loaded
+        glm::vec2 Position = {0.0f, 0.0f};
         glm::vec2 Size = {100.0f, 100.0f};
         bool Visible = true;
 
         UIImageComponent() = default;
         UIImageComponent(const std::string& texturePath, const glm::vec2& position, const glm::vec2& size, bool visible)
-            : TexturePath(texturePath), Position(position), Size(size), Visible(visible) {}
+            : TexturePath(texturePath), Position(position), Size(size), Visible(visible)
+        {
+            if (!texturePath.empty())
+            {
+                Texture = Texture2D::Load(texturePath);
+            }
+        }
 
         template<class Archive>
         void serialize(Archive& archive)
