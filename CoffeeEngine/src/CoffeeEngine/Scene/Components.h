@@ -345,7 +345,30 @@ namespace Coffee {
         }
     };
 
+    struct UITextShaderComponent
+    {
+        std::string Text = "Default Text";
+        std::string Font = "DefaultFont.ttf";
+        float FontSize = 24.0f;
+        glm::vec4 Color = {1.0f, 1.0f, 1.0f, 1.0f};
+        glm::vec2 Position = {0.0f, 0.0f}; // Screen Position
+        bool Visible = true;
 
+        UITextShaderComponent() = default;
+        UITextShaderComponent(const std::string& text, const std::string& font, float fontSize, const glm::vec4& color, const glm::vec2& position, bool visible)
+            : Text(text), Font(font), FontSize(fontSize), Color(color), Position(position), Visible(visible) {}
+
+        template<class Archive> 
+        void serialize(Archive& archive)
+        { 
+            archive(cereal::make_nvp("Text", Text), 
+                    cereal::make_nvp("Font", Font),
+                    cereal::make_nvp("FontSize", FontSize), 
+                    cereal::make_nvp("Color", Color),
+                    cereal::make_nvp("Position", Position), 
+                    cereal::make_nvp("Visible", Visible));
+        }
+    };
 
     // Move it to the Component.h
     struct ScriptComponent
