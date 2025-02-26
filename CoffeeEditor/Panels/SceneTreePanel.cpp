@@ -563,6 +563,29 @@ namespace Coffee {
                 }
             }
         }
+
+        if (entity.HasComponent<UICanvasComponent>())
+        {
+            auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("UI Canvas", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Text("UI Elements");
+                for (auto& element : uiCanvasComponent.Elements)
+                {
+                    ImGui::Text("Element: %s", element.Name.c_str());
+                    ImGui::Text("Position: (%.2f, %.2f)", element.Position.x, element.Position.y);
+                    ImGui::Text("Size: (%.2f, %.2f)", element.Size.x, element.Size.y);
+                    ImGui::Checkbox("Visible", &element.Visible);
+                    ImGui::Separator();
+                }
+
+                if (!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<UICanvasComponent>();
+                }
+            }
+        }
         
         if (entity.HasComponent<ScriptComponent>())
         {
@@ -678,7 +701,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -742,6 +765,12 @@ namespace Coffee {
                         entity.AddComponent<CameraComponent>();
                     ImGui::CloseCurrentPopup();
                 }
+                else if (items[item_current] == "UI Canvas Component")
+                {
+                    if (!entity.HasComponent<UICanvasComponent>())
+                        entity.AddComponent<UICanvasComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
                 else if(items[item_current] == "Script Component")
                 {
                     //if(!entity.HasComponent<ScriptComponent>())
@@ -749,6 +778,7 @@ namespace Coffee {
                         // TODO add script component
                     ImGui::CloseCurrentPopup();
                 }
+
                 else
                 {
                     ImGui::CloseCurrentPopup();
@@ -769,7 +799,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = {"Empty", "Camera", "Primitive", "Light"};
+            std::string items[] = {"Empty", "Camera", "Primitive", "Light", "UI Canvas"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -824,6 +854,13 @@ namespace Coffee {
                 {
                     Entity e = m_Context->CreateEntity("Light");
                     e.AddComponent<LightComponent>();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Canvas")
+                {
+                    Entity e = m_Context->CreateEntity("UI Canvas");
+                    e.AddComponent<UICanvasComponent>();
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
