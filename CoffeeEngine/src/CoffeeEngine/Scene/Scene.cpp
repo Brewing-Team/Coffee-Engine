@@ -203,8 +203,28 @@ namespace Coffee {
 
             Renderer3D::Submit(lightComponent);
         }
+        // Render UI elements (UICanvasComponent)
+        auto uiCanvasView = m_Registry.view<UICanvasComponent, TransformComponent>();
+        for (auto& entity : uiCanvasView)
+        {
+            auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
+            auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
 
-        // Draw 2d entities (like UI)
+            if (uiCanvasComponent.CanvasTexture)
+            {
+                // Final transformation
+                glm::mat4 transform = glm::mat4(1.0f);
+                transform = glm::translate(transform, {0.0f, 0.0f, -1.0f});
+                transform = glm::scale(transform, {1280.0f, 720.0f, 1.0f});
+
+                // Draw quad with the canvas texture
+                Renderer2D::DrawQuad(
+                    transform,
+                    Texture2D::Load("assets/textures/Canvas.png")
+                );
+            }
+        }
+        // Render UI elements (UIImageComponent)
         auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
         for (auto& entity : uiImageView)
         {
