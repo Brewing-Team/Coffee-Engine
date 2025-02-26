@@ -46,6 +46,53 @@ namespace Coffee {
             if (Shape) delete Shape;
             // if (MotionState) delete MotionState;
         }
+
+        void SetContactProcessingThreshold(float threshold) {
+            Body->setContactProcessingThreshold(threshold);
+        }
+
+        // Getters
+        glm::vec3 GetPosition() const
+        {
+            btVector3 btPos = Body->getWorldTransform().getOrigin();
+            return glm::vec3(btPos.x(), btPos.y(), btPos.z());
+        }
+
+        glm::vec3 GetRotation() const
+        {
+            btQuaternion btRot = Body->getWorldTransform().getRotation();
+            return glm::vec3(btRot.x(), btRot.y(), btRot.z());
+        }
+
+        // This Functions returns all the forces applied to the rigidbody in all directions
+        glm::vec3 GetDirection() const
+        {
+            btVector3 btDir = Body->getLinearVelocity();
+            return glm::vec3(btDir.x(), btDir.y(), btDir.z());
+        }
+
+        bool isTrigger()
+        {
+            return cfg.shapeConfig.isTrigger;
+        }
+
+        // Setters
+        void SetPosition(const glm::vec3& position);
+        void SetRotation(const glm::vec3& rotation);
+        void setTrigger(bool setTrigger);
+
+        // Functions
+        // Apply a force to the rigidbody: Continuous force
+        void applyForce(const glm::vec3& force) const {
+            Body->applyCentralForce(btVector3(force.x, force.y, force.z));
+        }
+
+        // Apply an impulse to the rigidbody: Instant force
+        void applyImpulse(const glm::vec3& impulse) const
+        {
+            Body->applyCentralImpulse(btVector3(impulse.x, impulse.y, impulse.z));
+        }
+
     };
 
 }

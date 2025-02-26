@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
+#include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Physics/Collider.h"
@@ -188,6 +189,8 @@ namespace Coffee {
         sphereRb.rb->Body = new btRigidBody(sphereRbInfo);
         sphereRb.rb->Body->setRestitution(0.5f);  // Add some bounciness
 
+        sphereRb.rb->SetContactProcessingThreshold(BT_LARGE_FLOAT);
+
         // Add visual meshes
         floorEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
         sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
@@ -329,7 +332,16 @@ namespace Coffee {
         if(sphereEntity)
         {
             auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
+            auto& sphereRb = sphereEntity.GetComponent<RigidbodyComponent>();
             COFFEE_INFO("Sphere position: {0}, {1}, {2}", sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z);
+            COFFEE_INFO("Sphere direction: {0}, {1}, {2}", sphereRb.rb->GetDirection().x, sphereRb.rb->GetDirection().y, sphereRb.rb->GetDirection().z);
+
+
+            // If space is pressed, apply force up
+            if (Input::IsKeyPressed(Key::SPACE))
+            {
+                sphereRb.rb->applyImpulse(glm::vec3(0, 10, 0));
+            }
         }
         // ------------------------- END Physics testing ------------------------
 
