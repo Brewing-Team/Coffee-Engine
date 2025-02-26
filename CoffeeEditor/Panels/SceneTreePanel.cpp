@@ -303,7 +303,6 @@ namespace Coffee {
                     if (!entity.HasComponent<UICanvasComponent>())
                         entity.AddComponent<UICanvasComponent>();
                         auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
-                        uiCanvasComponent.CanvasTexture = Texture2D::Load("assets/textures/test.jpg", true);
                     ImGui::CloseCurrentPopup();
                 }
                 else if (items[item_current] == "Image Component")
@@ -732,43 +731,14 @@ namespace Coffee {
                 ImGui::Separator();
             }
 
-            // Display the canvas texture in the inspector
-            if (uiCanvasComponent.CanvasTexture)
-            {
-                ImGui::Text("Canvas Texture");
-                ImGui::Image((ImTextureID)uiCanvasComponent.CanvasTexture->GetID(), {128, 128});
-            }
-
             // Remove the component if the header is closed
             if (!isCollapsingHeaderOpen)
             {
                 entity.RemoveComponent<UICanvasComponent>();
             }
         }
+    }
 
-        // Render the canvas using Renderer2D::DrawQuad
-        if (uiCanvasComponent.CanvasTexture)
-            {
-                // Get the transform component to calculate the world transformation
-                auto& transformComponent = entity.GetComponent<TransformComponent>();
-                glm::mat4 transform = transformComponent.GetLocalTransform();
-
-                // Get the entity ID using the uint32_t conversion operator
-                uint32_t entityID = static_cast<uint32_t>(entity);
-
-                // Use Renderer2D::DrawQuad to render the canvas texture
-                Renderer2D::DrawQuad(
-                    transform,                      // Transformation matrix for the canvas
-                    uiCanvasComponent.CanvasTexture, // Texture of the canvas
-                    1.0f,                          // Tiling factor (default to 1.0)
-                    glm::vec4(1.0f),               // Tint color (white by default)
-                    entityID                        // Entity ID for identification
-                );
-            }
-        }
-
-
-        
         if (entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();

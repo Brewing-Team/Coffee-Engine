@@ -210,8 +210,6 @@ namespace Coffee {
             auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
             auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
 
-            if (uiCanvasComponent.CanvasTexture)
-            {
                 // Final transformation
                 glm::mat4 transform = glm::mat4(1.0f);
                 transform = glm::translate(transform, {0.0f, 0.0f, -1.0f});
@@ -222,7 +220,6 @@ namespace Coffee {
                     transform,
                     Texture2D::Load("assets/textures/Canvas.png")
                 );
-            }
         }
         // Render UI elements (UIImageComponent)
         auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
