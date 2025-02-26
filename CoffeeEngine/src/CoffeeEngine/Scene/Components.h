@@ -159,11 +159,19 @@ namespace Coffee {
      * @brief Component representing an animator.
      * @ingroup scene
      */
-    class AnimatorComponent {
+    class AnimatorComponent
+    {
     public:
         AnimatorComponent(const std::shared_ptr<AnimationSystem>& animationSystem)
             : m_AnimationSystem(animationSystem) {}
 
+        /**
+         * @brief Gets the animation system.
+         * @return The animation system.
+         */
+        std::shared_ptr<AnimationSystem> GetAnimationSystem() const { return m_AnimationSystem; }
+
+    private:
         std::shared_ptr<AnimationSystem> m_AnimationSystem; ///< The animation system.
     };
 

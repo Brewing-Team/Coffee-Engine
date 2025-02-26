@@ -247,7 +247,7 @@ namespace Coffee {
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-            Ref<AnimationSystem> animation = meshComponent.animator ? meshComponent.animator->m_AnimationSystem : nullptr;
+            Ref<AnimationSystem> animation = meshComponent.animator ? meshComponent.animator->GetAnimationSystem() : nullptr;
             
             //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
             Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, animation});
@@ -258,9 +258,9 @@ namespace Coffee {
         for (auto& entity : animatorView)
         {
             auto& animatorComponent = animatorView.get<AnimatorComponent>(entity);
-            auto& animatorSystem = animatorComponent.m_AnimationSystem;
+            auto animationSystem = animatorComponent.GetAnimationSystem();
 
-            animatorSystem->Update(dt);
+            animationSystem->Update(dt);
         }
 
         //Get all entities with LightComponent and TransformComponent
