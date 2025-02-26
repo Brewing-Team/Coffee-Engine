@@ -322,6 +322,30 @@ namespace Coffee {
             archive(cereal::make_nvp("Elements", Elements));
         }
     };
+
+    struct UIImageComponent
+    {
+        std::string TexturePath; // File
+        glm::vec2 Position = {0.0f, 0.0f}; //Screen position
+        glm::vec2 Size = {100.0f, 100.0f};
+        bool Visible = true;
+
+        UIImageComponent() = default;
+        UIImageComponent(const std::string& texturePath, const glm::vec2& position, const glm::vec2& size, bool visible)
+            : TexturePath(texturePath), Position(position), Size(size), Visible(visible) {}
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("TexturePath", TexturePath),
+                    cereal::make_nvp("Position", Position),
+                    cereal::make_nvp("Size", Size),
+                    cereal::make_nvp("Visible", Visible));
+        }
+    };
+
+
+
     // Move it to the Component.h
     struct ScriptComponent
     {
