@@ -287,10 +287,10 @@ namespace Coffee {
     {
         struct UIElement
         {
-            std::string Name; ///< Nombre del elemento UI.
-            glm::vec2 Position = {0.0f, 0.0f}; ///< Posición en la pantalla.
-            glm::vec2 Size = {100.0f, 50.0f}; ///< Tamaño del elemento.
-            bool Visible = true; ///< Indica si el elemento está visible.
+            std::string Name; // UI Name element
+            glm::vec2 Position = {0.0f, 0.0f}; // Position
+            glm::vec2 Size = {100.0f, 50.0f}; // Size
+            bool Visible = true;
 
             UIElement() = default;
             UIElement(const std::string& name, const glm::vec2& position, const glm::vec2& size, bool visible)
@@ -306,7 +306,7 @@ namespace Coffee {
             }
         };
 
-        std::vector<UIElement> Elements; ///< Lista de elementos UI dentro del canvas.
+        std::vector<UIElement> Elements; // UI Element list
 
         UICanvasComponent() = default;
         UICanvasComponent(const UICanvasComponent&) = default;
