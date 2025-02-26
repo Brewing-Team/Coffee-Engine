@@ -120,10 +120,68 @@ namespace Coffee {
 
         static void OnEvent(Event& e);
 
-	    private:
-	    static std::vector<InputBinding> m_bindings;
+	private:
+        /**
+	     * @brief Handles controller connection events
+	     * @param cEvent The event data to process
+	     */
+        static void OnAddController(const ControllerAddEvent* cEvent);
+	    /**
+         * @brief Handles controller disconnection events
+         * @param cEvent The event data to process
+         */
+	    static void OnRemoveController(ControllerRemoveEvent* cEvent);
+	    /**
+        * @brief Handles button press events from controllers.
+        *
+        * @param e The button press event to process.
+        */
+        static void OnButtonPressed(ButtonPressEvent& e);
+	    /**
+         * @brief Handles button release events from controllers.
+         *
+         * @param e The button release event to process.
+         */
+        static void OnButtonReleased(ButtonReleaseEvent& e);
+	    /**
+         * @brief Handles axis movement events from controllers.
+         *
+         * @param e The axis move event to process.
+         */
+        static void OnAxisMoved(AxisMoveEvent& e);
+	    /**
+         * @brief Handles key press events from the keyboard.
+         *
+         * @param event The key pressed event to process.
+         */
+	    static void OnKeyPressed(const KeyPressedEvent& event);
+	    /**
+         * @brief Handles key release events from the keyboard.
+         *
+         * @param event The key released event to process.
+         */
+	    static void OnKeyReleased(const KeyReleasedEvent& event);
+	    /**
+         * @brief Handles mouse button press events.
+         *
+         * @param event The mouse button pressed event to process.
+         */
+	    static void OnMouseButtonPressed(const MouseButtonPressedEvent& event);
+	    /**
+         * @brief Handles mouse button release events.
+         *
+         * @param event The mouse button released event to process.
+         */
+	    static void OnMouseButtonReleased(const MouseButtonReleasedEvent& event);
+	    /**
+         * @brief Handles mouse movement events.
+         *
+         * @param event The mouse moved event to process.
+         */
+	    static void OnMouseMoved(const MouseMovedEvent& event);
 
-	    static Ref<Gamepad> m_activeController;
+        static std::vector<InputBinding> m_bindings;
+
 	    static std::vector<Ref<Gamepad>> m_gamepads;
 	};
     /** @} */
