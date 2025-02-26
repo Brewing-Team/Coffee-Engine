@@ -9,9 +9,11 @@ namespace Coffee {
 
     struct CameraData
     {
-        glm::mat4 projection = glm::mat4(1.0f); ///< The projection matrix.
-        glm::mat4 view = glm::mat4(1.0f); ///< The view matrix.
-        glm::vec3 position = {0.0, 0.0, 0.0}; ///< The position of the camera.
+        glm::mat4 transform;
+        Ref<Mesh> mesh;
+        Ref<Material> material;
+        uint32_t entityID;
+        Ref<AnimationSystem> animation;
     };
 
     struct RendererData
@@ -58,10 +60,6 @@ namespace Coffee {
         static std::vector<RenderTarget>& GetRenderTargets() { return s_RendererData.RenderTargets; }
 
         static RendererSettings& GetRenderSettings() { return s_RenderSettings; }
-
-    public:
-        // TEMPORAL - Animation
-        static Ref<AnimationSystem> m_AnimationSystem;
 
     private:
         static RendererData s_RendererData; ///< Renderer data.

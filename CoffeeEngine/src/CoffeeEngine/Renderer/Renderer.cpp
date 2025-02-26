@@ -10,9 +10,6 @@
 
 namespace Coffee {
 
-    // TEMPORAL - Animation
-    Ref<AnimationSystem> Renderer::m_AnimationSystem;
-
     static bool s_viewportResized = false;
     static uint32_t s_viewportWidth = 0, s_viewportHeight = 0;
 
@@ -110,9 +107,10 @@ namespace Coffee {
 
             shader->Bind();
 
-            // TEMPORAL - Animation
-            if (m_AnimationSystem)
-                m_AnimationSystem->SetBoneTransformations(shader);
+            if (command.animation)
+                command.animation->SetBoneTransformations(shader);
+            else
+                shader->setBool("animated", false);
 
             shader->setMat4("model", command.transform);
             shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(command.transform))));

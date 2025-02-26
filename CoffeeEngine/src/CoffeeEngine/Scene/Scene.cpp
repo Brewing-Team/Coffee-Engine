@@ -247,9 +247,10 @@ namespace Coffee {
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+            Ref<AnimationSystem> animation = meshComponent.animator ? meshComponent.animator->m_AnimationSystem : nullptr;
             
             //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
-            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
+            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, animation});
         }
 
         auto animatorView = m_Registry.view<AnimatorComponent>();
@@ -527,14 +528,14 @@ namespace Coffee {
     }
 
     // Is possible that this function will be moved to the SceneTreePanel but for now it will stay here
-    void AddModelToTheSceneTree(Scene* scene, Ref<Model> model)
+    void AddModelToTheSceneTree(Scene* scene, Ref<Model> model, AnimatorComponent* animatorComponent)
     {
         static Entity parent;
 
         Entity modelEntity = scene->CreateEntity(model->GetName());
 
         if (model->GetAnimationSystem())
-            modelEntity.AddComponent<AnimatorComponent>(model->GetAnimationSystem());
+            animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetAnimationSystem());
 
         if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
         modelEntity.GetComponent<TransformComponent>().SetLocalTransform(model->GetTransform());
@@ -547,6 +548,9 @@ namespace Coffee {
             Entity entity = hasMultipleMeshes ? scene->CreateEntity(mesh->GetName()) : modelEntity;
 
             entity.AddComponent<MeshComponent>(mesh);
+
+            if (animatorComponent)
+                entity.GetComponent<MeshComponent>().animator = animatorComponent;
 
             if(mesh->GetMaterial())
             {
@@ -562,7 +566,7 @@ namespace Coffee {
         for(auto& c : model->GetChildren())
         {
             parent = modelEntity;
-            AddModelToTheSceneTree(scene, c);
+            AddModelToTheSceneTree(scene, c, animatorComponent);
         }
     }
 

@@ -6,9 +6,6 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 
-// TEMPORAL - Animation
-#include "Renderer.h"
-
 #include <assimp/Importer.hpp>
 #include <assimp/material.h>
 #include <assimp/mesh.h>
@@ -55,24 +52,25 @@ namespace Coffee {
         std::vector<Joint> joints;
         std::map<std::string, int> boneMap;
 
-        if(!ExtractSkeleton(scene, joints, boneMap, *this))
-            std::cerr << "Error extracting skeleton" << std::endl;
 
-        if(!ExtractAnimations(scene, boneMap, *this))
-            std::cerr << "Error extracting animations" << std::endl;
-
-        if (m_AnimationSystem && m_AnimationSystem->GetSkeleton() && m_AnimationSystem->GetAnimationController()
-            && m_AnimationSystem->GetAnimationController()->GetAnimationCount() > 0)
+        if (scene->HasAnimations())
         {
-            std::cout << "AnimationsCount: " << m_AnimationSystem->GetAnimationController()->GetAnimationCount() << ", BonesCount: " << m_AnimationSystem->GetSkeleton()->GetNumJoints() << std::endl;
+            if(!ExtractSkeleton(scene, joints, boneMap, *this))
+                std::cerr << "Error extracting skeleton" << std::endl;
 
-            for (const auto& [name, index] : m_AnimationSystem->GetAnimationController()->GetAnimationMap())
+            if(!ExtractAnimations(scene, boneMap, *this))
+                std::cerr << "Error extracting animations" << std::endl;
+
+            if (m_AnimationSystem && m_AnimationSystem->GetSkeleton() && m_AnimationSystem->GetAnimationController()
+            && m_AnimationSystem->GetAnimationController()->GetAnimationCount() > 0)
             {
-                std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationSystem->GetAnimationController()->GetAnimation(index)->GetDuration() << std::endl;
-            }
+                std::cout << "AnimationsCount: " << m_AnimationSystem->GetAnimationController()->GetAnimationCount() << ", BonesCount: " << m_AnimationSystem->GetSkeleton()->GetNumJoints() << std::endl;
 
-            // TEMPORAL - Animation
-            Renderer::m_AnimationSystem = m_AnimationSystem;
+                for (const auto& [name, index] : m_AnimationSystem->GetAnimationController()->GetAnimationMap())
+                {
+                    std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationSystem->GetAnimationController()->GetAnimation(index)->GetDuration() << std::endl;
+                }
+            }
         }
 
         processNode(scene->mRootNode, scene, joints, boneMap);
@@ -340,12 +338,6 @@ namespace Coffee {
 
     bool Model::ExtractAnimations(const aiScene* scene, const std::map<std::string, int>& boneMap, Model& model)
     {
-        if (!scene->HasAnimations())
-        {
-            std::cerr << "No animations found in this model" << std::endl;
-            return false;
-        }
-
         auto animController = CreateRef<AnimationController>();
 
         for (unsigned int animIndex = 0; animIndex < scene->mNumAnimations; ++animIndex)
