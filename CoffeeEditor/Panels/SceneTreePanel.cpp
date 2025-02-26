@@ -306,7 +306,7 @@ namespace Coffee {
                         uiCanvasComponent.CanvasTexture = Texture2D::Load("assets/textures/test.jpg", true);
                     ImGui::CloseCurrentPopup();
                 }
-                else if (items[item_current] == "UI Image Component")
+                else if (items[item_current] == "Image Component")
                 {
                     if (!entity.HasComponent<UIImageComponent>())
                         entity.AddComponent<UIImageComponent>();
@@ -380,11 +380,7 @@ namespace Coffee {
                 // visibility
                 ImGui::Checkbox("Visible", &uiImageComponent.Visible);
 
-                // delete component if user presses button
-                if (!isCollapsingHeaderOpen)
-                {
-                    entity.RemoveComponent<UIImageComponent>();
-                }
+
             }
         }
 
