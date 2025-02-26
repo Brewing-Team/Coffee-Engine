@@ -218,6 +218,117 @@ namespace Coffee {
 
             ImGui::Separator();
         }
+        float buttonWidth = 200.0f;
+        float buttonHeight = 32.0f;
+        float availableWidth = ImGui::GetContentRegionAvail().x;
+        float cursorPosX = (availableWidth - buttonWidth) * 0.5f;
+        ImGui::SetCursorPosX(cursorPosX);
+
+        if(ImGui::Button("Add Component", {buttonWidth, buttonHeight}))
+        {
+            ImGui::OpenPopup("Add Component...");
+        }
+
+        if(ImGui::BeginPopupModal("Add Component..."))
+        {
+            static char buffer[256] = "";
+            ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
+
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component", "Image Component" };
+            static int item_current = 1;
+
+            if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
+            {
+                for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+                {
+                    const bool is_selected = (item_current == n);
+                    if (ImGui::Selectable(items[n].c_str(), is_selected))
+                        item_current = n;
+
+                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndListBox();
+            }
+
+            ImGui::Text("Description");
+            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur.");
+
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Add Component"))
+            {
+                if(items[item_current] == "Tag Component")
+                {
+                    if(!entity.HasComponent<TagComponent>())
+                        entity.AddComponent<TagComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Transform Component")
+                {
+                    if(!entity.HasComponent<TransformComponent>())
+                        entity.AddComponent<TransformComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Mesh Component")
+                {
+                    if(!entity.HasComponent<MeshComponent>())
+                        entity.AddComponent<MeshComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Material Component")
+                {
+                    if(!entity.HasComponent<MaterialComponent>())
+                        entity.AddComponent<MaterialComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Light Component")
+                {
+                    if(!entity.HasComponent<LightComponent>())
+                        entity.AddComponent<LightComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Camera Component")
+                {
+                    if(!entity.HasComponent<CameraComponent>())
+                        entity.AddComponent<CameraComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Canvas Component")
+                {
+                    if (!entity.HasComponent<UICanvasComponent>())
+                        entity.AddComponent<UICanvasComponent>();
+                        auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
+                        uiCanvasComponent.CanvasTexture = Texture2D::Load("CoffeeEditor/assets/textures/test.png", true);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Image Component")
+                {
+                    if (!entity.HasComponent<UIImageComponent>())
+                        entity.AddComponent<UIImageComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Script Component")
+                {
+                    //if(!entity.HasComponent<ScriptComponent>())
+                        //entity.AddComponent<ScriptComponent>();
+                        // TODO add script component
+                    ImGui::CloseCurrentPopup();
+                }
+
+                else
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+            }
+
+            ImGui::EndPopup();
+        }
+
 
         if(entity.HasComponent<TransformComponent>())
         {
@@ -748,116 +859,7 @@ namespace Coffee {
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
-        float buttonWidth = 200.0f;
-        float buttonHeight = 32.0f;
-        float availableWidth = ImGui::GetContentRegionAvail().x;
-        float cursorPosX = (availableWidth - buttonWidth) * 0.5f;
-        ImGui::SetCursorPosX(cursorPosX);
 
-        if(ImGui::Button("Add Component", {buttonWidth, buttonHeight}))
-        {
-            ImGui::OpenPopup("Add Component...");
-        }
-
-        if(ImGui::BeginPopupModal("Add Component..."))
-        {
-            static char buffer[256] = "";
-            ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
-
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component", "Image Component" };
-            static int item_current = 1;
-
-            if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
-            {
-                for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-                {
-                    const bool is_selected = (item_current == n);
-                    if (ImGui::Selectable(items[n].c_str(), is_selected))
-                        item_current = n;
-
-                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndListBox();
-            }
-
-            ImGui::Text("Description");
-            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur.");
-
-            if (ImGui::Button("Cancel"))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            if(ImGui::Button("Add Component"))
-            {
-                if(items[item_current] == "Tag Component")
-                {
-                    if(!entity.HasComponent<TagComponent>())
-                        entity.AddComponent<TagComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Transform Component")
-                {
-                    if(!entity.HasComponent<TransformComponent>())
-                        entity.AddComponent<TransformComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Mesh Component")
-                {
-                    if(!entity.HasComponent<MeshComponent>())
-                        entity.AddComponent<MeshComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Material Component")
-                {
-                    if(!entity.HasComponent<MaterialComponent>())
-                        entity.AddComponent<MaterialComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Light Component")
-                {
-                    if(!entity.HasComponent<LightComponent>())
-                        entity.AddComponent<LightComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Camera Component")
-                {
-                    if(!entity.HasComponent<CameraComponent>())
-                        entity.AddComponent<CameraComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Canvas Component")
-                {
-                    if (!entity.HasComponent<UICanvasComponent>())
-                        entity.AddComponent<UICanvasComponent>();
-                        auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
-                        uiCanvasComponent.CanvasTexture = Texture2D::Load("CoffeeEditor/assets/textures/test.png", true);
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Image Component")
-                {
-                    if (!entity.HasComponent<UIImageComponent>())
-                        entity.AddComponent<UIImageComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Script Component")
-                {
-                    //if(!entity.HasComponent<ScriptComponent>())
-                        //entity.AddComponent<ScriptComponent>();
-                        // TODO add script component
-                    ImGui::CloseCurrentPopup();
-                }
-
-                else
-                {
-                    ImGui::CloseCurrentPopup();
-                }
-            }
-
-            ImGui::EndPopup();
-        }
     }
 }
 
