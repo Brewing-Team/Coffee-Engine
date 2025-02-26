@@ -303,10 +303,10 @@ namespace Coffee {
                     if (!entity.HasComponent<UICanvasComponent>())
                         entity.AddComponent<UICanvasComponent>();
                         auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
-                        uiCanvasComponent.CanvasTexture = Texture2D::Load("CoffeeEditor/assets/textures/test.png", true);
+                        uiCanvasComponent.CanvasTexture = Texture2D::Load("assets/textures/test.jpg", true);
                     ImGui::CloseCurrentPopup();
                 }
-                else if (items[item_current] == "Image Component")
+                else if (items[item_current] == "UI Image Component")
                 {
                     if (!entity.HasComponent<UIImageComponent>())
                         entity.AddComponent<UIImageComponent>();
@@ -344,6 +344,47 @@ namespace Coffee {
 
                 ImGui::Text("Scale");
                 ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale),  0.1f);
+            }
+        }
+        if (entity.HasComponent<UIImageComponent>())
+        {
+            auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Show Path
+                ImGui::Text("Texture Path");
+                ImGui::SameLine();
+                ImGui::Text("%s", uiImageComponent.TexturePath.c_str());
+
+                // Selct texture wiht a button
+                if (ImGui::Button("Select Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        uiImageComponent.TexturePath = path;
+                        uiImageComponent.Texture = Texture2D::Load(path);
+                    }
+                }
+
+                // pstion
+                ImGui::Text("Position");
+                ImGui::DragFloat2("##Position", glm::value_ptr(uiImageComponent.Position), 0.1f);
+
+                // size
+                ImGui::Text("Size");
+                ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
+
+                // visibility
+                ImGui::Checkbox("Visible", &uiImageComponent.Visible);
+
+                // delete component if user presses button
+                if (!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<UIImageComponent>();
+                }
             }
         }
 
@@ -730,36 +771,7 @@ namespace Coffee {
             }
         }
 
-        if (entity.HasComponent<UIImageComponent>())
-        {
-            auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
-            bool isCollapsingHeaderOpen = true;
 
-            if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                // Show Texture Path in inspector
-                ImGui::Text("Texture Path");
-                ImGui::SameLine();
-                ImGui::Text("%s", uiImageComponent.TexturePath.c_str());
-
-                // Show position
-                ImGui::Text("Position");
-                ImGui::DragFloat2("##Position", glm::value_ptr(uiImageComponent.Position), 0.1f);
-
-                // Show size
-                ImGui::Text("Size");
-                ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
-
-                // Visibility enabled or disabled
-                ImGui::Checkbox("Visible", &uiImageComponent.Visible);
-
-
-                if (!isCollapsingHeaderOpen)
-                {
-                    entity.RemoveComponent<UIImageComponent>();
-                }
-            }
-        }
         
         if (entity.HasComponent<ScriptComponent>())
         {
@@ -937,13 +949,13 @@ namespace Coffee {
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
-                else if (items[item_current] == "UI Image")
+                /*else if (items[item_current] == "UI Image")
                 {
                     Entity e = m_Context->CreateEntity("UI Image");
                     e.AddComponent<UIImageComponent>();
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
-                }
+                }*/
                 else
                 {
                     ImGui::CloseCurrentPopup();
