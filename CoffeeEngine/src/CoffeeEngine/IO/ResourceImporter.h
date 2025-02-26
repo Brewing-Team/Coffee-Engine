@@ -7,12 +7,17 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/ImportData.h"
+#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceFormat.h"
+#include "CoffeeEngine/IO/ResourceSaver.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/IO/CacheManager.h"
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
+#include <filesystem>
 #include <string>
 
 namespace Coffee {
@@ -33,6 +38,54 @@ namespace Coffee {
     class ResourceImporter
     {
     public:
+
+
+        template<typename T>
+        Ref<T> Import(const ImportData& importData)
+        {
+            ImportData& data = const_cast<ImportData&>(importData);
+
+            if (data.IsValid())
+            {
+                // Check if the resource is cached
+                if(std::filesystem::exists(data.cachedPath))
+                {
+                    const Ref<Resource>& resource = LoadFromCache(data.cachedPath, ResourceFormat::Binary);
+                    return std::static_pointer_cast<T>(resource); //FIX: This cast should not be done because LoadFromCache should return a template
+                }
+                // If the resource is not cached, import it
+                else
+                {
+                    // This is a placeholder implementation this should be done for each type of resource and should be done in a separate function
+
+                    // TODO: Think about passing the import data to the resource constructor!!! Can simplify a lot of things
+
+
+                    Texture2DImportData& texImportData = static_cast<Texture2DImportData&>(data);
+                    Ref<Texture2D> texture = CreateRef<Texture2D>(texImportData.originalPath, texImportData.sRGB);
+                    texture->SetUUID(texImportData.uuid);
+
+                    ResourceSaver::SaveToCache(texImportData.cachedPath, texture);
+                }
+            }
+            else
+            {
+                Texture2DImportData texImportData;
+                texImportData.originalPath = data.originalPath;
+
+                Ref<Texture2D> texture = CreateRef<Texture2D>(texImportData.originalPath);
+
+                texImportData.uuid = texture->GetUUID();
+
+                std::string cachedName = data.originalPath.filename().string() + std::to_string(texImportData.uuid) + ".tex";
+                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(cachedName);
+
+                texImportData.cachedPath = cachedFilePath;
+
+                ResourceSaver::SaveToCache(cachedName, texture);
+            }
+        }
+
         /**
          * @brief Imports a texture from a given file path.
          * @param path The file path of the texture to import.

@@ -360,25 +360,21 @@ namespace Coffee {
         }
     }
 
-    void ResourceLoader::GenerateImportFile(const std::filesystem::path& path)
+    void ResourceLoader::SaveImportData(const ImportData& importData)
     {
-        std::filesystem::path importFilePath = path;
+        std::filesystem::path importFilePath = importData.originalPath;
         importFilePath.replace_extension(".import");
 
-        if(!std::filesystem::exists(importFilePath))
-        {
-            ImportData importData;
-            importData.uuid = UUID();
-            std::filesystem::path relativePath = std::filesystem::relative(path, s_WorkingDirectory);
-            importData.originalPath = relativePath;
+        ImportData data = importData;
+        data.originalPath = std::filesystem::relative(importData.originalPath, s_WorkingDirectory);
 
-            std::ofstream importFile(importFilePath);
-            cereal::JSONOutputArchive archive(importFile);
-            archive(CEREAL_NVP(importData));
-        }
+        std::ofstream importFile(importFilePath);
+        cereal::JSONOutputArchive archive(importFile);
+        archive(CEREAL_NVP(data));
     }
 
-    ImportData ResourceLoader::GetImportData(const std::filesystem::path& path)
+    // TODO: Think if the path should be the .import path or the resource and replace the extension inside the function
+    ImportData ResourceLoader::LoadImportData(const std::filesystem::path& path)
     {
         ImportData importData;
 
@@ -398,17 +394,5 @@ namespace Coffee {
         importData.originalPath = s_WorkingDirectory / importData.originalPath;
 
         return importData;
-    }
-
-    UUID ResourceLoader::GetUUIDFromImportFile(const std::filesystem::path& path)
-    {
-        ImportData importData = GetImportData(path);
-        return importData.uuid;
-    }
-
-    std::filesystem::path ResourceLoader::GetPathFromImportFile(const std::filesystem::path& path)
-    {
-        ImportData importData = GetImportData(path);
-        return importData.originalPath;
     }
 }

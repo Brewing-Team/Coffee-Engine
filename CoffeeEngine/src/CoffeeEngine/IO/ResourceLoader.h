@@ -57,7 +57,7 @@ namespace Coffee {
         {
             if (HasImportFile(path))
             {
-                ImportData importData = GetImportData(path);
+                ImportData importData = LoadImportData(path);
 
                 if (ResourceRegistry::Exists(importData.uuid))
                 {
@@ -65,18 +65,22 @@ namespace Coffee {
                 }
 
                 const Ref<T>& resource = s_Importer.Import<T>(importData);
-                resource->SetUUID(importData.uuid);
-                resource->SetName(path.filename().string());
+                // TODO: Move this to the importer passing it to the constructor
+                /* resource->SetUUID(importData.uuid);
+                resource->SetName(path.filename().string()); */
 
                 ResourceRegistry::Add(importData.uuid, resource);
                 return resource;
             }
             else
             {
-                const Ref<T>& resource = s_Importer.Import<T>(path);
+                ImportData dummyImportData;
+                dummyImportData.originalPath = path;
+
+                const Ref<T>& resource = s_Importer.Import<T>(dummyImportData);
                 const ImportData& importData = resource->GetImportData();
 
-                GenerateImportFile(importData);
+                SaveImportData(importData);
                 ResourceRegistry::Add(importData.uuid, resource);
             }
         }
@@ -111,8 +115,8 @@ namespace Coffee {
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
     private:
         
-        static void GenerateImportFile(const std::filesystem::path& path);
-        static ImportData GetImportData(const std::filesystem::path& path);
+        static void SaveImportData(const ImportData& importData);
+        static ImportData LoadImportData(const std::filesystem::path& path);
         static bool HasImportFile(const std::filesystem::path& path)
         {
             std::filesystem::path importFilePath = path;
@@ -121,8 +125,6 @@ namespace Coffee {
             return std::filesystem::exists(importFilePath);
         }
 
-        static UUID GetUUIDFromImportFile(const std::filesystem::path& path);
-        static std::filesystem::path GetPathFromImportFile(const std::filesystem::path& path);
     private:
         static std::filesystem::path s_WorkingDirectory; ///< The working directory of the resource loader.
         static ResourceImporter s_Importer; ///< The importer used to load resources.

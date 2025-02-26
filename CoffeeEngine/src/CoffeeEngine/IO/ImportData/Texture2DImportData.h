@@ -10,6 +10,8 @@ namespace Coffee
     {
         bool sRGB = true;
 
+        Texture2DImportData() : ImportData(ResourceType::Texture2D) {}
+
         template <typename Archive>
         void serialize(Archive& archive)
         {
