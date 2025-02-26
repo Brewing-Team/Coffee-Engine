@@ -307,6 +307,7 @@ namespace Coffee {
         };
 
         std::vector<UIElement> Elements; // UI Element list
+        Ref<Texture2D> CanvasTexture;
 
         UICanvasComponent() = default;
         UICanvasComponent(const UICanvasComponent&) = default;

@@ -13,6 +13,7 @@
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
@@ -565,25 +566,56 @@ namespace Coffee {
         }
 
         if (entity.HasComponent<UICanvasComponent>())
-        {
-            auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
-            bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("UI Canvas", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                ImGui::Text("UI Elements");
-                for (auto& element : uiCanvasComponent.Elements)
-                {
-                    ImGui::Text("Element: %s", element.Name.c_str());
-                    ImGui::Text("Position: (%.2f, %.2f)", element.Position.x, element.Position.y);
-                    ImGui::Text("Size: (%.2f, %.2f)", element.Size.x, element.Size.y);
-                    ImGui::Checkbox("Visible", &element.Visible);
-                    ImGui::Separator();
-                }
+    {
+        auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
+        bool isCollapsingHeaderOpen = true;
 
-                if (!isCollapsingHeaderOpen)
-                {
-                    entity.RemoveComponent<UICanvasComponent>();
-                }
+        // Display the UICanvas header in the inspector
+        if (ImGui::CollapsingHeader("UI Canvas", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            // Display the UI elements of the canvas
+            ImGui::Text("UI Elements");
+            for (auto& element : uiCanvasComponent.Elements)
+            {
+                ImGui::Text("Element: %s", element.Name.c_str());
+                ImGui::Text("Position: (%.2f, %.2f)", element.Position.x, element.Position.y);
+                ImGui::Text("Size: (%.2f, %.2f)", element.Size.x, element.Size.y);
+                ImGui::Checkbox("Visible", &element.Visible);
+                ImGui::Separator();
+            }
+
+            // Display the canvas texture in the inspector
+            if (uiCanvasComponent.CanvasTexture)
+            {
+                ImGui::Text("Canvas Texture");
+                ImGui::Image((ImTextureID)uiCanvasComponent.CanvasTexture->GetID(), {128, 128});
+            }
+
+            // Remove the component if the header is closed
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<UICanvasComponent>();
+            }
+        }
+
+        // Render the canvas using Renderer2D::DrawQuad
+        if (uiCanvasComponent.CanvasTexture)
+            {
+                // Get the transform component to calculate the world transformation
+                auto& transformComponent = entity.GetComponent<TransformComponent>();
+                glm::mat4 transform = transformComponent.GetLocalTransform();
+
+                // Get the entity ID using the uint32_t conversion operator
+                uint32_t entityID = static_cast<uint32_t>(entity);
+
+                // Use Renderer2D::DrawQuad to render the canvas texture
+                Renderer2D::DrawQuad(
+                    transform,                      // Transformation matrix for the canvas
+                    uiCanvasComponent.CanvasTexture, // Texture of the canvas
+                    1.0f,                          // Tiling factor (default to 1.0)
+                    glm::vec4(1.0f),               // Tint color (white by default)
+                    entityID                        // Entity ID for identification
+                );
             }
         }
         
@@ -701,7 +733,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component"};
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -769,6 +801,8 @@ namespace Coffee {
                 {
                     if (!entity.HasComponent<UICanvasComponent>())
                         entity.AddComponent<UICanvasComponent>();
+                        auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
+                        uiCanvasComponent.CanvasTexture = Texture2D::Load("CoffeeEditor/assets/textures/test.png", true);
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Script Component")
