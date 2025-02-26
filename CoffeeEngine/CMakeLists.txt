@@ -66,6 +66,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
 
 option(MSDF_ATLAS_MSDFGEN_EXTERNAL "Use external msdfgen" ON)
 
+if(WIN32)
+    option(MSDF_ATLAS_DYNAMIC_RUNTIME "Link dynamic runtime library instead of static" ON)
+endif()
+
 # Set this in a profile like (Release + Profile)
 option(TRACY_ENABLE "Enable Tracy Profiler" ON)
 option(TRACY_ON_DEMAND "Enable Tracy on-demand mode" OFF)
