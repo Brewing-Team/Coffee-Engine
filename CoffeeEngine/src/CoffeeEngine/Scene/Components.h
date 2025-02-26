@@ -283,7 +283,45 @@ namespace Coffee {
             archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
         }
     };
-    
+    struct UICanvasComponent
+    {
+        struct UIElement
+        {
+            std::string Name; ///< Nombre del elemento UI.
+            glm::vec2 Position = {0.0f, 0.0f}; ///< Posición en la pantalla.
+            glm::vec2 Size = {100.0f, 50.0f}; ///< Tamaño del elemento.
+            bool Visible = true; ///< Indica si el elemento está visible.
+
+            UIElement() = default;
+            UIElement(const std::string& name, const glm::vec2& position, const glm::vec2& size, bool visible)
+                : Name(name), Position(position), Size(size), Visible(visible) {}
+
+            template<class Archive>
+            void serialize(Archive& archive)
+            {
+                archive(cereal::make_nvp("Name", Name),
+                        cereal::make_nvp("Position", Position),
+                        cereal::make_nvp("Size", Size),
+                        cereal::make_nvp("Visible", Visible));
+            }
+        };
+
+        std::vector<UIElement> Elements; ///< Lista de elementos UI dentro del canvas.
+
+        UICanvasComponent() = default;
+        UICanvasComponent(const UICanvasComponent&) = default;
+
+        void AddElement(const UIElement& element)
+        {
+            Elements.push_back(element);
+        }
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Elements", Elements));
+        }
+    };
     // Move it to the Component.h
     struct ScriptComponent
     {
