@@ -434,14 +434,13 @@ namespace Coffee {
 
     void Scene::OnExitRuntime()
     {
-        // TODO remove temporal code to reset bodies positions
         auto view = m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : view) {
             auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb && rb.rb->Body) {
                 physicsWorld.removeRigidBody(rb.rb->Body);
 
-                // Reset transform
+                // TODO remove temporal code to reset bodies positions
                 Entity e{entity, this};
                 if (e.GetComponent<TagComponent>().Tag == "Sphere") {
                     transform.Position = {0.0f, 5.0f, 0.0f}; // Reset to initial position
@@ -460,6 +459,9 @@ namespace Coffee {
                 rb.rb->Body->setLinearVelocity(btVector3(0,0,0));
                 rb.rb->Body->setAngularVelocity(btVector3(0,0,0));
                 rb.rb->Body->clearForces();
+
+                // Re-add the rigidbody to the physics world
+                physicsWorld.addRigidBody(rb.rb->Body);
             }
         }
     }

@@ -64,18 +64,18 @@ namespace Coffee {
             glm::quat orientation(rotation.w(), rotation.x(), rotation.y(), rotation.z());
 
             if (shape->getShapeType() == BOX_SHAPE_PROXYTYPE) {
-                const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
+                const auto* boxShape = dynamic_cast<const btBoxShape*>(shape);
                 btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
                 glm::vec3 size((halfExtents.x() + margin) * 2.0f, (halfExtents.y() + margin) * 2.0f, (halfExtents.z() + margin) * 2.0f);
                 DebugRenderer::DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
             } else if (shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
-                const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
-                float radius = sphereShape->getRadius() + margin;
+                const auto* sphereShape = dynamic_cast<const btSphereShape*>(shape);
+                const float radius = sphereShape->getRadius() + margin;
                 DebugRenderer::DrawSphere(position, radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
             } else if (shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
-                const btCapsuleShape* capsuleShape = static_cast<const btCapsuleShape*>(shape);
-                float radius = capsuleShape->getRadius() + margin;
-                float height = capsuleShape->getHalfHeight() * 2.0f + margin;
+                const auto* capsuleShape = dynamic_cast<const btCapsuleShape*>(shape);
+                const float radius = capsuleShape->getRadius() + margin;
+                const float height = capsuleShape->getHalfHeight() * 2.0f + margin;
                 DebugRenderer::DrawBox(position, orientation, glm::vec3(radius * 2.0f, height, radius * 2.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
             } else {
                 // Handle other shape types if needed
