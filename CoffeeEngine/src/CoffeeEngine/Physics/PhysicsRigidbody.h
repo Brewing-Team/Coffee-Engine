@@ -86,12 +86,14 @@ namespace Coffee {
         // Functions
         // Apply a force to the rigidbody: Continuous force
         void applyForce(const glm::vec3& force) const {
+            Body->activate(true); // Activate the rigidbody in case it's sleeping
             Body->applyCentralForce(btVector3(force.x, force.y, force.z));
         }
 
         // Apply an impulse to the rigidbody: Instant force
         void applyImpulse(const glm::vec3& impulse) const
         {
+            Body->activate(true); // Activate the rigidbody in case it's sleeping
             Body->applyCentralImpulse(btVector3(impulse.x, impulse.y, impulse.z));
         }
 

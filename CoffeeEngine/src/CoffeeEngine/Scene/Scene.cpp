@@ -188,6 +188,7 @@ namespace Coffee {
         );
         sphereRb.rb->Body = new btRigidBody(sphereRbInfo);
         sphereRb.rb->Body->setRestitution(0.5f);  // Add some bounciness
+        sphereRb.rb->Body->setFriction(0.5f);     // Add some friction
 
         sphereRb.rb->SetContactProcessingThreshold(BT_LARGE_FLOAT);
 
@@ -335,6 +336,7 @@ namespace Coffee {
             auto& sphereRb = sphereEntity.GetComponent<RigidbodyComponent>();
             COFFEE_INFO("Sphere position: {0}, {1}, {2}", sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z);
             COFFEE_INFO("Sphere direction: {0}, {1}, {2}", sphereRb.rb->GetDirection().x, sphereRb.rb->GetDirection().y, sphereRb.rb->GetDirection().z);
+            COFFEE_INFO("Sphere is active: {0}", sphereRb.rb->Body->isActive());
 
             if (Input::IsKeyPressed(Key::SPACE))
             {
