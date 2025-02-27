@@ -265,9 +265,8 @@ namespace Coffee {
             uiTextComponent.font = Font::GetDefault();
         }
 
-        glm::mat4 transform = transformComponent.GetWorldTransform() *
-                              glm::translate(glm::mat4(1.0f), {uiTextComponent.Position.x, uiTextComponent.Position.y, 1.0f}) *
-                              glm::scale(glm::mat4(1.0f), glm::vec3(uiTextComponent.FontSize));
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(uiTextComponent.Position.x, uiTextComponent.Position.y, 0.0f)) *
+                       glm::scale(glm::mat4(1.0f), glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
 
         Renderer2D::DrawText(
             uiTextComponent.Text,

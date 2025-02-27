@@ -20,7 +20,6 @@ namespace Coffee {
 
             // Verificar si la textura ya está en el caché
             if (m_TextureCache.find(key) != m_TextureCache.end()) {
-                COFFEE_INFO("Texture {} found in cache.", path.string());
                 return m_TextureCache[key];
             }
 
