@@ -20,6 +20,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include "CoffeeEngine/Scripting/Script.h"
 #include "CoffeeEngine/Scripting/ScriptManager.h"
+#include "CoffeeEngine/Renderer/Font.h"
 #include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 
@@ -351,7 +352,33 @@ namespace Coffee {
         }
     };
 
+    struct UITextComponent
+    {
+        std::string Text = "Default Text";
+        std::string FontPath = "assets/fonts/lucide.ttf";
+        Ref<Font> Font;
+        glm::vec2 Position = {0.0f, 0.0f};
+        float Size = 24.0f;
+        glm::vec4 Color = {1.0f, 1.0f, 1.0f, 1.0f};
+        bool Visible = true;
 
+        UITextComponent() = default;
+        UITextComponent(const std::string& text, const std::string& fontPath, const glm::vec2 position, float size, const glm::vec4 color, bool visible)
+            : Text(text), FontPath(fontPath), Position(position), Size(size), Color(color), Visible(visible)
+        {
+            Font = Font::GetDefault();
+        }
+
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Text", Text), 
+                    cereal::make_nvp("FontPath", FontPath),
+                    cereal::make_nvp("Position", Position), 
+                    cereal::make_nvp("Size", Size),
+                    cereal::make_nvp("Color", Color), 
+                    cereal::make_nvp("Visible", Visible));
+        }
+    };
 
     // Move it to the Component.h
     struct ScriptComponent

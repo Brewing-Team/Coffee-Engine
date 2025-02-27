@@ -273,6 +273,35 @@ namespace Coffee {
                 }
             }
         }
+        // Render UI elements (UITextComponent)
+        auto uiTextView = m_Registry.view<UITextComponent, TransformComponent>();
+        for (auto& entity : uiTextView)
+        {
+            auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
+            auto& transformComponent = uiTextView.get<TransformComponent>(entity);
+
+            if (!uiTextComponent.Visible || uiTextComponent.Text.empty())
+                continue;
+
+            if (!uiTextComponent.Font)
+            {
+                uiTextComponent.Font = Font::GetDefault();
+            }
+
+            if (!uiTextComponent.Font)
+                continue;
+
+            glm::mat4 transform = transformComponent.GetWorldTransform() *
+                                  glm::translate(glm::mat4(1.0f), {uiTextComponent.Position.x, uiTextComponent.Position.y, 0.0f});
+
+            Renderer2D::DrawText(
+                uiTextComponent.Text, 
+                uiTextComponent.Font, 
+                transform,
+                {uiTextComponent.Color, 0.0f, 0.0f},
+                (uint32_t)entity
+            );
+        }
     }
 
     void Scene::OnUpdateRuntime(float dt)
