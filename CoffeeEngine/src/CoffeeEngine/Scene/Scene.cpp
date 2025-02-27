@@ -166,7 +166,6 @@ namespace Coffee {
     m_SceneTree->Update();
 
     Renderer::GetCurrentRenderTarget()->SetCamera(camera, glm::inverse(camera.GetViewMatrix()));
-
     // TEST ------------------------------
     m_Octree.DebugDraw();
 
@@ -200,22 +199,28 @@ namespace Coffee {
     }
 
     // Render UI elements (UICanvasComponent)
-    auto uiCanvasView = m_Registry.view<UICanvasComponent, TransformComponent>();
-    for (auto& entity : uiCanvasView) {
-        auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
-        auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
+        auto uiCanvasView = m_Registry.view<UICanvasComponent, TransformComponent>();
+        for (auto& entity : uiCanvasView) {
+            auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
+            auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
 
-        // Final transformation
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, {0.0f, 0.0f, -1.0f});
-        transform = glm::scale(transform, {1280.0f, 720.0f, 1.0f});
+            // Get the size of the editor window
+            auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
 
-        // Draw quad with the canvas texture
-        Renderer2D::DrawQuad(
-            transform,
-            Texture2D::Load("assets/textures/Canvas.png")
-        );
-    }
+            // Calculate the center of the window
+            glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+
+            // Calculate the transformation to center the canvas and scale it to the window size
+            glm::mat4 transform = glm::mat4(1.0f);
+            transform = glm::translate(transform, glm::vec3(center, 0.0f)); // Move to the center of the window
+            transform = glm::scale(transform, glm::vec3(windowSize.x, windowSize.y, 1.0f)); // Scale to match the window size
+
+            // Draw the quad with the canvas texture
+            Renderer2D::DrawQuad(
+                transform,
+                Texture2D::Load("assets/textures/Canvas.png") // Ensure this texture exists
+            );
+        }
 
     // Render UI elements (UIImageComponent)
     auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
@@ -237,9 +242,15 @@ namespace Coffee {
         if (!texture)
             continue;
 
-        // Final transformation
-        glm::mat4 transform = transformComponent.GetWorldTransform() *
-                              glm::scale(glm::mat4(1.0f), { uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f });
+        // Get the size of the editor window
+        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+
+        // Calculate the center of the window
+        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+
+        // Calculate the transformation to center the image
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)); // Move to the center of the window
+        transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f)); // Scale to match the image size
 
         // Draw quad with the texture
         Renderer2D::DrawQuad(
@@ -265,8 +276,15 @@ namespace Coffee {
             uiTextComponent.font = Font::GetDefault();
         }
 
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(uiTextComponent.Position.x, uiTextComponent.Position.y, 0.0f)) *
-                       glm::scale(glm::mat4(1.0f), glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
+        // Get the size of the editor window
+        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+
+        // Calculate the center of the window
+        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+
+        // Calculate the transformation to center the text
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)); // Move to the center of the window
+        transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f)); // Scale to match the font size
 
         Renderer2D::DrawText(
             uiTextComponent.Text,
