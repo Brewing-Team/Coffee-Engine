@@ -160,149 +160,124 @@ namespace Coffee {
         }
     }
 
-    void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
-    {
-        ZoneScoped;
+    void Scene::OnUpdateEditor(EditorCamera& camera, float dt) {
+    ZoneScoped;
 
-        m_SceneTree->Update();
+    m_SceneTree->Update();
 
-        Renderer::GetCurrentRenderTarget()->SetCamera(camera, glm::inverse(camera.GetViewMatrix()));
+    Renderer::GetCurrentRenderTarget()->SetCamera(camera, glm::inverse(camera.GetViewMatrix()));
 
-        // TEST ------------------------------
-        m_Octree.DebugDraw();
+    // TEST ------------------------------
+    m_Octree.DebugDraw();
 
-        // Get all entities with ModelComponent and TransformComponent
-        auto view = m_Registry.view<MeshComponent, TransformComponent>();
+    // Get all entities with ModelComponent and TransformComponent
+    auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
-        // Loop through each entity with the specified components
-        for (auto& entity : view)
-        {
-            // Get the ModelComponent and TransformComponent for the current entity
-            auto& meshComponent = view.get<MeshComponent>(entity);
-            auto& transformComponent = view.get<TransformComponent>(entity);
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+    // Loop through each entity with the specified components
+    for (auto& entity : view) {
+        auto& meshComponent = view.get<MeshComponent>(entity);
+        auto& transformComponent = view.get<TransformComponent>(entity);
+        auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
 
-            Ref<Mesh> mesh = meshComponent.GetMesh();
-            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-            
-            //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
-            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
-        }
+        Ref<Mesh> mesh = meshComponent.GetMesh();
+        Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
-        //Get all entities with LightComponent and TransformComponent
-        auto lightView = m_Registry.view<LightComponent, TransformComponent>();
-
-        //Loop through each entity with the specified components
-        for(auto& entity : lightView)
-        {
-            auto& lightComponent = lightView.get<LightComponent>(entity);
-            auto& transformComponent = lightView.get<TransformComponent>(entity);
-
-            lightComponent.Position = transformComponent.GetWorldTransform()[3];
-            lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
-
-            Renderer3D::Submit(lightComponent);
-        }
-        // Render UI elements (UICanvasComponent)
-        auto uiCanvasView = m_Registry.view<UICanvasComponent, TransformComponent>();
-        for (auto& entity : uiCanvasView)
-        {
-            auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
-            auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
-
-                // Final transformation
-                glm::mat4 transform = glm::mat4(1.0f);
-                transform = glm::translate(transform, {0.0f, 0.0f, -1.0f});
-                transform = glm::scale(transform, {1280.0f, 720.0f, 1.0f});
-
-                // Draw quad with the canvas texture
-                Renderer2D::DrawQuad(
-                    transform,
-                    Texture2D::Load("assets/textures/Canvas.png")
-                );
-        }
-        // Render UI elements (UIImageComponent)
-        auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
-        for (auto& entity : uiImageView)
-        {
-            auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
-            auto& transformComponent = uiImageView.get<TransformComponent>(entity);
-
-            if (!uiImageComponent.Visible || uiImageComponent.TexturePath.empty())
-                continue;
-
-            // Load texture by default
-            Ref<Texture2D> texture = Texture2D::Load(uiImageComponent.TexturePath);
-
-            if (!texture)
-                continue;
-
-            // Final transformation
-            glm::mat4 transform = transformComponent.GetWorldTransform() *
-                                  glm::scale(glm::mat4(1.0f), { uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f });
-
-            // Draw quad with the texture
-            Renderer2D::DrawQuad(
-                transform,
-                texture,
-                1.0f, // Tiling factor
-                glm::vec4(1.0f), // Tint color
-                (uint32_t)entity
-            );
-
-            auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
-            for (auto& entity : uiImageView)
-            {
-                auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
-                auto& transformComponent = uiImageView.get<TransformComponent>(entity);
-
-                if (uiImageComponent.Visible && uiImageComponent.Texture)
-                {
-
-                    glm::mat4 transform = transformComponent.GetWorldTransform() *
-                                          glm::scale(glm::mat4(1.0f), { uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f });
-
-
-                    Renderer2D::DrawQuad(
-                        transform,
-                        uiImageComponent.Texture,
-                        1.0f, // Tiling factor
-                        glm::vec4(1.0f), // Tint color
-                        (uint32_t)entity
-                    );
-                }
-            }
-        }
-        // Render UI elements (UITextComponent)
-        auto uiTextView = m_Registry.view<UITextComponent, TransformComponent>();
-        for (auto& entity : uiTextView)
-        {
-            auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
-            auto& transformComponent = uiTextView.get<TransformComponent>(entity);
-
-            if (!uiTextComponent.Visible || uiTextComponent.Text.empty())
-                continue;
-
-            // Load default font
-            if (!uiTextComponent.font)
-            {
-                uiTextComponent.font = Font::GetDefault();
-            }
-
-            glm::mat4 transform = transformComponent.GetWorldTransform() *
-                                  glm::translate(glm::mat4(1.0f), {uiTextComponent.Position.x, uiTextComponent.Position.y, 1.0f}) *
-                                  glm::scale(glm::mat4(1.0f), glm::vec3(uiTextComponent.FontSize));
-
-
-            Renderer2D::DrawText(
-                uiTextComponent.Text, 
-                uiTextComponent.font,
-                transform,
-                {uiTextComponent.Color, 0.0f, 0.0f}, // Text color
-                (uint32_t)entity
-            );
-        }
+        Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
     }
+
+    // Get all entities with LightComponent and TransformComponent
+    auto lightView = m_Registry.view<LightComponent, TransformComponent>();
+
+    // Loop through each entity with the specified components
+    for (auto& entity : lightView) {
+        auto& lightComponent = lightView.get<LightComponent>(entity);
+        auto& transformComponent = lightView.get<TransformComponent>(entity);
+
+        lightComponent.Position = transformComponent.GetWorldTransform()[3];
+        lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
+
+        Renderer3D::Submit(lightComponent);
+    }
+
+    // Render UI elements (UICanvasComponent)
+    auto uiCanvasView = m_Registry.view<UICanvasComponent, TransformComponent>();
+    for (auto& entity : uiCanvasView) {
+        auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
+        auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
+
+        // Final transformation
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, {0.0f, 0.0f, -1.0f});
+        transform = glm::scale(transform, {1280.0f, 720.0f, 1.0f});
+
+        // Draw quad with the canvas texture
+        Renderer2D::DrawQuad(
+            transform,
+            Texture2D::Load("assets/textures/Canvas.png")
+        );
+    }
+
+    // Render UI elements (UIImageComponent)
+    auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
+    for (auto& entity : uiImageView) {
+        auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
+        auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+
+        if (!uiImageComponent.Visible || uiImageComponent.TexturePath.empty())
+            continue;
+
+        // Check if the texture is already loaded
+        if (m_TextureCache.find(uiImageComponent.TexturePath) == m_TextureCache.end()) {
+            // Load texture and store it in the cache
+            m_TextureCache[uiImageComponent.TexturePath] = Texture2D::Load(uiImageComponent.TexturePath);
+        }
+
+        Ref<Texture2D> texture = m_TextureCache[uiImageComponent.TexturePath];
+
+        if (!texture)
+            continue;
+
+        // Final transformation
+        glm::mat4 transform = transformComponent.GetWorldTransform() *
+                              glm::scale(glm::mat4(1.0f), { uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f });
+
+        // Draw quad with the texture
+        Renderer2D::DrawQuad(
+            transform,
+            texture,
+            1.0f, // Tiling factor
+            glm::vec4(1.0f), // Tint color
+            (uint32_t)entity
+        );
+    }
+
+    // Render UI elements (UITextComponent)
+    auto uiTextView = m_Registry.view<UITextComponent, TransformComponent>();
+    for (auto& entity : uiTextView) {
+        auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
+        auto& transformComponent = uiTextView.get<TransformComponent>(entity);
+
+        if (!uiTextComponent.Visible || uiTextComponent.Text.empty())
+            continue;
+
+        // Load default font
+        if (!uiTextComponent.font) {
+            uiTextComponent.font = Font::GetDefault();
+        }
+
+        glm::mat4 transform = transformComponent.GetWorldTransform() *
+                              glm::translate(glm::mat4(1.0f), {uiTextComponent.Position.x, uiTextComponent.Position.y, 1.0f}) *
+                              glm::scale(glm::mat4(1.0f), glm::vec3(uiTextComponent.FontSize));
+
+        Renderer2D::DrawText(
+            uiTextComponent.Text,
+            uiTextComponent.font,
+            transform,
+            {uiTextComponent.Color, 0.0f, 0.0f}, // Text color
+            (uint32_t)entity
+        );
+    }
+}
 
     void Scene::OnUpdateRuntime(float dt)
     {

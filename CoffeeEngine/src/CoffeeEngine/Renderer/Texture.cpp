@@ -1,4 +1,5 @@
 #include "CoffeeEngine/Renderer/Texture.h"
+#include "TextureCache.cpp"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/Resource.h"
@@ -230,9 +231,8 @@ namespace Coffee {
         glGenerateTextureMipmap(m_textureID);
     }
 
-    Ref<Texture2D> Texture2D::Load(const std::filesystem::path& path, bool srgb)
-    {
-        return ResourceLoader::LoadTexture2D(path, srgb);
+    Ref<Texture2D> Texture2D::Load(const std::filesystem::path& path, bool srgb) {
+        return TextureCache::GetInstance().LoadTexture(path, srgb);
     }
 
     Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)

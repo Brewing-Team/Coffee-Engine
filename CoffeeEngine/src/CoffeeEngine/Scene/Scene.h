@@ -114,6 +114,7 @@ namespace Coffee {
         Scope<SceneTree> m_SceneTree;
         Octree<Ref<Mesh>> m_Octree;
 
+        std::unordered_map<std::string, Ref<Texture2D>> m_TextureCache; // texture cache
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
 
