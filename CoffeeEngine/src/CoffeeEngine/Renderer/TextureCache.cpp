@@ -3,6 +3,7 @@
 #include "Texture.h"
 #include <memory>
 
+//this makes that the texture isn't loaded multiple times
 namespace Coffee {
     class TextureCache {
     private:
