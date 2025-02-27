@@ -26,8 +26,7 @@
 #include "CoffeeEngine/Physics/Collider.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include "CoffeeEngine/Project/Project.h"
-
+#include <CoffeeEngine/Physics/CollisionCallback.h>
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
 
@@ -377,7 +376,9 @@ namespace Coffee {
             std::string relativePath;
             ScriptingLanguage language;
 
-            archive(cereal::make_nvp("ScriptPath", relativePath), cereal::make_nvp("Language", language));
+    struct RigidbodyComponent {
+        Ref<Rigidbody> rb;
+        CollisionCallback callback;
 
             if (!relativePath.empty())
             {

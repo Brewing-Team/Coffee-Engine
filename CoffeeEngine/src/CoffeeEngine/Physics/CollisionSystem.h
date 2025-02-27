@@ -1,20 +1,31 @@
-//
-// Created by mdoradom on 24/02/25.
-//
-
 #pragma once
 
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
+#include "CoffeeEngine/Scene/Entity.h"
+#include <btBulletDynamicsCommon.h>
+#include <unordered_set>
+#include <utility>
 #include <btBulletDynamicsCommon.h>
 
 namespace Coffee {
 
-    class PhysicsWorld;
+    // Helper struct to hash collision pair
+    struct PairHash {
+        template <class T1, class T2>
+        std::size_t operator()(const std::pair<T1, T2>& p) const {
+            return std::hash<T1>{}(p.first) ^ std::hash<T2>{}(p.second);
+        }
+    };
 
     class CollisionSystem {
     public:
-        static void checkCollisions(const PhysicsWorld& world) ;
+        static void Initialize(Scene* scene);
+        static void checkCollisions(const PhysicsWorld& world);
+
+    private:
+        static Scene* s_Scene;
+        static std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> s_ActiveCollisions;
     };
 
 }

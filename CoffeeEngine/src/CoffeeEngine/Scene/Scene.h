@@ -129,6 +129,7 @@ namespace Coffee {
         friend class Entity;
         friend class SceneTree;
         friend class SceneTreePanel;
+        friend class CollisionSystem;
 
         // TODO REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!
         friend class EditorLayer;

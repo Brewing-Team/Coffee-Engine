@@ -6,6 +6,8 @@
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/CollisionCallback.h"
+#include "CoffeeEngine/Physics/CollisionSystem.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
@@ -129,6 +131,9 @@ namespace Coffee {
 
         // ------------------------------ TEMPORAL ------------------------------
         // --------------------------- Physics testing --------------------------
+
+        CollisionSystem::Initialize(this);
+
         // Create floor (static box)
         // Create floor entity
         Entity floorEntity = CreateEntity("Floor");
@@ -195,6 +200,30 @@ namespace Coffee {
         // Add visual meshes
         floorEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
         sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+
+        // Add callback components
+        floorRb.rb->Body->setUserPointer((void*)(size_t)((entt::entity)floorEntity));
+        sphereRb.rb->Body->setUserPointer((void*)(size_t)((entt::entity)sphereEntity));
+
+        floorRb.callback.OnCollisionEnter([](CollisionInfo& info) {
+            COFFEE_INFO("Floor collision enter with: {}", info.entityB.GetComponent<TagComponent>().Tag);
+        });
+        floorRb.callback.OnCollisionStay([](CollisionInfo& info) {
+            COFFEE_INFO("Floor collision stay with: {}", info.entityB.GetComponent<TagComponent>().Tag);
+        });
+        floorRb.callback.OnCollisionExit([](CollisionInfo& info) {
+            COFFEE_INFO("Floor collision exit with: {}", info.entityB.GetComponent<TagComponent>().Tag);
+        });
+
+        sphereRb.callback.OnCollisionEnter([](CollisionInfo& info) {
+            COFFEE_INFO("Sphere collision enter with: {}", info.entityA.GetComponent<TagComponent>().Tag);
+        });
+        sphereRb.callback.OnCollisionStay([](CollisionInfo& info) {
+            COFFEE_INFO("Sphere collision stay with: {}", info.entityA.GetComponent<TagComponent>().Tag);
+        });
+        sphereRb.callback.OnCollisionExit([](CollisionInfo& info) {
+            COFFEE_INFO("Sphere collision exit with: {}", info.entityA.GetComponent<TagComponent>().Tag);
+        });
 
         // Add rigidbodies to physics world
         physicsWorld.addRigidBody(floorRb.rb->Body);
