@@ -242,15 +242,8 @@ namespace Coffee {
         if (!texture)
             continue;
 
-        // Get the size of the editor window
-        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
-
-        // Calculate the center of the window
-        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
-        // Calculate the transformation to center the image
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)); // Move to the center of the window
-        transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f)); // Scale to match the image size
+        glm::mat4 transform = transformComponent.GetWorldTransform();
+        transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
 
         // Draw quad with the texture
         Renderer2D::DrawQuad(
@@ -276,15 +269,8 @@ namespace Coffee {
             uiTextComponent.font = Font::GetDefault();
         }
 
-        // Get the size of the editor window
-        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
-
-        // Calculate the center of the window
-        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
-        // Calculate the transformation to center the text
-        glm::mat4 transform = glm::translate(glm::mat4(1.0f), glm::vec3(center, 0.0f)); // Move to the center of the window
-        transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f)); // Scale to match the font size
+        glm::mat4 transform = transformComponent.GetWorldTransform();
+        transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
 
         Renderer2D::DrawText(
             uiTextComponent.Text,
