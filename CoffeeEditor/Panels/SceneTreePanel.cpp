@@ -234,7 +234,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component", "Image Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component", "Image Component", "Text Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -311,6 +311,12 @@ namespace Coffee {
                         entity.AddComponent<UIImageComponent>();
                     ImGui::CloseCurrentPopup();
                 }
+                else if (items[item_current] == "Text Component")
+                {
+                    if (!entity.HasComponent<UITextComponent>())
+                        entity.AddComponent<UITextComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
                 else if(items[item_current] == "Script Component")
                 {
                     //if(!entity.HasComponent<ScriptComponent>())
@@ -380,6 +386,60 @@ namespace Coffee {
                 ImGui::Checkbox("Visible", &uiImageComponent.Visible);
 
 
+            }
+        }
+        if (entity.HasComponent<UITextComponent>())
+        {
+            auto& uiTextComponent = entity.GetComponent<UITextComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Text", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Show text content
+                ImGui::Text("Text Content");
+                char buffer[256];
+                memset(buffer, 0, sizeof(buffer));
+                strncpy(buffer, uiTextComponent.Text.c_str(), sizeof(buffer) - 1);
+
+                if (ImGui::InputTextMultiline("##Text", buffer, sizeof(buffer)))
+                {
+                    uiTextComponent.Text = std::string(buffer);
+                }
+
+                // Select font with a button
+                ImGui::Text("Font Path");
+                ImGui::SameLine();
+                ImGui::Text("%s", uiTextComponent.FontPath.c_str());
+
+                if (ImGui::Button("Select Font"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        uiTextComponent.FontPath = path;
+                        uiTextComponent.Font = std::make_shared<Font>(path);
+                    }
+                }
+                // If there is no font, use default
+                if (!uiTextComponent.Font)
+                {
+                    uiTextComponent.Font = Font::GetDefault();
+                }
+
+                // position
+                ImGui::Text("Position");
+                ImGui::DragFloat2("##Position", glm::value_ptr(uiTextComponent.Position), 0.1f);
+
+                // size
+                ImGui::Text("Font Size");
+                ImGui::DragFloat("##FontSize", &uiTextComponent.FontSize, 0.1f, 5.0f, 100.0f);
+
+                // color
+                ImGui::Text("Text Color");
+                ImGui::ColorEdit4("##TextColor", glm::value_ptr(uiTextComponent.Color));
+
+                // visibility
+                ImGui::Checkbox("Visible", &uiTextComponent.Visible);
             }
         }
 
