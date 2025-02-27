@@ -31,6 +31,8 @@ namespace Coffee {
         return glmMat;
     }
 
+    static std::unordered_map<std::string, UUID> s_ModelMeshesUUIDs;
+
     Model::Model(const std::filesystem::path& path)
         : Resource(ResourceType::Model)
     {
@@ -77,6 +79,22 @@ namespace Coffee {
 
         if (m_AnimationSystem && m_AnimationSystem->GetSkeleton())
             m_AnimationSystem->GetSkeleton()->SetJoints(joints);
+    }
+
+    Model::Model(ModelImportData& importData)
+    {
+        if(importData.IsValid())
+        {
+            s_ModelMeshesUUIDs = importData.meshUUIDs;
+            Model(importData.originalPath);
+            m_UUID = importData.uuid;
+        }
+        else
+        {
+            Model(importData.originalPath);
+            importData.uuid = m_UUID;
+            importData.meshUUIDs = s_ModelMeshesUUIDs;
+        }
     }
 
     Ref<Model> Model::Load(const std::filesystem::path& path)

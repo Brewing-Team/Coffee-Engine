@@ -8,32 +8,6 @@
 
 namespace Coffee
 {
-    ResourceFormat GetResourceSaveFormatFromType(ResourceType type)
-    {
-        switch (type)
-        {
-        case Coffee::ResourceType::Unknown:
-            break;
-        case Coffee::ResourceType::Texture2D:
-            return ResourceFormat::Binary;
-            break;
-        case ResourceType::Cubemap:
-            return ResourceFormat::Binary;
-            break;
-        case Coffee::ResourceType::Model:
-            return ResourceFormat::Binary;
-            break;
-        case Coffee::ResourceType::Mesh:
-            return ResourceFormat::Binary;
-            break;
-        case Coffee::ResourceType::Shader:
-            break;
-        default:
-            return ResourceFormat::Binary;
-            break;
-        }
-    }
-
     void ResourceSaver::Save(const std::filesystem::path& path, const Ref<Resource>& resource)
     {
         ResourceFormat format = GetResourceSaveFormatFromType(resource->GetType());

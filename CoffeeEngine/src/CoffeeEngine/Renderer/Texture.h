@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 
@@ -81,6 +82,7 @@ namespace Coffee {
         Texture2D(const TextureProperties& properties);
         Texture2D(uint32_t width, uint32_t height, ImageFormat imageFormat);
         Texture2D(const std::filesystem::path& path, bool srgb = true);
+        Texture2D(Texture2DImportData& importData);
         ~Texture2D();
 
         void Bind(uint32_t slot) override;

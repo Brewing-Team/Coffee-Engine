@@ -162,6 +162,21 @@ namespace Coffee {
         }
     }
 
+    Texture2D::Texture2D(Texture2DImportData& importData)
+    {
+        if(importData.IsValid())
+        {
+            Texture2D(importData.originalPath, importData.sRGB);
+            m_UUID = importData.uuid;
+        }
+        else
+        {
+            Texture2D(importData.originalPath);
+            importData.uuid = m_UUID;
+            importData.sRGB = m_Properties.srgb;
+        }
+    }
+
     Texture2D::~Texture2D()
     {
         ZoneScoped;

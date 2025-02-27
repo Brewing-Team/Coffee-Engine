@@ -50,8 +50,8 @@ namespace Coffee {
                 // Check if the resource is cached
                 if(std::filesystem::exists(data.cachedPath))
                 {
-                    const Ref<Resource>& resource = LoadFromCache(data.cachedPath, ResourceFormat::Binary);
-                    return std::static_pointer_cast<T>(resource); //FIX: This cast should not be done because LoadFromCache should return a template
+                    const Ref<T>& resource = LoadFromCache(data.cachedPath, data.type);
+                    return resource;
                 }
                 // If the resource is not cached, import it
                 else
@@ -60,28 +60,54 @@ namespace Coffee {
 
                     // TODO: Think about passing the import data to the resource constructor!!! Can simplify a lot of things
 
+                    Ref<T> resource = CreateRef<T>(data);
 
-                    Texture2DImportData& texImportData = static_cast<Texture2DImportData&>(data);
-                    Ref<Texture2D> texture = CreateRef<Texture2D>(texImportData.originalPath, texImportData.sRGB);
-                    texture->SetUUID(texImportData.uuid);
-
-                    ResourceSaver::SaveToCache(texImportData.cachedPath, texture);
+                    ResourceSaver::SaveToCache(data.cachedPath, resource);
                 }
             }
             else
             {
-                Texture2DImportData texImportData;
-                texImportData.originalPath = data.originalPath;
+                Ref<Texture2D> texture = CreateRef<Texture2D>(data);
 
-                Ref<Texture2D> texture = CreateRef<Texture2D>(texImportData.originalPath);
+                data.uuid = texture->GetUUID();
 
-                texImportData.uuid = texture->GetUUID();
+                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(texture->GetName(), data.uuid, ResourceType::Texture2D);
 
-                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(texture->GetName(), texImportData.uuid, ResourceType::Texture2D);
+                data.cachedPath = cachedFilePath;
 
-                texImportData.cachedPath = cachedFilePath;
+                ResourceSaver::SaveToCache(texture->GetName(), data.uuid, texture);
+            }
+        }
 
-                ResourceSaver::SaveToCache(texture->GetName(), texImportData.uuid, texture);
+        template<typename T>
+        Ref<T> ImportEmbeddedResource(const ImportData& importData)
+        {
+            ImportData& data = const_cast<ImportData&>(importData);
+
+            if (data.IsValid())
+            {
+                // Check if the resource is cached
+                if (std::filesystem::exists(data.cachedPath))
+                {
+                    const Ref<T>& resource = LoadFromCache(data.cachedPath, data.type);
+                    return resource;
+                }
+                // If the resource is not cached, import it
+                else
+                {
+                    // Create the resource from the embedded data
+                    Ref<T> resource = CreateRef<T>(data);
+
+                    // Save the resource to the cache
+                    ResourceSaver::SaveToCache(data.cachedPath, resource);
+                    return resource;
+                }
+            }
+            else
+            {
+                // Handle invalid data case
+                COFFEE_WARN("ImportEmbeddedResource: Invalid import data.");
+                return nullptr;
             }
         }
 
@@ -110,7 +136,7 @@ namespace Coffee {
          * @param format The format of the resource.
          * @return A reference to the loaded resource.
          */
-        Ref<Resource> LoadFromCache(const std::filesystem::path& path, ResourceFormat format);
+        Ref<Resource> LoadFromCache(const std::filesystem::path& path, ResourceType type);
 
         /**
          * @brief Deserializes a resource from a binary file.

@@ -6,16 +6,17 @@
 namespace Coffee
 {
 
-    struct Texture2DImportData : public ImportData
+    struct MeshImportData : public ImportData
     {
-        bool sRGB = true;
 
-        Texture2DImportData() : ImportData(ResourceType::Texture2D) {}
+
+
+        MeshImportData() : ImportData(ResourceType::Mesh) {}
 
         template <typename Archive>
         void serialize(Archive& archive)
         {
-            archive(cereal::base_class<ImportData>(this), CEREAL_NVP(sRGB));
+            archive(cereal::base_class<ImportData>(this));
         }
     };
 

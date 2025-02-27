@@ -113,7 +113,9 @@ namespace Coffee {
         }
     }
 
-    Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const UUID& uuid, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb)
+    Ref<Mesh> ResourceImporter::ImportMesh(const std::string& name, const UUID& uuid,
+                                           const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices,
+                                           Ref<Material>& material, const AABB& aabb)
     {
         // TODO: Think about adding a cache parameter.
 
@@ -121,14 +123,15 @@ namespace Coffee {
 
         std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuidString);
 
-        if(std::filesystem::exists(cachedFilePath))
+        if (std::filesystem::exists(cachedFilePath))
         {
             const Ref<Resource>& resource = LoadFromCache(cachedFilePath, ResourceFormat::Binary);
             return std::static_pointer_cast<Mesh>(resource);
         }
         else
         {
-            COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache. Creating new mesh.", (uint64_t)uuid);
+            COFFEE_WARN("ResourceImporter::ImportMesh: Mesh {0} not found in cache. Creating new mesh.",
+                        (uint64_t)uuid);
             Ref<Mesh> mesh = CreateRef<Mesh>(vertices, indices);
             mesh->SetUUID(uuid);
             mesh->SetName(name);
@@ -219,10 +222,13 @@ namespace Coffee {
         }
     }
 
-    Ref<Resource> ResourceImporter::LoadFromCache(const std::filesystem::path& path, ResourceFormat format)
+    Ref<Resource> ResourceImporter::LoadFromCache(const std::filesystem::path& path, ResourceType type)
         {
             COFFEE_INFO("Loading resource from cache: {0}", path.string());
-            switch (format)
+
+            ResourceFormat resourceFormat = GetResourceSaveFormatFromType(type);
+
+            switch (resourceFormat)
             {
                 case ResourceFormat::Binary:
                     return BinaryDeserialization(path);

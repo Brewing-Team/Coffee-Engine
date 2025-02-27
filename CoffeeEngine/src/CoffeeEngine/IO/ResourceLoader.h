@@ -74,14 +74,13 @@ namespace Coffee {
             }
             else
             {
-                ImportData dummyImportData;
-                dummyImportData.originalPath = path;
+                ImportData newImportData;
+                newImportData.originalPath = path;
 
-                const Ref<T>& resource = s_Importer.Import<T>(dummyImportData);
-                const ImportData& importData = resource->GetImportData();
+                const Ref<T>& resource = s_Importer.Import<T>(newImportData);
 
-                SaveImportData(importData);
-                ResourceRegistry::Add(importData.uuid, resource);
+                SaveImportData(newImportData);
+                ResourceRegistry::Add(newImportData.uuid, resource);
             }
         }
 

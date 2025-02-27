@@ -6,11 +6,13 @@
 
 #pragma once
 #include "CoffeeEngine/Core/Assert.h"
+#include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
+#include "ImportData/ImportData.h"
 #include <cereal/access.hpp>
 #include <cereal/archives/binary.hpp>
 #include <filesystem>
-#include "CoffeeEngine/Core/UUID.h"
-#include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
+
 #include <cereal/types/polymorphic.hpp>
 
 namespace Coffee {
@@ -119,6 +121,8 @@ namespace Coffee {
         std::filesystem::path m_FilePath; ///< The file path of the resource.
         ResourceType m_Type; ///< The type of the resource.
         UUID m_UUID; ///< The UUID of the resource.
+
+        ImportData m_ImportData; ///< The import data of the resource.
     };
 
 }
