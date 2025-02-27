@@ -85,6 +85,20 @@ namespace Coffee {
         }
 
         template<typename T>
+        static Ref<T> LoadEmbedded(const ImportData& importData)
+        {
+            if (ResourceRegistry::Exists(importData.uuid))
+            {
+                return ResourceRegistry::Get<T>(importData.uuid);
+            }
+
+            const Ref<T>& resource = s_Importer.ImportEmbedded<T>(importData);
+
+            ResourceRegistry::Add(importData.uuid, resource);
+            return resource;
+        }
+
+        template<typename T>
         static Ref<T> Load(UUID uuid)
         {
             if (uuid == UUID::null)

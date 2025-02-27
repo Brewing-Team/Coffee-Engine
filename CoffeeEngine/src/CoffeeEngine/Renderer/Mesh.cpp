@@ -1,5 +1,6 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/MeshImportData.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
 #include <tracy/Tracy.hpp>
 
@@ -31,6 +32,16 @@ namespace Coffee {
         m_VertexArray = VertexArray::Create();
         m_VertexArray->AddVertexBuffer(m_VertexBuffer);
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+    }
+
+    Mesh::Mesh(const MeshImportData& importData)
+    {
+        Mesh(importData.vertices, importData.indices);
+        m_Name = importData.name;
+        m_UUID = importData.uuid;
+        m_Material = importData.material;
+        m_AABB = importData.aabb;
+        m_FilePath = importData.cachedPath;
     }
 
 }

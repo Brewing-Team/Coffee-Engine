@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceFormat.h"
 
 namespace Coffee {
 

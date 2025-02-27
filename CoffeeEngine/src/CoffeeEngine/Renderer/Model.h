@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/IO/ImportData/ModelImportData.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
@@ -134,21 +135,25 @@ namespace Coffee {
         void save(Archive& archive) const
         {
             // convert this to UUIDs
-            std::vector<UUID> meshUUIDs;
+            std::vector<ImportData> meshImportData;
             for (const auto& mesh : m_Meshes)
             {
-                meshUUIDs.push_back(mesh->GetUUID());
+                ImportData data;
+                data.uuid = mesh->GetUUID();
+                data.cachedPath = CacheManager::GetCachedFilePath(mesh->GetName(), mesh->GetUUID(), ResourceType::Mesh);
+                meshImportData.push_back(data);
             }
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
+
+            archive(meshImportData, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
         }
         template<class Archive>
         void load(Archive& archive)
         {
-            std::vector<UUID> meshUUIDs;
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
-            for (const auto& meshUUID : meshUUIDs)
+            std::vector<ImportData> meshImportData;
+            archive(meshImportData, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
+            for(const auto& data : meshImportData)
             {
-                m_Meshes.push_back(ResourceLoader::LoadMesh(meshUUID));
+                m_Meshes.push_back(ResourceLoader::LoadEmbedded<Mesh>(data));
             }
         }
 

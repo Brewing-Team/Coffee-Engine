@@ -1,6 +1,8 @@
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/IO/ImportData/MeshImportData.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -95,6 +97,8 @@ namespace Coffee {
             importData.uuid = m_UUID;
             importData.meshUUIDs = s_ModelMeshesUUIDs;
         }
+
+        s_ModelMeshesUUIDs.clear();
     }
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
@@ -226,12 +230,30 @@ namespace Coffee {
             );
 
         std::string nameReference = m_FilePath.stem().string() + "_" + mesh->mName.C_Str();
-        Ref<Mesh> resultMesh = ResourceLoader::LoadMesh(nameReference, vertices, indices, meshMaterial, aabb);
-        //resultMesh->SetName(mesh->mName.C_Str());
-        //TODO: When the UUID is implemented, the name of the mesh will be resultMesh->SetName(mesh->mName.C_Str());, are your sure?
-        //resultMesh->SetName(nameReference);
-        //resultMesh->SetMaterial(meshMaterial);
-        //resultMesh->SetAABB(aabb);
+
+        UUID meshUUID;
+
+        if(s_ModelMeshesUUIDs.find(nameReference) != s_ModelMeshesUUIDs.end())
+        {
+            meshUUID = s_ModelMeshesUUIDs[nameReference];
+        }
+        else
+        {
+            meshUUID = UUID();
+            s_ModelMeshesUUIDs[nameReference] = meshUUID;
+        }
+
+        MeshImportData meshImportData;
+        meshImportData.name = nameReference;
+        meshImportData.uuid = meshUUID;
+        meshImportData.vertices = vertices;
+        meshImportData.indices = indices;
+        meshImportData.material = meshMaterial;
+        meshImportData.aabb = aabb;
+        // Think if this is the most comfortable way to do this
+        meshImportData.cachedPath = CacheManager::GetCachedFilePath(nameReference, meshUUID, ResourceType::Mesh);
+
+        Ref<Mesh> resultMesh = ResourceLoader::LoadEmbedded<Mesh>(meshImportData);
 
         return resultMesh;
     }

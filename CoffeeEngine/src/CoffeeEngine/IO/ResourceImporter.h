@@ -80,7 +80,7 @@ namespace Coffee {
         }
 
         template<typename T>
-        Ref<T> ImportEmbeddedResource(const ImportData& importData)
+        Ref<T> ImportEmbedded(const ImportData& importData)
         {
             ImportData& data = const_cast<ImportData&>(importData);
 
