@@ -417,13 +417,13 @@ namespace Coffee {
                     if (!path.empty())
                     {
                         uiTextComponent.FontPath = path;
-                        uiTextComponent.Font = std::make_shared<Font>(path);
+                        uiTextComponent.font = std::make_shared<Font>(path);
                     }
                 }
                 // If there is no font, use default
-                if (!uiTextComponent.Font)
+                if (!uiTextComponent.font)
                 {
-                    uiTextComponent.Font = Font::GetDefault();
+                    uiTextComponent.font = Font::GetDefault();
                 }
 
                 // position

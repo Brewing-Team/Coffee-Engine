@@ -284,9 +284,9 @@ namespace Coffee {
                 continue;
 
             // Load default font
-            if (!uiTextComponent.Font)
+            if (!uiTextComponent.font)
             {
-                uiTextComponent.Font = Font::GetDefault();
+                uiTextComponent.font = Font::GetDefault();
             }
 
             glm::mat4 transform = transformComponent.GetWorldTransform() *
@@ -296,7 +296,7 @@ namespace Coffee {
 
             Renderer2D::DrawText(
                 uiTextComponent.Text, 
-                uiTextComponent.Font, 
+                uiTextComponent.font,
                 transform,
                 {uiTextComponent.Color, 0.0f, 0.0f}, // Text color
                 (uint32_t)entity

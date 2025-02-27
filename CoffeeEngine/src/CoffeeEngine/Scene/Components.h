@@ -356,7 +356,7 @@ namespace Coffee {
     {
         std::string Text = "Default Text";
         std::string FontPath;
-        Ref<Font> Font;
+        Ref<Font> font;
         glm::vec2 Position = {0.0f, 0.0f};
         float FontSize = 24.0f;
         glm::vec4 Color = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -368,7 +368,7 @@ namespace Coffee {
         {
             if (!fontPath.empty())
             {
-                Font = Font::GetDefault();
+                font = Font::GetDefault();
             }
         }
 
