@@ -50,6 +50,8 @@ namespace Coffee {
     }
 
     void PhysicsWorld::drawCollisionShapes() const {
+        const float margin = 0.05f;
+
         int numCollisionObjects = dynamicsWorld->getNumCollisionObjects();
         for (int i = 0; i < numCollisionObjects; i++) {
             const btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
@@ -64,16 +66,16 @@ namespace Coffee {
             if (shape->getShapeType() == BOX_SHAPE_PROXYTYPE) {
                 const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
                 btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
-                glm::vec3 size(halfExtents.x() * 2.0f, halfExtents.y() * 2.0f, halfExtents.z() * 2.0f);
+                glm::vec3 size((halfExtents.x() + margin) * 2.0f, (halfExtents.y() + margin) * 2.0f, (halfExtents.z() + margin) * 2.0f);
                 DebugRenderer::DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
             } else if (shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
                 const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
-                float radius = sphereShape->getRadius();
+                float radius = sphereShape->getRadius() + margin;
                 DebugRenderer::DrawSphere(position, radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
             } else if (shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
                 const btCapsuleShape* capsuleShape = static_cast<const btCapsuleShape*>(shape);
-                float radius = capsuleShape->getRadius();
-                float height = capsuleShape->getHalfHeight() * 2.0f;
+                float radius = capsuleShape->getRadius() + margin;
+                float height = capsuleShape->getHalfHeight() * 2.0f + margin;
                 DebugRenderer::DrawBox(position, orientation, glm::vec3(radius * 2.0f, height, radius * 2.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
             } else {
                 // Handle other shape types if needed
