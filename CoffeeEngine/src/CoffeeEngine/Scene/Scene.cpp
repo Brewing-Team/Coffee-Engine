@@ -314,6 +314,7 @@ namespace Coffee {
         // ------------------------------ TEMPORAL ------------------------------
         // --------------------------- Physics testing --------------------------
         physicsWorld.stepSimulation(dt);
+        physicsWorld.drawCollisionShapes();
 
         // Update transforms from physics
         auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();

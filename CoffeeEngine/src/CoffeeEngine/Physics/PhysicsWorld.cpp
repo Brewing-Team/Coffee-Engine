@@ -1,5 +1,8 @@
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Physics/CollisionSystem.h"
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
+
+#include <glm/fwd.hpp>
 
 namespace Coffee {
 
@@ -41,8 +44,41 @@ namespace Coffee {
         dynamicsWorld->setGravity(gravity);
     }
 
-    btDiscreteDynamicsWorld* PhysicsWorld::getDynamicsWorld() const {
+    btDiscreteDynamicsWorld* PhysicsWorld::getDynamicsWorld() const
+    {
         return dynamicsWorld;
     }
 
-}
+    void PhysicsWorld::drawCollisionShapes() const {
+        int numCollisionObjects = dynamicsWorld->getNumCollisionObjects();
+        for (int i = 0; i < numCollisionObjects; i++) {
+            const btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+            const btCollisionShape* shape = obj->getCollisionShape();
+            const btTransform& transform = obj->getWorldTransform();
+
+            btVector3 origin = transform.getOrigin();
+            btQuaternion rotation = transform.getRotation();
+            glm::vec3 position(origin.x(), origin.y(), origin.z());
+            glm::quat orientation(rotation.w(), rotation.x(), rotation.y(), rotation.z());
+
+            if (shape->getShapeType() == BOX_SHAPE_PROXYTYPE) {
+                const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
+                btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
+                glm::vec3 size(halfExtents.x() * 2.0f, halfExtents.y() * 2.0f, halfExtents.z() * 2.0f);
+                DebugRenderer::DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            } else if (shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
+                const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
+                float radius = sphereShape->getRadius();
+                DebugRenderer::DrawSphere(position, radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            } else if (shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
+                const btCapsuleShape* capsuleShape = static_cast<const btCapsuleShape*>(shape);
+                float radius = capsuleShape->getRadius();
+                float height = capsuleShape->getHalfHeight() * 2.0f;
+                DebugRenderer::DrawBox(position, orientation, glm::vec3(radius * 2.0f, height, radius * 2.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            } else {
+                // Handle other shape types if needed
+            }
+        }
+    }
+
+} // namespace Coffee

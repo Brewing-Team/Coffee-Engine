@@ -22,6 +22,8 @@ namespace Coffee {
 
         btDiscreteDynamicsWorld* getDynamicsWorld() const;
 
+        void drawCollisionShapes() const;
+
     private:
         btDefaultCollisionConfiguration* collisionConfig;
         btCollisionDispatcher* dispatcher;
