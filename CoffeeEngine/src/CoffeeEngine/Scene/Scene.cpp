@@ -336,11 +336,9 @@ namespace Coffee {
             COFFEE_INFO("Sphere position: {0}, {1}, {2}", sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z);
             COFFEE_INFO("Sphere direction: {0}, {1}, {2}", sphereRb.rb->GetDirection().x, sphereRb.rb->GetDirection().y, sphereRb.rb->GetDirection().z);
 
-
-            // If space is pressed, apply force up
             if (Input::IsKeyPressed(Key::SPACE))
             {
-                sphereRb.rb->applyImpulse(glm::vec3(0, 10, 0));
+                sphereRb.rb->applyImpulse(glm::vec3(0, 1, 0));
             }
         }
         // ------------------------- END Physics testing ------------------------

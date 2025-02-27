@@ -51,7 +51,7 @@ namespace Coffee {
             Body->setContactProcessingThreshold(threshold);
         }
 
-        // Getters
+        #pragma region Getters
         glm::vec3 GetPosition() const
         {
             btVector3 btPos = Body->getWorldTransform().getOrigin();
@@ -75,11 +75,13 @@ namespace Coffee {
         {
             return cfg.shapeConfig.isTrigger;
         }
+        #pragma endregion
 
-        // Setters
+        #pragma region Setters
         void SetPosition(const glm::vec3& position);
         void SetRotation(const glm::vec3& rotation);
         void setTrigger(bool setTrigger);
+        #pragma endregion
 
         // Functions
         // Apply a force to the rigidbody: Continuous force
