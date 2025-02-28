@@ -6,6 +6,12 @@
 
 namespace Coffee {
 
+    class Texture2D;
+    class Cubemap;
+    class Model;
+    class Mesh;
+    class Material;
+
     inline ResourceType GetResourceTypeFromExtension(const std::filesystem::path& path)
     {
         auto extension = path.extension();
@@ -95,6 +101,35 @@ namespace Coffee {
         default:
             return ResourceFormat::Binary;
             break;
+        }
+    }
+
+    template<typename T>
+    inline ResourceType GetResourceType()
+    {
+        if constexpr (std::is_same<T, Texture2D>::value)
+        {
+            return ResourceType::Texture2D;
+        }
+        else if constexpr (std::is_same<T, Cubemap>::value)
+        {
+            return ResourceType::Cubemap;
+        }
+        else if constexpr (std::is_same<T, Model>::value)
+        {
+            return ResourceType::Model;
+        }
+        else if constexpr (std::is_same<T, Mesh>::value)
+        {
+            return ResourceType::Mesh;
+        }
+        else if constexpr (std::is_same<T, Material>::value)
+        {
+            return ResourceType::Material;
+        }
+        else
+        {
+            return ResourceType::Unknown;
         }
     }
 

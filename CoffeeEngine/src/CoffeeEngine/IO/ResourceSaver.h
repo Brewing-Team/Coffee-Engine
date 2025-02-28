@@ -39,7 +39,7 @@ namespace Coffee
          * @param resource A reference to the resource to save to cache.
          */
         static void SaveToCache(const std::string& filename, const Ref<Resource>& resource);
-	    static void SaveToCache(const std::string& name, const UUID& uuid, const Ref<Resource>& resource);
+	    static void SaveToCache(const UUID& uuid, const Ref<Resource>& resource);
       private:
         /**
          * @brief Serializes a resource to a binary file.

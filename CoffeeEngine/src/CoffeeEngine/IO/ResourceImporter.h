@@ -71,11 +71,11 @@ namespace Coffee {
 
                 data.uuid = texture->GetUUID();
 
-                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(texture->GetName(), data.uuid, ResourceType::Texture2D);
+                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(data.uuid, ResourceType::Texture2D);
 
                 data.cachedPath = cachedFilePath;
 
-                ResourceSaver::SaveToCache(texture->GetName(), data.uuid, texture);
+                ResourceSaver::SaveToCache(data.uuid, texture);
             }
         }
 
@@ -107,6 +107,23 @@ namespace Coffee {
             {
                 // Handle invalid data case
                 COFFEE_WARN("ImportEmbeddedResource: Invalid import data.");
+                return nullptr;
+            }
+        }
+
+        template<typename T>
+        Ref<T> ImportFromCache(UUID uuid)
+        {
+            std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuid, GetResourceType<T>());
+
+            if (std::filesystem::exists(cachedFilePath))
+            {
+                const Ref<Resource>& resource = LoadFromCache(cachedFilePath, GetResourceSaveFormatFromType(GetResourceType<T>()));
+                return std::static_pointer_cast<T>(resource);
+            }
+            else
+            {
+                COFFEE_WARN("ResourceImporter::ImportResourceFromCache: Resource {0} not found in cache.", (uint64_t)uuid);
                 return nullptr;
             }
         }

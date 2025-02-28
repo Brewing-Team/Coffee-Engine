@@ -31,9 +31,9 @@ namespace Coffee
         Save(cacheFilePath, resource);
     }
 
-    void ResourceSaver::SaveToCache(const std::string& name, const UUID& uuid, const Ref<Resource>& resource)
+    void ResourceSaver::SaveToCache(const UUID& uuid, const Ref<Resource>& resource)
     {
-        std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(name, uuid, resource->GetType());
+        std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(uuid, resource->GetType());
 
         Save(cacheFilePath, resource);
     }

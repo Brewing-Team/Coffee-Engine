@@ -99,6 +99,22 @@ namespace Coffee {
         }
 
         template<typename T>
+        static Ref<T> GetResource(UUID uuid)
+        {
+            if (uuid == UUID::null)
+                return nullptr;
+
+            if (ResourceRegistry::Exists(uuid))
+            {
+                return ResourceRegistry::Get<T>(uuid);
+            }
+
+            const 
+
+            return nullptr;
+        }
+
+        template<typename T>
         static Ref<T> Load(UUID uuid)
         {
             if (uuid == UUID::null)
