@@ -132,36 +132,30 @@ namespace Coffee {
         // ------------------------------ TEMPORAL ------------------------------
         // --------------------------- Physics testing --------------------------
         CollisionSystem::Initialize(this);
-        
-        // Create floor (static box)
+    
+        // Create floor entity & transform
         Entity floorEntity = CreateEntity("Floor");
         auto& floorTransform = floorEntity.GetComponent<TransformComponent>();
         floorTransform.Position = {0.0f, -0.25f, 0.0f};
         floorTransform.Scale = {10.0f, 0.5f, 10.0f};
-        
+
         // Setup floor rigidbody
-        RigidBodyConfig floorConfig;
-        floorConfig.type = RigidBodyType::Static;
-        floorConfig.UseGravity = false;
-        floorConfig.shapeConfig.type = CollisionShapeConfig::Type::Box;
-        floorConfig.shapeConfig.size = floorTransform.Scale;
-        auto& floorRb = floorEntity.AddComponent<RigidbodyComponent>(floorConfig);
-        
-        // Create physics objects
-        // Floor
-        floorRb.rb->Shape = new btBoxShape(btVector3(floorTransform.Scale.x * 0.5f, floorTransform.Scale.y * 0.5f, floorTransform.Scale.z * 0.5f));
-        floorRb.rb->MotionState = new btDefaultMotionState(
-            btTransform(btQuaternion(0, 0, 0, 1),
-            btVector3(floorTransform.Position.x, floorTransform.Position.y, floorTransform.Position.z))
-        );
-        
-        btRigidBody::btRigidBodyConstructionInfo floorRbInfo(0.0f, floorRb.rb->MotionState, floorRb.rb->Shape);
-        floorRb.rb->Body = new btRigidBody(floorRbInfo);
-        
-        // Add floor visual mesh and callback
+        RigidBody::Properties floorProps;
+        floorProps.type = RigidBody::Type::Static;
+        floorProps.useGravity = false;
+
+        // Setup floor collider
+        auto floorCollider = CreateRef<BoxCollider>(floorTransform.Scale);
+
+        // Create floor rigidbody component
+        auto& floorRb = floorEntity.AddComponent<RigidbodyComponent>();
+        floorRb.rb = RigidBody::Create(floorProps, floorCollider);
+        floorRb.rb->SetPosition(floorTransform.Position);
+
+        // Add floor visual mesh
         floorEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
-        floorRb.rb->Body->setUserPointer((void*)(size_t)((entt::entity)floorEntity));
-        
+
+        // Add collision callback
         floorRb.callback.OnCollisionEnter([](CollisionInfo& info) {
             COFFEE_INFO("Floor collision enter with: {}", info.entityB.GetComponent<TagComponent>().Tag);
         });
@@ -171,15 +165,15 @@ namespace Coffee {
         floorRb.callback.OnCollisionExit([](CollisionInfo& info) {
             COFFEE_INFO("Floor collision exit with: {}", info.entityB.GetComponent<TagComponent>().Tag);
         });
-        
+
         // Add floor to physics world
-        physicsWorld.addRigidBody(floorRb.rb->Body);
-        
+        physicsWorld.addRigidBody(floorRb.rb->GetNativeBody());
+
         // Create spheres
         const int NUM_SPHERES = 10;
         for(int i = 0; i < NUM_SPHERES; i++) {
             Entity sphereEntity = CreateEntity("Sphere_" + std::to_string(i));
-            
+
             auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
             sphereTransform.Position = {
                 static_cast<float>(rand() % 5 - 2),
@@ -187,40 +181,29 @@ namespace Coffee {
                 static_cast<float>(rand() % 5 - 2)
             };
             sphereTransform.Scale = {1.0f, 1.0f, 1.0f};
-        
+
             // Setup sphere rigidbody
-            RigidBodyConfig sphereConfig;
-            sphereConfig.type = RigidBodyType::Dynamic;
-            sphereConfig.UseGravity = true;
-            sphereConfig.shapeConfig.type = CollisionShapeConfig::Type::Sphere;
-            sphereConfig.shapeConfig.size = {0.5f, 0.5f, 0.5f};
-            sphereConfig.shapeConfig.mass = 1.0f;
-            auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>(sphereConfig);
-        
-            sphereRb.rb->Shape = new btSphereShape(0.5f);
-            sphereRb.rb->MotionState = new btDefaultMotionState(
-                btTransform(btQuaternion(0, 0, 0, 1),
-                btVector3(sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z))
-            );
-        
-            btRigidBody::btRigidBodyConstructionInfo sphereRbInfo(1.0f, sphereRb.rb->MotionState, sphereRb.rb->Shape);
-            sphereRb.rb->Body = new btRigidBody(sphereRbInfo);
-            sphereRb.rb->Body->setRestitution(0.5f);
-            sphereRb.rb->Body->setFriction(0.5f);
-            sphereRb.rb->SetContactProcessingThreshold(BT_LARGE_FLOAT);
-        
+            RigidBody::Properties sphereProps;
+            sphereProps.type = RigidBody::Type::Dynamic;
+            sphereProps.useGravity = true;
+            sphereProps.mass = 1.0f;
+
+            auto sphereCollider = CreateRef<SphereCollider>(0.5f);
+            auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>();
+            sphereRb.rb = RigidBody::Create(sphereProps, sphereCollider);
+            sphereRb.rb->SetPosition(sphereTransform.Position);
+
             // Add visual mesh and callback
             sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
-            sphereRb.rb->Body->setUserPointer((void*)(size_t)((entt::entity)sphereEntity));
-        
+
             sphereRb.callback.OnCollisionEnter([](CollisionInfo& info) {
-                COFFEE_INFO("{} collision enter with: {}", 
+                COFFEE_INFO("{} collision enter with: {}",
                     info.entityA.GetComponent<TagComponent>().Tag,
                     info.entityB.GetComponent<TagComponent>().Tag);
             });
-        
+
             // Add to physics world
-            physicsWorld.addRigidBody(sphereRb.rb->Body);
+            physicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
         }
         // ------------------------- END Physics testing ------------------------
 
@@ -338,33 +321,29 @@ namespace Coffee {
         // --------------------------- Physics testing --------------------------
         physicsWorld.stepSimulation(dt);
         physicsWorld.drawCollisionShapes();
-
+        
         // Update transforms from physics
         auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
-        for (auto entity : viewPhysics)
-        {
+        for (auto entity : viewPhysics) {
             auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
-            if (rb.rb && rb.rb->Body && rb.rb->Body->getMotionState())
-            {
-                btTransform trans;
-                rb.rb->Body->getMotionState()->getWorldTransform(trans);
-                transform.Position = {trans.getOrigin().x(), trans.getOrigin().y(), trans.getOrigin().z()};
+            if (rb.rb) {
+                transform.Position = rb.rb->GetPosition();
+                transform.Rotation = rb.rb->GetRotation();
             }
         }
-
+        
         // Print sphere position
-        auto sphereEntity = GetEntityByName("Sphere");
-        if(sphereEntity)
-        {
+        auto sphereEntity = GetEntityByName("Sphere_0");
+        if(sphereEntity) {
             auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
             auto& sphereRb = sphereEntity.GetComponent<RigidbodyComponent>();
-            COFFEE_INFO("Sphere position: {0}, {1}, {2}", sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z);
-            COFFEE_INFO("Sphere direction: {0}, {1}, {2}", sphereRb.rb->GetDirection().x, sphereRb.rb->GetDirection().y, sphereRb.rb->GetDirection().z);
-            COFFEE_INFO("Sphere is active: {0}", sphereRb.rb->Body->isActive());
-
-            if (Input::IsKeyPressed(Key::SPACE))
-            {
-                sphereRb.rb->applyImpulse(glm::vec3(0, 1, 0));
+            COFFEE_INFO("Sphere position: {0}, {1}, {2}", 
+                sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z);
+            COFFEE_INFO("Sphere velocity: {0}, {1}, {2}", 
+                sphereRb.rb->GetVelocity().x, sphereRb.rb->GetVelocity().y, sphereRb.rb->GetVelocity().z);
+        
+            if (Input::IsKeyPressed(Key::SPACE)) {
+                sphereRb.rb->ApplyImpulse(glm::vec3(0, 1, 0));
             }
         }
         // ------------------------- END Physics testing ------------------------
@@ -460,31 +439,25 @@ namespace Coffee {
         auto view = m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : view) {
             auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
-            if (rb.rb && rb.rb->Body) {
-                physicsWorld.removeRigidBody(rb.rb->Body);
-
-                // TODO remove temporal code to reset bodies positions
+            if (rb.rb) {
+                physicsWorld.removeRigidBody(rb.rb->GetNativeBody());
+        
                 Entity e{entity, this};
                 if (e.GetComponent<TagComponent>().Tag == "Sphere") {
-                    transform.Position = {0.0f, 5.0f, 0.0f}; // Reset to initial position
+                    transform.Position = {0.0f, 5.0f, 0.0f}; 
                 }
                 else if (e.GetComponent<TagComponent>().Tag == "Floor") {
                     transform.Position = {0.0f, -0.25f, 0.0f};
                 }
-
-                // Reset physics state
-                btTransform trans;
-                trans.setIdentity();
-                trans.setOrigin(btVector3(transform.Position.x, transform.Position.y, transform.Position.z));
-
-                rb.rb->Body->setWorldTransform(trans);
-                rb.rb->Body->setInterpolationWorldTransform(trans);
-                rb.rb->Body->setLinearVelocity(btVector3(0,0,0));
-                rb.rb->Body->setAngularVelocity(btVector3(0,0,0));
-                rb.rb->Body->clearForces();
-
-                // Re-add the rigidbody to the physics world
-                physicsWorld.addRigidBody(rb.rb->Body);
+        
+                // Reset physics state through RigidBody interface
+                rb.rb->SetPosition(transform.Position);
+                rb.rb->SetRotation({0.0f, 0.0f, 0.0f});
+                rb.rb->ResetVelocity();
+                rb.rb->ClearForces();
+        
+                // Re-add to physics world
+                physicsWorld.addRigidBody(rb.rb->GetNativeBody());
             }
         }
     }

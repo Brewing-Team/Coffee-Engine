@@ -6,24 +6,24 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/RigidBody.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
-#include <cereal/cereal.hpp>
+#include "CoffeeEngine/Scripting/Script.h"
+#include "CoffeeEngine/Scripting/ScriptManager.h"
+#include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include <cereal/access.hpp>
+#include <cereal/cereal.hpp>
 #include <cereal/types/string.hpp>
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include "CoffeeEngine/Scripting/Script.h"
-#include "CoffeeEngine/Scripting/ScriptManager.h"
-#include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/Physics/PhysicsRigidbody.h"
-#include "CoffeeEngine/Physics/Collider.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <CoffeeEngine/Physics/CollisionCallback.h>
@@ -377,33 +377,13 @@ namespace Coffee {
             ScriptingLanguage language;
 
     struct RigidbodyComponent {
-        Ref<Rigidbody> rb;
+        Ref<RigidBody> rb;
         CollisionCallback callback;
 
-            if (!relativePath.empty())
-            {
-                std::filesystem::path scriptPath;
-                if (Project::GetActive())
-                {
-                    scriptPath = Project::GetActive()->GetProjectDirectory() / relativePath;
-                }
-                else
-                {
-                    scriptPath = relativePath;
-                    COFFEE_CORE_ERROR("ScriptComponent::load: Project is not active, script path is not relative to the project directory!");
-                }
-
-                switch (language)
-                {
-                    using enum ScriptingLanguage;
-                case Lua:
-                    script = ScriptManager::CreateScript(scriptPath, language);
-                    break;
-                case cSharp:
-                    // Handle cSharp script loading if needed
-                    break;
-                }
-            }
+        RigidbodyComponent() = default;
+        RigidbodyComponent(const RigidbodyComponent&) = default;
+        RigidbodyComponent(const RigidBody::Properties& props, Ref<Collider> collider) {
+            rb = RigidBody::Create(props, collider);
         }
     };
 
