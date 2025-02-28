@@ -13,7 +13,7 @@ namespace Coffee {
         Ref<Mesh> mesh;
         Ref<Material> material;
         uint32_t entityID;
-        Ref<AnimationSystem> animation;
+        AnimatorComponent* animator;
     };
 
     struct RendererData

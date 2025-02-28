@@ -107,8 +107,8 @@ namespace Coffee {
 
             shader->Bind();
 
-            if (command.animation)
-                command.animation->SetBoneTransformations(shader);
+            if (command.animator && command.animator->GetAnimationSystem() )
+                command.animator->GetAnimationSystem()->SetBoneTransformations(shader, command.animator);
             else
                 shader->setBool("animated", false);
 

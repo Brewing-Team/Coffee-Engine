@@ -93,7 +93,10 @@ namespace Coffee {
         */
         static Ref<Model> Load(const std::filesystem::path& path);
 
-        const Ref<AnimationSystem>& GetAnimationSystem() const { return m_AnimationSystem; };
+        bool HasAnimations() const { return m_hasAnimations; }
+
+        const Ref<Skeleton>& GetSkeleton() const { return m_Skeleton; };
+        const Ref<AnimationController>& GetAnimationController() const { return m_AnimationController; };
 
     private:
         /**
@@ -196,7 +199,9 @@ namespace Coffee {
 
         std::string m_NodeName; ///< The name of the node.
 
-        Ref<AnimationSystem> m_AnimationSystem; ///< The animation system.
+        bool m_hasAnimations = false;
+        Ref<Skeleton> m_Skeleton;
+        Ref<AnimationController> m_AnimationController;
     };
 
     /** @} */

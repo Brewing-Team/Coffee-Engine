@@ -29,7 +29,7 @@ namespace Coffee {
             return *this;
         }
 
-        const std::string& GetName() const { return m_Name; }
+        const std::string& GetAnimationName() const { return m_Name; }
         float GetDuration() const { return m_Animation->duration(); }
 
         void SetAnimation(ozz::unique_ptr<ozz::animation::Animation> animation);

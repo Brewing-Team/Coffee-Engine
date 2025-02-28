@@ -59,28 +59,29 @@ namespace Coffee {
 
         if (scene->HasAnimations())
         {
+            m_hasAnimations = true;
+
             if(!ExtractSkeleton(scene, joints, boneMap, *this))
                 std::cerr << "Error extracting skeleton" << std::endl;
 
             if(!ExtractAnimations(scene, boneMap, *this))
                 std::cerr << "Error extracting animations" << std::endl;
 
-            if (m_AnimationSystem && m_AnimationSystem->GetSkeleton() && m_AnimationSystem->GetAnimationController()
-            && m_AnimationSystem->GetAnimationController()->GetAnimationCount() > 0)
+            if (m_Skeleton && m_AnimationController && m_AnimationController->GetAnimationCount() > 0)
             {
-                std::cout << "AnimationsCount: " << m_AnimationSystem->GetAnimationController()->GetAnimationCount() << ", BonesCount: " << m_AnimationSystem->GetSkeleton()->GetNumJoints() << std::endl;
+                std::cout << "AnimationsCount: " << m_AnimationController->GetAnimationCount() << ", BonesCount: " << m_Skeleton->GetNumJoints() << std::endl;
 
-                for (const auto& [name, index] : m_AnimationSystem->GetAnimationController()->GetAnimationMap())
+                for (const auto& [name, index] : m_AnimationController->GetAnimationMap())
                 {
-                    std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationSystem->GetAnimationController()->GetAnimation(index)->GetDuration() << std::endl;
+                    std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationController->GetAnimation(index)->GetDuration() << std::endl;
                 }
             }
         }
 
         processNode(scene->mRootNode, scene, joints, boneMap);
 
-        if (m_AnimationSystem && m_AnimationSystem->GetSkeleton())
-            m_AnimationSystem->GetSkeleton()->SetJoints(joints);
+        if (m_Skeleton)
+            m_Skeleton->SetJoints(joints);
     }
 
     Model::Model(ModelImportData& importData)
@@ -368,10 +369,7 @@ namespace Coffee {
         skeleton->SetSkeleton(std::move(skelBuilder(rawSkeleton)));
         skeleton->SetJoints(joints);
 
-        if (!m_AnimationSystem)
-            m_AnimationSystem = CreateRef<AnimationSystem>();
-
-        m_AnimationSystem->SetSkeleton(skeleton);
+        m_Skeleton = skeleton;
 
         return true;
     }
@@ -444,11 +442,7 @@ namespace Coffee {
             animController->AddAnimation(aiAnim->mName.C_Str(), std::move(animBuilder(rawAnimation)));
         }
 
-        if (!m_AnimationSystem)
-            m_AnimationSystem = CreateRef<AnimationSystem>();
-
-        m_AnimationSystem->SetAnimationController(animController);
-        m_AnimationSystem->SetCurrentAnimation(0);
+        m_AnimationController = animController;
 
         return true;
     }

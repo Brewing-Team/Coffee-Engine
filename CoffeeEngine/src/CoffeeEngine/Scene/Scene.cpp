@@ -36,9 +36,12 @@
 
 namespace Coffee {
 
+    Ref<AnimationSystem> Scene::m_AnimationSystem;
+
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
+        m_AnimationSystem = CreateRef<AnimationSystem>();
     }
 
 /*     Scene::Scene(Ref<Scene> other)
@@ -257,20 +260,18 @@ namespace Coffee {
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-            Ref<AnimationSystem> animation = meshComponent.animator ? meshComponent.animator->GetAnimationSystem() : nullptr;
-            
+
             //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
-            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, animation});
+            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
         }
 
         auto animatorView = m_Registry.view<AnimatorComponent>();
 
         for (auto& entity : animatorView)
         {
-            auto& animatorComponent = animatorView.get<AnimatorComponent>(entity);
-            auto animationSystem = animatorComponent.GetAnimationSystem();
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
 
-            animationSystem->Update(dt);
+            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -545,8 +546,11 @@ namespace Coffee {
 
         Entity modelEntity = scene->CreateEntity(model->GetName());
 
-        if (model->GetAnimationSystem())
-            animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetAnimationSystem());
+        if (model->HasAnimations())
+        {
+            animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController(), Scene::GetAnimationSystem());
+            animatorComponent->GetAnimationSystem()->SetCurrentAnimation(0, animatorComponent);
+        }
 
         if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
         modelEntity.GetComponent<TransformComponent>().SetLocalTransform(model->GetTransform());

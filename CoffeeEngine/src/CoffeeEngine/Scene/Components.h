@@ -160,18 +160,44 @@ namespace Coffee {
      */
     class AnimatorComponent
     {
-    public:
-        AnimatorComponent(const std::shared_ptr<AnimationSystem>& animationSystem)
-            : m_AnimationSystem(animationSystem) {}
+        AnimatorComponent() {}
+        AnimatorComponent(const AnimatorComponent&) = default;
+        AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController, Ref<AnimationSystem> animationSystem)
+        : m_Skeleton(skeleton), m_AnimationController(animationController), m_AnimationSystem(animationSystem)
+        {
+            m_BlendJob.layers = ozz::make_span(m_BlendLayers);
+            JointMatrices = m_Skeleton->GetJointMatrices();
+        }
 
-        /**
-         * @brief Gets the animation system.
-         * @return The animation system.
-         */
-        std::shared_ptr<AnimationSystem> GetAnimationSystem() const { return m_AnimationSystem; }
+        Ref<Skeleton> GetSkeleton() const { return m_Skeleton; }
+        Ref<AnimationController> GetAnimationController() const { return m_AnimationController; }
+        Ref<AnimationSystem> GetAnimationSystem() const { return m_AnimationSystem; }
+
+        ozz::animation::SamplingJob::Context& GetContext() { return m_Context; }
+        ozz::animation::BlendingJob::Layer* GetBlendLayers() { return m_BlendLayers; }
+        ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
+
+    public:
+        bool IsBlending = false;
+        unsigned int CurrentAnimation = 0;
+        unsigned int NextAnimation = 0;
+        float AnimationTime = 0.f;
+        float NextAnimationTime = 0.f;
+        float BlendTime = 0.f;
+        float BlendDuration = 0.25f;
+        float BlendThreshold = 0.8;
+        float AnimationSpeed = 1.0f;
+
+        std::vector<glm::mat4> JointMatrices;
 
     private:
-        std::shared_ptr<AnimationSystem> m_AnimationSystem; ///< The animation system.
+        Ref<Skeleton> m_Skeleton;
+        Ref<AnimationController> m_AnimationController;
+        Ref<AnimationSystem> m_AnimationSystem;
+
+        ozz::animation::SamplingJob::Context m_Context;
+        ozz::animation::BlendingJob::Layer m_BlendLayers[2];
+        ozz::animation::BlendingJob m_BlendJob;
     };
 
     /**

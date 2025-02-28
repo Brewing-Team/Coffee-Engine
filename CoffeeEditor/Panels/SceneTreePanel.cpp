@@ -567,24 +567,30 @@ namespace Coffee {
         if (entity.HasComponent<AnimatorComponent>())
         {
             auto& animatorComponent = entity.GetComponent<AnimatorComponent>();
-            std::shared_ptr<AnimationSystem> animSystem = animatorComponent.GetAnimationSystem();
 
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                const char* animationName = animatorComponent.m_AnimationSystem->GetAnimationController()->GetAnimation(animatorComponent.m_AnimationSystem->GetCurrentAnimationIndex())->GetName().c_str();
+                const char* animationName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.CurrentAnimation)->GetAnimationName().c_str();
 
                 if (ImGui::BeginCombo("Animation", animationName))
                 {
-                    for (auto& [name, animation] : animatorComponent.m_AnimationSystem->GetAnimationController()->GetAnimationMap())
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
                         if (ImGui::Selectable(name.c_str()) && name != animationName)
                         {
-                            animatorComponent.m_AnimationSystem->SetCurrentAnimation(name);
+                            animatorComponent.GetAnimationSystem()->SetCurrentAnimation(name, &animatorComponent);
                         }
                     }
                     ImGui::EndCombo();
                 }
+
+                ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
+
+                ImGui::DragFloat("Blend Threshold", &animatorComponent.BlendThreshold, 0.01f, 0.01f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
+
             }
         }
         
