@@ -369,6 +369,66 @@ namespace Coffee {
 
             Renderer3D::Submit(lightComponent);
         }
+
+        // Render UI elements (UIImageComponent)
+    auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
+    for (auto& entity : uiImageView) {
+        auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
+        auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+
+        if (!uiImageComponent.Visible || uiImageComponent.TexturePath.empty())
+            continue;
+
+        // Check if the texture is already loaded
+        if (m_TextureCache.find(uiImageComponent.TexturePath) == m_TextureCache.end()) {
+            // Load texture and store it in the cache
+            m_TextureCache[uiImageComponent.TexturePath] = Texture2D::Load(uiImageComponent.TexturePath);
+        }
+
+        Ref<Texture2D> texture = m_TextureCache[uiImageComponent.TexturePath];
+
+        if (!texture)
+            continue;
+
+        glm::mat4 transform = transformComponent.GetWorldTransform();
+        transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
+
+        // Draw quad with the texture
+        Renderer2D::DrawQuad(
+            transform,
+            texture,
+            1.0f, // Tiling factor
+            glm::vec4(1.0f), // Tint color
+            (uint32_t)entity
+        );
+    }
+
+    // Render UI elements (UITextComponent)
+    auto uiTextView = m_Registry.view<UITextComponent, TransformComponent>();
+    for (auto& entity : uiTextView) {
+        auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
+        auto& transformComponent = uiTextView.get<TransformComponent>(entity);
+
+        if (!uiTextComponent.Visible || uiTextComponent.Text.empty())
+            continue;
+
+        // Load default font
+        if (!uiTextComponent.font) {
+            uiTextComponent.font = Font::GetDefault();
+        }
+
+        glm::mat4 transform = transformComponent.GetWorldTransform();
+        transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
+
+        Renderer2D::DrawText(
+            uiTextComponent.Text,
+            uiTextComponent.font,
+            transform,
+            {uiTextComponent.Color, 0.0f, 0.0f}, // Text color
+            (uint32_t)entity
+        );
+    }
+
     }
 
     void Scene::OnEvent(Event& e)
