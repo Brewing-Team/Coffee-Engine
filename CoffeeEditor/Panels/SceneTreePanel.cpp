@@ -564,33 +564,111 @@ namespace Coffee {
             }
         }
 
-        if (entity.HasComponent<AnimatorComponent>())
+        if (entity.HasComponent<AudioSourceComponent>())
         {
-            auto& animatorComponent = entity.GetComponent<AnimatorComponent>();
-
+            auto& audioSourceComponent = entity.GetComponent<AudioSourceComponent>();
             bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("Audio Source", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                const char* animationName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.CurrentAnimation)->GetAnimationName().c_str();
-
-                if (ImGui::BeginCombo("Animation", animationName))
+                if (!Audio::audioBanks.empty() && ImGui::BeginCombo("Audio Bank", audioSourceComponent.audioBankName.c_str()))
                 {
-                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    for (auto& bank : Audio::audioBanks)
                     {
-                        if (ImGui::Selectable(name.c_str()) && name != animationName)
+                        const bool isSelected = (audioSourceComponent.audioBankName == bank->name);
+
+                        if (bank->name != "Init" && ImGui::Selectable(bank->name.c_str()))
                         {
-                            animatorComponent.GetAnimationSystem()->SetCurrentAnimation(name, &animatorComponent);
+                            if (audioSourceComponent.audioBank != bank)
+                            {
+                                audioSourceComponent.audioBank = bank;
+                                audioSourceComponent.audioBankName = bank->name;
+
+                                if (!audioSourceComponent.eventName.empty())
+                                {
+                                    audioSourceComponent.eventName.clear();
+                                    Audio::StopEvent(audioSourceComponent);
+                                }
+                            }
                         }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                if (audioSourceComponent.audioBank && ImGui::BeginCombo("Audio Clip", audioSourceComponent.eventName.c_str()))
+                {
+                    for (const auto& event : audioSourceComponent.audioBank->events)
+                    {
+                        const bool isSelected = audioSourceComponent.eventName == event;
+
+                        if (ImGui::Selectable(event.c_str()))
+                        {
+                            if (!audioSourceComponent.eventName.empty())
+                                Audio::StopEvent(audioSourceComponent);
+
+                            audioSourceComponent.eventName = event;
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
                     }
                     ImGui::EndCombo();
                 }
 
-                ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
+                ImGui::Checkbox("Play On Awake", &audioSourceComponent.playOnAwake);
 
-                ImGui::DragFloat("Blend Threshold", &animatorComponent.BlendThreshold, 0.01f, 0.01f, 1.0f, "%.2f");
+                if (ImGui::Checkbox("Mute", &audioSourceComponent.mute))
+                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.mute ? 0.f : audioSourceComponent.volume);
 
-                ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
+                if (ImGui::SliderFloat("Volume", &audioSourceComponent.volume, 0.f, 1.f))
+                {
+                    if (audioSourceComponent.mute)
+                        audioSourceComponent.mute = false;
 
+                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
+                }
+
+                if (audioSourceComponent.audioBank && !audioSourceComponent.eventName.empty())
+                {
+                    if (!audioSourceComponent.isPlaying)
+                    {
+                        if (ImGui::SmallButton("Play"))
+                        {
+                            Audio::PlayEvent(audioSourceComponent);
+                        }
+                    }
+                    else
+                    {
+                        if (!audioSourceComponent.isPaused)
+                        {
+                            if (ImGui::SmallButton("Pause"))
+                            {
+                                Audio::PauseEvent(audioSourceComponent);
+                            }
+                        }
+                        else if (ImGui::SmallButton("Resume"))
+                        {
+                            Audio::ResumeEvent(audioSourceComponent);
+                        }
+
+                        ImGui::SameLine();
+
+                        if (ImGui::SmallButton("Stop"))
+                        {
+                            Audio::StopEvent(audioSourceComponent);
+                        }
+                    }
+                }
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
+                Audio::UnregisterAudioSourceComponent(audioSourceComponent);
+                entity.RemoveComponent<AudioSourceComponent>();
             }
         }
 
@@ -882,7 +960,6 @@ namespace Coffee {
             ImGui::EndPopup();
         }
     }
-}
 
 
 // UI functions for scenetree menus

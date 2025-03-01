@@ -331,30 +331,7 @@ namespace Coffee {
 
     void Scene::OnExitRuntime()
     {
-        auto view = m_Registry.view<RigidbodyComponent, TransformComponent>();
-        for (auto entity : view) {
-            auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
-            if (rb.rb) {
-                physicsWorld.removeRigidBody(rb.rb->GetNativeBody());
-        
-                Entity e{entity, this};
-                if (e.GetComponent<TagComponent>().Tag == "Sphere") {
-                    transform.Position = {0.0f, 5.0f, 0.0f}; 
-                }
-                else if (e.GetComponent<TagComponent>().Tag == "Floor") {
-                    transform.Position = {0.0f, -0.25f, 0.0f};
-                }
-        
-                // Reset physics state through RigidBody interface
-                rb.rb->SetPosition(transform.Position);
-                rb.rb->SetRotation({0.0f, 0.0f, 0.0f});
-                rb.rb->ResetVelocity();
-                rb.rb->ClearForces();
-        
-                // Re-add to physics world
-                physicsWorld.addRigidBody(rb.rb->GetNativeBody());
-            }
-        }
+        Audio::StopAllEvents();
     }
 
     Ref<Scene> Scene::Load(const std::filesystem::path& path)
@@ -476,6 +453,48 @@ namespace Coffee {
         {
             parent = modelEntity;
             AddModelToTheSceneTree(scene, c, animatorComponent);
+        }
+    }
+
+    void Scene::UpdateAudioComponentsPositions()
+    {
+        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
+
+        for (auto& entity : audioSourceView)
+        {
+            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
+            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
+
+            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioSourceComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
+                transformComponent.GetWorldTransform()[3],
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
+            }
+        }
+
+        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
+
+        for (auto& entity : audioListenerView)
+        {
+            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
+            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
+
+            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioListenerComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
+                    transformComponent.GetWorldTransform()[3],
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+            }
         }
     }
 

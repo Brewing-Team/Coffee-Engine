@@ -6,6 +6,7 @@
 #include "CoffeeEngine/Events/ControllerEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Audio/Audio.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_timer.h>
@@ -36,7 +37,7 @@ namespace Coffee
 
         Input::Init();
         Renderer::Init();
-        Input::Init();
+        Audio::Init();
 
         m_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(m_ImGuiLayer);

@@ -32,7 +32,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <CoffeeEngine/Physics/CollisionCallback.h>
 #include <glm/gtx/matrix_decompose.hpp>
-#include <glm/gtx/quaternion.hpp>
+
+#include "CoffeeEngine/Audio/Audio.h"
 
 namespace Coffee {
     /**
@@ -387,33 +388,122 @@ namespace Coffee {
         template<class Archive>
         void save(Archive& archive) const
         {
-            std::filesystem::path relativePath;
-            if (Project::GetActive())
-            {
-                relativePath = std::filesystem::relative(script->GetPath(), Project::GetActive()->GetProjectDirectory());
-            }
-            else
-            {
-                relativePath = script->GetPath();
-                COFFEE_CORE_ERROR("ScriptComponent::save: Project is not active, script path is not relative to the project directory!");
-            }
-            archive(cereal::make_nvp("ScriptPath", relativePath.string()), cereal::make_nvp("Language", ScriptingLanguage::Lua));
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("AudioBank", audioBank),
+                    cereal::make_nvp("AudioBankName", audioBankName),
+                    cereal::make_nvp("EventName", eventName),
+                    cereal::make_nvp("Volume", volume),
+                    cereal::make_nvp("Mute", mute),
+                    cereal::make_nvp("PlayOnAwake", playOnAwake),
+                    cereal::make_nvp("Transform", transform)
+            );
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            std::string relativePath;
-            ScriptingLanguage language;
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("AudioBank", audioBank),
+                    cereal::make_nvp("AudioBankName", audioBankName),
+                    cereal::make_nvp("EventName", eventName),
+                    cereal::make_nvp("Volume", volume),
+                    cereal::make_nvp("Mute", mute),
+                    cereal::make_nvp("PlayOnAwake", playOnAwake),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
+    };
 
-    struct RigidbodyComponent {
-        Ref<RigidBody> rb;
-        CollisionCallback callback;
+    struct AudioListenerComponent
+    {
+        uint64_t gameObjectID = -1; ///< The object ID.
+        glm::mat4 transform; ///< The transform of the audio listener.
+        bool toDelete = false; ///< True if the audio listener should be deleted.
 
-        RigidbodyComponent() = default;
-        RigidbodyComponent(const RigidbodyComponent&) = default;
-        RigidbodyComponent(const RigidBody::Properties& props, Ref<Collider> collider) {
-            rb = RigidBody::Create(props, collider);
+        AudioListenerComponent() = default;
+
+        AudioListenerComponent(const AudioListenerComponent& other)
+        {
+            *this = other;
+        }
+
+        AudioListenerComponent& operator=(const AudioListenerComponent& other)
+        {
+            if (this != &other)
+            {
+                gameObjectID = other.gameObjectID;
+                transform = other.transform;
+                toDelete = other.toDelete;
+
+                if (!toDelete)
+                    Audio::RegisterAudioListenerComponent(*this);
+            }
+            return *this;
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("GameObjectID", gameObjectID),
+                    cereal::make_nvp("Transform", transform)
+            );
+        }
+    };
+
+    struct AudioZoneComponent
+    {
+        uint64_t zoneID = -1; ///< The zone ID.
+        std::string audioBusName; ///< The name of the audio bus.
+        glm::vec3 position = { 0.f, 0.f, 0.f }; ///< The position of the audio zone.
+        float radius = 1.f; ///< The radius of the audio zone.
+
+        AudioZoneComponent() = default;
+
+        AudioZoneComponent(const AudioZoneComponent& other)
+        {
+            *this = other;
+        }
+
+        AudioZoneComponent& operator=(const AudioZoneComponent& other)
+        {
+            if (this != &other)
+            {
+                zoneID = other.zoneID;
+                audioBusName = other.audioBusName;
+                position = other.position;
+                radius = other.radius;
+
+                AudioZone::CreateZone(*this);
+            }
+            return *this;
+        }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("ZoneID", zoneID),
+                    cereal::make_nvp("AudioBusName", audioBusName),
+                    cereal::make_nvp("Position", position),
+                    cereal::make_nvp("Radius", radius)
+            );
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("ZoneID", zoneID),
+                    cereal::make_nvp("AudioBusName", audioBusName),
+                    cereal::make_nvp("Position", position),
+                    cereal::make_nvp("Radius", radius)
+            );
         }
     };
     
