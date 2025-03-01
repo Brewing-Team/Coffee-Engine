@@ -17,22 +17,39 @@ endif()
 set(SAMPLES_DIR "${WWISE_SDK_DIR}/samples")
 
 # Gather sources
-file(GLOB_RECURSE SOURCES
-    "${SAMPLES_DIR}/SoundEngine/Common/*.h"
-    "${SAMPLES_DIR}/SoundEngine/Common/*.cpp"
-    "${SAMPLES_DIR}/SoundEngine/Win32/*.h"
-    "${SAMPLES_DIR}/SoundEngine/Win32/*.cpp"
-)
+if (WIN32)
+    file(GLOB_RECURSE SOURCES
+        "${SAMPLES_DIR}/SoundEngine/Common/*.h"
+        "${SAMPLES_DIR}/SoundEngine/Common/*.cpp"
+        "${SAMPLES_DIR}/SoundEngine/Win32/*.h"
+        "${SAMPLES_DIR}/SoundEngine/Win32/*.cpp"
+    )
+elseif(UNIX)
+    file(GLOB_RECURSE SOURCES
+        "${SAMPLES_DIR}/SoundEngine/Common/*.h"
+        "${SAMPLES_DIR}/SoundEngine/Common/*.cpp"
+        "${SAMPLES_DIR}/SoundEngine/POSIX/*.h"
+        "${SAMPLES_DIR}/SoundEngine/POSIX/*.cpp"
+    )
+endif()
 
 # Add a library target for Wwise
 add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
 # Include Wwise headers
-target_include_directories(${PROJECT_NAME}
-    PUBLIC "${WWISE_SDK_DIR}/include"
-              "${SAMPLES_DIR}/SoundEngine/Common"
-              "${SAMPLES_DIR}/SoundEngine/Win32"
-)
+if (WIN32)
+    target_include_directories(${PROJECT_NAME}
+        PUBLIC "${WWISE_SDK_DIR}/include"
+               "${SAMPLES_DIR}/SoundEngine/Common"
+               "${SAMPLES_DIR}/SoundEngine/Win32"
+    )
+elseif(UNIX)
+    target_include_directories(${PROJECT_NAME}
+        PUBLIC "${WWISE_SDK_DIR}/include"
+               "${SAMPLES_DIR}/SoundEngine/Common"
+               "${SAMPLES_DIR}/SoundEngine/POSIX"
+    )
+endif()
 
 # Platform-specific configurations (adjust as needed)
 if (WIN32)
@@ -47,12 +64,10 @@ if (WIN32)
             ws2_32.dll
     )
 elseif(UNIX)
-    set(WWISE_LIB_DIR "${WWISE_SDK_DIR}/Linux/x64/Debug/lib")
-    target_link_directories(${PROJECT_NAME} INTERFACE "${WWISE_LIB_DIR}")
+    set(WWISE_LIB_DIR "${WWISE_SDK_DIR}/Linux_x64/Debug/lib")
+    file(GLOB LIB_FILES ${WWISE_LIB_DIR}/*.a)
 
     target_link_libraries(${PROJECT_NAME}
-        INTERFACE libAkSoundEngine.so
-                  libAkMusicEngine.so
-                  libAkStreamMgr.so
+        INTERFACE ${LIB_FILES}
     )
 endif()
