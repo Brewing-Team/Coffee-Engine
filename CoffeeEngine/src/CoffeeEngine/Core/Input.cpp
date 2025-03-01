@@ -20,8 +20,6 @@ namespace Coffee {
     void Input::Init()
     {
         SDL_InitSubSystem(SDL_INIT_GAMEPAD);
-
-        COFFEE_CORE_INFO("Input initialized");
     }
 
     bool Input::IsKeyPressed(const KeyCode key)
@@ -66,6 +64,40 @@ namespace Coffee {
             return gamepad->getId() == event->Controller;
         };
         erase_if(m_gamepads, pred);
+    }
+    void Input::OnButtonPressed(const ButtonPressEvent& e) {
+        m_buttonStates[e.Button] += 1;
+    }
+
+    void Input::OnButtonReleased(const ButtonReleaseEvent& e) {
+        m_buttonStates[e.Button] -= 1;
+    }
+
+    void Input::OnAxisMoved(const AxisMoveEvent& e) {
+
+        constexpr float DEADZONE = 0.15f;
+        float normalizedValue = e.Value / 32767.0f;
+
+        if (std::abs(normalizedValue) < DEADZONE)
+        {
+            normalizedValue = 0.0f;
+        }
+       
+        m_axisStates[e.Axis] = normalizedValue;
+    }
+    void Input::OnKeyPressed(const KeyPressedEvent& kEvent) {
+    }
+
+    void Input::OnKeyReleased(const KeyReleasedEvent& kEvent) {
+    }
+
+    void Input::OnMouseButtonPressed(const MouseButtonPressedEvent& mEvent) {
+    }
+
+    void Input::OnMouseButtonReleased(const MouseButtonReleasedEvent& mEvent) {
+    }
+
+    void Input::OnMouseMoved(const MouseMovedEvent& mEvent) {
     }
 
     void Input::OnEvent(Event& e)
