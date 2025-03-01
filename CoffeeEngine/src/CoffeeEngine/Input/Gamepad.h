@@ -11,7 +11,7 @@ namespace Coffee {
      */
     class Gamepad {
     public:
-        Gamepad(ControllerCode id);
+        explicit Gamepad(ControllerCode id);
         ~Gamepad();
 
         const char* GetName() const;

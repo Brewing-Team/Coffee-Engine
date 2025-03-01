@@ -10,7 +10,7 @@ namespace Coffee {
     Gamepad::Gamepad(ControllerCode id)
     {
         m_gamepad = SDL_OpenGamepad(id);
-        if (m_gamepad == NULL)
+        if (m_gamepad == nullptr)
         {
             COFFEE_ERROR("Gamepad could not be opened: %s", SDL_GetError());
         }
@@ -27,6 +27,7 @@ namespace Coffee {
             COFFEE_INFO("Gamepad {0} disconnected: {1}", m_id, GetName());
         SDL_CloseGamepad(m_gamepad);
     }
+
     const char* Gamepad::GetName() const { return SDL_GetGamepadName(m_gamepad); }
 
     ControllerCode Gamepad::getId() const { return m_id; }

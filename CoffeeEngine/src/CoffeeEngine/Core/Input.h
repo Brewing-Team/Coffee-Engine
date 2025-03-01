@@ -3,12 +3,18 @@
 #include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
+#include "CoffeeEngine/Input/Gamepad.h"
 #include "CoffeeEngine/Events/ControllerEvent.h"
+#include "CoffeeEngine/Events/KeyEvent.h"
+#include "CoffeeEngine/Events/MouseEvent.h"
+#include "CoffeeEngine/Input/InputBinding.h"
+
 
 #include "CoffeeEngine/Events/Event.h"
-#include "CoffeeEngine/Input/Gamepad.h"
 
+#include <SDL3/SDL_gamepad.h>
 #include <glm/glm.hpp>
+#include <unordered_map>
 
 namespace Coffee {
 	// TODO Change for better action map layers method?
@@ -46,77 +52,71 @@ namespace Coffee {
         ActionCount
     };
 
-    /** Struct containing input details for a given action.
-     *
-     */
-    class InputBinding
-    {
-		std::string Name = "Undefined";
-
-        // Digital
-        KeyCode KeyPos = Key::UNKNOWN; // Positive keyboard key
-        KeyCode KeyNeg = Key::UNKNOWN; // Negative keyboard key
-        ButtonCode ButtonPos = Button::Invalid; // Positive gamepad button
-        ButtonCode ButtonNeg = Button::Invalid; // Negative gamepad button
-
-        // Analog
-        KeyCode Axis = Axis::Invalid; // Defined axis for analog control
-        float AxisVal = 0; // Axis value
-
-    };
-
     /**
      * @defgroup core Core
      * @brief Core components of the CoffeeEngine.
      * @{
      */
+
 	class Input
 	{
 	public:
 
-		static InputLayer CurrentInputContext;
-
-
-	    /**
-	     * Initializes the module
-	     */
+        /**
+         * Initializes the module
+         */
         static void Init();
 
-		/**
-		 * Checks if a specific key is currently being pressed.
-		 *
-		 * @param key The key code of the key to check.
-		 * @return True if the key is currently being pressed, false otherwise.
-		 */
-		static bool IsKeyPressed(const KeyCode key);
+        /**
+         * Checks if a specific key is currently being pressed.
+         *
+         * @param key The key code of the key to check.
+         * @return True if the key is currently being pressed, false otherwise.
+         */
+        static bool IsKeyPressed(const KeyCode key);
 
-		/**
-		 * Checks if a mouse button is currently pressed.
-		 *
-		 * @param button The mouse button to check.
-		 * @return True if the mouse button is pressed, false otherwise.
-		 */
-		static bool IsMouseButtonPressed(const MouseCode button);
-		/**
-		 * Retrieves the current position of the mouse.
-		 *
-		 * @return The current position of the mouse as a 2D vector.
-		 */
-		static glm::vec2 GetMousePosition();
-		/**
-		 * @brief Retrieves the current x-coordinate of the mouse cursor.
-		 *
-		 * @return The x-coordinate of the mouse cursor.
-		 */
-		static float GetMouseX();
-		/**
-		 * @brief Retrieves the current y-coordinate of the mouse cursor.
-		 *
-		 * @return The y-coordinate of the mouse cursor.
-		 */
-		static float GetMouseY();
-        static void OnAddController(ControllerAddEvent* cEvent);
-        static void OnRemoveController(ControllerRemoveEvent* c_event);
+        /**
+         * Checks if a mouse button is currently pressed.
+         *
+         * @param button The mouse button to check.
+         * @return True if the mouse button is pressed, false otherwise.
+         */
+        static bool IsMouseButtonPressed(const MouseCode button);
+        /**
+         * Retrieves the current position of the mouse.
+         *
+         * @return The current position of the mouse as a 2D vector.
+         */
+        static glm::vec2 GetMousePosition();
+        /**
+         * @brief Retrieves the current x-coordinate of the mouse cursor.
+         *
+         * @return The x-coordinate of the mouse cursor.
+         */
+        static float GetMouseX();
+        /**
+         * @brief Retrieves the current y-coordinate of the mouse cursor.
+         *
+         * @return The y-coordinate of the mouse cursor.
+         */
+
+        static float GetMouseY();
+        /**
+         * @brief Checks if a specific button is currently pressed on a given controller.
+         *
+         * @param button The button code to check.
+         * @return True if the button is pressed, false otherwise.
+         */
+        static bool GetButtonRaw(ButtonCode button);
+        /**
+         * @brief Retrieves the current value of an axis on a given controller.
+         *
+         * @param axis The axis code to check.
+         * @return The axis value, usually between -1 and 1. Returns 0 if the controller is invalid.
+         */
+        static float GetAxisRaw(AxisCode axis);
+
+		static InputLayer CurrentInputContext;
 
         static void OnEvent(Event& e);
 
@@ -130,25 +130,25 @@ namespace Coffee {
          * @brief Handles controller disconnection events
          * @param cEvent The event data to process
          */
-	    static void OnRemoveController(ControllerRemoveEvent* cEvent);
+	    static void OnRemoveController(const ControllerRemoveEvent* cEvent);
 	    /**
         * @brief Handles button press events from controllers.
         *
         * @param e The button press event to process.
         */
-        static void OnButtonPressed(ButtonPressEvent& e);
+        static void OnButtonPressed(const ButtonPressEvent& e);
 	    /**
          * @brief Handles button release events from controllers.
          *
          * @param e The button release event to process.
          */
-        static void OnButtonReleased(ButtonReleaseEvent& e);
+        static void OnButtonReleased(const ButtonReleaseEvent& e);
 	    /**
          * @brief Handles axis movement events from controllers.
          *
          * @param e The axis move event to process.
          */
-        static void OnAxisMoved(AxisMoveEvent& e);
+        static void OnAxisMoved(const AxisMoveEvent& e);
 	    /**
          * @brief Handles key press events from the keyboard.
          *
@@ -183,6 +183,10 @@ namespace Coffee {
         static std::vector<InputBinding> m_bindings;
 
 	    static std::vector<Ref<Gamepad>> m_gamepads;
+	    static std::unordered_map<ButtonCode, char> m_buttonStates;
+	    static std::unordered_map<AxisCode, float> m_axisStates;
+	    static std::unordered_map<KeyCode, bool> m_keyStates;
+
 	};
     /** @} */
 }
