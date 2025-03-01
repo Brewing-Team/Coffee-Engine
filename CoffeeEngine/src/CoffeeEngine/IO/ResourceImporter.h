@@ -18,6 +18,7 @@
 #include <cereal/archives/binary.hpp>
 #include <cereal/archives/json.hpp>
 #include <filesystem>
+#include <fstream>
 #include <string>
 
 namespace Coffee {
@@ -50,7 +51,7 @@ namespace Coffee {
                 // Check if the resource is cached
                 if(std::filesystem::exists(data.cachedPath))
                 {
-                    const Ref<T>& resource = LoadFromCache(data.cachedPath, data.type);
+                    const Ref<T>& resource = LoadFromCache<T>(data.cachedPath);
                     return resource;
                 }
                 // If the resource is not cached, import it
@@ -67,15 +68,15 @@ namespace Coffee {
             }
             else
             {
-                Ref<Texture2D> texture = CreateRef<Texture2D>(data);
+                Ref<T> resource = CreateRef<T>(data);
 
-                data.uuid = texture->GetUUID();
+                data.uuid = resource->GetUUID();
 
-                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(data.uuid, ResourceType::Texture2D);
+                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(data.uuid, GetResourceType<T>());
 
                 data.cachedPath = cachedFilePath;
 
-                ResourceSaver::SaveToCache(data.uuid, texture);
+                ResourceSaver::SaveToCache(data.uuid, resource);
             }
         }
 
@@ -89,7 +90,7 @@ namespace Coffee {
                 // Check if the resource is cached
                 if (std::filesystem::exists(data.cachedPath))
                 {
-                    const Ref<T>& resource = LoadFromCache(data.cachedPath, data.type);
+                    const Ref<T>& resource = LoadFromCache<T>(data.cachedPath);
                     return resource;
                 }
                 // If the resource is not cached, import it
@@ -118,7 +119,7 @@ namespace Coffee {
 
             if (std::filesystem::exists(cachedFilePath))
             {
-                const Ref<Resource>& resource = LoadFromCache(cachedFilePath, GetResourceSaveFormatFromType(GetResourceType<T>()));
+                const Ref<Resource>& resource = LoadFromCache<T>(cachedFilePath);
                 return std::static_pointer_cast<T>(resource);
             }
             else
@@ -128,24 +129,6 @@ namespace Coffee {
             }
         }
 
-        /**
-         * @brief Imports a texture from a given file path.
-         * @param path The file path of the texture to import.
-         * @param srgb Whether the texture should be imported in sRGB format.
-         * @param cache Whether the texture should be cached.
-         * @return A reference to the imported texture.
-         */
-        Ref<Texture2D> ImportTexture2D(const std::filesystem::path& path, const UUID& uuid, bool srgb, bool cache);
-        Ref<Texture2D> ImportTexture2D(const UUID& uuid);
-        Ref<Cubemap> ImportCubemap(const std::filesystem::path& path, const UUID& uuid);
-        Ref<Cubemap> ImportCubemap(const UUID& uuid);
-        Ref<Model> ImportModel(const std::filesystem::path& path, bool cache);
-        Ref<Mesh> ImportMesh(const std::string& name, const UUID& uuid, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb);
-        Ref<Mesh> ImportMesh(const UUID& uuid);
-
-        Ref<Material> ImportMaterial(const std::string& name, const UUID& uuid);
-        Ref<Material> ImportMaterial(const std::string& name, const UUID& uuid, MaterialTextures& materialTextures);
-        Ref<Material> ImportMaterial(const UUID& uuid);
     private:
         /**
          * @brief Loads a resource from the cache.
@@ -153,21 +136,53 @@ namespace Coffee {
          * @param format The format of the resource.
          * @return A reference to the loaded resource.
          */
-        Ref<Resource> LoadFromCache(const std::filesystem::path& path, ResourceType type);
+        template<typename T>
+        Ref<T> LoadFromCache(const std::filesystem::path& path)
+        {
+            COFFEE_INFO("Loading resource from cache: {0}", path.string());
+
+            ResourceFormat resourceFormat = GetResourceSaveFormatFromType(GetResourceType<T>());
+
+            switch (resourceFormat)
+            {
+                case ResourceFormat::Binary:
+                    return BinaryDeserialization<T>(path);
+                    break;
+                case ResourceFormat::JSON:
+                    return JSONDeserialization<T>(path);
+                    break;
+            }
+        }
 
         /**
          * @brief Deserializes a resource from a binary file.
          * @param path The file path of the binary file.
          * @return A reference to the deserialized resource.
          */
-        Ref<Resource> BinaryDeserialization(const std::filesystem::path& path);
+        template<typename T>
+        Ref<T> BinaryDeserialization(const std::filesystem::path& path)
+        {
+            std::ifstream file(path, std::ios::binary);
+            cereal::BinaryInputArchive archive(file);
+            Ref<T> resource;
+            archive(resource);
+            return resource;
+        }
 
         /**
          * @brief Deserializes a resource from a JSON file.
          * @param path The file path of the JSON file.
          * @return A reference to the deserialized resource.
          */
-        Ref<Resource> JSONDeserialization(const std::filesystem::path& path);
+        template<typename T>
+        Ref<T> JSONDeserialization(const std::filesystem::path& path)
+        {
+            std::ifstream file(path);
+            cereal::JSONInputArchive archive(file);
+            Ref<T> resource;
+            archive(resource);
+            return resource;
+        }
     };
 }
 

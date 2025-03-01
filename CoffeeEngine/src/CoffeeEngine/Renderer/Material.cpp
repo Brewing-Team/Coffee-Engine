@@ -122,11 +122,7 @@ namespace Coffee {
 
     Ref<Material> Material::Create(const std::string& name, MaterialTextures* materialTextures)
     {
-        if(materialTextures)
-        {
-            return ResourceLoader::LoadMaterial(name, *materialTextures);
-        }
-        return ResourceLoader::LoadMaterial(name);
+        return ResourceLoader::Load<Material>(name);
     }
 
 }

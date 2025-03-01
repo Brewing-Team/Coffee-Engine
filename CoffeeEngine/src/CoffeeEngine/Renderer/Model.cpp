@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/IO/ImportData/MeshImportData.h"
+#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -104,7 +105,7 @@ namespace Coffee {
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::LoadModel(path, true);
+        return ResourceLoader::Load<Model>(path);
     }
 
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
@@ -252,7 +253,7 @@ namespace Coffee {
         meshImportData.material = meshMaterial;
         meshImportData.aabb = aabb;
         // Think if this is the most comfortable way to do this
-        meshImportData.cachedPath = CacheManager::GetCachedFilePath(nameReference, meshUUID, ResourceType::Mesh);
+        meshImportData.cachedPath = CacheManager::GetCachedFilePath(meshUUID, ResourceType::Mesh);
 
         Ref<Mesh> resultMesh = ResourceLoader::LoadEmbedded<Mesh>(meshImportData);
 
@@ -301,7 +302,11 @@ namespace Coffee {
 
         bool srgb = (type == aiTextureType_DIFFUSE || type == aiTextureType_EMISSIVE);
 
-        return Texture2D::Load(texturePath, srgb);
+        Texture2DImportData importData;
+        importData.originalPath = texturePath;
+        importData.sRGB = srgb;
+
+        return ResourceLoader::Load<Texture2D>(importData);
     }
 
     MaterialTextures Model::LoadMaterialTextures(aiMaterial* material)

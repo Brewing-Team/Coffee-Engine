@@ -142,7 +142,7 @@ namespace Coffee {
             UUID materialUUID;
             archive(m_Vertices, m_Indices, m_AABB, materialUUID, cereal::base_class<Resource>(this));
 
-            m_Material = ResourceLoader::LoadMaterial(materialUUID);
+            m_Material = ResourceLoader::GetResource<Material>(materialUUID);
         }
 
         template<class Archive>
@@ -159,7 +159,7 @@ namespace Coffee {
             data(construct->m_AABB, materialUUID, cereal::base_class<Resource>(construct.ptr()));
             construct->m_Vertices = vertices;
             construct->m_Indices = indices;
-            construct->m_Material = ResourceLoader::LoadMaterial(materialUUID);
+            construct->m_Material = ResourceLoader::GetResource<Material>(materialUUID);
         }
       private:
         Ref<VertexArray> m_VertexArray; ///< The vertex array of the mesh.

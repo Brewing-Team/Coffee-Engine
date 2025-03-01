@@ -96,7 +96,7 @@ namespace Coffee {
         void Clear(glm::vec4 color);
         void SetData(void* data, uint32_t size);
 
-        static Ref<Texture2D> Load(const std::filesystem::path& path, bool srgb = true);
+        static Ref<Texture2D> Load(const std::filesystem::path& path);
         static Ref<Texture2D> Create(uint32_t width, uint32_t height, ImageFormat format);
 
     private:

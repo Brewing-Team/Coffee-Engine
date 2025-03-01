@@ -138,25 +138,21 @@ namespace Coffee {
         void save(Archive& archive) const
         {
             // convert this to UUIDs
-            std::vector<ImportData> meshImportData;
-            for (const auto& mesh : m_Meshes)
+            std::vector<UUID> meshUUIDs;
+            for(const auto& mesh : m_Meshes)
             {
-                ImportData data;
-                data.uuid = mesh->GetUUID();
-                data.cachedPath = CacheManager::GetCachedFilePath(mesh->GetName(), mesh->GetUUID(), ResourceType::Mesh);
-                meshImportData.push_back(data);
+                meshUUIDs.push_back(mesh->GetUUID());
             }
-
-            archive(meshImportData, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
         }
         template<class Archive>
         void load(Archive& archive)
         {
-            std::vector<ImportData> meshImportData;
-            archive(meshImportData, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
-            for(const auto& data : meshImportData)
+            std::vector<UUID> meshUUIDs;
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
+            for(const auto& data : meshUUIDs)
             {
-                m_Meshes.push_back(ResourceLoader::LoadEmbedded<Mesh>(data));
+                m_Meshes.push_back(ResourceLoader::GetResource<Mesh>(data));
             }
         }
 

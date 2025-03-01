@@ -245,9 +245,9 @@ namespace Coffee {
         glGenerateTextureMipmap(m_textureID);
     }
 
-    Ref<Texture2D> Texture2D::Load(const std::filesystem::path& path, bool srgb)
+    Ref<Texture2D> Texture2D::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::LoadTexture2D(path, srgb);
+        return ResourceLoader::Load<Texture2D>(path);
     }
 
     Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)
@@ -517,7 +517,7 @@ namespace Coffee {
 
     Ref<Cubemap> Cubemap::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::LoadCubemap(path);
+        return ResourceLoader::Load<Cubemap>(path);
     }
     Ref<Cubemap> Cubemap::Create(const std::filesystem::path& path)
     {

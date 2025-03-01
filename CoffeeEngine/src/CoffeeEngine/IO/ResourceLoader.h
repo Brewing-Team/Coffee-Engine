@@ -43,34 +43,13 @@ namespace Coffee {
          */
         static void LoadFile(const std::filesystem::path& path);
 
-        /**
-         * @brief Loads a texture from a file.
-         * @param path The file path of the texture to load.
-         * @param srgb Whether the texture should be loaded in sRGB format.
-         * @param cache Whether the texture should be cached.
-         * @return A reference to the loaded texture.
-         */
-        static Ref<Texture2D> LoadTexture2D(const std::filesystem::path& path, bool srgb = true, bool cache = true);
-
         template <typename T>
-        static Ref<T> Load(const std::filesystem::path& path)
+        inline static Ref<T> Load(const std::filesystem::path& path)
         {
             if (HasImportFile(path))
             {
                 ImportData importData = LoadImportData(path);
-
-                if (ResourceRegistry::Exists(importData.uuid))
-                {
-                    return ResourceRegistry::Get<T>(importData.uuid);
-                }
-
-                const Ref<T>& resource = s_Importer.Import<T>(importData);
-                // TODO: Move this to the importer passing it to the constructor
-                /* resource->SetUUID(importData.uuid);
-                resource->SetName(path.filename().string()); */
-
-                ResourceRegistry::Add(importData.uuid, resource);
-                return resource;
+                return Load<T>(importData);
             }
             else
             {
@@ -82,6 +61,20 @@ namespace Coffee {
                 SaveImportData(newImportData);
                 ResourceRegistry::Add(newImportData.uuid, resource);
             }
+        }
+
+        template<typename T>
+        inline static Ref<T> Load(const ImportData& importData)
+        {
+            if (ResourceRegistry::Exists(importData.uuid))
+            {
+                return ResourceRegistry::Get<T>(importData.uuid);
+            }
+
+            const Ref<T>& resource = s_Importer.Import<T>(importData);
+
+            ResourceRegistry::Add(importData.uuid, resource);
+            return resource;
         }
 
         template<typename T>
@@ -109,52 +102,16 @@ namespace Coffee {
                 return ResourceRegistry::Get<T>(uuid);
             }
 
-            const 
+            const Ref<T>& resource = s_Importer.ImportFromCache<T>(uuid);
+
+            if (resource)
+            {
+                ResourceRegistry::Add(uuid, resource);
+                return resource;
+            }
 
             return nullptr;
         }
-
-        template<typename T>
-        static Ref<T> Load(UUID uuid)
-        {
-            if (uuid == UUID::null)
-                return nullptr;
-
-            if (ResourceRegistry::Exists(uuid))
-            {
-                return ResourceRegistry::Get<T>(uuid);
-            }
-
-            const Ref<T>& resource = s_Importer.Import<T>(uuid);
-
-            ResourceRegistry::Add(uuid, resource);
-            return resource;
-        }
-
-
-        // Rename the functions that take a UUID to GetResource<type>FromUUID
-        static Ref<Texture2D> LoadTexture2D(UUID uuid);
-
-        static Ref<Cubemap> LoadCubemap(const std::filesystem::path& path);
-        static Ref<Cubemap> LoadCubemap(UUID uuid);
-
-        /**
-         * @brief Loads a model from a file.
-         * @param path The file path of the model to load.
-         * @param cache Whether the model should be cached.
-         * @return A reference to the loaded model.
-         */
-        static Ref<Model> LoadModel(const std::filesystem::path& path, bool cache = true);
-
-        static Ref<Mesh> LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb);
-        static Ref<Mesh> LoadMesh(UUID uuid);
-
-        static Ref<Shader> LoadShader(const std::filesystem::path& shaderPath);
-        static Ref<Shader> LoadShader(const std::string& shaderSource);
-
-        static Ref<Material> LoadMaterial(const std::string& name);
-        static Ref<Material> LoadMaterial(const std::string& name, MaterialTextures& materialTextures);
-        static Ref<Material> LoadMaterial(UUID uuid);
 
         static void RemoveResource(UUID uuid);
         static void RemoveResource(const std::filesystem::path& path);

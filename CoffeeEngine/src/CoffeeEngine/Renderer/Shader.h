@@ -23,6 +23,8 @@ namespace Coffee {
     class Shader : public Resource
     {
     public:
+
+        Shader() = default;
         /**
          * @brief Constructs a Shader with the specified vertex and fragment shader paths.
          * @param vertexPath The file path to the vertex shader.
