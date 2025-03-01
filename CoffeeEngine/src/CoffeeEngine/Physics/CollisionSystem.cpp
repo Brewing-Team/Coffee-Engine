@@ -4,77 +4,84 @@
 
 namespace Coffee {
 
-Scene* CollisionSystem::s_Scene = nullptr;
-std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> CollisionSystem::s_ActiveCollisions;
+    Scene* CollisionSystem::s_Scene = nullptr;
+    std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> CollisionSystem::s_ActiveCollisions;
 
-void CollisionSystem::Initialize(Scene* scene) {
-    s_Scene = scene;
-}
-
-void CollisionSystem::checkCollisions(const PhysicsWorld& world) {
-    auto& registry = s_Scene->m_Registry;
-    
-    std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> currentCollisions;
-
-    int numManifolds = world.getDynamicsWorld()->getDispatcher()->getNumManifolds();
-    for (int i = 0; i < numManifolds; i++) {
-        ::btPersistentManifold* contactManifold = world.getDynamicsWorld()->getDispatcher()->getManifoldByIndexInternal(i);
-        btCollisionObject* objA = const_cast<btCollisionObject*>(contactManifold->getBody0());
-        btCollisionObject* objB = const_cast<btCollisionObject*>(contactManifold->getBody1());
-
-        // Get entities from collision objects
-        Entity entityA((entt::entity)(size_t)objA->getUserPointer(), s_Scene);
-        Entity entityB((entt::entity)(size_t)objB->getUserPointer(), s_Scene);
-
-        if (contactManifold->getNumContacts() > 0) {
-            auto pair = std::make_pair(objA, objB);
-            currentCollisions.insert(pair);
-
-            // CollisionInfo info = { entityA, entityB, contactManifold };
-            CollisionInfo info{entityA, entityB, contactManifold};
-
-            // Handle collision enter
-            if (s_ActiveCollisions.find(pair) == s_ActiveCollisions.end()) {
-                auto& rbA = entityA.GetComponent<RigidbodyComponent>();
-                auto& rbB = entityB.GetComponent<RigidbodyComponent>();
-
-                if (rbA.callback.GetOnCollisionEnter())
-                    rbA.callback.GetOnCollisionEnter()(info);
-                if (rbB.callback.GetOnCollisionEnter())
-                    rbB.callback.GetOnCollisionEnter()(info);
-            }
-            // Handle collision stay
-            else {
-                auto& rbA = entityA.GetComponent<RigidbodyComponent>();
-                auto& rbB = entityB.GetComponent<RigidbodyComponent>();
-
-                if (rbA.callback.GetOnCollisionStay())
-                    rbA.callback.GetOnCollisionStay()(info);
-                if (rbB.callback.GetOnCollisionStay())
-                    rbB.callback.GetOnCollisionStay()(info);
-            }
-        }
+    void CollisionSystem::Initialize(Scene* scene) {
+        s_Scene = scene;
     }
 
-    // Handle collision exit
-    for (const auto& pair : s_ActiveCollisions) {
-        if (currentCollisions.find(pair) == currentCollisions.end()) {
-            Entity entityA((entt::entity)(size_t)pair.first->getUserPointer(), s_Scene);
-            Entity entityB((entt::entity)(size_t)pair.second->getUserPointer(), s_Scene);
-            
-            CollisionInfo info = { entityA, entityB, nullptr };
+    void CollisionSystem::checkCollisions(const PhysicsWorld& world) {
 
-            auto& rbA = entityA.GetComponent<RigidbodyComponent>();
-            auto& rbB = entityB.GetComponent<RigidbodyComponent>();
+        std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> currentCollisions;
 
-            if (rbA.callback.GetOnCollisionExit())
-                rbA.callback.GetOnCollisionExit()(info);
-            if (rbB.callback.GetOnCollisionExit())
-                rbB.callback.GetOnCollisionExit()(info);
+        int numManifolds = world.getDynamicsWorld()->getDispatcher()->getNumManifolds();
+        for (int i = 0; i < numManifolds; i++) {
+            ::btPersistentManifold* contactManifold = world.getDynamicsWorld()->getDispatcher()->getManifoldByIndexInternal(i);
+            auto objA = const_cast<btCollisionObject*>(contactManifold->getBody0());
+            auto objB = const_cast<btCollisionObject*>(contactManifold->getBody1());
+
+            // Get entities from collision objects
+            Entity entityA(static_cast<entt::entity>(reinterpret_cast<size_t>(objA->getUserPointer())), s_Scene);
+            Entity entityB(static_cast<entt::entity>(reinterpret_cast<size_t>(objB->getUserPointer())), s_Scene);
+
+            if (contactManifold->getNumContacts() > 0) {
+                auto pair = std::make_pair(objA, objB);
+                currentCollisions.insert(pair);
+
+                // CollisionInfo info = { entityA, entityB, contactManifold };
+                CollisionInfo info{entityA, entityB, contactManifold};
+
+                // Handle collision enter
+                if (s_ActiveCollisions.find(pair) == s_ActiveCollisions.end()) {
+                    if (entityA.HasComponent<RigidbodyComponent>() && entityB.HasComponent<RigidbodyComponent>()) {
+                        auto& rbA = entityA.GetComponent<RigidbodyComponent>();
+                        auto& rbB = entityB.GetComponent<RigidbodyComponent>();
+
+                        if (rbA.callback.GetOnCollisionEnter())
+                            rbA.callback.GetOnCollisionEnter()(info);
+                        if (rbB.callback.GetOnCollisionEnter())
+                            rbB.callback.GetOnCollisionEnter()(info);
+                    }
+                }
+                // Handle collision stay
+                else {
+                    if (entityA.HasComponent<RigidbodyComponent>() && entityB.HasComponent<RigidbodyComponent>())
+                    {
+                        auto& rbA = entityA.GetComponent<RigidbodyComponent>();
+                        auto& rbB = entityB.GetComponent<RigidbodyComponent>();
+
+                        if (rbA.callback.GetOnCollisionStay())
+                            rbA.callback.GetOnCollisionStay()(info);
+                        if (rbB.callback.GetOnCollisionStay())
+                            rbB.callback.GetOnCollisionStay()(info);
+                    }
+                }
+            }
         }
-    }
 
-    s_ActiveCollisions = currentCollisions;
-}
+        // Handle collision exit
+        for (const auto& pair : s_ActiveCollisions) {
+            if (currentCollisions.find(pair) == currentCollisions.end()) {
+                Entity entityA(static_cast<entt::entity>(reinterpret_cast<size_t>(pair.first->getUserPointer())), s_Scene);
+                Entity entityB(static_cast<entt::entity>(reinterpret_cast<size_t>(pair.second->getUserPointer())), s_Scene);
+
+                CollisionInfo info = { entityA, entityB, nullptr };
+
+                if (entityA.HasComponent<RigidbodyComponent>() && entityB.HasComponent<RigidbodyComponent>())
+                {
+                    auto& rbA = entityA.GetComponent<RigidbodyComponent>();
+                    auto& rbB = entityB.GetComponent<RigidbodyComponent>();
+
+                    if (rbA.callback.GetOnCollisionExit())
+                        rbA.callback.GetOnCollisionExit()(info);
+                    if (rbB.callback.GetOnCollisionExit())
+                        rbB.callback.GetOnCollisionExit()(info);
+                }
+            }
+        }
+
+        s_ActiveCollisions = currentCollisions;
+    }
 
 }

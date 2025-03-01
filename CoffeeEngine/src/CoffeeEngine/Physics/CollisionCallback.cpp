@@ -4,15 +4,15 @@
 
 namespace Coffee {
 
-    void CollisionCallback::OnCollisionEnter(CollisionFunction fn) {
+    void CollisionCallback::OnCollisionEnter(const CollisionFunction& fn) {
         m_OnCollisionEnter = fn;
     }
 
-    void CollisionCallback::OnCollisionStay(CollisionFunction fn) {
+    void CollisionCallback::OnCollisionStay(const CollisionFunction& fn) {
         m_OnCollisionStay = fn;
     }
 
-    void CollisionCallback::OnCollisionExit(CollisionFunction fn) {
+    void CollisionCallback::OnCollisionExit(const CollisionFunction& fn) {
         m_OnCollisionExit = fn;
     }
 

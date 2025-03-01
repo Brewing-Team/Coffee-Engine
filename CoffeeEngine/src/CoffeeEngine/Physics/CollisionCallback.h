@@ -16,9 +16,9 @@ namespace Coffee {
     public:
         using CollisionFunction = std::function<void(CollisionInfo&)>;
 
-        void OnCollisionEnter(CollisionFunction fn);
-        void OnCollisionStay(CollisionFunction fn);
-        void OnCollisionExit(CollisionFunction fn);
+        void OnCollisionEnter(const CollisionFunction& fn);
+        void OnCollisionStay(const CollisionFunction& fn);
+        void OnCollisionExit(const CollisionFunction& fn);
 
         const CollisionFunction& GetOnCollisionEnter() const;
         const CollisionFunction& GetOnCollisionStay() const;

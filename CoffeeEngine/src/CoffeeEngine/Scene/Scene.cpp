@@ -314,7 +314,7 @@ namespace Coffee {
         for(auto entity : cameraView)
         {
             auto [transform, cameraComponent] = cameraView.get<TransformComponent, CameraComponent>(entity);
-            
+
             //TODO: Multiple cameras support (for now, the last camera found will be used)
             camera = &cameraComponent.Camera;
             cameraTransform = transform.GetWorldTransform();
@@ -334,7 +334,7 @@ namespace Coffee {
         // --------------------------- Physics testing --------------------------
         physicsWorld.stepSimulation(dt);
         physicsWorld.drawCollisionShapes();
-        
+
         // Update transforms from physics
         auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : viewPhysics) {
@@ -344,20 +344,55 @@ namespace Coffee {
                 transform.Rotation = rb.rb->GetRotation();
             }
         }
-        
-        // Print sphere position
-        auto sphereEntity = GetEntityByName("Sphere_0");
-        if(sphereEntity) {
+
+        // Handle input for spawning and deleting spheres
+        static std::vector<Entity> spawnedSpheres;
+
+        if (Input::IsKeyPressed(Key::I)) {
+            Entity sphereEntity = CreateEntity("Runtime_Sphere_" + std::to_string(spawnedSpheres.size()));
+
             auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
+            sphereTransform.Position = {
+                static_cast<float>(rand() % 5 - 2),
+                5.0f,
+                static_cast<float>(rand() % 5 - 2)
+            };
+            sphereTransform.Scale = {1.0f, 1.0f, 1.0f};
+
+            // Setup sphere rigidbody
+            RigidBody::Properties sphereProps;
+            sphereProps.type = RigidBody::Type::Dynamic;
+            sphereProps.useGravity = true;
+            sphereProps.mass = 1.0f;
+
+            auto sphereCollider = CreateRef<SphereCollider>(0.5f);
+            auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>();
+            sphereRb.rb = RigidBody::Create(sphereProps, sphereCollider);
+            sphereRb.rb->SetPosition(sphereTransform.Position);
+
+            // Add visual mesh and callback
+            sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+
+            sphereRb.callback.OnCollisionEnter([](CollisionInfo& info) {
+                COFFEE_INFO("{} collision enter with: {}",
+                    info.entityA.GetComponent<TagComponent>().Tag,
+                    info.entityB.GetComponent<TagComponent>().Tag);
+            });
+
+            // Add to physics world
+            physicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
+
+            spawnedSpheres.push_back(sphereEntity);
+        }
+
+        if (Input::IsKeyPressed(Key::D) && !spawnedSpheres.empty()) {
+            Entity sphereEntity = spawnedSpheres.back();
+            spawnedSpheres.pop_back();
+
             auto& sphereRb = sphereEntity.GetComponent<RigidbodyComponent>();
-            COFFEE_INFO("Sphere position: {0}, {1}, {2}", 
-                sphereTransform.Position.x, sphereTransform.Position.y, sphereTransform.Position.z);
-            COFFEE_INFO("Sphere velocity: {0}, {1}, {2}", 
-                sphereRb.rb->GetVelocity().x, sphereRb.rb->GetVelocity().y, sphereRb.rb->GetVelocity().z);
-        
-            if (Input::IsKeyPressed(Key::SPACE)) {
-                sphereRb.rb->ApplyImpulse(glm::vec3(0, 1, 0));
-            }
+            physicsWorld.removeRigidBody(sphereRb.rb->GetNativeBody());
+
+            DestroyEntity(sphereEntity);
         }
         // ------------------------- END Physics testing ------------------------
 
@@ -375,20 +410,6 @@ namespace Coffee {
 
         m_Octree.DebugDraw();
 
-        // Get all the static meshes from the Octree
-/* 
-        glm::mat4 testProjection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
-
-        Frustum frustum = Frustum(camera->GetProjection() * glm::inverse(cameraTransform));
-        DebugRenderer::DrawFrustum(frustum, glm::vec4(1.0f), 1.0f);
-
-        auto meshes = m_Octree.Query(frustum);
-
-        for(auto& mesh : meshes)
-        {
-            Renderer::Submit(RenderCommand{mesh.transform, mesh.object, mesh.object->GetMaterial(), 0});
-        } */
-        
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
@@ -402,7 +423,7 @@ namespace Coffee {
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-            
+
             Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
         }
 

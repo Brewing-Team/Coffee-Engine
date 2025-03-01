@@ -5,7 +5,7 @@
 
 namespace Coffee {
 
-    const float GRAVITY = -9.81f;
+    constexpr float GRAVITY = -9.81f;
 
     class PhysicsWorld {
 

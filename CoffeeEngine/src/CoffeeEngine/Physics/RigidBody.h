@@ -21,29 +21,29 @@ namespace Coffee {
             glm::vec3 velocity = {0.0f, 0.0f, 0.0f};
         };
 
-        static Ref<RigidBody> Create(const Properties& props, Ref<Collider> collider);
+        static Ref<RigidBody> Create(const Properties& props, const Ref<Collider>& collider);
         RigidBody() = default;
         ~RigidBody();
 
         // Kinematics
-        void SetPosition(const glm::vec3& position);
-        void SetRotation(const glm::vec3& rotation);
+        void SetPosition(const glm::vec3& position) const;
+        void SetRotation(const glm::vec3& rotation) const;
         glm::vec3 GetPosition() const;
         glm::vec3 GetRotation() const;
         glm::vec3 GetVelocity() const;
 
         // Physics
-        void ApplyForce(const glm::vec3& force);
-        void ApplyImpulse(const glm::vec3& impulse);
+        void ApplyForce(const glm::vec3& force) const;
+        void ApplyImpulse(const glm::vec3& impulse) const;
         void SetTrigger(bool isTrigger);
-        void ResetVelocity();
-        void ClearForces();
+        void ResetVelocity() const;
+        void ClearForces() const;
 
         // Internal use
         btRigidBody* GetNativeBody() const { return m_Body; }
 
       private:
-        void Initialize(const Properties& props, Ref<Collider> collider);
+        void Initialize(const Properties& props, const Ref<Collider>& collider);
 
         btRigidBody* m_Body = nullptr;
         btMotionState* m_MotionState = nullptr;

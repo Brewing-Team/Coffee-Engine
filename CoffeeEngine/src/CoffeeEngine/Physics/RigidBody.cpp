@@ -2,13 +2,13 @@
 
 namespace Coffee {
 
-    Ref<RigidBody> RigidBody::Create(const Properties& props, Ref<Collider> collider) {
+    Ref<RigidBody> RigidBody::Create(const Properties& props, const Ref<Collider>& collider) {
         auto rb = CreateRef<RigidBody>();
         rb->Initialize(props, collider);
         return rb;
     }
 
-    void RigidBody::Initialize(const Properties& props, Ref<Collider> collider) {
+    void RigidBody::Initialize(const Properties& props, const Ref<Collider>& collider) {
         m_Properties = props;
         m_Collider = collider;
 
@@ -17,11 +17,12 @@ namespace Coffee {
         m_MotionState = new btDefaultMotionState(transform);
 
         btVector3 localInertia(0, 0, 0);
-        if (props.type != Type::Static) {
+        if (props.type != Type::Static)
+        {
             m_Collider->getShape()->calculateLocalInertia(props.mass, localInertia);
         }
 
-        btRigidBody::btRigidBodyConstructionInfo rbInfo(
+        const btRigidBody::btRigidBodyConstructionInfo rbInfo(
             props.mass,
             m_MotionState,
             m_Collider->getShape(),
@@ -48,7 +49,8 @@ namespace Coffee {
         }
     }
 
-    void RigidBody::SetPosition(const glm::vec3& position) {
+    void RigidBody::SetPosition(const glm::vec3& position) const
+    {
         btTransform transform = m_Body->getWorldTransform();
         transform.setOrigin(btVector3(position.x, position.y, position.z));
         m_Body->setWorldTransform(transform);
@@ -59,12 +61,14 @@ namespace Coffee {
         return glm::vec3(pos.x(), pos.y(), pos.z());
     }
 
-    void RigidBody::ApplyForce(const glm::vec3& force) {
+    void RigidBody::ApplyForce(const glm::vec3& force) const
+    {
         m_Body->activate(true);
         m_Body->applyCentralForce(btVector3(force.x, force.y, force.z));
     }
 
-    void RigidBody::SetRotation(const glm::vec3& rotation) {
+    void RigidBody::SetRotation(const glm::vec3& rotation) const
+    {
         btTransform transform = m_Body->getWorldTransform();
         btQuaternion quat;
         quat.setEulerZYX(rotation.z, rotation.y, rotation.x);
@@ -72,25 +76,28 @@ namespace Coffee {
         m_Body->setWorldTransform(transform);
     }
 
-    glm::vec3 RigidBody::GetRotation() const {
-        btTransform transform = m_Body->getWorldTransform();
-        btQuaternion quat = transform.getRotation();
+    glm::vec3 RigidBody::GetRotation() const
+    {
+        const btTransform transform = m_Body->getWorldTransform();
+        const btQuaternion quat = transform.getRotation();
         btScalar x, y, z;
         quat.getEulerZYX(z, y, x);
-        return glm::vec3(x, y, z);
+        return {x, y, z};
     }
 
-    glm::vec3 RigidBody::GetVelocity() const {
+    glm::vec3 RigidBody::GetVelocity() const
+    {
         btVector3 vel = m_Body->getLinearVelocity();
-        return glm::vec3(vel.x(), vel.y(), vel.z());
+        return {vel.x(), vel.y(), vel.z()};
     }
 
-    void RigidBody::ApplyImpulse(const glm::vec3& impulse) {
+    void RigidBody::ApplyImpulse(const glm::vec3& impulse) const
+    {
         m_Body->activate(true);
         m_Body->applyCentralImpulse(btVector3(impulse.x, impulse.y, impulse.z));
     }
 
-    void RigidBody::SetTrigger(bool isTrigger)
+    void RigidBody::SetTrigger(const bool isTrigger)
     {
         m_Properties.isTrigger = isTrigger;
         if (isTrigger)
@@ -103,14 +110,14 @@ namespace Coffee {
         }
     }
 
-    void RigidBody::ResetVelocity()
+    void RigidBody::ResetVelocity() const
     {
         // Check this function (ResetVelocity(); bullet?)
         m_Body->setLinearVelocity(btVector3(0, 0, 0));
         m_Body->setAngularVelocity(btVector3(0, 0, 0));
     }
 
-    void RigidBody::ClearForces()
+    void RigidBody::ClearForces() const
     {
         m_Body->clearForces();
     }

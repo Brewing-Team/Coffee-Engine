@@ -31,12 +31,12 @@ namespace Coffee {
         dynamicsWorld->removeRigidBody(body);
     }
 
-    void PhysicsWorld::stepSimulation(float dt) const {
+    void PhysicsWorld::stepSimulation(const float dt) const {
         dynamicsWorld->stepSimulation(dt);
         CollisionSystem::checkCollisions(*this);
     }
 
-    void PhysicsWorld::setGravity(float gravity) const {
+    void PhysicsWorld::setGravity(const float gravity) const {
         dynamicsWorld->setGravity(btVector3(0, gravity, 0));
     }
 
@@ -50,10 +50,10 @@ namespace Coffee {
     }
 
     void PhysicsWorld::drawCollisionShapes() const {
-        const float margin = 0.05f;
 
-        int numCollisionObjects = dynamicsWorld->getNumCollisionObjects();
+        const int numCollisionObjects = dynamicsWorld->getNumCollisionObjects();
         for (int i = 0; i < numCollisionObjects; i++) {
+            constexpr float margin = 0.05f;
             const btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
             const btCollisionShape* shape = obj->getCollisionShape();
             const btTransform& transform = obj->getWorldTransform();
