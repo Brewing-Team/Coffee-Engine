@@ -15,7 +15,6 @@ namespace Coffee {
 
     void Animation::Load(ozz::io::IArchive& archive)
     {
-        m_Animation = ozz::make_unique<ozz::animation::Animation>();
         m_Animation->Load(archive, 7);
         m_Name = m_Animation->name();
     }

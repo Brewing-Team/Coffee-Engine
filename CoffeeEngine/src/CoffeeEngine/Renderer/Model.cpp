@@ -86,31 +86,9 @@ namespace Coffee {
         if (m_Skeleton)
         {
             m_Skeleton->SetJoints(joints);
-
-            ozz::io::File file("skeleton.ozz", "wb");
-            if (file.opened())
-            {
-                ozz::io::OArchive archive(&file);
-                m_Skeleton->Save(archive);
-            }
         }
 
-        if (m_AnimationController)
-        {
-            for (const auto& anim : m_AnimationController->GetAnimations())
-            {
-                m_AnimationsNames.push_back(anim.GetAnimationName());
-                ozz::io::File file((anim.GetAnimationName() + ".ozz").c_str(), "wb");
-                if (file.opened())
-                {
-                    ozz::io::OArchive archive(&file);
-                    for (const auto& anim : m_AnimationController->GetAnimations())
-                    {
-                        anim.Save(archive);
-                    }
-                }
-            }
-        }
+
     }
 
     Model::Model(ModelImportData& importData)
@@ -473,6 +451,7 @@ namespace Coffee {
 
             ozz::animation::offline::AnimationBuilder animBuilder;
             animController->AddAnimation(aiAnim->mName.C_Str(), std::move(animBuilder(rawAnimation)));
+            m_AnimationsNames.push_back(aiAnim->mName.C_Str());
         }
 
         m_AnimationController = animController;
@@ -503,5 +482,61 @@ namespace Coffee {
         for (unsigned int i = 0; i < node->mNumChildren; ++i)
             ExtractJoints(node->mChildren[i], jointIndex, joints, boneMap);
     }
+
+    void Model::SaveAnimations(UUID uuid)
+    {
+        if (HasAnimations() && m_Skeleton && m_AnimationController)
+        {
+            ozz::io::File file(("assets/skeleton" + std::to_string(uuid) + ".ozz").c_str(), "wb");
+            if (file.opened())
+            {
+                ozz::io::OArchive oArchive(&file);
+                m_Skeleton->Save(oArchive);
+            }
+
+            for (const auto& anim : m_AnimationController->GetAnimations())
+            {
+                ozz::io::File file(("assets/" + anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
+                if (file.opened())
+                {
+                    ozz::io::OArchive archive(&file);
+                    anim.Save(archive);
+                }
+            }
+        }
+    }
+
+    void Model::ImportAnimations(UUID uuid)
+    {
+        if (HasAnimations() && !m_Skeleton && !m_AnimationController)
+        {
+            auto skeleton = ozz::make_unique<ozz::animation::Skeleton>();
+            m_Skeleton = CreateRef<Skeleton>();
+            m_Skeleton->SetSkeleton(std::move(skeleton));
+
+            ozz::io::File skeletonFile(("assets/skeleton" + std::to_string(uuid) + ".ozz").c_str(), "rb");
+            if (skeletonFile.opened())
+            {
+                ozz::io::IArchive iArchive(&skeletonFile);
+                GetSkeleton()->Load(iArchive, m_Joints);
+            }
+
+            m_AnimationController = CreateRef<AnimationController>();
+
+            for (const auto& animName : m_AnimationsNames)
+            {
+                ozz::io::File animationsFile(("assets/" + animName + std::to_string(uuid) + ".ozz").c_str(), "rb");
+                if (animationsFile.opened())
+                {
+                    ozz::io::IArchive iArchive(&animationsFile);
+
+                    auto animation = ozz::make_unique<ozz::animation::Animation>();
+                    m_AnimationController->AddAnimation(animName, std::move(animation));
+                    m_AnimationController->GetAnimation(animName)->Load(iArchive);
+                }
+            }
+        }
+    }
+
 
 }

@@ -100,6 +100,9 @@ namespace Coffee {
         const Ref<Skeleton>& GetSkeleton() const { return m_Skeleton; };
         const Ref<AnimationController>& GetAnimationController() const { return m_AnimationController; };
 
+        void SaveAnimations(UUID uuid);
+        void ImportAnimations(UUID uuid);
+
     private:
         /**
          * @brief Processes a mesh from the Assimp mesh and scene.
@@ -145,7 +148,6 @@ namespace Coffee {
             {
                 meshUUIDs.push_back(mesh->GetUUID());
             }
-
             archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
         }
         template<class Archive>
@@ -156,39 +158,6 @@ namespace Coffee {
             for (const auto& meshUUID : meshUUIDs)
             {
                 m_Meshes.push_back(ResourceLoader::GetResource<Mesh>(data));
-            }
-
-            if (HasAnimations())
-            {
-                if (!m_Skeleton)
-                {
-                    auto skeleton = ozz::make_unique<ozz::animation::Skeleton>();
-                    m_Skeleton = CreateRef<Skeleton>();
-                    m_Skeleton->SetSkeleton(std::move(skeleton));
-                }
-
-                ozz::io::File skeletonFile("skeleton.ozz", "rb");
-                if (skeletonFile.opened())
-                {
-                    ozz::io::IArchive iArchive(&skeletonFile);
-                    GetSkeleton()->Load(iArchive, m_Joints);
-                }
-
-                if (!m_AnimationController)
-                    m_AnimationController = CreateRef<AnimationController>();
-
-                for (const auto& animName : m_AnimationsNames)
-                {
-                    ozz::io::File animationsFile((animName + ".ozz").c_str(), "rb");
-                    if (animationsFile.opened())
-                    {
-                        ozz::io::IArchive iArchive(&animationsFile);
-
-                        auto animation = ozz::make_unique<ozz::animation::Animation>();
-                        m_AnimationController->AddAnimation(animName, std::move(animation));
-                        m_AnimationController->GetAnimation(animName)->Load(iArchive);
-                    }
-                }
             }
         }
 

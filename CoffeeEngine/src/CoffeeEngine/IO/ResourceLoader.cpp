@@ -129,6 +129,205 @@ namespace Coffee {
         }
     }
 
+    Ref<Texture2D> ResourceLoader::LoadTexture2D(const std::filesystem::path& path, bool srgb, bool cache)
+    {
+        if(GetResourceTypeFromExtension(path) != ResourceType::Texture2D)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Texture2D>: Resource is not a texture!");
+            return nullptr;
+        }
+
+        UUID uuid = GetUUIDFromImportFile(path);
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Texture2D>(uuid);
+        }
+
+        const Ref<Texture2D>& texture = s_Importer.ImportTexture2D(path, uuid, srgb, cache);
+        texture->SetUUID(uuid);
+
+        ResourceRegistry::Add(uuid, texture);
+        return texture;
+    }
+
+    Ref<Texture2D> ResourceLoader::LoadTexture2D(UUID uuid)
+    {
+        if(uuid == UUID::null)
+            return nullptr;
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Texture2D>(uuid);
+        }
+
+        const Ref<Texture2D>& texture = s_Importer.ImportTexture2D(uuid);
+
+        ResourceRegistry::Add(uuid, texture);
+        return texture;
+    }
+
+    Ref<Cubemap> ResourceLoader::LoadCubemap(const std::filesystem::path& path)
+    {
+        if(GetResourceTypeFromExtension(path) != ResourceType::Cubemap)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Cubemap>: Resource is not a cubemap!");
+            return nullptr;
+        }
+
+        UUID uuid = GetUUIDFromImportFile(path);
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Cubemap>(uuid);
+        }
+
+        const Ref<Cubemap>& cubemap = s_Importer.ImportCubemap(path, uuid);
+        cubemap->SetUUID(uuid);
+        cubemap->SetName(path.filename().string());
+
+        ResourceRegistry::Add(uuid, cubemap);
+        return cubemap;
+    }
+    Ref<Cubemap> ResourceLoader::LoadCubemap(UUID uuid)
+    {
+        return nullptr;
+    }
+
+    Ref<Model> ResourceLoader::LoadModel(const std::filesystem::path& path, bool cache)
+    {
+        if(GetResourceTypeFromExtension(path) != ResourceType::Model)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Model>: Resource is not a model!");
+            return nullptr;
+        }
+
+        UUID uuid = GetUUIDFromImportFile(path);
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Model>(uuid);
+        }
+
+        const Ref<Model>& model = s_Importer.ImportModel(path, cache);
+        model->SetUUID(uuid);
+        model->SaveAnimations(uuid);
+        model->ImportAnimations(uuid);
+
+        ResourceRegistry::Add(uuid, model);
+        return model;
+    }
+
+    Ref<Mesh> ResourceLoader::LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb)
+    {
+        if(ResourceRegistry::Exists(name))
+        {
+            return ResourceRegistry::Get<Mesh>(name);
+        }
+        
+        UUID uuid = ResourceRegistry::GetUUIDByName(name);
+
+        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, uuid, vertices, indices, material, aabb);
+        mesh->SetName(name);
+
+        ResourceRegistry::Add(uuid, mesh);
+        return mesh;
+    }
+
+    Ref<Mesh> ResourceLoader::LoadMesh(UUID uuid)
+    {
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Mesh>(uuid);
+        }
+
+        const Ref<Mesh>& mesh = s_Importer.ImportMesh(uuid);
+
+        ResourceRegistry::Add(uuid, mesh);
+        return mesh;
+    }
+
+    Ref<Shader> ResourceLoader::LoadShader(const std::filesystem::path& shaderPath)
+    {
+        if(GetResourceTypeFromExtension(shaderPath) != ResourceType::Shader)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::Load<Shader>: Resource is not a shader!");
+            return nullptr;
+        }
+
+        UUID uuid = GetUUIDFromImportFile(shaderPath);
+
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Shader>(uuid);
+        }
+
+        const Ref<Shader>& shader = CreateRef<Shader>(shaderPath);
+        shader->SetUUID(uuid);
+
+        ResourceRegistry::Add(uuid, shader);
+
+        return shader;
+    }
+
+    Ref<Material> ResourceLoader::LoadMaterial(const std::string& name)
+    {
+        std::string materialName = name;
+
+        UUID uuid;
+
+        if(materialName.empty())
+        {
+            materialName = "Material-" + std::to_string(uuid);
+        }
+
+        if(ResourceRegistry::Exists(materialName))
+        {
+            return ResourceRegistry::Get<Material>(materialName);
+        }
+
+        Ref<Material> material = s_Importer.ImportMaterial(materialName, uuid);
+        material->SetUUID(uuid);
+        ResourceRegistry::Add(uuid, material);
+        return material;
+
+    }
+
+    Ref<Material> ResourceLoader::LoadMaterial(const std::string& name, MaterialTextures& materialTextures)
+    {
+        std::string materialName = name;
+
+        UUID uuid;
+
+        if(materialName.empty())
+        {
+            materialName = "Material-" + std::to_string(uuid);
+        }
+
+        if(ResourceRegistry::Exists(materialName))
+        {
+            return ResourceRegistry::Get<Material>(materialName);
+        }
+
+        Ref<Material> material = s_Importer.ImportMaterial(materialName, uuid, materialTextures);
+        material->SetUUID(uuid);
+        ResourceRegistry::Add(uuid, material);
+        return material;
+    }
+    
+    Ref<Material> ResourceLoader::LoadMaterial(UUID uuid)
+    {
+        if(ResourceRegistry::Exists(uuid))
+        {
+            return ResourceRegistry::Get<Material>(uuid);
+        }
+
+        const Ref<Material>& material = s_Importer.ImportMaterial(uuid);
+
+        ResourceRegistry::Add(uuid, material);
+        return material;
+    }
+
     void ResourceLoader::RemoveResource(UUID uuid) // Think if would be better to pass the Resource as parameter
     {
 /*         if(!ResourceRegistry::Exists(uuid))
