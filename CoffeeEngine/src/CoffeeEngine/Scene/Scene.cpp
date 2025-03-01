@@ -229,9 +229,21 @@ namespace Coffee {
 
             m_Octree.Insert(objectContainer);
         }
+      
+        // Get all entities with ScriptComponent
+        auto scriptView = m_Registry.view<ScriptComponent>();
 
-        Audio::StopAllEvents();
-        Audio::PlayInitialAudios();
+        for (auto& entity : scriptView)
+        {
+            Entity scriptEntity{entity, this};
+
+            auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
+
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("self", scriptEntity);
+            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable("current_scene", this);
+
+            scriptComponent.script->OnReady();
+        }
     }
 
     void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
