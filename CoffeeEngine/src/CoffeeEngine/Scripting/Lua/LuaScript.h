@@ -16,10 +16,8 @@ namespace Coffee {
     class LuaScript : public Script
     {
     public:
-        LuaScript(const std::filesystem::path& path)
+        LuaScript(const std::filesystem::path& path) : Script(path)
         {
-            m_Path = path;
-
             //TODO: Think if this is a good way or store it in another way is better
             const LuaBackend& backend = static_cast<const LuaBackend&>(ScriptManager::GetBackend(ScriptingLanguage::Lua));
             m_Environment = sol::environment(backend.GetLuaState(), sol::create, backend.GetLuaState().globals());
@@ -29,9 +27,9 @@ namespace Coffee {
         void OnReady() override
         {
             ScriptManager::ExecuteScript(*this, ScriptingLanguage::Lua);
-            const sol::protected_function& onReady = m_Environment["OnReady"];
+            const sol::protected_function& onReady = m_Environment["on_ready"];
             if (!onReady.valid()) {
-                COFFEE_CORE_ERROR("Lua: OnReady function is not valid.");
+                COFFEE_CORE_ERROR("Lua: on_ready function is not valid.");
                 return;
             }
 
@@ -46,9 +44,9 @@ namespace Coffee {
 
         void OnUpdate(float dt) override
         {
-            const sol::protected_function& onUpdate = m_Environment["OnUpdate"];
+            const sol::protected_function& onUpdate = m_Environment["on_update"];
             if (!onUpdate.valid()) {
-                COFFEE_CORE_ERROR("Lua: OnUpdate function is not valid.");
+                COFFEE_CORE_ERROR("Lua: on_update function is not valid.");
                 return;
             }
 
@@ -61,9 +59,9 @@ namespace Coffee {
 
         void OnExit() override
         {
-            const sol::protected_function& onExit = m_Environment["OnExit"];
+            const sol::protected_function& onExit = m_Environment["on_exit"];
             if (!onExit.valid()) {
-                COFFEE_CORE_ERROR("Lua: OnExit function is not valid.");
+                COFFEE_CORE_ERROR("Lua: on_exit function is not valid.");
                 return;
             }
 
@@ -140,7 +138,7 @@ namespace Coffee {
             }
         }
 
-        const std::filesystem::path& GetPath() const { return m_Path; }
+        //const std::filesystem::path& GetPath() const { return m_Path; }
         const sol::environment& GetEnvironment() const { return m_Environment; }
     private:
 
@@ -161,6 +159,18 @@ namespace Coffee {
                 if(object.is<Entity>())
                 {
                     value = object.as<Entity>();
+                }
+                else if (object.is<glm::vec2>())
+                {
+                    value = object.as<glm::vec2>();
+                }
+                else if (object.is<glm::vec3>())
+                {
+                    value = object.as<glm::vec3>();
+                }
+                else if (object.is<glm::vec4>())
+                {
+                    value = object.as<glm::vec4>();
                 }
                 else {
                     value = nullptr;
@@ -189,6 +199,18 @@ namespace Coffee {
                 if (object.is<Entity>()) {
                     return ExportedVariableType::Entity;
                 }
+                else if (object.is<glm::vec2>())
+                {
+                    return ExportedVariableType::Vector2;
+                }
+                else if (object.is<glm::vec3>())
+                {
+                    return ExportedVariableType::Vector3;
+                }
+                else if (object.is<glm::vec4>())
+                {
+                    return ExportedVariableType::Vector4;
+                }
                 else {
                     return ExportedVariableType::None;
                 }
@@ -197,7 +219,6 @@ namespace Coffee {
             }
         }
     private:
-        std::filesystem::path m_Path;
         sol::environment m_Environment;
     };
 

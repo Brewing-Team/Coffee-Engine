@@ -156,11 +156,6 @@ namespace Coffee {
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
 
-        Audio::StopAllEvents();
-        Audio::PlayInitialAudios();
-        // Get all entities with ScriptComponent
-        auto scriptView = m_Registry.view<ScriptComponent>();
-
         for (auto& entity : scriptView)
         {
             Entity scriptEntity{entity, this};

@@ -739,13 +739,8 @@ namespace Coffee {
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                
-                //ImGui::Text("Script Name: ");
-                //ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
-
                 //ImGui::Text("Script Path: ");
-                //ImGui::Text(scriptComponent.script.GetPath().string().c_str());
-                
+                //ImGui::Text(scriptComponent.script->GetPath().c_str());
 
                 // Get the exposed variables
                 auto& exposedVariables = scriptComponent.script->GetExportedVariables();
@@ -755,8 +750,7 @@ namespace Coffee {
                 {
                     switch (variable.type)
                     {
-                    case ExportedVariableType::Bool:
-                    {
+                    case ExportedVariableType::Bool: {
                         bool value = variable.value.has_value() ? std::any_cast<bool>(variable.value) : false;
                         if (ImGui::Checkbox(name.c_str(), &value))
                         {
@@ -765,8 +759,7 @@ namespace Coffee {
                         }
                         break;
                     }
-                    case ExportedVariableType::Int:
-                    {
+                    case ExportedVariableType::Int: {
                         int value = variable.value.has_value() ? std::any_cast<int>(variable.value) : 0;
                         if (ImGui::InputInt(name.c_str(), &value))
                         {
@@ -775,8 +768,7 @@ namespace Coffee {
                         }
                         break;
                     }
-                    case ExportedVariableType::Float:
-                    {
+                    case ExportedVariableType::Float: {
                         float value = variable.value.has_value() ? std::any_cast<float>(variable.value) : 0.0f;
                         if (ImGui::InputFloat(name.c_str(), &value))
                         {
@@ -785,21 +777,21 @@ namespace Coffee {
                         }
                         break;
                     }
-                    case ExportedVariableType::String:
-                    {
-                        std::string value = variable.value.has_value() ? std::any_cast<std::string>(variable.value) : "";
+                    case ExportedVariableType::String: {
+                        std::string value =
+                            variable.value.has_value() ? std::any_cast<std::string>(variable.value) : "";
                         char buffer[256];
                         memset(buffer, 0, sizeof(buffer));
                         strcpy(buffer, value.c_str());
                         if (ImGui::InputText(name.c_str(), buffer, sizeof(buffer)))
                         {
-                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, std::string(buffer));
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)
+                                ->SetVariable(name, std::string(buffer));
                             variable.value = std::string(buffer);
                         }
                         break;
                     }
-                    case ExportedVariableType::Entity:
-                    {
+                    case ExportedVariableType::Entity: {
                         Entity value = variable.value.has_value() ? std::any_cast<Entity>(variable.value) : Entity{};
                         if (ImGui::Button(name.c_str()))
                         {
@@ -810,18 +802,50 @@ namespace Coffee {
                             auto view = m_Context->m_Registry.view<TagComponent>();
                             for (auto entityID : view)
                             {
-                                Entity e{ entityID, m_Context.get() };
+                                Entity e{entityID, m_Context.get()};
                                 auto& tag = e.GetComponent<TagComponent>().Tag;
                                 if (ImGui::Selectable(tag.c_str()))
                                 {
                                     value = e;
-                                    std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                                    std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)
+                                        ->SetVariable(name, value);
                                     variable.value = value;
                                 }
                             }
                             ImGui::EndPopup();
                         }
                         break;
+                    }
+                    case ExportedVariableType::Vector2: {
+                        glm::vec2 value =
+                            variable.value.has_value() ? std::any_cast<glm::vec2>(variable.value) : glm::vec2{};
+                        if (ImGui::DragFloat2(name.c_str(), glm::value_ptr(value)))
+                        {
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
+                        }
+                        break;
+                    }
+                    case ExportedVariableType::Vector3: {
+                        glm::vec3 value =
+                            variable.value.has_value() ? std::any_cast<glm::vec3>(variable.value) : glm::vec3{};
+                        if (ImGui::DragFloat3(name.c_str(), glm::value_ptr(value)))
+                        {
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
+                        }
+                        break;
+                    }
+                    case ExportedVariableType::Vector4: {
+                        glm::vec4 value =
+                            variable.value.has_value() ? std::any_cast<glm::vec4>(variable.value) : glm::vec4{};
+                        if (ImGui::DragFloat4(name.c_str(), glm::value_ptr(value)))
+                        {
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
+                        }
+                        break;
+                    }
                     }
                 }
             }
@@ -946,41 +970,44 @@ namespace Coffee {
                 }
                 else if(items[item_current] == "Lua Script Component")
                 {
-                    if(!entity.HasComponent<AudioSourceComponent>())
+                    if(!entity.HasComponent<ScriptComponent>())
                     {
-                        entity.AddComponent<AudioSourceComponent>();
-                        Audio::RegisterAudioSourceComponent(entity.GetComponent<AudioSourceComponent>());
-                        AudioZone::RegisterObject(entity.GetComponent<AudioSourceComponent>().gameObjectID, entity.GetComponent<AudioSourceComponent>().transform[3]);
-                    }
+                        // Pop up a file dialog to select the save location for the new script
+                        FileDialogArgs args;
+                        args.Filters = {{"Lua Script", "lua"}};
+                        args.DefaultName = "NewScript.lua";
+                        const std::filesystem::path& path = FileDialog::SaveFile(args);
 
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Audio Listener Component")
-                {
-                    if(!entity.HasComponent<AudioListenerComponent>())
-                    {
-                        entity.AddComponent<AudioListenerComponent>();
-                        Audio::RegisterAudioListenerComponent(entity.GetComponent<AudioListenerComponent>());
-                    }
+                        if (!path.empty())
+                        {
+                            std::ofstream scriptFile(path);
+                            if (scriptFile.is_open())
+                            {
+                                scriptFile << "function on_ready()\n";
+                                scriptFile << "    -- Add initialization code here\n";
+                                scriptFile << "end\n\n";
+                                scriptFile << "function on_update(dt)\n";
+                                scriptFile << "    -- Add update code here\n";
+                                scriptFile << "end\n\n";
+                                scriptFile << "function on_exit()\n";
+                                scriptFile << "    -- Add cleanup code here\n";
+                                scriptFile << "end\n";
+                                scriptFile.close();
 
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Audio Zone Component")
-                {
-                    if(!entity.HasComponent<AudioZoneComponent>())
-                    {
-                        entity.AddComponent<AudioZoneComponent>();
-                        AudioZone::CreateZone(entity.GetComponent<AudioZoneComponent>());
+                                // Add the script component to the entity
+                                entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
+                            }
+                            else
+                            {
+                                COFFEE_CORE_ERROR("Failed to create Lua script file at: {0}", path.string());
+                            }
+                        }
+                        else
+                        {
+                            COFFEE_CORE_WARN("Create Lua Script: No file selected");
+                        }
+                        ImGui::CloseCurrentPopup();
                     }
-
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Script Component")
-                {
-                    //if(!entity.HasComponent<ScriptComponent>())
-                        //entity.AddComponent<ScriptComponent>();
-                        // TODO add script component
-                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {
@@ -1065,4 +1092,6 @@ void Coffee::SceneTreePanel::ShowCreateEntityMenu()
             }
         }
 
+        ImGui::EndPopup();
+    }
 }

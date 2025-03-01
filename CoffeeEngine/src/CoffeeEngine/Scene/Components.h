@@ -29,10 +29,11 @@
 #include "CoffeeEngine/IO/ResourceLoader.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <CoffeeEngine/Physics/CollisionCallback.h>
-#include <glm/gtx/matrix_decompose.hpp>
+#include "CoffeeEngine/Project/Project.h"
 
-#include "CoffeeEngine/Audio/Audio.h"
+#include <glm/gtx/matrix_decompose.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 
 
 namespace Coffee {
@@ -507,7 +508,6 @@ namespace Coffee {
         }
     };
     
-    // Move it to the Component.h
     struct ScriptComponent
     {
         Ref<Script> script;
@@ -523,6 +523,65 @@ namespace Coffee {
                 break;
             case cSharp:
                 break;
+            }
+        }
+
+        /**
+         * @brief Serializes the ScriptComponent.
+         *
+         * This function serializes the ScriptComponent by storing the script path and language.
+         * Note: Currently, this system only supports Lua scripting language.
+         *
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to serialize to.
+         */
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            std::filesystem::path relativePath;
+            if (Project::GetActive())
+            {
+                relativePath = std::filesystem::relative(script->GetPath(), Project::GetActive()->GetProjectDirectory());
+            }
+            else
+            {
+                relativePath = script->GetPath();
+                COFFEE_CORE_ERROR("ScriptComponent::save: Project is not active, script path is not relative to the project directory!");
+            }
+            archive(cereal::make_nvp("ScriptPath", relativePath.string()), cereal::make_nvp("Language", ScriptingLanguage::Lua));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            std::string relativePath;
+            ScriptingLanguage language;
+
+            archive(cereal::make_nvp("ScriptPath", relativePath), cereal::make_nvp("Language", language));
+
+            if (!relativePath.empty())
+            {
+                std::filesystem::path scriptPath;
+                if (Project::GetActive())
+                {
+                    scriptPath = Project::GetActive()->GetProjectDirectory() / relativePath;
+                }
+                else
+                {
+                    scriptPath = relativePath;
+                    COFFEE_CORE_ERROR("ScriptComponent::load: Project is not active, script path is not relative to the project directory!");
+                }
+
+                switch (language)
+                {
+                    using enum ScriptingLanguage;
+                case Lua:
+                    script = ScriptManager::CreateScript(scriptPath, language);
+                    break;
+                case cSharp:
+                    // Handle cSharp script loading if needed
+                    break;
+                }
             }
         }
 /* 
