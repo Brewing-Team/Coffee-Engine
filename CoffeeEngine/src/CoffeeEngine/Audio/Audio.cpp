@@ -39,7 +39,7 @@ namespace Coffee
         if (!InitializeCommunicationModule())
             return;
 
-        g_lowLevelIO->SetBasePath(AKTEXT("assets\\audio\\Wwise Project\\GeneratedSoundBanks\\Windows"));
+        g_lowLevelIO->SetBasePath(AKTEXT("assets/audio/Wwise Project/GeneratedSoundBanks/Windows"));
 
         LoadAudioBanks();
 
@@ -298,7 +298,7 @@ namespace Coffee
 
     bool Audio::LoadAudioBanks()
     {
-        std::ifstream file("Assets\\Audio\\Wwise Project\\GeneratedSoundBanks\\Windows\\SoundbanksInfo.json");
+        std::ifstream file("assets/audio/Wwise Project/GeneratedSoundBanks/Windows/SoundbanksInfo.json");
         if (!file.is_open())
             return false;
 
