@@ -81,8 +81,36 @@ namespace Coffee {
 
         processNode(scene->mRootNode, scene, joints, boneMap);
 
+        m_Joints = joints;
+
         if (m_Skeleton)
+        {
             m_Skeleton->SetJoints(joints);
+
+            ozz::io::File file("skeleton.ozz", "wb");
+            if (file.opened())
+            {
+                ozz::io::OArchive archive(&file);
+                m_Skeleton->Save(archive);
+            }
+        }
+
+        if (m_AnimationController)
+        {
+            for (const auto& anim : m_AnimationController->GetAnimations())
+            {
+                m_AnimationsNames.push_back(anim.GetAnimationName());
+                ozz::io::File file((anim.GetAnimationName() + ".ozz").c_str(), "wb");
+                if (file.opened())
+                {
+                    ozz::io::OArchive archive(&file);
+                    for (const auto& anim : m_AnimationController->GetAnimations())
+                    {
+                        anim.Save(archive);
+                    }
+                }
+            }
+        }
     }
 
     Model::Model(ModelImportData& importData)

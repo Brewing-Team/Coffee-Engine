@@ -8,6 +8,18 @@ namespace Coffee {
         m_Name = m_Animation->name();
     }
 
+    void Animation::Save(ozz::io::OArchive& archive) const
+    {
+        m_Animation->Save(archive);
+    }
+
+    void Animation::Load(ozz::io::IArchive& archive)
+    {
+        m_Animation = ozz::make_unique<ozz::animation::Animation>();
+        m_Animation->Load(archive, 7);
+        m_Name = m_Animation->name();
+    }
+
     void AnimationController::AddAnimation(const std::string& name, ozz::unique_ptr<ozz::animation::Animation> animation)
     {
         m_AnimationsMap[name] = m_Animations.size();

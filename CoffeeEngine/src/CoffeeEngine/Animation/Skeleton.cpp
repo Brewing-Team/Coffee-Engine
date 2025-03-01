@@ -13,4 +13,17 @@ namespace Coffee {
     {
         m_Joints = joints;
     }
+
+    void Skeleton::Save(ozz::io::OArchive& archive) const
+    {
+        m_Skeleton->Save(archive);
+    }
+
+    void Skeleton::Load(ozz::io::IArchive& archive, std::vector<Joint>& joints)
+    {
+        m_Skeleton->Load(archive, 2);
+        m_NumJoints = m_Skeleton->num_joints();
+        m_JointMatrices.resize(m_NumJoints);
+        SetJoints(joints);
+    }
 }

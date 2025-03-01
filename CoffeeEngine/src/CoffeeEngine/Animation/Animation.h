@@ -35,6 +35,9 @@ namespace Coffee {
         void SetAnimation(ozz::unique_ptr<ozz::animation::Animation> animation);
         const ozz::animation::Animation* GetAnimation() const { return m_Animation.get(); }
 
+        void Save(ozz::io::OArchive& archive) const;
+        void Load(ozz::io::IArchive& archive);
+
     private:
         std::string m_Name;
         ozz::unique_ptr<ozz::animation::Animation> m_Animation;
@@ -52,6 +55,7 @@ namespace Coffee {
 
         unsigned int GetAnimationCount() const { return m_Animations.size(); }
         const std::map<std::string, unsigned int>& GetAnimationMap() const { return m_AnimationsMap; }
+        const std::vector<Animation>& GetAnimations() const { return m_Animations; }
 
     private:
         std::vector<Animation> m_Animations;

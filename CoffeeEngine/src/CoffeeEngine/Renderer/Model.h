@@ -19,6 +19,8 @@
 #include <ozz/animation/offline/raw_animation.h>
 #include <ozz/animation/offline/raw_skeleton.h>
 #include <ozz/animation/offline/skeleton_builder.h>
+#include <ozz/base/io/archive.h>
+#include <ozz/base/io/stream.h>
 
 #include <filesystem>
 #include <glm/fwd.hpp>
@@ -143,16 +145,50 @@ namespace Coffee {
             {
                 meshUUIDs.push_back(mesh->GetUUID());
             }
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
+
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
         }
         template<class Archive>
         void load(Archive& archive)
         {
             std::vector<UUID> meshUUIDs;
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
-            for(const auto& data : meshUUIDs)
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
+            for (const auto& meshUUID : meshUUIDs)
             {
                 m_Meshes.push_back(ResourceLoader::GetResource<Mesh>(data));
+            }
+
+            if (HasAnimations())
+            {
+                if (!m_Skeleton)
+                {
+                    auto skeleton = ozz::make_unique<ozz::animation::Skeleton>();
+                    m_Skeleton = CreateRef<Skeleton>();
+                    m_Skeleton->SetSkeleton(std::move(skeleton));
+                }
+
+                ozz::io::File skeletonFile("skeleton.ozz", "rb");
+                if (skeletonFile.opened())
+                {
+                    ozz::io::IArchive iArchive(&skeletonFile);
+                    GetSkeleton()->Load(iArchive, m_Joints);
+                }
+
+                if (!m_AnimationController)
+                    m_AnimationController = CreateRef<AnimationController>();
+
+                for (const auto& animName : m_AnimationsNames)
+                {
+                    ozz::io::File animationsFile((animName + ".ozz").c_str(), "rb");
+                    if (animationsFile.opened())
+                    {
+                        ozz::io::IArchive iArchive(&animationsFile);
+
+                        auto animation = ozz::make_unique<ozz::animation::Animation>();
+                        m_AnimationController->AddAnimation(animName, std::move(animation));
+                        m_AnimationController->GetAnimation(animName)->Load(iArchive);
+                    }
+                }
             }
         }
 
@@ -198,6 +234,9 @@ namespace Coffee {
         bool m_hasAnimations = false;
         Ref<Skeleton> m_Skeleton;
         Ref<AnimationController> m_AnimationController;
+
+        std::vector<std::string> m_AnimationsNames;
+        std::vector<Joint> m_Joints;
     };
 
     /** @} */

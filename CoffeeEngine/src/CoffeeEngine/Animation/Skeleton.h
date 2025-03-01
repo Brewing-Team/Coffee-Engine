@@ -5,16 +5,46 @@
 #include <ozz/base/memory/unique_ptr.h>
 #include <glm/mat4x4.hpp>
 
+
 #include <string>
 #include <vector>
 
+namespace cereal {
+    class access;
+}
+
 namespace Coffee {
 
-    struct Joint{
+    struct Joint
+    {
         std::string name;
         int parentIndex;
         ozz::math::Transform localTransform;
         glm::mat4 invBindPose;
+
+    private:
+        friend class cereal::access;
+
+        template<class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(name, parentIndex);
+
+            archive(localTransform.translation.x,
+                   localTransform.translation.y,
+                   localTransform.translation.z);
+
+            archive(localTransform.rotation.x,
+                   localTransform.rotation.y,
+                   localTransform.rotation.z,
+                   localTransform.rotation.w);
+
+            archive(localTransform.scale.x,
+                   localTransform.scale.y,
+                   localTransform.scale.z);
+
+            archive(invBindPose);
+        }
     };
 
     class Skeleton
@@ -31,6 +61,9 @@ namespace Coffee {
 
         unsigned int GetNumJoints() const { return m_NumJoints; }
         const std::vector<glm::mat4>& GetJointMatrices() const { return m_JointMatrices; }
+
+        void Save(ozz::io::OArchive& archive) const;
+        void Load(ozz::io::IArchive& archive, std::vector<Joint>& joints);
 
     private:
         ozz::unique_ptr<ozz::animation::Skeleton> m_Skeleton;
