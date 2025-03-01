@@ -34,6 +34,7 @@ namespace Coffee
         m_Window = Window::Create(WindowProps("Coffee Engine"));
         SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
 
+        Input::Init();
         Renderer::Init();
         Input::Init();
 

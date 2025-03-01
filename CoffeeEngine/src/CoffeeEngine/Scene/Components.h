@@ -24,6 +24,10 @@
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include "CoffeeEngine/Scripting/Script.h"
+#include "CoffeeEngine/Scripting/ScriptManager.h"
+#include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <CoffeeEngine/Physics/CollisionCallback.h>
@@ -412,7 +416,39 @@ namespace Coffee {
             rb = RigidBody::Create(props, collider);
         }
     };
+    
+    // Move it to the Component.h
+    struct ScriptComponent
+    {
+        Ref<Script> script;
 
+        ScriptComponent() = default;
+        ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)
+        {
+            switch (language)
+            {
+                using enum ScriptingLanguage;
+            case Lua:
+                script = ScriptManager::CreateScript(path, language);
+                break;
+            case cSharp:
+                break;
+            }
+        }
+/* 
+        static void OnConstruct(entt::registry& registry, entt::entity entity)
+        {
+            auto& scriptComponent = registry.get<ScriptComponent<DerivedScript>>(entity);
+
+            if(Editor is in runtime)
+            {
+                ScriptManager::ExecuteScript(scriptComponent.script);
+                script.OnScenetreeEntered();
+            }
+        } */
+
+
+    };
 }
 
 /** @} */

@@ -593,6 +593,67 @@ namespace Coffee {
 
             }
         }
+
+        if (entity.HasComponent<AudioListenerComponent>())
+        {
+            auto& audioListenerComponent = entity.GetComponent<AudioListenerComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Audio Listener", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                Audio::UnregisterAudioListenerComponent(audioListenerComponent);
+                entity.RemoveComponent<AudioListenerComponent>();
+            }
+        }
+
+        if (entity.HasComponent<AudioZoneComponent>())
+        {
+            auto& audioZoneComponent = entity.GetComponent<AudioZoneComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Audio Zone", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::BeginCombo("Bus Channels", audioZoneComponent.audioBusName.c_str()))
+                {
+                    for (auto& busName : AudioZone::busNames)
+                    {
+                        const bool isSelected = (audioZoneComponent.audioBusName == busName);
+
+                        if (ImGui::Selectable(busName.c_str()))
+                        {
+                            if (audioZoneComponent.audioBusName != busName)
+                            {
+                                audioZoneComponent.audioBusName = busName;
+                                AudioZone::UpdateReverbZone(audioZoneComponent);
+                            }
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                ImGui::Text("Position");
+                if (ImGui::DragFloat3("##ZonePosition", glm::value_ptr(audioZoneComponent.position), 0.1f)==true)
+                    AudioZone::UpdateReverbZone(audioZoneComponent);
+
+                ImGui::Text("Radius");
+                if (ImGui::SliderFloat("##ZoneRadius", &audioZoneComponent.radius, 1.f, 100.f))
+                    AudioZone::UpdateReverbZone(audioZoneComponent);
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                AudioZone::RemoveReverbZone(audioZoneComponent);
+                entity.RemoveComponent<AudioZoneComponent>();
+            }
+        }
+
         
         if (entity.HasComponent<ScriptComponent>())
         {
@@ -686,6 +747,7 @@ namespace Coffee {
                     }
                 }
             }
+        }
         }
 
         ImGui::Separator();
