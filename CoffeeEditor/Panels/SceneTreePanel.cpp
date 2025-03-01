@@ -944,6 +944,37 @@ namespace Coffee {
 
                     ImGui::CloseCurrentPopup();
                 }
+                else if(items[item_current] == "Lua Script Component")
+                {
+                    if(!entity.HasComponent<AudioSourceComponent>())
+                    {
+                        entity.AddComponent<AudioSourceComponent>();
+                        Audio::RegisterAudioSourceComponent(entity.GetComponent<AudioSourceComponent>());
+                        AudioZone::RegisterObject(entity.GetComponent<AudioSourceComponent>().gameObjectID, entity.GetComponent<AudioSourceComponent>().transform[3]);
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Listener Component")
+                {
+                    if(!entity.HasComponent<AudioListenerComponent>())
+                    {
+                        entity.AddComponent<AudioListenerComponent>();
+                        Audio::RegisterAudioListenerComponent(entity.GetComponent<AudioListenerComponent>());
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Zone Component")
+                {
+                    if(!entity.HasComponent<AudioZoneComponent>())
+                    {
+                        entity.AddComponent<AudioZoneComponent>();
+                        AudioZone::CreateZone(entity.GetComponent<AudioZoneComponent>());
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
                 else if(items[item_current] == "Script Component")
                 {
                     //if(!entity.HasComponent<ScriptComponent>())

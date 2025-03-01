@@ -149,6 +149,9 @@ namespace Coffee {
 
             m_Octree.Insert(objectContainer);
         }
+
+        Audio::StopAllEvents();
+        Audio::PlayInitialAudios();
       
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
@@ -352,6 +355,7 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
+            .get<ScriptComponent>(archive);
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
@@ -394,6 +398,7 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
+            .get<ScriptComponent>(archive);
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
@@ -453,6 +458,48 @@ namespace Coffee {
         {
             parent = modelEntity;
             AddModelToTheSceneTree(scene, c, animatorComponent);
+        }
+    }
+
+    void Scene::UpdateAudioComponentsPositions()
+    {
+        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
+
+        for (auto& entity : audioSourceView)
+        {
+            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
+            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
+
+            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioSourceComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
+                transformComponent.GetWorldTransform()[3],
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
+            }
+        }
+
+        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
+
+        for (auto& entity : audioListenerView)
+        {
+            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
+            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
+
+            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioListenerComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
+                    transformComponent.GetWorldTransform()[3],
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+            }
         }
     }
 

@@ -14,9 +14,8 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
-#include "CoffeeEngine/Scripting/Script.h"
-#include "CoffeeEngine/Scripting/ScriptManager.h"
-#include "src/CoffeeEngine/IO/Serialization/GLMSerialization.h"
+#include "CoffeeEngine/Audio/Audio.h"
+#include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/string.hpp>
@@ -34,6 +33,7 @@
 #include <glm/gtx/matrix_decompose.hpp>
 
 #include "CoffeeEngine/Audio/Audio.h"
+
 
 namespace Coffee {
     /**
