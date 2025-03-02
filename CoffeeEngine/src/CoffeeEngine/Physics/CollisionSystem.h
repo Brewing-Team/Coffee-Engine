@@ -22,8 +22,9 @@ namespace Coffee {
     public:
         static void Initialize(Scene* scene);
         static void checkCollisions(const PhysicsWorld& world);
+        static void Shutdown();
 
-    private:
+      private:
         static Scene* s_Scene;
         static std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> s_ActiveCollisions;
     };

@@ -84,4 +84,9 @@ namespace Coffee {
         s_ActiveCollisions = currentCollisions;
     }
 
+    void CollisionSystem::Shutdown() {
+        s_ActiveCollisions.clear();
+        s_Scene = nullptr;
+    }
+
 }

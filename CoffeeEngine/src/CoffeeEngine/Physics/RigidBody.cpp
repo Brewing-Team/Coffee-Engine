@@ -31,6 +31,7 @@ namespace Coffee {
 
         m_Body = new btRigidBody(rbInfo);
         m_Body->setActivationState(DISABLE_DEACTIVATION);
+        m_Body->setUserPointer(nullptr);
 
         if (props.type == Type::Static) {
             m_Body->setCollisionFlags(m_Body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
@@ -47,6 +48,10 @@ namespace Coffee {
             delete m_Body->getMotionState();
             delete m_Body;
         }
+
+        if (m_Collider) {
+            m_Collider.reset();
+        }
     }
 
     void RigidBody::SetPosition(const glm::vec3& position) const
@@ -56,9 +61,14 @@ namespace Coffee {
         m_Body->setWorldTransform(transform);
     }
 
+    void RigidBody::SetVelocity(const glm::vec3& velocity) const
+    {
+        m_Body->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
+    }
+
     glm::vec3 RigidBody::GetPosition() const {
         btVector3 pos = m_Body->getWorldTransform().getOrigin();
-        return glm::vec3(pos.x(), pos.y(), pos.z());
+        return {pos.x(), pos.y(), pos.z()};
     }
 
     void RigidBody::ApplyForce(const glm::vec3& force) const

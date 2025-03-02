@@ -16,6 +16,14 @@ namespace Coffee {
     }
 
     PhysicsWorld::~PhysicsWorld() {
+        for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; i--) {
+            btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+            btRigidBody* body = btRigidBody::upcast(obj);
+            if (body) {
+                dynamicsWorld->removeRigidBody(body);
+            }
+        }
+
         delete dynamicsWorld;
         delete solver;
         delete broadphase;

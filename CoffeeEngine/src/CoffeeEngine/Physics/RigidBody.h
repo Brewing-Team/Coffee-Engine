@@ -8,11 +8,18 @@
 
 namespace Coffee {
 
-    class RigidBody {
-    public:
-        enum class Type { Static, Dynamic, Kinematic };
+    class RigidBody
+    {
+      public:
+        enum class Type
+        {
+            Static,
+            Dynamic,
+            Kinematic
+        };
 
-        struct Properties {
+        struct Properties
+        {
             Type type = Type::Dynamic;
             float mass = 1.0f;
             bool useGravity = true;
@@ -28,6 +35,7 @@ namespace Coffee {
         // Kinematics
         void SetPosition(const glm::vec3& position) const;
         void SetRotation(const glm::vec3& rotation) const;
+        void SetVelocity(const glm::vec3& velocity) const;
         glm::vec3 GetPosition() const;
         glm::vec3 GetRotation() const;
         glm::vec3 GetVelocity() const;
@@ -51,4 +59,4 @@ namespace Coffee {
         Properties m_Properties;
     };
 
-}
+} // namespace Coffee

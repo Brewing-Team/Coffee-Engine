@@ -130,6 +130,85 @@ namespace Coffee {
 
         //Entity scriptEntity2 = CreateEntity("Script2");
         //scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor*/
+
+        // ------------------------------ TEMPORAL ------------------------------
+        // --------------------------- Physics testing --------------------------
+        CollisionSystem::Initialize(this);
+    
+        // Create floor entity & transform
+        Entity floorEntity = CreateEntity("Floor");
+        auto& floorTransform = floorEntity.GetComponent<TransformComponent>();
+        floorTransform.Position = {0.0f, -0.25f, 0.0f};
+        floorTransform.Scale = {10.0f, 0.5f, 10.0f};
+
+        // Setup floor rigidbody
+        RigidBody::Properties floorProps;
+        floorProps.type = RigidBody::Type::Static;
+        floorProps.useGravity = false;
+
+        // Setup floor collider
+        auto floorCollider = CreateRef<BoxCollider>(floorTransform.Scale);
+
+        // Create floor rigidbody component
+        auto& floorRb = floorEntity.AddComponent<RigidbodyComponent>();
+        floorRb.rb = RigidBody::Create(floorProps, floorCollider);
+        floorRb.rb->SetPosition(floorTransform.Position);
+
+        // Add floor visual mesh
+        floorEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+
+        // Add collision callback
+        floorRb.callback.OnCollisionEnter([](CollisionInfo& info) {
+            COFFEE_INFO("Floor collision enter with: {}", info.entityB.GetComponent<TagComponent>().Tag);
+        });
+        floorRb.callback.OnCollisionStay([](CollisionInfo& info) {
+            COFFEE_INFO("Floor collision stay with: {}", info.entityB.GetComponent<TagComponent>().Tag);
+        });
+        floorRb.callback.OnCollisionExit([](CollisionInfo& info) {
+            COFFEE_INFO("Floor collision exit with: {}", info.entityB.GetComponent<TagComponent>().Tag);
+        });
+
+        // Add floor to physics world
+        m_PhysicsWorld.addRigidBody(floorRb.rb->GetNativeBody());
+
+        // Create spheres
+        const int NUM_SPHERES = 0;
+        for(int i = 0; i < NUM_SPHERES; i++) {
+            Entity sphereEntity = CreateEntity("Sphere_" + std::to_string(i));
+
+            auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
+            sphereTransform.Position = {
+                static_cast<float>(rand() % 5 - 2),
+                5.0f + i * 2.0f,
+                static_cast<float>(rand() % 5 - 2)
+            };
+            sphereTransform.Scale = {1.0f, 1.0f, 1.0f};
+
+            // Setup sphere rigidbody
+            RigidBody::Properties sphereProps;
+            sphereProps.type = RigidBody::Type::Dynamic;
+            sphereProps.useGravity = true;
+            sphereProps.mass = 1.0f;
+
+            auto sphereCollider = CreateRef<SphereCollider>(0.5f);
+            auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>();
+            sphereRb.rb = RigidBody::Create(sphereProps, sphereCollider);
+            sphereRb.rb->SetPosition(sphereTransform.Position);
+
+            // Add visual mesh and callback
+            sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+
+            sphereRb.callback.OnCollisionEnter([](CollisionInfo& info) {
+                COFFEE_INFO("{} collision enter with: {}",
+                    info.entityA.GetComponent<TagComponent>().Tag,
+                    info.entityB.GetComponent<TagComponent>().Tag);
+            });
+
+            // Add to physics world
+            m_PhysicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
+        }
+        // ------------------------- END Physics testing ------------------------
+
     }
 
     void Scene::OnInitRuntime()
@@ -253,7 +332,72 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
-        UpdateAudioComponentsPositions();
+        // ------------------------------ TEMPORAL ------------------------------
+        // --------------------------- Physics testing --------------------------
+        m_PhysicsWorld.stepSimulation(dt);
+        m_PhysicsWorld.drawCollisionShapes();
+
+        // Update transforms from physics
+        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : viewPhysics) {
+            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.rb) {
+                transform.Position = rb.rb->GetPosition();
+                transform.Rotation = rb.rb->GetRotation();
+            }
+        }
+
+        // Handle input for spawning and deleting spheres
+        static std::vector<Entity> spawnedSpheres;
+
+        if (Input::IsKeyPressed(Key::I)) {
+            Entity sphereEntity = CreateEntity("Runtime_Sphere_" + std::to_string(spawnedSpheres.size()));
+
+            auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
+            sphereTransform.Position = {
+                static_cast<float>(rand() % 5 - 2),
+                5.0f,
+                static_cast<float>(rand() % 5 - 2)
+            };
+            sphereTransform.Scale = {1.0f, 1.0f, 1.0f};
+
+            // Setup sphere rigidbody
+            RigidBody::Properties sphereProps;
+            sphereProps.type = RigidBody::Type::Dynamic;
+            sphereProps.useGravity = true;
+            sphereProps.mass = 1.0f;
+
+            auto sphereCollider = CreateRef<SphereCollider>(0.5f);
+            auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>();
+            sphereRb.rb = RigidBody::Create(sphereProps, sphereCollider);
+            sphereRb.rb->SetPosition(sphereTransform.Position);
+
+            // Add visual mesh and callback
+            sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+
+            sphereRb.callback.OnCollisionEnter([](CollisionInfo& info) {
+                COFFEE_INFO("{} collision enter with: {}",
+                    info.entityA.GetComponent<TagComponent>().Tag,
+                    info.entityB.GetComponent<TagComponent>().Tag);
+            });
+
+            // Add to physics world
+            m_PhysicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
+
+            spawnedSpheres.push_back(sphereEntity);
+        }
+
+        if (Input::IsKeyPressed(Key::D) && !spawnedSpheres.empty()) {
+            Entity sphereEntity = spawnedSpheres.back();
+            spawnedSpheres.pop_back();
+
+            auto& sphereRb = sphereEntity.GetComponent<RigidbodyComponent>();
+            m_PhysicsWorld.removeRigidBody(sphereRb.rb->GetNativeBody());
+
+            DestroyEntity(sphereEntity);
+        }
+        // ------------------------- END Physics testing ------------------------
+
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
 
@@ -329,7 +473,30 @@ namespace Coffee {
 
     void Scene::OnExitRuntime()
     {
-        Audio::StopAllEvents();
+        auto view = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : view) {
+            auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.rb) {
+                // Remove from physics world first
+                m_PhysicsWorld.removeRigidBody(rb.rb->GetNativeBody());
+
+                Entity e{entity, this};
+                if (e.GetComponent<TagComponent>().Tag == "Sphere") {
+                    transform.Position = {0.0f, 5.0f, 0.0f};
+                }
+                else if (e.GetComponent<TagComponent>().Tag == "Floor") {
+                    transform.Position = {0.0f, -0.25f, 0.0f};
+                }
+
+                rb.rb->SetPosition(transform.Position);
+                rb.rb->SetRotation({0.0f, 0.0f, 0.0f});
+                rb.rb->ResetVelocity();
+                rb.rb->ClearForces();
+            }
+        }
+
+        // Clear collision system state
+        CollisionSystem::Shutdown();
     }
 
     Ref<Scene> Scene::Load(const std::filesystem::path& path)
