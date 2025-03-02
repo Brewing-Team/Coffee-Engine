@@ -24,6 +24,9 @@ namespace Coffee {
 
         void SetBoneTransformations(const Ref<Shader>& shader, AnimatorComponent* animator);
 
+        void AddAnimator(AnimatorComponent* animatorComponent);
+        std::vector<AnimatorComponent*> GetAnimators() const { return m_Animators; }
+
     private:
         void SampleAnimation(float deltaTime, AnimatorComponent* animator);
         void BlendAnimations(float deltaTime, AnimatorComponent* animator);
@@ -33,5 +36,8 @@ namespace Coffee {
             memcpy(glm::value_ptr(to), &from.cols[0], sizeof(glm::mat4));
             return to;
         }
+
+    private:
+        std::vector<AnimatorComponent*> m_Animators;
     };
 } // namespace Coffee

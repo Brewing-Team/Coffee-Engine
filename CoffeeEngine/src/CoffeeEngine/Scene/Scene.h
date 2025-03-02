@@ -120,6 +120,9 @@ namespace Coffee {
         const std::filesystem::path& GetFilePath() { return m_FilePath; }
 
         static const Ref<AnimationSystem> GetAnimationSystem() { return m_AnimationSystem; }
+
+        void AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators);
+
     private:
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;

@@ -166,10 +166,31 @@ namespace Coffee {
      */
     class AnimatorComponent
     {
-        AnimatorComponent() {}
-        AnimatorComponent(const AnimatorComponent&) = default;
+        AnimatorComponent() = default;
+        AnimatorComponent(const AnimatorComponent& other)
+        : IsBlending(other.IsBlending),
+          CurrentAnimation(other.CurrentAnimation),
+          NextAnimation(other.NextAnimation),
+          AnimationTime(other.AnimationTime),
+          NextAnimationTime(other.NextAnimationTime),
+          BlendTime(other.BlendTime),
+          BlendDuration(other.BlendDuration),
+          BlendThreshold(other.BlendThreshold),
+          AnimationSpeed(other.AnimationSpeed),
+          JointMatrices(other.JointMatrices),
+          m_Skeleton(other.m_Skeleton),
+          m_AnimationController(other.m_AnimationController),
+          m_AnimationSystem(other.m_AnimationSystem),
+          modelUUID(other.modelUUID),
+          animatorUUID(other.animatorUUID)
+        {
+            m_BlendJob.layers = ozz::make_span(m_BlendLayers);
+            m_AnimationSystem->SetCurrentAnimation(CurrentAnimation, this);
+            m_AnimationSystem->AddAnimator(this);
+        }
+
         AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController, Ref<AnimationSystem> animationSystem)
-        : m_Skeleton(skeleton), m_AnimationController(animationController), m_AnimationSystem(animationSystem)
+        : m_Skeleton(std::move(skeleton)), m_AnimationController(std::move(animationController)), m_AnimationSystem(std::move(animationSystem))
         {
             m_BlendJob.layers = ozz::make_span(m_BlendLayers);
             JointMatrices = m_Skeleton->GetJointMatrices();
@@ -183,6 +204,35 @@ namespace Coffee {
         ozz::animation::BlendingJob::Layer* GetBlendLayers() { return m_BlendLayers; }
         ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
 
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation),
+                    cereal::make_nvp("BlendDuration", BlendDuration),
+                    cereal::make_nvp("BlendThreshold", BlendThreshold),
+                    cereal::make_nvp("AnimationSpeed", AnimationSpeed),
+                    cereal::make_nvp("ModelUUID", modelUUID),
+                    cereal::make_nvp("AnimatorUUID", animatorUUID));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation),
+                    cereal::make_nvp("BlendDuration", BlendDuration),
+                    cereal::make_nvp("BlendThreshold", BlendThreshold),
+                    cereal::make_nvp("AnimationSpeed", AnimationSpeed),
+                    cereal::make_nvp("ModelUUID", modelUUID),
+                    cereal::make_nvp("AnimatorUUID", animatorUUID));
+
+            Ref<Model> model = ResourceRegistry::Get<Model>(modelUUID);
+            m_Skeleton = model->GetSkeleton();
+            m_AnimationController = model->GetAnimationController();
+            m_AnimationSystem = Scene::GetAnimationSystem();
+
+            JointMatrices = m_Skeleton->GetJointMatrices();
+        }
+
     public:
         bool IsBlending = false;
         unsigned int CurrentAnimation = 0;
@@ -195,6 +245,8 @@ namespace Coffee {
         float AnimationSpeed = 1.0f;
 
         std::vector<glm::mat4> JointMatrices;
+        UUID modelUUID;
+        UUID animatorUUID;
 
     private:
         Ref<Skeleton> m_Skeleton;
@@ -216,6 +268,7 @@ namespace Coffee {
         bool drawAABB = false; ///< Flag to draw the axis-aligned bounding box (AABB).
 
         AnimatorComponent* animator = nullptr; ///< The animator component.
+        UUID animatorUUID = 0;
 
         MeshComponent()
         {
@@ -240,14 +293,19 @@ namespace Coffee {
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("Mesh", mesh->GetUUID()));
+            archive(cereal::make_nvp("Mesh", mesh->GetUUID()),
+                    cereal::make_nvp("AnimatorUUID", animatorUUID));
+
+            if (animator && animatorUUID != 0)
+                animator->animatorUUID = animatorUUID;
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
             UUID meshUUID;
-            archive(cereal::make_nvp("Mesh", meshUUID));
+            archive(cereal::make_nvp("Mesh", meshUUID),
+                    cereal::make_nvp("AnimatorUUID", animatorUUID));
 
             Ref<Mesh> mesh = ResourceRegistry::Get<Mesh>(meshUUID);
             this->mesh = mesh;

@@ -439,8 +439,16 @@ namespace Coffee {
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+            
+            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
+        }
 
-            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -517,10 +525,9 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<ScriptComponent>(archive)
-            .get<AudioSourceComponent>(archive)
-            .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+            .get<AnimatorComponent>(archive);
+
+        scene->AssignAnimatorsToMeshes(m_AnimationSystem->GetAnimators());
         
         scene->m_FilePath = path;
 
@@ -560,10 +567,7 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<ScriptComponent>(archive)
-            .get<AudioSourceComponent>(archive)
-            .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+            .get<AnimatorComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -588,6 +592,8 @@ namespace Coffee {
         {
             animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController(), Scene::GetAnimationSystem());
             animatorComponent->GetAnimationSystem()->SetCurrentAnimation(0, animatorComponent);
+            animatorComponent->modelUUID = model->GetUUID();
+            animatorComponent->animatorUUID = UUID();
         }
 
         if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
@@ -603,7 +609,10 @@ namespace Coffee {
             entity.AddComponent<MeshComponent>(mesh);
 
             if (animatorComponent)
+            {
                 entity.GetComponent<MeshComponent>().animator = animatorComponent;
+                entity.GetComponent<MeshComponent>().animatorUUID = animatorComponent->animatorUUID;
+            }
 
             if(mesh->GetMaterial())
             {
@@ -623,130 +632,20 @@ namespace Coffee {
         }
     }
 
-    void Scene::UpdateAudioComponentsPositions()
+    void Scene::AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators)
     {
-        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
-
-        for (auto& entity : audioSourceView)
+        std::vector<Entity> entities = GetAllEntities();
+        for (auto entity : entities)
         {
-            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
-            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
-
-            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
+            if (entity.HasComponent<MeshComponent>())
             {
-                audioSourceComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
-                transformComponent.GetWorldTransform()[3],
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
-            }
-        }
-
-        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
-
-        for (auto& entity : audioListenerView)
-        {
-            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
-            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
-
-            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioListenerComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
-                    transformComponent.GetWorldTransform()[3],
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
+                for (auto animator : animators)
+                {
+                    MeshComponent* meshComponent = &entity.GetComponent<MeshComponent>();
+                    if (meshComponent->animatorUUID == animator->animatorUUID && !meshComponent->animator)
+                        meshComponent->animator = animator;
+                }
             }
         }
     }
-
-    void Scene::UpdateAudioComponentsPositions()
-    {
-        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
-
-        for (auto& entity : audioSourceView)
-        {
-            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
-            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
-
-            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioSourceComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
-                transformComponent.GetWorldTransform()[3],
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
-            }
-        }
-
-        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
-
-        for (auto& entity : audioListenerView)
-        {
-            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
-            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
-
-            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioListenerComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
-                    transformComponent.GetWorldTransform()[3],
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-            }
-        }
-    }
-
-    void Scene::UpdateAudioComponentsPositions()
-    {
-        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
-
-        for (auto& entity : audioSourceView)
-        {
-            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
-            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
-
-            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioSourceComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
-                transformComponent.GetWorldTransform()[3],
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
-            }
-        }
-
-        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
-
-        for (auto& entity : audioListenerView)
-        {
-            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
-            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
-
-            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioListenerComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
-                    transformComponent.GetWorldTransform()[3],
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-            }
-        }
-    }
-
 }

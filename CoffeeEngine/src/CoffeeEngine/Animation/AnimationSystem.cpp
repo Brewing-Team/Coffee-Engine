@@ -203,4 +203,9 @@ namespace Coffee {
         const std::vector<glm::mat4>& jointMatrices = animator->JointMatrices;
         shader->setMat4v("finalBonesMatrices", jointMatrices);
     }
+
+    void AnimationSystem::AddAnimator(AnimatorComponent* animatorComponent)
+    {
+        m_Animators.push_back(animatorComponent);
+    }
 }
