@@ -167,6 +167,11 @@ namespace Coffee {
     class AnimatorComponent
     {
         AnimatorComponent() = default;
+
+        /**
+         * @brief Copy constructor for AnimatorComponent.
+         * @param other The other AnimatorComponent to copy from.
+         */
         AnimatorComponent(const AnimatorComponent& other)
         : IsBlending(other.IsBlending),
           CurrentAnimation(other.CurrentAnimation),
@@ -189,6 +194,12 @@ namespace Coffee {
             m_AnimationSystem->AddAnimator(this);
         }
 
+        /**
+         * @brief Constructs an AnimatorComponent with the given skeleton, animation controller, and animation system.
+         * @param skeleton The skeleton reference.
+         * @param animationController The animation controller reference.
+         * @param animationSystem The animation system reference.
+         */
         AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController, Ref<AnimationSystem> animationSystem)
         : m_Skeleton(std::move(skeleton)), m_AnimationController(std::move(animationController)), m_AnimationSystem(std::move(animationSystem))
         {
@@ -196,14 +207,47 @@ namespace Coffee {
             JointMatrices = m_Skeleton->GetJointMatrices();
         }
 
+        /**
+         * @brief Gets the skeleton reference.
+         * @return The skeleton reference.
+         */
         Ref<Skeleton> GetSkeleton() const { return m_Skeleton; }
+
+        /**
+         * @brief Gets the animation controller reference.
+         * @return The animation controller reference.
+         */
         Ref<AnimationController> GetAnimationController() const { return m_AnimationController; }
+
+        /**
+         * @brief Gets the animation system reference.
+         * @return The animation system reference.
+         */
         Ref<AnimationSystem> GetAnimationSystem() const { return m_AnimationSystem; }
 
+        /**
+         * @brief Gets the sampling job context.
+         * @return The sampling job context.
+         */
         ozz::animation::SamplingJob::Context& GetContext() { return m_Context; }
+
+        /**
+         * @brief Gets the blend layers.
+         * @return The blend layers.
+         */
         ozz::animation::BlendingJob::Layer* GetBlendLayers() { return m_BlendLayers; }
+
+        /**
+         * @brief Gets the blending job.
+         * @return The blending job.
+         */
         ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
 
+        /**
+         * @brief Serializes the AnimatorComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to serialize to.
+         */
         template<class Archive>
         void save(Archive& archive) const
         {
@@ -215,6 +259,11 @@ namespace Coffee {
                     cereal::make_nvp("AnimatorUUID", animatorUUID));
         }
 
+        /**
+         * @brief Deserializes the AnimatorComponent.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to deserialize from.
+         */
         template<class Archive>
         void load(Archive& archive)
         {
@@ -234,28 +283,28 @@ namespace Coffee {
         }
 
     public:
-        bool IsBlending = false;
-        unsigned int CurrentAnimation = 0;
-        unsigned int NextAnimation = 0;
-        float AnimationTime = 0.f;
-        float NextAnimationTime = 0.f;
-        float BlendTime = 0.f;
-        float BlendDuration = 0.25f;
-        float BlendThreshold = 0.8;
-        float AnimationSpeed = 1.0f;
+        bool IsBlending = false; ///< Indicates if the animation is blending.
+        unsigned int CurrentAnimation = 0; ///< The current animation index.
+        unsigned int NextAnimation = 0; ///< The next animation index.
+        float AnimationTime = 0.f; ///< The current animation time.
+        float NextAnimationTime = 0.f; ///< The next animation time.
+        float BlendTime = 0.f; ///< The current blend time.
+        float BlendDuration = 0.25f; ///< The duration of the blend.
+        float BlendThreshold = 0.8; ///< The blend threshold.
+        float AnimationSpeed = 1.0f; ///< The speed of the animation.
 
-        std::vector<glm::mat4> JointMatrices;
-        UUID modelUUID;
-        UUID animatorUUID;
+        std::vector<glm::mat4> JointMatrices; ///< The joint matrices.
+        UUID modelUUID; ///< The UUID of the model.
+        UUID animatorUUID; ///< The UUID of the animator.
 
     private:
-        Ref<Skeleton> m_Skeleton;
-        Ref<AnimationController> m_AnimationController;
-        Ref<AnimationSystem> m_AnimationSystem;
+        Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
+        Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
+        Ref<AnimationSystem> m_AnimationSystem; ///< The animation system reference.
 
-        ozz::animation::SamplingJob::Context m_Context;
-        ozz::animation::BlendingJob::Layer m_BlendLayers[2];
-        ozz::animation::BlendingJob m_BlendJob;
+        ozz::animation::SamplingJob::Context m_Context; ///< The sampling job context.
+        ozz::animation::BlendingJob::Layer m_BlendLayers[2]; ///< The blend layers.
+        ozz::animation::BlendingJob m_BlendJob; ///< The blending job.
     };
 
     /**
@@ -268,7 +317,7 @@ namespace Coffee {
         bool drawAABB = false; ///< Flag to draw the axis-aligned bounding box (AABB).
 
         AnimatorComponent* animator = nullptr; ///< The animator component.
-        UUID animatorUUID = 0;
+        UUID animatorUUID = 0; ///< The UUID of the animator.
 
         MeshComponent()
         {
