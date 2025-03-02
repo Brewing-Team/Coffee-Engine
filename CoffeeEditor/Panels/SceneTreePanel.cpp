@@ -374,10 +374,6 @@ namespace Coffee {
                     }
                 }
 
-                // pstion
-                ImGui::Text("Position");
-                ImGui::DragFloat2("##Position", glm::value_ptr(uiImageComponent.Position), 0.1f);
-
                 // size
                 ImGui::Text("Size");
                 ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
@@ -425,10 +421,6 @@ namespace Coffee {
                 {
                     uiTextComponent.font = Font::GetDefault();
                 }
-
-                // position
-                ImGui::Text("Position");
-                ImGui::DragFloat2("##Position", glm::value_ptr(uiTextComponent.Position), 0.1f);
 
                 // size
                 ImGui::Text("Font Size");

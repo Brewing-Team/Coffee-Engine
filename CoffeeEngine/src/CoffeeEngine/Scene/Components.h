@@ -328,13 +328,12 @@ namespace Coffee {
     {
         std::string TexturePath; // path
         Ref<Texture2D> Texture;  // texture loaded
-        glm::vec2 Position = {0.0f, 0.0f};
         glm::vec2 Size = {100.0f, 100.0f};
         bool Visible = true;
 
         UIImageComponent() = default;
         UIImageComponent(const std::string& texturePath, const glm::vec2& position, const glm::vec2& size, bool visible)
-            : TexturePath(texturePath), Position(position), Size(size), Visible(visible)
+            : TexturePath(texturePath), Size(size), Visible(visible)
         {
             if (!texturePath.empty())
             {
@@ -346,7 +345,6 @@ namespace Coffee {
         void serialize(Archive& archive)
         {
             archive(cereal::make_nvp("TexturePath", TexturePath),
-                    cereal::make_nvp("Position", Position),
                     cereal::make_nvp("Size", Size),
                     cereal::make_nvp("Visible", Visible));
         }
@@ -357,14 +355,13 @@ namespace Coffee {
         std::string Text = "Default Text";
         std::string FontPath;
         Ref<Font> font;
-        glm::vec2 Position = {0.0f, 0.0f};
         float FontSize = 24.0f;
         glm::vec4 Color = {1.0f, 1.0f, 1.0f, 1.0f};
         bool Visible = true;
 
         UITextComponent() = default;
         UITextComponent(const std::string& text, const std::string& fontPath, const glm::vec2 position, float fontSize, float lineSpacing, const glm::vec4 color, bool visible)
-            : Text(text), FontPath(fontPath), Position(position), FontSize(fontSize), Color(color), Visible(visible)
+            : Text(text), FontPath(fontPath), FontSize(fontSize), Color(color), Visible(visible)
         {
             if (!fontPath.empty())
             {
@@ -376,7 +373,6 @@ namespace Coffee {
         {
             archive(cereal::make_nvp("Text", Text), 
                     cereal::make_nvp("FontPath", FontPath),
-                    cereal::make_nvp("Position", Position), 
                     cereal::make_nvp("FontSize", FontSize),
                     cereal::make_nvp("Color", Color), 
                     cereal::make_nvp("Visible", Visible));
