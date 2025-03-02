@@ -29,6 +29,8 @@ namespace Coffee {
 
     private:
         void SampleAnimation(float deltaTime, AnimatorComponent* animator);
+        std::vector<ozz::math::SoaTransform> SampleTransforms(AnimatorComponent* animator, unsigned int animationIndex, float timeRatio);
+        std::vector<ozz::math::Float4x4> ConvertToModelSpace(AnimatorComponent* animator, const std::vector<ozz::math::SoaTransform>& localTransforms);
         void BlendAnimations(float deltaTime, AnimatorComponent* animator);
 
         static glm::mat4 OzzToGlmMat4(const ozz::math::Float4x4& from) {

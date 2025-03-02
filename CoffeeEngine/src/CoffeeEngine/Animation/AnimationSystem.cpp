@@ -36,24 +36,42 @@ namespace Coffee {
     void AnimationSystem::SampleAnimation(float deltaTime, AnimatorComponent* animator)
     {
         animator->AnimationTime += deltaTime * animator->AnimationSpeed;
-        if (animator->AnimationTime > animator->GetAnimationController()->GetAnimation(animator->CurrentAnimation)->GetAnimation()->duration())
-            animator->AnimationTime = std::fmod(animator->AnimationTime, animator->GetAnimationController()->GetAnimation(animator->CurrentAnimation)->GetAnimation()->duration());
+        float animationDuration = animator->GetAnimationController()->GetAnimation(animator->CurrentAnimation)->GetAnimation()->duration();
+        if (animator->AnimationTime > animationDuration)
+            animator->AnimationTime = std::fmod(animator->AnimationTime, animationDuration);
 
+        std::vector<ozz::math::SoaTransform> localTransforms = SampleTransforms(animator, animator->CurrentAnimation, animator->AnimationTime / animationDuration);
+
+        std::vector<ozz::math::Float4x4> modelSpaceTransforms = ConvertToModelSpace(animator, localTransforms);
+
+        for (size_t i = 0; i < modelSpaceTransforms.size(); ++i)
+        {
+            animator->JointMatrices[i] = OzzToGlmMat4(modelSpaceTransforms[i]) * animator->GetSkeleton()->GetJoints()[i].invBindPose;
+        }
+    }
+
+    std::vector<ozz::math::SoaTransform> AnimationSystem::SampleTransforms(AnimatorComponent* animator, unsigned int animationIndex, float timeRatio)
+    {
         const int numJoints = animator->GetSkeleton()->GetSkeleton()->num_joints();
-
         std::vector<ozz::math::SoaTransform> localTransforms(numJoints);
+
         ozz::animation::SamplingJob samplingJob;
-        samplingJob.animation = animator->GetAnimationController()->GetAnimation(animator->CurrentAnimation)->GetAnimation();
+        samplingJob.animation = animator->GetAnimationController()->GetAnimation(animationIndex)->GetAnimation();
         samplingJob.context = &animator->GetContext();
-        samplingJob.ratio = animator->AnimationTime / animator->GetAnimationController()->GetAnimation(animator->CurrentAnimation)->GetAnimation()->duration();
+        samplingJob.ratio = timeRatio;
         samplingJob.output = ozz::make_span(localTransforms);
 
         if (!samplingJob.Run())
         {
             std::cerr << "Failed to sample animation" << std::endl;
-            return;
         }
 
+        return localTransforms;
+    }
+
+    std::vector<ozz::math::Float4x4> AnimationSystem::ConvertToModelSpace(AnimatorComponent* animator, const std::vector<ozz::math::SoaTransform>& localTransforms)
+    {
+        const int numJoints = animator->GetSkeleton()->GetSkeleton()->num_joints();
         std::vector<ozz::math::Float4x4> modelSpaceTransforms(numJoints);
 
         ozz::animation::LocalToModelJob localToModelJob;
@@ -65,13 +83,9 @@ namespace Coffee {
         {
             std::cerr << "Failed to convert local to model transforms" << std::endl;
             std::fill(animator->JointMatrices.begin(), animator->JointMatrices.end(), glm::mat4(1.0f));
-            return;
         }
 
-        for (size_t i = 0; i < modelSpaceTransforms.size(); ++i)
-        {
-            animator->JointMatrices[i] = OzzToGlmMat4(modelSpaceTransforms[i]) * animator->GetSkeleton()->GetJoints()[i].invBindPose;
-        }
+        return modelSpaceTransforms;
     }
 
     void AnimationSystem::BlendAnimations(float deltaTime, AnimatorComponent* animator)
@@ -96,39 +110,14 @@ namespace Coffee {
 
         const int numJoints = animator->GetSkeleton()->GetSkeleton()->num_joints();
 
-        std::vector<ozz::math::SoaTransform> localTransforms1(numJoints);
-        std::vector<ozz::math::SoaTransform> localTransforms2(numJoints);
+        std::vector<ozz::math::SoaTransform> localTransforms1 = SampleTransforms(animator, animator->CurrentAnimation,
+            fmod(animator->AnimationTime, currentAnimation->duration()) / currentAnimation->duration());
+        std::vector<ozz::math::SoaTransform> localTransforms2 = SampleTransforms(animator, animator->NextAnimation,
+            fmod(animator->NextAnimationTime, nextAnimation->duration()) / nextAnimation->duration());
         std::vector<ozz::math::SoaTransform> blendedTransforms(numJoints);
 
         animator->AnimationTime += deltaTime * animator->AnimationSpeed;
         animator->NextAnimationTime += deltaTime * animator->AnimationSpeed;
-
-        float currentTimeRatio = fmod(animator->AnimationTime, currentAnimation->duration()) / currentAnimation->duration();
-        float nextTimeRatio = fmod(animator->NextAnimationTime, nextAnimation->duration()) / nextAnimation->duration();
-
-        ozz::animation::SamplingJob samplingJob1;
-        samplingJob1.animation = currentAnimation;
-        samplingJob1.context = &animator->GetContext();
-        samplingJob1.ratio = currentTimeRatio;
-        samplingJob1.output = ozz::make_span(localTransforms1);
-
-        if (!samplingJob1.Run())
-        {
-            std::cerr << "Failed to sample current animation" << std::endl;
-            return;
-        }
-
-        ozz::animation::SamplingJob samplingJob2;
-        samplingJob2.animation = nextAnimation;
-        samplingJob2.context = &animator->GetContext();
-        samplingJob2.ratio = nextTimeRatio;
-        samplingJob2.output = ozz::make_span(localTransforms2);
-
-        if (!samplingJob2.Run())
-        {
-            std::cerr << "Failed to sample next animation" << std::endl;
-            return;
-        }
 
         float blendFactor = glm::clamp(animator->BlendTime / animator->BlendDuration, 0.0f, 1.0f);
 
@@ -139,7 +128,6 @@ namespace Coffee {
 
         animator->GetBlendJob().rest_pose = ozz::make_span(animator->GetSkeleton()->GetSkeleton()->joint_rest_poses());
         animator->GetBlendJob().output = ozz::make_span(blendedTransforms);
-        
         animator->GetBlendJob().threshold = animator->BlendThreshold;
 
         if (!animator->GetBlendJob().Run())
@@ -148,19 +136,7 @@ namespace Coffee {
             return;
         }
 
-        std::vector<ozz::math::Float4x4> modelSpaceTransforms(numJoints);
-
-        ozz::animation::LocalToModelJob localToModelJob;
-        localToModelJob.skeleton = animator->GetSkeleton()->GetSkeleton();
-        localToModelJob.input = ozz::make_span(blendedTransforms);
-        localToModelJob.output = ozz::make_span(modelSpaceTransforms);
-
-        if (!localToModelJob.Run())
-        {
-            std::cerr << "Failed to convert local to model transforms" << std::endl;
-            std::fill(animator->JointMatrices.begin(), animator->JointMatrices.end(), glm::mat4(1.0f));
-            return;
-        }
+        std::vector<ozz::math::Float4x4> modelSpaceTransforms = ConvertToModelSpace(animator, blendedTransforms);
 
         for (size_t i = 0; i < modelSpaceTransforms.size(); ++i)
         {

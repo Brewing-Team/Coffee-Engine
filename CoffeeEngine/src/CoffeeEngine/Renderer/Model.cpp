@@ -62,10 +62,10 @@ namespace Coffee {
         {
             m_hasAnimations = true;
 
-            if(!ExtractSkeleton(scene, joints, boneMap, *this))
+            if(!ExtractSkeleton(scene, joints, boneMap))
                 std::cerr << "Error extracting skeleton" << std::endl;
 
-            if(!ExtractAnimations(scene, boneMap, *this))
+            if(!ExtractAnimations(scene, boneMap))
                 std::cerr << "Error extracting animations" << std::endl;
 
             if (m_Skeleton && m_AnimationController && m_AnimationController->GetAnimationCount() > 0)
@@ -87,8 +87,6 @@ namespace Coffee {
         {
             m_Skeleton->SetJoints(joints);
         }
-
-
     }
 
     Model::Model(ModelImportData& importData)
@@ -332,7 +330,7 @@ namespace Coffee {
         return matTextures;
     }
 
-    bool Model::ExtractSkeleton(const aiScene* pScene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap, Model& model)
+    bool Model::ExtractSkeleton(const aiScene* pScene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
     {
         ExtractJoints(pScene->mRootNode, -1, joints, boneMap);
 
@@ -375,17 +373,15 @@ namespace Coffee {
         }
 
         ozz::animation::offline::SkeletonBuilder skelBuilder;
-
         auto skeleton = CreateRef<Skeleton>();
         skeleton->SetSkeleton(std::move(skelBuilder(rawSkeleton)));
         skeleton->SetJoints(joints);
-
         m_Skeleton = skeleton;
 
         return true;
     }
 
-    bool Model::ExtractAnimations(const aiScene* scene, const std::map<std::string, int>& boneMap, Model& model)
+    bool Model::ExtractAnimations(const aiScene* scene, const std::map<std::string, int>& boneMap)
     {
         auto animController = CreateRef<AnimationController>();
 
@@ -406,41 +402,7 @@ namespace Coffee {
                     continue;
 
                 int jointIndex = it->second;
-                auto& track = rawAnimation.tracks[jointIndex];
-
-                track.translations.reserve(channel->mNumPositionKeys);
-                track.rotations.reserve(channel->mNumRotationKeys);
-                track.scales.reserve(channel->mNumScalingKeys);
-
-                // Translation
-                for (unsigned int i = 0; i < channel->mNumPositionKeys; ++i)
-                {
-                    const aiVectorKey& key = channel->mPositionKeys[i];
-                    track.translations.push_back({
-                        static_cast<float>(key.mTime / aiAnim->mTicksPerSecond),
-                        ozz::math::Float3(key.mValue.x, key.mValue.y, key.mValue.z)
-                    });
-                }
-
-                // Rotation
-                for (unsigned int i = 0; i < channel->mNumRotationKeys; ++i)
-                {
-                    const aiQuatKey& key = channel->mRotationKeys[i];
-                    track.rotations.push_back({
-                        static_cast<float>(key.mTime / aiAnim->mTicksPerSecond),
-                        ozz::math::Quaternion(key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w)
-                    });
-                }
-
-                // Scale
-                for (unsigned int i = 0; i < channel->mNumScalingKeys; ++i)
-                {
-                    const aiVectorKey& key = channel->mScalingKeys[i];
-                    track.scales.push_back({
-                        static_cast<float>(key.mTime / aiAnim->mTicksPerSecond),
-                        ozz::math::Float3(key.mValue.x, key.mValue.y, key.mValue.z)
-                    });
-                }
+                ProcessAnimationChannel(channel, rawAnimation.tracks[jointIndex], static_cast<float>(aiAnim->mTicksPerSecond));
             }
 
             if (!rawAnimation.Validate())
@@ -459,6 +421,39 @@ namespace Coffee {
         return true;
     }
 
+    void Model::ProcessAnimationChannel(aiNodeAnim* channel, ozz::animation::offline::RawAnimation::JointTrack& track, float ticksPerSecond)
+    {
+        // Translation
+        for (unsigned int i = 0; i < channel->mNumPositionKeys; ++i)
+        {
+            const aiVectorKey& key = channel->mPositionKeys[i];
+            track.translations.push_back({
+                static_cast<float>(key.mTime / ticksPerSecond),
+                ozz::math::Float3(key.mValue.x, key.mValue.y, key.mValue.z)
+            });
+        }
+
+        // Rotation
+        for (unsigned int i = 0; i < channel->mNumRotationKeys; ++i)
+        {
+            const aiQuatKey& key = channel->mRotationKeys[i];
+            track.rotations.push_back({
+                static_cast<float>(key.mTime / ticksPerSecond),
+                ozz::math::Quaternion(key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w)
+            });
+        }
+
+        // Scale
+        for (unsigned int i = 0; i < channel->mNumScalingKeys; ++i)
+        {
+            const aiVectorKey& key = channel->mScalingKeys[i];
+            track.scales.push_back({
+                static_cast<float>(key.mTime / ticksPerSecond),
+                ozz::math::Float3(key.mValue.x, key.mValue.y, key.mValue.z)
+            });
+        }
+    }
+
     void Model::ExtractJoints(const aiNode* node, int parentIndex, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
     {
         int jointIndex = 0;
@@ -470,7 +465,9 @@ namespace Coffee {
             boneMap[boneName] = jointIndex;
         }
         else
+        {
             jointIndex = boneMap[boneName];
+        }
 
         joints.push_back({
             .name           = boneName,
@@ -483,30 +480,30 @@ namespace Coffee {
             ExtractJoints(node->mChildren[i], jointIndex, joints, boneMap);
     }
 
-    void Model::SaveAnimations(UUID uuid)
+    void Model::SaveAnimations(const UUID uuid) const
     {
         if (HasAnimations() && m_Skeleton && m_AnimationController)
         {
-            ozz::io::File file(("assets/skeleton" + std::to_string(uuid) + ".ozz").c_str(), "wb");
-            if (file.opened())
+            ozz::io::File skeletonFile(("assets/skeleton" + std::to_string(uuid) + ".ozz").c_str(), "wb");
+            if (skeletonFile.opened())
             {
-                ozz::io::OArchive oArchive(&file);
+                ozz::io::OArchive oArchive(&skeletonFile);
                 m_Skeleton->Save(oArchive);
             }
 
             for (const auto& anim : m_AnimationController->GetAnimations())
             {
-                ozz::io::File file(("assets/" + anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
-                if (file.opened())
+                ozz::io::File animationFile(("assets/" + anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
+                if (animationFile.opened())
                 {
-                    ozz::io::OArchive archive(&file);
+                    ozz::io::OArchive archive(&animationFile);
                     anim.Save(archive);
                 }
             }
         }
     }
 
-    void Model::ImportAnimations(UUID uuid)
+    void Model::ImportAnimations(const UUID uuid)
     {
         if (HasAnimations() && !m_Skeleton && !m_AnimationController)
         {

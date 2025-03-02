@@ -100,8 +100,8 @@ namespace Coffee {
         const Ref<Skeleton>& GetSkeleton() const { return m_Skeleton; };
         const Ref<AnimationController>& GetAnimationController() const { return m_AnimationController; };
 
-        void SaveAnimations(UUID uuid);
-        void ImportAnimations(UUID uuid);
+        void SaveAnimations(const UUID uuid) const;
+        void ImportAnimations(const UUID uuid);
 
     private:
         /**
@@ -184,11 +184,10 @@ namespace Coffee {
 
         unsigned int MAX_BONE_INFLUENCE = 4;
 
-        bool ExtractSkeleton(const aiScene* pScene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap, Model& model);
-
-        bool ExtractAnimations(const aiScene* scene, const std::map<std::string, int>& boneMap, Model& model);
-
+        bool ExtractSkeleton(const aiScene* pScene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap);
+        bool ExtractAnimations(const aiScene* scene, const std::map<std::string, int>& boneMap);
         void ExtractJoints(const aiNode* node, int parentIndex, std::vector<Joint>& joints, std::map<std::string, int>& boneMap);
+        void ProcessAnimationChannel(aiNodeAnim* channel, ozz::animation::offline::RawAnimation::JointTrack& track, float ticksPerSecond);
 
     private:
         std::vector<Ref<Mesh>> m_Meshes; ///< The meshes of the model.

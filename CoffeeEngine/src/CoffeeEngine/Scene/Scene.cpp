@@ -259,7 +259,13 @@ namespace Coffee {
         // TEST ------------------------------
         m_Octree.DebugDraw();
 
-        UpdateAudioComponentsPositions();
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
+        }
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
@@ -277,15 +283,6 @@ namespace Coffee {
 
             //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
             Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
-        }
-
-        auto animatorView = m_Registry.view<AnimatorComponent>();
-
-        for (auto& entity : animatorView)
-        {
-            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
-
-            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -425,6 +422,14 @@ namespace Coffee {
         {
             Renderer::Submit(RenderCommand{mesh.transform, mesh.object, mesh.object->GetMaterial(), 0});
         } */
+
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
+        }
         
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
@@ -441,14 +446,6 @@ namespace Coffee {
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
             Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
-        }
-
-        auto animatorView = m_Registry.view<AnimatorComponent>();
-
-        for (auto& entity : animatorView)
-        {
-            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
-            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
         }
 
         //Get all entities with LightComponent and TransformComponent
