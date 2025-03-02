@@ -3,6 +3,9 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "Collider.h"
 
+#include <cereal/cereal.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/vector.hpp>
 #include <glm/glm.hpp>
 #include <memory>
 
@@ -10,7 +13,7 @@ namespace Coffee {
 
     class RigidBody
     {
-      public:
+    public:
         enum class Type
         {
             Static,
@@ -20,12 +23,40 @@ namespace Coffee {
 
         struct Properties
         {
-            Type type = Type::Dynamic;
-            float mass = 1.0f;
-            bool useGravity = true;
-            bool freezeY = false;
-            bool isTrigger = false;
-            glm::vec3 velocity = {0.0f, 0.0f, 0.0f};
+            public:
+                Type type = Type::Dynamic;
+                float mass = 1.0f;
+                bool useGravity = true;
+                bool freezeY = false;
+                bool isTrigger = false;
+                glm::vec3 velocity = {0.0f, 0.0f, 0.0f};
+
+            private:
+                friend class cereal::access;
+
+                template<class Archive>
+                void save(Archive& archive) const {
+                    archive(
+                        CEREAL_NVP(type),
+                        CEREAL_NVP(mass),
+                        CEREAL_NVP(useGravity),
+                        CEREAL_NVP(freezeY),
+                        CEREAL_NVP(isTrigger),
+                        CEREAL_NVP(velocity)
+                    );
+                }
+
+                template<class Archive>
+                void load(Archive& archive) {
+                    archive(
+                        CEREAL_NVP(type),
+                        CEREAL_NVP(mass),
+                        CEREAL_NVP(useGravity),
+                        CEREAL_NVP(freezeY),
+                        CEREAL_NVP(isTrigger),
+                        CEREAL_NVP(velocity)
+                    );
+                }
         };
 
         static Ref<RigidBody> Create(const Properties& props, const Ref<Collider>& collider);
@@ -50,13 +81,33 @@ namespace Coffee {
         // Internal use
         btRigidBody* GetNativeBody() const { return m_Body; }
 
-      private:
+    private:
         void Initialize(const Properties& props, const Ref<Collider>& collider);
 
         btRigidBody* m_Body = nullptr;
         btMotionState* m_MotionState = nullptr;
         Ref<Collider> m_Collider;
         Properties m_Properties;
+
+
+    private:
+        friend class cereal::access;
+        template<class Archive>
+        void save(Archive& archive) const {
+            archive(
+                CEREAL_NVP(m_Properties),
+                CEREAL_NVP(m_Collider)
+            );
+        }
+
+        template<class Archive> 
+        void load(Archive& archive) {
+            archive(
+                CEREAL_NVP(m_Properties),
+                CEREAL_NVP(m_Collider)
+            );
+            Initialize(m_Properties, m_Collider);
+        }
     };
 
 } // namespace Coffee

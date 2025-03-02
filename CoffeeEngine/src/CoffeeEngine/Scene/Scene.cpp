@@ -136,7 +136,7 @@ namespace Coffee {
         CollisionSystem::Initialize(this);
     
         // Create floor entity & transform
-        Entity floorEntity = CreateEntity("Floor");
+        /*Entity floorEntity = CreateEntity("Floor");
         auto& floorTransform = floorEntity.GetComponent<TransformComponent>();
         floorTransform.Position = {0.0f, -0.25f, 0.0f};
         floorTransform.Scale = {10.0f, 0.5f, 10.0f};
@@ -155,7 +155,7 @@ namespace Coffee {
         floorRb.rb->SetPosition(floorTransform.Position);
 
         // Add floor visual mesh
-        floorEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
+        // floorEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
 
         // Add collision callback
         floorRb.callback.OnCollisionEnter([](CollisionInfo& info) {
@@ -169,7 +169,7 @@ namespace Coffee {
         });
 
         // Add floor to physics world
-        m_PhysicsWorld.addRigidBody(floorRb.rb->GetNativeBody());
+        m_PhysicsWorld.addRigidBody(floorRb.rb->GetNativeBody());*/
 
         // Create spheres
         const int NUM_SPHERES = 0;
@@ -196,7 +196,7 @@ namespace Coffee {
             sphereRb.rb->SetPosition(sphereTransform.Position);
 
             // Add visual mesh and callback
-            sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
+            // sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
 
             sphereRb.callback.OnCollisionEnter([](CollisionInfo& info) {
                 COFFEE_INFO("{} collision enter with: {}",
@@ -504,15 +504,18 @@ namespace Coffee {
         CollisionSystem::Shutdown();
     }
 
-    Ref<Scene> Scene::Load(const std::filesystem::path& path)
+        Ref<Scene> Scene::Load(const std::filesystem::path& path)
     {
         ZoneScoped;
-
+    
         Ref<Scene> scene = CreateRef<Scene>();
-
+        
+        // Initialize physics system
+        CollisionSystem::Initialize(scene.get());
+    
         std::ifstream sceneFile(path);
         cereal::JSONInputArchive archive(sceneFile);
-
+    
         entt::snapshot_loader{scene->m_Registry}
             .get<entt::entity>(archive)
             .get<TagComponent>(archive)
@@ -522,26 +525,38 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<AnimatorComponent>(archive);
-
-        scene->AssignAnimatorsToMeshes(m_AnimationSystem->GetAnimators());
+            .get<RigidbodyComponent>(archive);
         
         scene->m_FilePath = path;
-
-        auto view = scene->m_Registry.view<entt::entity>();
+    
+        // Add rigidbodies back to physics world
+        auto view = scene->m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : view)
+        {
+            auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.rb && rb.rb->GetNativeBody())
+            {
+                // Set initial transform
+                rb.rb->SetPosition(transform.Position);
+                rb.rb->SetRotation(transform.Rotation);
+                
+                // Add to physics world
+                scene->m_PhysicsWorld.addRigidBody(rb.rb->GetNativeBody());
+                
+                // Set user pointer for collision callbacks
+                rb.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>(entity)));
+            }
+        }
+    
+        // Debug log
+        auto entityView = scene->m_Registry.view<entt::entity>();
+        for (auto entity : entityView)
         {
             auto& tag = scene->m_Registry.get<TagComponent>(entity);
             auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
-
             COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
         }
-
-        for (auto& audioSource : Audio::audioSources)
-        {
-            Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
-        }
-
+    
         return scene;
     }
 
@@ -552,7 +567,7 @@ namespace Coffee {
         std::ofstream sceneFile(path);
         cereal::JSONOutputArchive archive(sceneFile);
 
-        //archive(*scene);
+        // archive(*scene);
 
         //TEMPORAL
         entt::snapshot{scene->m_Registry}
@@ -564,7 +579,7 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<AnimatorComponent>(archive);
+            .get<RigidbodyComponent>(archive);
         
         scene->m_FilePath = path;
 
