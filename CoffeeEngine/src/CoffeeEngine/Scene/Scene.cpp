@@ -231,7 +231,7 @@ namespace Coffee {
 
         Audio::StopAllEvents();
         Audio::PlayInitialAudios();
-      
+
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
 
@@ -259,13 +259,7 @@ namespace Coffee {
         // TEST ------------------------------
         m_Octree.DebugDraw();
 
-        auto animatorView = m_Registry.view<AnimatorComponent>();
-
-        for (auto& entity : animatorView)
-        {
-            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
-            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
-        }
+        UpdateAudioComponentsPositions();
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
@@ -395,6 +389,7 @@ namespace Coffee {
         }
         // ------------------------- END Physics testing ------------------------
 
+        UpdateAudioComponentsPositions();
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
 
@@ -501,7 +496,8 @@ namespace Coffee {
         }
 
         // Clear collision system state
-        CollisionSystem::Shutdown();
+        CollisionSystem::Shutdown();        
+        Audio::StopAllEvents();
     }
 
         Ref<Scene> Scene::Load(const std::filesystem::path& path)
@@ -525,7 +521,11 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive);
+            .get<RigidbodyComponent>(archive)
+            .get<ScriptComponent>(archive)
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
     
@@ -556,6 +556,11 @@ namespace Coffee {
             auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
             COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
         }
+
+        for (auto& audioSource : Audio::audioSources)
+        {
+            Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
+        }
     
         return scene;
     }
@@ -579,7 +584,11 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive);
+            .get<RigidbodyComponent>(archive)
+            .get<ScriptComponent>(archive)
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -644,20 +653,46 @@ namespace Coffee {
         }
     }
 
-    void Scene::AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators)
+    void Scene::UpdateAudioComponentsPositions()
     {
-        std::vector<Entity> entities = GetAllEntities();
-        for (auto entity : entities)
+        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
+
+        for (auto& entity : audioSourceView)
         {
-            if (entity.HasComponent<MeshComponent>())
+            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
+            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
+
+            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
             {
-                for (auto animator : animators)
-                {
-                    MeshComponent* meshComponent = &entity.GetComponent<MeshComponent>();
-                    if (meshComponent->animatorUUID == animator->animatorUUID && !meshComponent->animator)
-                        meshComponent->animator = animator;
-                }
+                audioSourceComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
+                transformComponent.GetWorldTransform()[3],
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
+            }
+        }
+
+        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
+
+        for (auto& entity : audioListenerView)
+        {
+            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
+            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
+
+            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioListenerComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
+                    transformComponent.GetWorldTransform()[3],
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
             }
         }
     }
+
 }
