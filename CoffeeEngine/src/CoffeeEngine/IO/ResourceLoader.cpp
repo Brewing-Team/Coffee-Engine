@@ -39,37 +39,37 @@ namespace Coffee {
         {
             COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", path.string());
 
-            ImportData importData = LoadImportData(path);
-            switch (importData.type)
+            Scope<ImportData> importData = LoadImportData(path);
+            switch (importData->type)
             {
                 case ResourceType::Texture2D:
                 {
-                    Load<Texture2D>(importData);
+                    Load<Texture2D>(*importData);
                     break;
                 }
                 case ResourceType::Cubemap:
                 {
-                    Load<Cubemap>(importData);
+                    Load<Cubemap>(*importData);
                     break;
                 }
                 case ResourceType::Model:
                 {
-                    Load<Model>(importData);
+                    Load<Model>(*importData);
                     break;
                 }
                 case ResourceType::Shader:
                 {
-                    Load<Shader>(importData);
+                    Load<Shader>(*importData);
                     break;
                 }
                 case ResourceType::Material:
                 {
-                    Load<Material>(importData);
+                    Load<Material>(*importData);
                     break;
                 }
                 default:
                 {
-                    COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported resource type {0}", ResourceTypeToString(importData.type));
+                    COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported resource type {0}", ResourceTypeToString(importData->type));
                     break;
                 }
             }
@@ -395,34 +395,59 @@ namespace Coffee {
         }*/
     }
 
-    void ResourceLoader::SaveImportData(const ImportData& importData)
+    void ResourceLoader::SaveImportData(Scope<ImportData>& importData)
     {
-        std::filesystem::path importFilePath = importData.originalPath;
+        std::filesystem::path importFilePath = importData->originalPath;
         importFilePath.replace_extension(".import");
 
-        ImportData data = importData;
-        data.originalPath = std::filesystem::relative(importData.originalPath, s_WorkingDirectory);
+        // backup the original path
+        std::string originalPathCopy = importData->originalPath;
+
+        importData->originalPath = std::filesystem::relative(importData->originalPath, s_WorkingDirectory);
 
         std::ofstream importFile(importFilePath);
         cereal::JSONOutputArchive archive(importFile);
-        archive(CEREAL_NVP(data));
+        archive(CEREAL_NVP(importData));
+
+        // restore the original path
+        importData->originalPath = originalPathCopy;
     }
 
     // TODO: Think if the path should be the .import path or the resource and replace the extension inside the function
-    ImportData ResourceLoader::LoadImportData(const std::filesystem::path& path)
+    Scope<ImportData> ResourceLoader::LoadImportData(const std::filesystem::path& path)
     {
-        ImportData importData;
+        Scope<ImportData> importData;
 
         std::filesystem::path importFilePath = path;
         importFilePath.replace_extension(".import");
-
+    
+        if (!std::filesystem::exists(importFilePath))
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Import file {0} does not exist!", importFilePath.string());
+            throw std::runtime_error("Import file does not exist");
+        }
+    
         std::ifstream importFile(importFilePath);
-        cereal::JSONInputArchive archive(importFile);
-        archive(CEREAL_NVP(importData));
-
+        if (!importFile.is_open())
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Failed to open import file {0}", importFilePath.string());
+            throw std::runtime_error("Failed to open import file");
+        }
+    
+        try
+        {
+            cereal::JSONInputArchive archive(importFile);
+            archive(importData);
+        }
+        catch (const cereal::Exception& e)
+        {
+            COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Failed to parse import file {0}: {1}", importFilePath.string(), e.what());
+            throw;
+        }
+    
         // Convert the relative path to an absolute path
-        importData.originalPath = s_WorkingDirectory / importData.originalPath;
-
+        importData->originalPath = s_WorkingDirectory / importData->originalPath;
+    
         return importData;
     }
 }

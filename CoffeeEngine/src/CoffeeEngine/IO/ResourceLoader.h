@@ -6,11 +6,10 @@
 
 #pragma once
 
+#include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
-#include "CoffeeEngine/Math/BoundingBox.h"
-#include "CoffeeEngine/Renderer/Shader.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/IO/ImportData/CreateImportData.h"
 #include "ImportData/ImportData.h"
 #include "ResourceRegistry.h"
 
@@ -48,18 +47,20 @@ namespace Coffee {
         {
             if (HasImportFile(path))
             {
-                ImportData importData = LoadImportData(path);
-                return Load<T>(importData);
+                Scope<ImportData> importData = LoadImportData(path);
+                return Load<T>(*importData);
             }
             else
             {
-                ImportData newImportData;
-                newImportData.originalPath = path;
+                Scope<ImportData> newImportData = CreateImportData<T>();
+                newImportData->originalPath = path;
 
-                const Ref<T>& resource = s_Importer.Import<T>(newImportData);
+                const Ref<T>& resource = s_Importer.Import<T>(*newImportData);
 
                 SaveImportData(newImportData);
-                ResourceRegistry::Add(newImportData.uuid, resource);
+                ResourceRegistry::Add(newImportData->uuid, resource);
+
+                return resource;
             }
         }
 
@@ -119,8 +120,8 @@ namespace Coffee {
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
     private:
         
-        static void SaveImportData(const ImportData& importData);
-        static ImportData LoadImportData(const std::filesystem::path& path);
+        static void SaveImportData(Scope<ImportData>& importData);
+        static Scope<ImportData> LoadImportData(const std::filesystem::path& path);
         static bool HasImportFile(const std::filesystem::path& path)
         {
             std::filesystem::path importFilePath = path;

@@ -3,6 +3,7 @@
 #include <filesystem>
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceFormat.h"
+#include "CoffeeEngine/Renderer/Shader.h"
 
 namespace Coffee {
 
@@ -126,6 +127,10 @@ namespace Coffee {
         else if constexpr (std::is_same<T, Material>::value)
         {
             return ResourceType::Material;
+        }
+        else if constexpr (std::is_same<T, Shader>::value)
+        {
+            return ResourceType::Shader;
         }
         else
         {

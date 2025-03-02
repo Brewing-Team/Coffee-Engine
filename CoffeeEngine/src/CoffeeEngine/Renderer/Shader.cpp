@@ -1,4 +1,5 @@
 #include "CoffeeEngine/Renderer/Shader.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 
@@ -10,37 +11,36 @@
 namespace Coffee {
 
     Shader::Shader(const std::filesystem::path& shaderPath)
+        : Resource(ResourceType::Shader)
     {
         ZoneScoped;
 
-        m_Name = shaderPath.filename().string();
-
-        std::string shaderCode;
-        std::ifstream shaderFile;
-
-        shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-
-        try
-        {
-            shaderFile.open(shaderPath);
-            std::stringstream shaderStream;
-            shaderStream << shaderFile.rdbuf();
-            shaderFile.close();
-            shaderCode = shaderStream.str();
-        }
-        catch (std::ifstream::failure e)
-        {
-            COFFEE_CORE_ERROR(std::string("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: ") + e.what());
-        }
-
-        CompileShader(shaderCode);
+        InitializeShader(shaderPath);
     }
 
     Shader::Shader(const std::string& name, const std::string& shaderSource)
+        : Resource(ResourceType::Shader)
     {
         m_Name = name;
 
         CompileShader(shaderSource);
+    }
+
+    Shader::Shader(ImportData& importData)
+        : Resource(ResourceType::Shader)
+    {
+        if(importData.IsValid())
+        {
+            m_FilePath = importData.originalPath;
+            InitializeShader(importData.originalPath);
+            m_UUID = importData.uuid;
+        }
+        else
+        {
+            m_FilePath = importData.originalPath;
+            InitializeShader(importData.originalPath);
+            importData.uuid = m_UUID;
+        }
     }
 
     Shader::~Shader()
@@ -182,6 +182,29 @@ namespace Coffee {
         }
     }
 
+    std::string Shader::ReadShaderFile(const std::filesystem::path& shaderPath)
+    {
+        std::string shaderCode;
+        std::ifstream shaderFile;
+
+        shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+        try
+        {
+            shaderFile.open(shaderPath);
+            std::stringstream shaderStream;
+            shaderStream << shaderFile.rdbuf();
+            shaderFile.close();
+            shaderCode = shaderStream.str();
+        }
+        catch (std::ifstream::failure& e)
+        {
+            COFFEE_CORE_ERROR(std::string("ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: ") + e.what());
+        }
+
+        return shaderCode;
+    }
+
     void Shader::CompileShader(const std::string& shaderSource)
     {
         const std::string vertexDelimiter = "#[vertex]";
@@ -222,6 +245,13 @@ namespace Coffee {
         // delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(vertex);
         glDeleteShader(fragment);
+    }
+
+    void Shader::InitializeShader(const std::filesystem::path& shaderPath)
+    {
+        m_Name = shaderPath.filename().string();
+        std::string shaderCode = ReadShaderFile(shaderPath);
+        CompileShader(shaderCode);
     }
 
 }

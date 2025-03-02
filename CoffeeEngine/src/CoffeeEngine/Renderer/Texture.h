@@ -82,7 +82,7 @@ namespace Coffee {
         Texture2D(const TextureProperties& properties);
         Texture2D(uint32_t width, uint32_t height, ImageFormat imageFormat);
         Texture2D(const std::filesystem::path& path, bool srgb = true);
-        Texture2D(Texture2DImportData& importData);
+        Texture2D(ImportData& importData);
         ~Texture2D();
 
         void Bind(uint32_t slot) override;
@@ -100,6 +100,8 @@ namespace Coffee {
         static Ref<Texture2D> Create(uint32_t width, uint32_t height, ImageFormat format);
 
     private:
+        void InitializeTexture2D();
+
         friend class cereal::access;
 
         template<class Archive>
@@ -140,6 +142,7 @@ namespace Coffee {
         Cubemap(const std::filesystem::path& path);
         // This way of loading a cubemap is deprecated because is not compatible with the serialization system and the resource management.
         Cubemap(const std::vector<std::filesystem::path>& paths);
+        Cubemap(ImportData& importData);
         ~Cubemap();
 
         void Bind(uint32_t slot) override;;

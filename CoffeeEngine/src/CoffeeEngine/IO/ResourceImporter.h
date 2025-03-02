@@ -62,8 +62,11 @@ namespace Coffee {
                     // TODO: Think about passing the import data to the resource constructor!!! Can simplify a lot of things
 
                     Ref<T> resource = CreateRef<T>(data);
+                    
+                    if(data.cache)
+                        ResourceSaver::Save<T>(data.cachedPath, resource);
 
-                    ResourceSaver::SaveToCache(data.cachedPath, resource);
+                    return resource;
                 }
             }
             else
@@ -72,11 +75,15 @@ namespace Coffee {
 
                 data.uuid = resource->GetUUID();
 
-                std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(data.uuid, GetResourceType<T>());
+                if(data.cache)
+                {
+                    std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(data.uuid, GetResourceType<T>());
+                    data.cachedPath = cachedFilePath;
+                    
+                    ResourceSaver::Save<T>(cachedFilePath, resource);
+                }
 
-                data.cachedPath = cachedFilePath;
-
-                ResourceSaver::SaveToCache(data.uuid, resource);
+                return resource;
             }
         }
 
@@ -100,7 +107,7 @@ namespace Coffee {
                     Ref<T> resource = CreateRef<T>(data);
 
                     // Save the resource to the cache
-                    ResourceSaver::SaveToCache(data.cachedPath, resource);
+                    ResourceSaver::Save<T>(data.cachedPath, resource);
                     return resource;
                 }
             }

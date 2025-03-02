@@ -1,8 +1,11 @@
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/IO/ImportData/MaterialImportData.h"
 #include "CoffeeEngine/IO/ImportData/MeshImportData.h"
+#include "CoffeeEngine/IO/ImportData/ModelImportData.h"
 #include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
@@ -35,9 +38,39 @@ namespace Coffee {
     }
 
     static std::unordered_map<std::string, UUID> s_ModelMeshesUUIDs;
+    static std::unordered_map<std::string, UUID> s_ModelMaterialsUUIDs;
 
     Model::Model(const std::filesystem::path& path)
         : Resource(ResourceType::Model)
+    {
+        LoadFromFilePath(path);
+    }
+
+    Model::Model(ImportData& importData)
+        : Resource(ResourceType::Model)
+    {
+        ModelImportData& modelImportData = dynamic_cast<ModelImportData&>(importData);
+
+        if(modelImportData.IsValid())
+        {
+            s_ModelMeshesUUIDs = modelImportData.meshUUIDs;
+            s_ModelMaterialsUUIDs = modelImportData.materialUUIDs;
+            LoadFromFilePath(modelImportData.originalPath);
+            m_UUID = modelImportData.uuid;
+        }
+        else
+        {
+            LoadFromFilePath(modelImportData.originalPath);
+            modelImportData.uuid = m_UUID;
+            modelImportData.meshUUIDs = s_ModelMeshesUUIDs;
+            modelImportData.materialUUIDs = s_ModelMaterialsUUIDs;
+        }
+
+        s_ModelMeshesUUIDs.clear();
+        s_ModelMaterialsUUIDs.clear();
+    }
+
+    void Model::LoadFromFilePath(const std::filesystem::path& path)
     {
         ZoneScoped;
 
@@ -87,24 +120,6 @@ namespace Coffee {
         {
             m_Skeleton->SetJoints(joints);
         }
-    }
-
-    Model::Model(ModelImportData& importData)
-    {
-        if(importData.IsValid())
-        {
-            s_ModelMeshesUUIDs = importData.meshUUIDs;
-            Model(importData.originalPath);
-            m_UUID = importData.uuid;
-        }
-        else
-        {
-            Model(importData.originalPath);
-            importData.uuid = m_UUID;
-            importData.meshUUIDs = s_ModelMeshesUUIDs;
-        }
-
-        s_ModelMeshesUUIDs.clear();
     }
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
@@ -223,7 +238,26 @@ namespace Coffee {
             MaterialTextures matTextures = LoadMaterialTextures(material);
             std::string materialName = (material->GetName().length > 0) ? material->GetName().C_Str() : m_Name;
             std::string referenceName = materialName + "_Mat" + std::to_string(mesh->mMaterialIndex);
-            meshMaterial = Material::Create(referenceName, &matTextures);
+
+            UUID materialUUID;
+
+            if(s_ModelMaterialsUUIDs.find(referenceName) != s_ModelMaterialsUUIDs.end())
+            {
+                materialUUID = s_ModelMaterialsUUIDs[referenceName];
+            }
+            else
+            {
+                materialUUID = UUID();
+                s_ModelMaterialsUUIDs[referenceName] = materialUUID;
+            }
+
+            MaterialImportData materialImportData;
+            materialImportData.name = referenceName;
+            materialImportData.materialTextures = matTextures;
+            materialImportData.uuid = materialUUID;
+            materialImportData.cachedPath = CacheManager::GetCachedFilePath(materialUUID, ResourceType::Material);
+            
+            meshMaterial = ResourceLoader::LoadEmbedded<Material>(materialImportData);
         }
         else
         {

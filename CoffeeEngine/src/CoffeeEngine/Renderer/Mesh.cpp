@@ -34,14 +34,17 @@ namespace Coffee {
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
     }
 
-    Mesh::Mesh(const MeshImportData& importData)
+    Mesh::Mesh(const ImportData& importData)
+        : Resource(ResourceType::Mesh)
     {
-        Mesh(importData.vertices, importData.indices);
-        m_Name = importData.name;
-        m_UUID = importData.uuid;
-        m_Material = importData.material;
-        m_AABB = importData.aabb;
-        m_FilePath = importData.cachedPath;
+        const MeshImportData& meshImportData = dynamic_cast<const MeshImportData&>(importData);
+
+        *this = Mesh(meshImportData.vertices, meshImportData.indices);
+        m_Name = meshImportData.name;
+        m_UUID = meshImportData.uuid;
+        m_Material = meshImportData.material;
+        m_AABB = meshImportData.aabb;
+        m_FilePath = meshImportData.cachedPath;
     }
 
 }

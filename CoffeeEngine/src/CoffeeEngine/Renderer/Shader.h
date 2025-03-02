@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 
 #include <glad/glad.h>
@@ -32,6 +33,7 @@ namespace Coffee {
          */
         Shader(const std::filesystem::path& shaderPath);
         Shader(const std::string& name, const std::string& shaderSource);
+        Shader(ImportData& importData);
 
         /**
          * @brief Destructor for the Shader class.
@@ -130,7 +132,9 @@ namespace Coffee {
         void checkCompileErrors(GLuint shader, std::string type);
 
     private:
+        std::string ReadShaderFile(const std::filesystem::path& shaderPath);
         void CompileShader(const std::string& shaderSource);
+        void InitializeShader(const std::filesystem::path& shaderPath);
 
     private:
         unsigned int m_ShaderID; ///< The ID of the shader program.

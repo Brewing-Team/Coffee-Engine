@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/UUID.h"
 
 #include <cereal/cereal.hpp>
+#include <cereal/types/polymorphic.hpp>
 #include <filesystem>
 #include <CoffeeEngine/IO/Resource.h>
 
@@ -16,13 +17,16 @@ namespace Coffee {
         std::filesystem::path originalPath;
         std::filesystem::path cachedPath;
 
+        bool cache = true;
+
         ImportData() = default;
         ImportData(ResourceType type) : type(type) {}
-
+        virtual ~ImportData() = default;
+        
         template<typename Archive>
         void serialize(Archive& archive)
         {
-            archive(CEREAL_NVP(uuid), CEREAL_NVP(type), CEREAL_NVP(originalPath), CEREAL_NVP(cachedPath));
+            archive(CEREAL_NVP(uuid), CEREAL_NVP(type), CEREAL_NVP(originalPath), CEREAL_NVP(cachedPath), CEREAL_NVP(cache));
         }
 
         bool IsValid() const
@@ -34,3 +38,4 @@ namespace Coffee {
     };
 
 }
+CEREAL_REGISTER_TYPE(Coffee::ImportData);

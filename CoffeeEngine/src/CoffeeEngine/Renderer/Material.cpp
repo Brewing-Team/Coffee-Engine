@@ -1,5 +1,6 @@
 #include "Material.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/MaterialImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
@@ -82,6 +83,22 @@ namespace Coffee {
         m_Shader->Unbind();
     }
 
+    Material::Material(ImportData& importData)
+        : Material(dynamic_cast<MaterialImportData&>(importData).name, dynamic_cast<MaterialImportData&>(importData).materialTextures)
+    {
+        MaterialImportData& materialImportData = dynamic_cast<MaterialImportData&>(importData);
+
+        if(importData.IsValid())
+        {
+            m_UUID = materialImportData.uuid;
+            m_FilePath = materialImportData.cachedPath;
+        }
+        else
+        {
+            importData.uuid = m_UUID;
+        }
+    }
+
     void Material::Use()
     {
         ZoneScoped;
@@ -122,7 +139,11 @@ namespace Coffee {
 
     Ref<Material> Material::Create(const std::string& name, MaterialTextures* materialTextures)
     {
-        return ResourceLoader::Load<Material>(name);
+        MaterialImportData importData;
+        importData.name = name;
+        importData.materialTextures = *materialTextures;
+
+        return ResourceLoader::LoadEmbedded<Material>(importData);
     }
 
 }

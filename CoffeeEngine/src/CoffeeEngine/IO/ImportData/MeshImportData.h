@@ -26,3 +26,5 @@ namespace Coffee
     };
 
 } // namespace Coffee
+CEREAL_REGISTER_TYPE(Coffee::MeshImportData);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::ImportData, Coffee::MeshImportData);

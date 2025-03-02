@@ -1,6 +1,8 @@
 #include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 
@@ -74,7 +76,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        Texture2D(m_Width, m_Height, m_Properties.Format);
+        InitializeTexture2D();
     }
 
     Texture2D::Texture2D(uint32_t width, uint32_t height, ImageFormat imageFormat)
@@ -82,22 +84,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
-
-        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
-        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
-
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
-        glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
-
-        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        //Add an option to choose the anisotropic filtering level
-        glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+        InitializeTexture2D();
     }
 
     Texture2D::Texture2D(const std::filesystem::path& path, bool srgb)
@@ -134,26 +121,8 @@ namespace Coffee {
                 break;
             }
 
-            int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
-
-            GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
-            GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
-
-            glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
-            glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
-
-            glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-            glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            //Add an option to choose the anisotropic filtering level
-            glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
-
-            glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data.data());
-
-            glGenerateTextureMipmap(m_textureID);
+            InitializeTexture2D();
+            SetData(m_Data.data(), m_Width * m_Height * ImageFormatToChannelCount(m_Properties.Format));
         }
         else
         {
@@ -162,18 +131,20 @@ namespace Coffee {
         }
     }
 
-    Texture2D::Texture2D(Texture2DImportData& importData)
+    Texture2D::Texture2D(ImportData& importData)
     {
-        if(importData.IsValid())
+        Texture2DImportData& texture2DImportData = dynamic_cast<Texture2DImportData&>(importData);
+
+        if(texture2DImportData.IsValid())
         {
-            Texture2D(importData.originalPath, importData.sRGB);
-            m_UUID = importData.uuid;
+            *this = Texture2D(texture2DImportData.originalPath, texture2DImportData.sRGB);
+            m_UUID = texture2DImportData.uuid;
         }
         else
         {
-            Texture2D(importData.originalPath);
-            importData.uuid = m_UUID;
-            importData.sRGB = m_Properties.srgb;
+            *this = Texture2D(texture2DImportData.originalPath);
+            texture2DImportData.uuid = m_UUID;
+            texture2DImportData.sRGB = m_Properties.srgb;
         }
     }
 
@@ -241,6 +212,7 @@ namespace Coffee {
         ZoneScoped;
 
         GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
+        COFFEE_ASSERT(size == m_Width * m_Height * ImageFormatToChannelCount(m_Properties.Format), "Data must be entire texture!");
         glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, data);
         glGenerateTextureMipmap(m_textureID);
     }
@@ -253,6 +225,26 @@ namespace Coffee {
     Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)
     {
         return CreateRef<Texture2D>(width, height, format);
+    }
+
+    void Texture2D::InitializeTexture2D()
+    {
+        int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
+
+        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
+        glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
+
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        //Add an option to choose the anisotropic filtering level
+        glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     }
 
     Cubemap::Cubemap(const std::vector<std::filesystem::path>& paths) : Texture(ResourceType::Cubemap)
@@ -307,6 +299,20 @@ namespace Coffee {
         else
         {
             LoadStandardFromFile(path);
+        }
+    }
+
+    Cubemap::Cubemap(ImportData& importData)
+    {
+        if(importData.IsValid())
+        {
+            *this = Cubemap(importData.originalPath);
+            m_UUID = importData.uuid;
+        }
+        else
+        {
+            *this = Cubemap(importData.originalPath);
+            importData.uuid = m_UUID;
         }
     }
 

@@ -20,3 +20,5 @@ namespace Coffee
     };
 
 } // namespace Coffee
+CEREAL_REGISTER_TYPE(Coffee::Texture2DImportData);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::ImportData, Coffee::Texture2DImportData);
