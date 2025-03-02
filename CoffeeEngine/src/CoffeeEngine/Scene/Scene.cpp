@@ -199,28 +199,48 @@ namespace Coffee {
     }
 
     // Render UI elements (UICanvasComponent)
-        auto uiCanvasView = m_Registry.view<UICanvasComponent, TransformComponent>();
-        for (auto& entity : uiCanvasView) {
-            auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
-            auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
+    auto uiCanvasView = m_Registry.view<UICanvasComponent, TransformComponent>();
+    for (auto& entity : uiCanvasView) {
+        auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
+        auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
 
-            // Get the size of the editor window
-            auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+        // Verificamos si el canvas es visible
+        if (!uiCanvasComponent.Visible)
+            continue;
 
-            // Calculate the center of the window
-            glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+        // Cargamos la textura del canvas usando el ResourceLoader
+        if (!uiCanvasComponent.CanvasTexture)
+        {
+            uiCanvasComponent.CanvasTexture = ResourceLoader::LoadTexture2D("assets/textures/Canvas.png", true, true);
 
-            // Calculate the transformation to center the canvas and scale it to the window size
-            glm::mat4 transform = glm::mat4(1.0f);
-            transform = glm::translate(transform, glm::vec3(center, 0.0f)); // Move to the center of the window
-            transform = glm::scale(transform, glm::vec3(windowSize.x, windowSize.y, 1.0f)); // Scale to match the window size
-
-            // Draw the quad with the canvas texture
-            Renderer2D::DrawQuad(
-                transform,
-                Texture2D::Load("assets/textures/Canvas.png") // Ensure this texture exists
-            );
+            // Si la textura no se pudo cargar, continuamos con la siguiente entidad
+            if (!uiCanvasComponent.CanvasTexture)
+            {
+                COFFEE_ERROR("Failed to load canvas texture: assets/textures/Canvas.png");
+                continue;
+            }
         }
+
+        // Obtenemos el tamaño de la ventana del editor
+        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+
+        // Calculamos el centro de la ventana
+        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+
+        // Calculamos la transformación para centrar el canvas y escalarlo al tamaño de la ventana
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, glm::vec3(center, 0.0f)); // Movemos al centro de la ventana
+        transform = glm::scale(transform, glm::vec3(windowSize.x, windowSize.y, 1.0f)); // Escalamos al tamaño de la ventana
+
+        // Dibujamos el quad con la textura del canvas
+        Renderer2D::DrawQuad(
+            transform,
+            uiCanvasComponent.CanvasTexture, // Usamos la textura cargada
+            1.0f, // Factor de tiling
+            glm::vec4(1.0f), // Color de tinte
+            (uint32_t)entity // ID de la entidad
+        );
+    }
 
     // Render UI elements (UIImageComponent)
     auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
@@ -228,31 +248,37 @@ namespace Coffee {
         auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
         auto& transformComponent = uiImageView.get<TransformComponent>(entity);
 
+
         if (!uiImageComponent.Visible || uiImageComponent.TexturePath.empty())
             continue;
 
-        // Check if the texture is already loaded
-        if (m_TextureCache.find(uiImageComponent.TexturePath) == m_TextureCache.end()) {
-            // Load texture and store it in the cache
-            m_TextureCache[uiImageComponent.TexturePath] = Texture2D::Load(uiImageComponent.TexturePath);
+
+        if (!uiImageComponent.Texture)
+        {
+
+            uiImageComponent.Texture = ResourceLoader::LoadTexture2D(uiImageComponent.TexturePath, true, true);
+
+
+            if (!uiImageComponent.Texture)
+            {
+                COFFEE_ERROR("Failed to load texture: {}", uiImageComponent.TexturePath);
+                continue;
+            }
         }
 
-        Ref<Texture2D> texture = m_TextureCache[uiImageComponent.TexturePath];
-
-        if (!texture)
-            continue;
 
         glm::mat4 transform = transformComponent.GetWorldTransform();
         transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
 
-        // Draw quad with the texture
+
         Renderer2D::DrawQuad(
             transform,
-            texture,
-            1.0f, // Tiling factor
-            glm::vec4(1.0f), // Tint color
+            uiImageComponent.Texture,
+            1.0f,
+            glm::vec4(1.0f),
             (uint32_t)entity
         );
+
     }
 
     // Render UI elements (UITextComponent)
@@ -370,64 +396,9 @@ namespace Coffee {
             Renderer3D::Submit(lightComponent);
         }
 
-        // Render UI elements (UIImageComponent)
-    auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
-    for (auto& entity : uiImageView) {
-        auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
-        auto& transformComponent = uiImageView.get<TransformComponent>(entity);
 
-        if (!uiImageComponent.Visible || uiImageComponent.TexturePath.empty())
-            continue;
 
-        // Check if the texture is already loaded
-        if (m_TextureCache.find(uiImageComponent.TexturePath) == m_TextureCache.end()) {
-            // Load texture and store it in the cache
-            m_TextureCache[uiImageComponent.TexturePath] = Texture2D::Load(uiImageComponent.TexturePath);
-        }
 
-        Ref<Texture2D> texture = m_TextureCache[uiImageComponent.TexturePath];
-
-        if (!texture)
-            continue;
-
-        glm::mat4 transform = transformComponent.GetWorldTransform();
-        transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
-
-        // Draw quad with the texture
-        Renderer2D::DrawQuad(
-            transform,
-            texture,
-            1.0f, // Tiling factor
-            glm::vec4(1.0f), // Tint color
-            (uint32_t)entity
-        );
-    }
-
-    // Render UI elements (UITextComponent)
-    auto uiTextView = m_Registry.view<UITextComponent, TransformComponent>();
-    for (auto& entity : uiTextView) {
-        auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
-        auto& transformComponent = uiTextView.get<TransformComponent>(entity);
-
-        if (!uiTextComponent.Visible || uiTextComponent.Text.empty())
-            continue;
-
-        // Load default font
-        if (!uiTextComponent.font) {
-            uiTextComponent.font = Font::GetDefault();
-        }
-
-        glm::mat4 transform = transformComponent.GetWorldTransform();
-        transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
-
-        Renderer2D::DrawText(
-            uiTextComponent.Text,
-            uiTextComponent.font,
-            transform,
-            {uiTextComponent.Color, 0.0f, 0.0f}, // Text color
-            (uint32_t)entity
-        );
-    }
 
     }
 

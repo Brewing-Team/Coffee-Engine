@@ -311,6 +311,8 @@ namespace Coffee {
 
         UICanvasComponent() = default;
         UICanvasComponent(const UICanvasComponent&) = default;
+        Ref<Texture2D> CanvasTexture;
+        bool Visible = true;
 
         void AddElement(const UIElement& element)
         {
