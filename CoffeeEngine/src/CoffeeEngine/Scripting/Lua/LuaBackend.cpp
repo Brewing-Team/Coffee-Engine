@@ -11,6 +11,9 @@
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #define SOL_PRINT_ERRORS 1
 
 namespace Coffee {
@@ -351,8 +354,8 @@ namespace Coffee {
             "lerp", [](const glm::vec2& a, const glm::vec2& b, float t) { return glm::mix(a, b, t); },
             "dot", [](const glm::vec2& a, const glm::vec2& b) { return glm::dot(a, b); },
             "angle_to", [](const glm::vec2& a, const glm::vec2& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
-            "max", [](const glm::vec2& a, const glm::vec2& b) { return glm::max(a, b); },
-            "min", [](const glm::vec2& a, const glm::vec2& b) { return glm::min(a, b); },
+            "max", [](const glm::vec2& a, const glm::vec2& b) { return (glm::max)(a, b); },
+            "min", [](const glm::vec2& a, const glm::vec2& b) { return (glm::min)(a, b); },
             "abs", [](const glm::vec2& a) { return glm::abs(a); }
             //TODO: Add more functions
         );
@@ -372,8 +375,8 @@ namespace Coffee {
             "lerp", [](const glm::vec3& a, const glm::vec3& b, float t) { return glm::mix(a, b, t); },
             "dot", [](const glm::vec3& a, const glm::vec3& b) { return glm::dot(a, b); },
             "angle_to", [](const glm::vec3& a, const glm::vec3& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
-            "max", [](const glm::vec3& a, const glm::vec3& b) { return glm::max(a, b); },
-            "min", [](const glm::vec3& a, const glm::vec3& b) { return glm::min(a, b); },
+            "max", [](const glm::vec3& a, const glm::vec3& b) { return (glm::max)(a, b); },
+            "min", [](const glm::vec3& a, const glm::vec3& b) { return (glm::min)(a, b); },
             "abs", [](const glm::vec3& a) { return glm::abs(a); }
             //TODO: Add more functions
         );
@@ -392,8 +395,8 @@ namespace Coffee {
             "lerp", [](const glm::vec4& a, const glm::vec4& b, float t) { return glm::mix(a, b, t); },
             "dot", [](const glm::vec4& a, const glm::vec4& b) { return glm::dot(a, b); },
             "angle_to", [](const glm::vec4& a, const glm::vec4& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
-            "max", [](const glm::vec4& a, const glm::vec4& b) { return glm::max(a, b); },
-            "min", [](const glm::vec4& a, const glm::vec4& b) { return glm::min(a, b); },
+            "max", [](const glm::vec4& a, const glm::vec4& b) { return (glm::max)(a, b); },
+            "min", [](const glm::vec4& a, const glm::vec4& b) { return (glm::min)(a, b); },
             "abs", [](const glm::vec4& a) { return glm::abs(a); }
             //TODO: Add more functions
         );
@@ -406,7 +409,7 @@ namespace Coffee {
             "translate", [](const glm::mat4& mat, const glm::vec3& vec) { return glm::translate(mat, vec); },
             "rotate", [](const glm::mat4& mat, float angle, const glm::vec3& axis) { return glm::rotate(mat, angle, axis); },
             "scale", [](const glm::mat4& mat, const glm::vec3& vec) { return glm::scale(mat, vec); },
-            "perspective", [](float fovy, float aspect, float near, float far) { return glm::perspective(fovy, aspect, near, far); },
+            "perspective", [](float fovy, float aspect, float nearPlane, float farPlane) { return glm::perspective(fovy, aspect, nearPlane, farPlane); },
             "ortho", [](float left, float right, float bottom, float top, float zNear, float zFar) { return glm::ortho(left, right, bottom, top, zNear, zFar); }
         );
 
