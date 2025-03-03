@@ -27,7 +27,7 @@ namespace Coffee {
             return;
         }
 
-        const ResourceType type = GetResourceTypeFromExtension(path);
+        ResourceType type = GetResourceTypeFromExtension(path);
 
         if(type == ResourceType::Unknown and path.extension() != ".import")
         {
@@ -37,42 +37,9 @@ namespace Coffee {
 
         if(path.extension() == ".import")
         {
-            COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", path.string());
-
-            Scope<ImportData> importData = LoadImportData(path);
-            switch (importData->type)
-            {
-                case ResourceType::Texture2D:
-                {
-                    Load<Texture2D>(*importData);
-                    break;
-                }
-                case ResourceType::Cubemap:
-                {
-                    Load<Cubemap>(*importData);
-                    break;
-                }
-                case ResourceType::Model:
-                {
-                    Load<Model>(*importData);
-                    break;
-                }
-                case ResourceType::Shader:
-                {
-                    Load<Shader>(*importData);
-                    break;
-                }
-                case ResourceType::Material:
-                {
-                    Load<Material>(*importData);
-                    break;
-                }
-                default:
-                {
-                    COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported resource type {0}", ResourceTypeToString(importData->type));
-                    break;
-                }
-            }
+            resourcePath = GetPathFromImportFile(path);
+            type = GetResourceTypeFromExtension(resourcePath);
+            COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", resourcePath.string());
         }
         else
         {
@@ -85,26 +52,23 @@ namespace Coffee {
 
             switch (type)
             {
-                case ResourceType::Texture2D:
-                {
-                    Load<Texture2D>(path);
-                    break;
-                }
-                case ResourceType::Cubemap:
-                {
-                    Load<Cubemap>(path);
-                    break;
-                }
-                case ResourceType::Model:
-                {
-                    Load<Model>(path);
-                    break;
-                }
-                case ResourceType::Shader:
-                {
-                    Load<Shader>(path);
-                    break;
-                }
+                LoadTexture2D(resourcePath);
+                break;
+            }
+            case ResourceType::Cubemap:
+            {
+                LoadCubemap(resourcePath);
+                break;
+            }
+            case ResourceType::Model:
+            {
+                LoadModel(resourcePath);
+                break;
+            }
+            case ResourceType::Shader:
+            {
+                LoadShader(resourcePath);
+                break;
             }
         }
     }
