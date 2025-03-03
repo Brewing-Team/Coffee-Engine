@@ -1,7 +1,7 @@
 ﻿// ToneMappingShader.inl
 #pragma once
 
-const char* finalPassShaderSource = R"(
+inline const char* finalPassShaderSource = R"(
 #[vertex]
 
 #version 450 core
