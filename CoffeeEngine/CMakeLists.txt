@@ -90,6 +90,7 @@ add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/ImGuizmo)
 add_subdirectory(vendor/IconFontCppHeaders)
+add_subdirectory(vendor/ozz_animation)
 add_subdirectory(vendor/Wwise)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")

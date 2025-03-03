@@ -261,6 +261,8 @@ namespace Coffee {
 
         UpdateAudioComponentsPositions();
 
+        UpdateAudioComponentsPositions();
+
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
@@ -322,72 +324,6 @@ namespace Coffee {
 
             cameraTransform = glm::mat4(1.0f);
         }
-
-        // ------------------------------ TEMPORAL ------------------------------
-        // --------------------------- Physics testing --------------------------
-        m_PhysicsWorld.stepSimulation(dt);
-        m_PhysicsWorld.drawCollisionShapes();
-
-        // Update transforms from physics
-        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
-        for (auto entity : viewPhysics) {
-            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
-            if (rb.rb) {
-                transform.Position = rb.rb->GetPosition();
-                transform.Rotation = rb.rb->GetRotation();
-            }
-        }
-
-        // Handle input for spawning and deleting spheres
-        static std::vector<Entity> spawnedSpheres;
-
-        if (Input::IsKeyPressed(Key::I)) {
-            Entity sphereEntity = CreateEntity("Runtime_Sphere_" + std::to_string(spawnedSpheres.size()));
-
-            auto& sphereTransform = sphereEntity.GetComponent<TransformComponent>();
-            sphereTransform.Position = {
-                static_cast<float>(rand() % 5 - 2),
-                5.0f,
-                static_cast<float>(rand() % 5 - 2)
-            };
-            sphereTransform.Scale = {1.0f, 1.0f, 1.0f};
-
-            // Setup sphere rigidbody
-            RigidBody::Properties sphereProps;
-            sphereProps.type = RigidBody::Type::Dynamic;
-            sphereProps.useGravity = true;
-            sphereProps.mass = 1.0f;
-
-            auto sphereCollider = CreateRef<SphereCollider>(0.5f);
-            auto& sphereRb = sphereEntity.AddComponent<RigidbodyComponent>();
-            sphereRb.rb = RigidBody::Create(sphereProps, sphereCollider);
-            sphereRb.rb->SetPosition(sphereTransform.Position);
-
-            // Add visual mesh and callback
-            sphereEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateSphere());
-
-            sphereRb.callback.OnCollisionEnter([](CollisionInfo& info) {
-                COFFEE_INFO("{} collision enter with: {}",
-                    info.entityA.GetComponent<TagComponent>().Tag,
-                    info.entityB.GetComponent<TagComponent>().Tag);
-            });
-
-            // Add to physics world
-            m_PhysicsWorld.addRigidBody(sphereRb.rb->GetNativeBody());
-
-            spawnedSpheres.push_back(sphereEntity);
-        }
-
-        if (Input::IsKeyPressed(Key::D) && !spawnedSpheres.empty()) {
-            Entity sphereEntity = spawnedSpheres.back();
-            spawnedSpheres.pop_back();
-
-            auto& sphereRb = sphereEntity.GetComponent<RigidbodyComponent>();
-            m_PhysicsWorld.removeRigidBody(sphereRb.rb->GetNativeBody());
-
-            DestroyEntity(sphereEntity);
-        }
-        // ------------------------- END Physics testing ------------------------
 
         UpdateAudioComponentsPositions();
         // Get all entities with ScriptComponent
@@ -473,30 +409,6 @@ namespace Coffee {
 
     void Scene::OnExitRuntime()
     {
-        auto view = m_Registry.view<RigidbodyComponent, TransformComponent>();
-        for (auto entity : view) {
-            auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
-            if (rb.rb) {
-                // Remove from physics world first
-                m_PhysicsWorld.removeRigidBody(rb.rb->GetNativeBody());
-
-                Entity e{entity, this};
-                if (e.GetComponent<TagComponent>().Tag == "Sphere") {
-                    transform.Position = {0.0f, 5.0f, 0.0f};
-                }
-                else if (e.GetComponent<TagComponent>().Tag == "Floor") {
-                    transform.Position = {0.0f, -0.25f, 0.0f};
-                }
-
-                rb.rb->SetPosition(transform.Position);
-                rb.rb->SetRotation({0.0f, 0.0f, 0.0f});
-                rb.rb->ResetVelocity();
-                rb.rb->ClearForces();
-            }
-        }
-
-        // Clear collision system state
-        CollisionSystem::Shutdown();        
         Audio::StopAllEvents();
     }
 
@@ -520,12 +432,13 @@ namespace Coffee {
             .get<CameraComponent>(archive)
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive)
             .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
+
+            scene->AssignAnimatorsToMeshes(m_AnimationSystem->GetAnimators());
         
         scene->m_FilePath = path;
     
@@ -561,7 +474,7 @@ namespace Coffee {
         {
             Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
         }
-    
+
         return scene;
     }
 
@@ -583,9 +496,8 @@ namespace Coffee {
             .get<CameraComponent>(archive)
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive)
             .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
@@ -653,6 +565,47 @@ namespace Coffee {
         }
     }
 
+    void Scene::UpdateAudioComponentsPositions()
+    {
+        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
+
+        for (auto& entity : audioSourceView)
+        {
+            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
+            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
+
+            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioSourceComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
+                transformComponent.GetWorldTransform()[3],
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
+            }
+        }
+
+        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
+
+        for (auto& entity : audioListenerView)
+        {
+            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
+            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
+
+            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioListenerComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
+                    transformComponent.GetWorldTransform()[3],
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+            }
+        }
+    }
     void Scene::UpdateAudioComponentsPositions()
     {
         auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
