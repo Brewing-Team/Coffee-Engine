@@ -44,15 +44,15 @@ namespace Coffee {
 
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
-        Project::Load(std::filesystem::current_path() / "Default.TeaProject");
+        Project::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaProject");
         Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName());
 
         // TODO: Load the default scene from the project
         //Project::GetActive().
 
-        m_ActiveScene = Scene::Load(std::filesystem::current_path() / "Default.TeaScene");
+        m_ActiveScene = Scene::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaScene");
 
-        m_ActiveScene->OnInitEditor();
+        m_ActiveScene->OnInitRuntime();
 
         // TODO: Improve this, the event should update the window size
         Renderer::OnResize(1600, 900);
