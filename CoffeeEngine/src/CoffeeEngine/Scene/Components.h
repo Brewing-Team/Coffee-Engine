@@ -14,6 +14,8 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
+#include "CoffeeEngine/Scripting/Script.h"
+#include "CoffeeEngine/Scripting/ScriptManager.h"
 #include <cereal/cereal.hpp>
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>
@@ -37,6 +39,7 @@
 
 // FIXME : DONT MOVE THIS INCLUDE
 #include "CoffeeEngine/Audio/Audio.h"
+
 
 namespace Coffee {
     /**
