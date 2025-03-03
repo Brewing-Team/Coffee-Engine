@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
+#include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
 #include <fstream>
@@ -378,6 +379,8 @@ namespace Coffee {
         sol::table inputTable = luaState.create_table();
         BindKeyCodesToLua(luaState, inputTable);
         BindMouseCodesToLua(luaState, inputTable);
+        BindControllerCodesToLua(luaState, inputTable);
+        BindAxisCodesToLua(luaState, inputTable);
 
         inputTable.set_function("is_key_pressed", [](KeyCode key) {
             return Input::IsKeyPressed(key);
@@ -385,6 +388,14 @@ namespace Coffee {
 
         inputTable.set_function("is_mouse_button_pressed", [](MouseCode button) {
             return Input::IsMouseButtonPressed(button);
+        });
+
+        inputTable.set_function("is_button_pressed", [](ButtonCode button) {
+            return Input::GetButtonRaw(button);
+        });
+
+        inputTable.set_function("get_axis_position", [](AxisCode axis) {
+            return Input::GetAxisRaw(axis);
         });
 
         inputTable.set_function("get_mouse_position", []() {
