@@ -427,8 +427,6 @@ namespace Coffee {
         );
         # pragma endregion
 
-        #pragma endregion
-
         #pragma region Bind Entity Functions
         luaState.new_usertype<Entity>("Entity",
             sol::constructors<Entity(), Entity(entt::entity, Scene*)>(),
@@ -464,6 +462,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
+                } else if (componentName == "RigidbodyComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
                 }
                 return sol::nil;
             },
@@ -482,6 +482,8 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
+                } else if (componentName == "RigidbodyComponent") {
+                    return self->HasComponent<RigidbodyComponent>();
                 }
                 return false;
             },
@@ -500,6 +502,8 @@ namespace Coffee {
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
+                } else if (componentName == "RigidbodyComponent") {
+                    self->RemoveComponent<RigidbodyComponent>();
                 }
             },
             "set_parent", &Entity::SetParent,
@@ -570,6 +574,25 @@ namespace Coffee {
                 std::dynamic_pointer_cast<LuaScript>(self.script)->CallFunction(functionName);
             }
         );
+
+        luaState.new_usertype<RigidbodyComponent>("RigidbodyComponent",
+            "rb", &RigidbodyComponent::rb,
+            "on_collision_enter", [](RigidbodyComponent& self, sol::protected_function fn) {
+                self.callback.OnCollisionEnter([fn](CollisionInfo& info) {
+                    fn(info.entityA, info.entityB);
+                });
+            },
+            "on_collision_stay", [](RigidbodyComponent& self, sol::protected_function fn) {
+                self.callback.OnCollisionStay([fn](CollisionInfo& info) {
+                    fn(info.entityA, info.entityB);
+                });
+            },
+            "on_collision_exit", [](RigidbodyComponent& self, sol::protected_function fn) {
+                self.callback.OnCollisionExit([fn](CollisionInfo& info) {
+                    fn(info.entityA, info.entityB);
+                });
+            }
+        );
         # pragma endregion
 
         # pragma region Bind Scene Functions
@@ -583,6 +606,43 @@ namespace Coffee {
 
         # pragma endregion
 
+        # pragma region Bind Physics Functions
+
+        // Bind RigidBody::Type enum
+        luaState.new_enum<RigidBody::Type>("RigidBodyType",
+        {
+            {"Static", RigidBody::Type::Static},
+            {"Dynamic", RigidBody::Type::Dynamic},
+            {"Kinematic", RigidBody::Type::Kinematic}
+        });
+
+        // Bind RigidBody properties
+        luaState.new_usertype<RigidBody::Properties>("RigidBodyProperties",
+            sol::constructors<RigidBody::Properties()>(),
+            "type", &RigidBody::Properties::type,
+            "mass", &RigidBody::Properties::mass,
+            "useGravity", &RigidBody::Properties::useGravity,
+            "freezeY", &RigidBody::Properties::freezeY,
+            "isTrigger", &RigidBody::Properties::isTrigger,
+            "velocity", &RigidBody::Properties::velocity
+        );
+
+        // Bind RigidBody methods
+        luaState.new_usertype<RigidBody>("RigidBody",
+            "set_position", &RigidBody::SetPosition,
+            "get_position", &RigidBody::GetPosition,
+            "set_rotation", &RigidBody::SetRotation,
+            "get_rotation", &RigidBody::GetRotation,
+            "set_velocity", &RigidBody::SetVelocity,
+            "get_velocity", &RigidBody::GetVelocity,
+            "apply_force", &RigidBody::ApplyForce,
+            "apply_impulse", &RigidBody::ApplyImpulse,
+            "set_trigger", &RigidBody::SetTrigger,
+            "reset_velocity", &RigidBody::ResetVelocity,
+            "clear_forces", &RigidBody::ClearForces
+        );
+
+        # pragma endregion
     }
 
     Ref<Script> LuaBackend::CreateScript(const std::filesystem::path& path) {
