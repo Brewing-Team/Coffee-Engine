@@ -235,7 +235,6 @@ namespace Coffee {
         //The next code is rushed, please Hugo of the future refactor this ;_;
         if(material)
         {
-            MaterialTextures matTextures = LoadMaterialTextures(material);
             std::string materialName = (material->GetName().length > 0) ? material->GetName().C_Str() : m_Name;
             std::string referenceName = materialName + "_Mat" + std::to_string(mesh->mMaterialIndex);
 
@@ -251,9 +250,11 @@ namespace Coffee {
                 s_ModelMaterialsUUIDs[referenceName] = materialUUID;
             }
 
+            MaterialTextures matTextures = LoadMaterialTextures(material);
+
             MaterialImportData materialImportData;
             materialImportData.name = referenceName;
-            materialImportData.materialTextures = matTextures;
+            materialImportData.materialTextures = &matTextures;
             materialImportData.uuid = materialUUID;
             materialImportData.cachedPath = CacheManager::GetCachedFilePath(materialUUID, ResourceType::Material);
             
@@ -343,8 +344,11 @@ namespace Coffee {
         Texture2DImportData importData;
         importData.originalPath = texturePath;
         importData.sRGB = srgb;
+        // THIS HAS A PROBLEM, THE UUID IS NOT BEING SET AND THE TEXTURE COULD BE LOADED MULTIPLE TIMES
 
-        return ResourceLoader::Load<Texture2D>(importData);
+        //return ResourceLoader::Load<Texture2D>(importData);
+        //TMP FIX UNTIL I FIGURE OUT HOW TO PASS THE UUID
+        return Texture2D::Load(texturePath);
     }
 
     MaterialTextures Model::LoadMaterialTextures(aiMaterial* material)

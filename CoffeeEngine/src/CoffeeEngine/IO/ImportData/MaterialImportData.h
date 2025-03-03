@@ -1,17 +1,17 @@
 #pragma once
 
 #include "CoffeeEngine/IO/ImportData/ImportData.h"
-#include "CoffeeEngine/Renderer/Material.h"
 #include <cereal/cereal.hpp>
 
 namespace Coffee
 {
+    struct MaterialTextures;
 
     struct MaterialImportData : public ImportData
     {
 
         std::string name;
-        MaterialTextures materialTextures;
+        MaterialTextures* materialTextures;
 
         MaterialImportData() : ImportData(ResourceType::Material) {}
 

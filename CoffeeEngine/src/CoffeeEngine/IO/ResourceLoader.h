@@ -73,6 +73,11 @@ namespace Coffee {
             }
 
             const Ref<T>& resource = s_Importer.Import<T>(importData);
+            
+            // ------------------TESTING----------------------
+            Scope<ImportData> newImportData = CreateScope<ImportData>(importData);
+            SaveImportData(newImportData); // Should I do this for the case that the importData doesn't exist on disk?
+            // -----------------------------------------------
 
             ResourceRegistry::Add(importData.uuid, resource);
             return resource;

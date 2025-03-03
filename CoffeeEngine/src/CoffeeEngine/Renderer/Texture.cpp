@@ -122,7 +122,7 @@ namespace Coffee {
             }
 
             InitializeTexture2D();
-            SetData(m_Data.data(), m_Width * m_Height * ImageFormatToChannelCount(m_Properties.Format));
+            SetData(m_Data.data(), m_Data.size());
         }
         else
         {
@@ -142,9 +142,8 @@ namespace Coffee {
         }
         else
         {
-            *this = Texture2D(texture2DImportData.originalPath);
+            *this = Texture2D(texture2DImportData.originalPath, texture2DImportData.sRGB);
             texture2DImportData.uuid = m_UUID;
-            texture2DImportData.sRGB = m_Properties.srgb;
         }
     }
 

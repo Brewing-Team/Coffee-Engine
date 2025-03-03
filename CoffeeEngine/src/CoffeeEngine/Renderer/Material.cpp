@@ -84,18 +84,21 @@ namespace Coffee {
     }
 
     Material::Material(ImportData& importData)
-        : Material(dynamic_cast<MaterialImportData&>(importData).name, dynamic_cast<MaterialImportData&>(importData).materialTextures)
+        : Resource(ResourceType::Material)
     {
         MaterialImportData& materialImportData = dynamic_cast<MaterialImportData&>(importData);
 
-        if(importData.IsValid())
+        m_Name = materialImportData.name;
+        m_UUID = materialImportData.uuid;
+        m_FilePath = materialImportData.cachedPath;
+
+        if(materialImportData.materialTextures)
         {
-            m_UUID = materialImportData.uuid;
-            m_FilePath = materialImportData.cachedPath;
+            *this = Material(m_Name, *materialImportData.materialTextures);
         }
         else
         {
-            importData.uuid = m_UUID;
+            *this = Material(m_Name);
         }
     }
 
@@ -141,9 +144,10 @@ namespace Coffee {
     {
         MaterialImportData importData;
         importData.name = name;
-        importData.materialTextures = *materialTextures;
+        importData.materialTextures = materialTextures;
+        importData.uuid = UUID();
+        importData.cachedPath = CacheManager::GetCachedFilePath(importData.uuid, ResourceType::Material);
 
         return ResourceLoader::LoadEmbedded<Material>(importData);
     }
-
 }
