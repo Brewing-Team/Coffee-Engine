@@ -296,6 +296,63 @@ namespace Coffee {
         inputTable["mousecode"] = mouseCodeTable;
     }
 
+    void BindControllerCodesToLua(sol::state& lua, sol::table& inputTable)
+    {
+        std::vector<std::pair<std::string, ControllerCode>> controllerCodes = {
+            {"INVALID", Button::Invalid},
+            {"SOUTH", Button::South},
+            {"EAST", Button::East},
+            {"WEST", Button::West},
+            {"NORTH", Button::North},
+            {"BACK", Button::Back},
+            {"GUIDE", Button::Guide},
+            {"START", Button::Start},
+            {"LEFT_STICK", Button::LeftStick},
+            {"RIGHT_STICK", Button::RightStick},
+            {"LEFT_SHOULDER", Button::LeftShoulder},
+            {"RIGHT_SHOULDER", Button::RightShoulder},
+            {"DPAD_UP", Button::DpadUp},
+            {"DPAD_DOWN", Button::DpadDown},
+            {"DPAD_LEFT", Button::DpadLeft},
+            {"DPAD_RIGHT", Button::DpadRight},
+            {"MISC1", Button::Misc1},
+            {"RIGHT_PADDLE1", Button::RightPaddle1},
+            {"LEFT_PADDLE1", Button::LeftPaddle1},
+            {"RIGHT_PADDLE2", Button::RightPaddle2},
+            {"LEFT_PADDLE2", Button::Leftpaddle2},
+            {"TOUCHPAD", Button::Touchpad},
+            {"MISC2", Button::Misc2},
+            {"MISC3", Button::Misc3},
+            {"MISC4", Button::Misc4},
+            {"MISC5", Button::Misc5},
+            {"MISC6", Button::Misc6}
+        };
+        sol::table controllerCodeTable = lua.create_table();
+        for (const auto& controllerCode : controllerCodes) {
+            controllerCodeTable[controllerCode.first] = controllerCode.second;
+        }
+        inputTable["controllercode"] = controllerCodeTable;
+    }
+
+    void BindAxisCodesToLua(sol::state& lua, sol::table& inputTable)
+    {
+        std::vector<std::pair<std::string, AxisCode>> axisCodes = {
+            {"INVALID", Axis::Invalid},
+            {"LEFT_X", Axis::LeftX},
+            {"LEFT_Y", Axis::LeftY},
+            {"RIGHT_X", Axis::RightX},
+            {"RIGHT_Y", Axis::RightY},
+            {"LEFT_TRIGGER", Axis::LeftTrigger},
+            {"RIGHT_TRIGGER", Axis::RightTrigger}
+        };
+        sol::table axisCodeTable = lua.create_table();
+        for (const auto& axisCode : axisCodes) {
+            axisCodeTable[axisCode.first] = axisCode.second;
+        }
+        inputTable["axiscode"] = axisCodeTable;
+    }
+
+
     void LuaBackend::Initialize() {
         luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 
