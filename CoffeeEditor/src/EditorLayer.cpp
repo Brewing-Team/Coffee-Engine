@@ -223,6 +223,9 @@ namespace Coffee {
 
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
+        static bool show = true;
+        ImGui::ShowDemoWindow(&show);
+
         struct MainMenuWindows
         {
             bool EditorSettings = false;

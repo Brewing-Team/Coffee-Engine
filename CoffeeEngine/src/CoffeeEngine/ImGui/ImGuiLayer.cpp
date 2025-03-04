@@ -139,8 +139,6 @@ namespace Coffee {
 
     void ImGuiLayer::OnImGuiRender()
     {
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
     }
 
 	void ImGuiLayer::ProcessEvents(const SDL_Event& event)
