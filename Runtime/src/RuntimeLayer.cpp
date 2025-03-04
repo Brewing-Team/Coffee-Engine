@@ -42,6 +42,25 @@ namespace Coffee {
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
         s_FinalPassShader = CreateRef<Shader>("FinalPassShader", std::string(finalPassShaderSource));
 
+        std::initializer_list<Attachment> ForwardFramebufferAttachments = {
+            {ImageFormat::RGBA32F, "Color"},
+            {ImageFormat::RGB8, "EntityID"},
+            {ImageFormat::DEPTH24STENCIL8, "Depth"}
+        };
+
+        std::initializer_list<Attachment> PostProcessingFramebufferAttachments = {
+            {ImageFormat::RGBA8, "Color"}
+        };
+
+        std::vector<std::pair<std::string, std::initializer_list<Attachment>>> EditorViewportRenderTargetFramebufferAttachments = {
+            {"Forward", ForwardFramebufferAttachments},
+            {"PostProcessing", PostProcessingFramebufferAttachments}
+        };
+
+        m_ViewportRenderTarget = &Renderer::AddRenderTarget("EditorViewport",
+                                                            {1600, 900}, 
+                                        EditorViewportRenderTargetFramebufferAttachments);
+
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
         Project::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaProject");
@@ -53,19 +72,14 @@ namespace Coffee {
         m_ActiveScene = Scene::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaScene");
 
         m_ActiveScene->OnInitRuntime();
-
-        // TODO: Improve this, the event should update the window size
-        Renderer::OnResize(1600, 900);
     }
 
     void RuntimeLayer::OnUpdate(float dt)
     {
         ZoneScoped;
 
-        m_ActiveScene->OnUpdateRuntime(dt);
-
         // Render the scene to backbuffer
-        const Ref<Texture2D>& finalTexture = Renderer::GetRenderTexture();
+        const Ref<Texture2D>& finalTexture = m_ViewportRenderTarget->GetFramebuffer("Forward")->GetColorTexture("Color");
         finalTexture->Bind(0);
 
         s_FinalPassShader->Bind();
@@ -77,6 +91,12 @@ namespace Coffee {
         RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
 
         s_FinalPassShader->Unbind();
+
+        Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget);
+
+        m_ActiveScene->OnUpdateRuntime(dt);
+
+        Renderer::SetCurrentRenderTarget(nullptr);
     }
 
     void RuntimeLayer::OnEvent(Coffee::Event& event)
@@ -104,7 +124,7 @@ namespace Coffee {
         if((m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f) &&
            (width != m_ViewportSize.x || height != m_ViewportSize.y))
         {
-            Renderer::OnResize((uint32_t)width, (uint32_t)height);
+            m_ViewportRenderTarget->Resize((uint32_t)width, (uint32_t)height);
         }
 
         m_ViewportSize = { width, height };
