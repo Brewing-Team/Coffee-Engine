@@ -5,12 +5,9 @@
 			<ChildrenList>
 				<SoundBank Name="CoffeeEngine" ID="{6088230F-1954-4D42-9B00-889897951AA0}">
 					<ObjectInclusionList>
-						<ObjectRef Name="Play_BackgroundContainer" ID="{A5674ED4-D568-42CC-9D09-49BC9EBD54DC}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="MediumRoomVerb" ID="{E0A9728C-D1BE-436A-ABBB-E41C5B8C2647}" WorkUnitID="{23999393-1AC3-4B7F-B2F4-C899E2D89A5C}" Origin="Manual" Filter="7"/>
-						<ObjectRef Name="Play_test_sound2" ID="{BE8DE821-B5C8-4377-BA22-E24D05DD6217}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
-						<ObjectRef Name="Play_test_sound" ID="{0A8F7CF1-331B-4605-9B4F-EC948529B47D}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
-						<ObjectRef Name="Play_test_sound4" ID="{BCBC0DE2-EAF4-462E-A42F-3ED8270F891A}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
-						<ObjectRef Name="Play_test_sound3" ID="{CBA2B51F-779A-4F61-913E-687DA7953BD2}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_shot" ID="{FCD00402-5714-4A2E-941E-F4905C076A31}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="Play_Music_Container" ID="{E516ACCB-9EC9-4E8C-BD30-BA0EA6F5698D}" WorkUnitID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" Origin="Manual" Filter="7"/>
 					</ObjectInclusionList>
 					<ObjectExclusionList/>
 					<GameSyncExclusionList/>
