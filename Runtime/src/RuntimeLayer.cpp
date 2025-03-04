@@ -6,6 +6,7 @@
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -29,6 +30,7 @@ namespace Coffee {
 
     static Ref<Mesh> s_ScreenQuad;
     static Ref<Shader> s_FinalPassShader;
+    static Ref<Texture2D> s_BestHUDEver;
 
     RuntimeLayer::RuntimeLayer() : Layer("Runtime")
     {
@@ -41,6 +43,7 @@ namespace Coffee {
 
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
         s_FinalPassShader = CreateRef<Shader>("FinalPassShader", std::string(finalPassShaderSource));
+        s_BestHUDEver = Texture2D::Load("assets/textures/Plantilla HUD Final Bien V1.png", false);
 
         std::initializer_list<Attachment> ForwardFramebufferAttachments = {
             {ImageFormat::RGBA32F, "Color"},
@@ -72,11 +75,25 @@ namespace Coffee {
         m_ActiveScene = Scene::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaScene");
 
         m_ActiveScene->OnInitRuntime();
+
+        m_ViewportSize = { 1600.0f, 900.0f };
     }
 
     void RuntimeLayer::OnUpdate(float dt)
     {
         ZoneScoped;
+
+        Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget);
+
+        m_ActiveScene->OnUpdateRuntime(dt);
+
+        glm::vec2 screenSize = m_ViewportSize;
+
+        glm::mat4 hudTransform = glm::translate(glm::mat4(1.0f), { screenSize.x / 2, screenSize.y/2, 0.0f }) * glm::scale(glm::mat4(1.0f), { screenSize.x, -screenSize.y, 1.0f });
+
+        Renderer2D::DrawQuad(hudTransform, s_BestHUDEver);
+
+        Renderer::SetCurrentRenderTarget(nullptr);
 
         // Render the scene to backbuffer
         const Ref<Texture2D>& finalTexture = m_ViewportRenderTarget->GetFramebuffer("Forward")->GetColorTexture("Color");
@@ -91,12 +108,6 @@ namespace Coffee {
         RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
 
         s_FinalPassShader->Unbind();
-
-        Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget);
-
-        m_ActiveScene->OnUpdateRuntime(dt);
-
-        Renderer::SetCurrentRenderTarget(nullptr);
     }
 
     void RuntimeLayer::OnEvent(Coffee::Event& event)
