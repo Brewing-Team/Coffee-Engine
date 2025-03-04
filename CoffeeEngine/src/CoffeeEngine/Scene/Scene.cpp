@@ -3,16 +3,12 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/Math/Frustum.h"
-#include "CoffeeEngine/Physics/Collider.h"
-#include "CoffeeEngine/Physics/CollisionCallback.h"
-#include "CoffeeEngine/Physics/CollisionSystem.h"
-#include "CoffeeEngine/Physics/PhysicsWorld.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer3D.h"
+#include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
@@ -278,7 +274,7 @@ namespace Coffee {
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
             //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
-            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
+            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -376,7 +372,7 @@ namespace Coffee {
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
-            Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
+            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -393,8 +389,6 @@ namespace Coffee {
 
             Renderer3D::Submit(lightComponent);
         }
-
-        Renderer::EndScene();
     }
 
     void Scene::OnEvent(Event& e)

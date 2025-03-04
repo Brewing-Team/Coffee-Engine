@@ -56,6 +56,25 @@ namespace Coffee {
     {
         ZoneScoped;
 
+        std::initializer_list<Attachment> ForwardFramebufferAttachments = {
+            {ImageFormat::RGBA32F, "Color"},
+            {ImageFormat::RGB8, "EntityID"},
+            {ImageFormat::DEPTH24STENCIL8, "Depth"}
+        };
+
+        std::initializer_list<Attachment> PostProcessingFramebufferAttachments = {
+            {ImageFormat::RGBA8, "Color"}
+        };
+
+        std::vector<std::pair<std::string, std::initializer_list<Attachment>>> EditorViewportRenderTargetFramebufferAttachments = {
+            {"Forward", ForwardFramebufferAttachments},
+            {"PostProcessing", PostProcessingFramebufferAttachments}
+        };
+
+        m_ViewportRenderTarget = &Renderer::AddRenderTarget("EditorViewport",
+                                                            {1280, 720}, 
+                                        EditorViewportRenderTargetFramebufferAttachments);
+
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
         m_EditorScene = CreateRef<Scene>();

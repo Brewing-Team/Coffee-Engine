@@ -9,11 +9,9 @@ namespace Coffee {
 
     struct CameraData
     {
-        glm::mat4 transform;
-        Ref<Mesh> mesh;
-        Ref<Material> material;
-        uint32_t entityID;
-        AnimatorComponent* animator;
+        glm::mat4 projection = glm::mat4(1.0f); ///< The projection matrix.
+        glm::mat4 view = glm::mat4(1.0f); ///< The view matrix.
+        glm::vec3 position = {0.0, 0.0, 0.0}; ///< The position of the camera.
     };
 
     struct RendererData
@@ -22,14 +20,7 @@ namespace Coffee {
         RenderTarget* CurrentRenderTarget = nullptr;
 
         Ref<UniformBuffer> CameraUniformBuffer; ///< Uniform buffer for camera data.
-        Ref<UniformBuffer> RenderDataUniformBuffer; ///< Uniform buffer for render data.
-
-        Ref<Material> DefaultMaterial; ///< Default material.
-        Ref<Mesh> MissingMesh; ///< Missing mesh.
-
-        Ref<Texture2D> RenderTexture; ///< Render texture.
-
-        std::vector<RenderCommand> renderQueue; ///< Render queue.
+        CameraData cameraData; ///< Camera data.
     };
 
     struct RendererStats
@@ -44,9 +35,7 @@ namespace Coffee {
     class Renderer
     {
     public:
-        /**
-         * @brief Initializes the renderer.
-         */
+        
         static void Init();
         static void Render();
         static void Shutdown();

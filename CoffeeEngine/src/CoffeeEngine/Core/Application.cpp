@@ -5,6 +5,7 @@
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Events/ControllerEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
+#include "CoffeeEngine/Events/MouseEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Audio/Audio.h"
 
