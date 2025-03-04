@@ -129,6 +129,12 @@ namespace Coffee {
             const Ref<Shader>& shader = material->GetShader();
 
             shader->Bind();
+
+            if (command.animator && command.animator->GetAnimationSystem() )
+                command.animator->GetAnimationSystem()->SetBoneTransformations(shader, command.animator);
+            else
+                shader->setBool("animated", false);
+
             shader->setMat4("model", command.transform);
             shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(command.transform))));
 
