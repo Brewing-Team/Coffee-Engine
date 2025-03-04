@@ -498,6 +498,24 @@ namespace Coffee {
             return *this;
         }
 
+        void SetVolume(float volumen)
+        {
+            if (volumen > 1)
+            {
+                volumen = 1;
+            }
+            else if (volumen < 0)
+            {
+                volumen = 0;
+            }
+            volume = volumen;
+            Audio::SetVolume(this->gameObjectID, this->volume);
+        }
+
+        void Play() { Audio::PlayEvent(*this); }
+        void Stop() { Audio::StopEvent(*this); }
+
+
         template<class Archive>
         void save(Archive& archive) const
         {
