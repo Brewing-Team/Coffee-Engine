@@ -8,3 +8,6 @@
 [submodule "CoffeeEngine/vendor/ozz_animation"]
 	path = CoffeeEngine/vendor/ozz_animation
 	url = https://github.com/guillaumeblanc/ozz-animation.git
+[submodule "CoffeeEngine/vendor/msdf-atlas-gen"]
+	path = CoffeeEngine/vendor/msdf-atlas-gen
+	url = https://github.com/Chlumsky/msdf-atlas-gen.git
