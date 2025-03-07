@@ -320,9 +320,15 @@ namespace Coffee {
         }
 
         template<class Archive>
-        void serialize(Archive& archive)
-        {
-            archive(cereal::make_nvp("Elements", Elements));
+        void save(Archive& archive) const {
+            archive(cereal::make_nvp("Elements", Elements),
+                    cereal::make_nvp("Visible", Visible));
+        }
+
+        template<class Archive>
+        void load(Archive& archive) {
+            archive(cereal::make_nvp("Elements", Elements),
+                    cereal::make_nvp("Visible", Visible));
         }
     };
 
@@ -349,11 +355,22 @@ namespace Coffee {
         }
 
         template<class Archive>
-        void serialize(Archive& archive)
-        {
+        void save(Archive& archive) const {
             archive(cereal::make_nvp("TexturePath", TexturePath),
                     cereal::make_nvp("Size", Size),
                     cereal::make_nvp("Visible", Visible));
+        }
+
+        template<class Archive>
+        void load(Archive& archive) {
+            archive(cereal::make_nvp("TexturePath", TexturePath),
+                    cereal::make_nvp("Size", Size),
+                    cereal::make_nvp("Visible", Visible));
+
+            // Load the texture after deserialization
+            if (!TexturePath.empty()) {
+                Texture = ResourceLoader::LoadTexture2D(TexturePath, true, true);
+            }
         }
     };
 
@@ -376,14 +393,25 @@ namespace Coffee {
             }
         }
 
-        template <class Archive> void serialize(Archive& archive)
-        {
-            archive(cereal::make_nvp("Text", Text), 
+        template<class Archive>
+        void save(Archive& archive) const {
+            archive(cereal::make_nvp("Text", Text),
                     cereal::make_nvp("FontPath", FontPath),
                     cereal::make_nvp("FontSize", FontSize),
-                    cereal::make_nvp("Color", Color), 
+                    cereal::make_nvp("Color", Color),
                     cereal::make_nvp("Visible", Visible));
         }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("Text", Text),
+                    cereal::make_nvp("FontPath", FontPath),
+                    cereal::make_nvp("FontSize", FontSize),
+                    cereal::make_nvp("Color", Color),
+                    cereal::make_nvp("Visible", Visible));
+        }
+
     };
 
     // Move it to the Component.h
