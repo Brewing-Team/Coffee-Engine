@@ -47,7 +47,9 @@ namespace Coffee {
         {
             if (HasImportFile(path))
             {
-                Scope<ImportData> importData = LoadImportData(path);
+                std::filesystem::path importPath = path;
+                importPath += ".import";
+                Scope<ImportData> importData = LoadImportData(importPath);
                 return Load<T>(*importData);
             }
             else
@@ -130,7 +132,7 @@ namespace Coffee {
         static bool HasImportFile(const std::filesystem::path& path)
         {
             std::filesystem::path importFilePath = path;
-            importFilePath.replace_extension(".import");
+            importFilePath += ".import";
 
             return std::filesystem::exists(importFilePath);
         }

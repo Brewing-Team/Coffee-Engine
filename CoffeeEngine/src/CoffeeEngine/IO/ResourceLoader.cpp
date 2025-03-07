@@ -45,7 +45,7 @@ namespace Coffee {
         else
         {
             std::filesystem::path importFilePath = path;
-            importFilePath.replace_extension(".import");
+            importFilePath += ".import";
             if(std::filesystem::exists(importFilePath))
             {
                 return;
@@ -363,7 +363,7 @@ namespace Coffee {
     void ResourceLoader::SaveImportData(Scope<ImportData>& importData)
     {
         std::filesystem::path importFilePath = importData->originalPath;
-        importFilePath.replace_extension(".import");
+        importFilePath += ".import";
 
         // backup the original path
         std::filesystem::path originalPathCopy = importData->originalPath;
@@ -385,7 +385,11 @@ namespace Coffee {
         Scope<ImportData> importData;
 
         std::filesystem::path importFilePath = path;
-        importFilePath.replace_extension(".import");
+
+        if(path.extension() != ".import") {
+            COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Import file {0} does not have the .import extension!", path.string());
+            throw std::runtime_error("Import file does not have the .import extension");
+        }
     
         if (!std::filesystem::exists(importFilePath))
         {
