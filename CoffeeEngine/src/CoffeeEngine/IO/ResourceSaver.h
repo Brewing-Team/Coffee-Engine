@@ -30,6 +30,7 @@ namespace Coffee
         template<typename T>
         static void Save(const std::filesystem::path& path, const Ref<T>& resource)
         {
+            std::filesystem::create_directories(path.parent_path());
             ResourceFormat format = GetResourceSaveFormatFromType(GetResourceType<T>());
             switch (format)
             {
