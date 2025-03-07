@@ -131,7 +131,7 @@ namespace Coffee {
             }
             else
             {
-                COFFEE_WARN("ResourceImporter::ImportResourceFromCache: Resource {0} not found in cache.", (uint64_t)uuid);
+                COFFEE_ERROR("ResourceImporter::ImportResourceFromCache: Resource {0} not found in cache.", (uint64_t)uuid);
                 return nullptr;
             }
         }

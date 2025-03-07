@@ -15,14 +15,6 @@
 namespace Coffee
 {
 
-    /*
-        [x] Create a Save function for saving a resource on disk
-        [x] Create a SaveToCache function that saves resource to the project cache
-        [ ] Create a way to detect the Resource type and save it in the correct type (Binary or Json)
-        [ ] Create private functions to manage the different types of serialization
-        [ ] Use this class in the other Resource Management classes
-    */
-
     /**
      * @class ResourceSaver
      * @brief Handles saving resources to disk and cache.

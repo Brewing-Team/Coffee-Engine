@@ -2,6 +2,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/IO/ImportData/CreateImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -365,7 +366,7 @@ namespace Coffee {
         importFilePath.replace_extension(".import");
 
         // backup the original path
-        std::string originalPathCopy = importData->originalPath;
+        std::filesystem::path originalPathCopy = importData->originalPath;
 
         importData->originalPath = std::filesystem::relative(importData->originalPath, s_WorkingDirectory);
 
