@@ -343,6 +343,11 @@ namespace Coffee {
             }
         }
 
+        void SetTexture(const std::string& texturePath)
+        {
+            TexturePath = texturePath;
+        }
+
         template<class Archive>
         void serialize(Archive& archive)
         {

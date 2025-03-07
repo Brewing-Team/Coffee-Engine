@@ -444,6 +444,8 @@ namespace Coffee {
                     self->AddComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->AddComponent<ScriptComponent>();
+                } else if (componentName == "UIImageComponent") {
+                    self->AddComponent<UIImageComponent>();
                 }
             },
             "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
@@ -461,6 +463,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
+                } else if (componentName == "UIImageComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
                 }
                 return sol::nil;
             },
@@ -567,6 +571,13 @@ namespace Coffee {
                 std::dynamic_pointer_cast<LuaScript>(self.script)->CallFunction(functionName);
             }
         );
+
+        luaState.new_usertype<UIImageComponent>("UIImageComponent",
+            sol::constructors<UIImageComponent(), UIImageComponent()>(),
+            "get_texture", &UIImageComponent::Texture,
+            "set_texture", &UIImageComponent::SetTexture
+        );
+
         # pragma endregion
 
         # pragma region Bind Scene Functions

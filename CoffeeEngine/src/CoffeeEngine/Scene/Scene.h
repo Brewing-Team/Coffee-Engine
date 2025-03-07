@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
+#include "CoffeeEngine/UI/UIManager.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "entt/entity/fwd.hpp"
 
@@ -20,6 +21,7 @@ namespace Coffee {
 
     class Entity;
     class Model;
+    class UIManager;
 
     /**
      * @brief Class representing a scene.
@@ -112,6 +114,7 @@ namespace Coffee {
     private:
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
+        Scope<UIManager> m_UIManager;
         Octree<Ref<Mesh>> m_Octree;
 
 
@@ -121,6 +124,7 @@ namespace Coffee {
         friend class Entity;
         friend class SceneTree;
         friend class SceneTreePanel;
+        friend class UIManager;
 
         //REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!
         friend class EditorLayer;

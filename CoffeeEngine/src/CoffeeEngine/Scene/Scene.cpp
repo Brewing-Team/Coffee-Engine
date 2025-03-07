@@ -29,12 +29,14 @@
 #include <CoffeeEngine/Scripting/Script.h>
 #include <cereal/archives/json.hpp>
 #include <fstream>
+#include <spdlog/details/registry.h>
 
 namespace Coffee {
 
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
+        m_UIManager = CreateScope<UIManager>();
     }
 
 /*     Scene::Scene(Ref<Scene> other)
@@ -198,114 +200,9 @@ namespace Coffee {
         Renderer3D::Submit(lightComponent);
     }
 
-    // Render UI elements (UICanvasComponent)
-    auto uiCanvasView = m_Registry.view<UICanvasComponent, TransformComponent>();
-    for (auto& entity : uiCanvasView) {
-        auto& uiCanvasComponent = uiCanvasView.get<UICanvasComponent>(entity);
-        auto& transformComponent = uiCanvasView.get<TransformComponent>(entity);
-
-        // Verificamos si el canvas es visible
-        if (!uiCanvasComponent.Visible)
-            continue;
-
-        // Cargamos la textura del canvas usando el ResourceLoader
-        if (!uiCanvasComponent.CanvasTexture)
-        {
-            uiCanvasComponent.CanvasTexture = ResourceLoader::LoadTexture2D("assets/textures/Canvas.png", true, true);
-
-            // Si la textura no se pudo cargar, continuamos con la siguiente entidad
-            if (!uiCanvasComponent.CanvasTexture)
-            {
-                COFFEE_ERROR("Failed to load canvas texture: assets/textures/Canvas.png");
-                continue;
-            }
-        }
-
-        // Obtenemos el tamaño de la ventana del editor
-        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
-
-        // Calculamos el centro de la ventana
-        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
-        // Calculamos la transformación para centrar el canvas y escalarlo al tamaño de la ventana
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, glm::vec3(center, 0.0f)); // Movemos al centro de la ventana
-        transform = glm::scale(transform, glm::vec3(windowSize.x, windowSize.y, 1.0f)); // Escalamos al tamaño de la ventana
-
-        // Dibujamos el quad con la textura del canvas
-        Renderer2D::DrawQuad(
-            transform,
-            uiCanvasComponent.CanvasTexture, // Usamos la textura cargada
-            1.0f, // Factor de tiling
-            glm::vec4(1.0f), // Color de tinte
-            (uint32_t)entity // ID de la entidad
-        );
-    }
-
-    // Render UI elements (UIImageComponent)
-    auto uiImageView = m_Registry.view<UIImageComponent, TransformComponent>();
-    for (auto& entity : uiImageView) {
-        auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
-        auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+        m_UIManager->OnEditorUpdate(dt, m_Registry);
 
 
-        if (!uiImageComponent.Visible || uiImageComponent.TexturePath.empty())
-            continue;
-
-
-        if (!uiImageComponent.Texture)
-        {
-
-            uiImageComponent.Texture = ResourceLoader::LoadTexture2D(uiImageComponent.TexturePath, true, true);
-
-
-            if (!uiImageComponent.Texture)
-            {
-                COFFEE_ERROR("Failed to load texture: {}", uiImageComponent.TexturePath);
-                continue;
-            }
-        }
-
-
-        glm::mat4 transform = transformComponent.GetWorldTransform();
-        transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
-
-
-        Renderer2D::DrawQuad(
-            transform,
-            uiImageComponent.Texture,
-            1.0f,
-            glm::vec4(1.0f),
-            (uint32_t)entity
-        );
-
-    }
-
-    // Render UI elements (UITextComponent)
-    auto uiTextView = m_Registry.view<UITextComponent, TransformComponent>();
-    for (auto& entity : uiTextView) {
-        auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
-        auto& transformComponent = uiTextView.get<TransformComponent>(entity);
-
-        if (!uiTextComponent.Visible || uiTextComponent.Text.empty())
-            continue;
-
-        // Load default font
-        if (!uiTextComponent.font) {
-            uiTextComponent.font = Font::GetDefault();
-        }
-
-        glm::mat4 transform = transformComponent.GetWorldTransform();
-        transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
-
-        Renderer2D::DrawText(
-            uiTextComponent.Text,
-            uiTextComponent.font,
-            transform,
-            {uiTextComponent.Color, 0.0f, 0.0f}, // Text color
-            (uint32_t)entity
-        );
-    }
 }
 
     void Scene::OnUpdateRuntime(float dt)
