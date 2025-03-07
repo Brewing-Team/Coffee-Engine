@@ -851,6 +851,59 @@ namespace Coffee {
             }
         }
 
+        if (entity.HasComponent<ParticlesSystemComponent>())
+        {
+            auto& particles = entity.GetComponent<ParticlesSystemComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("ParticlesSystem");
+            if (ImGui::CollapsingHeader("Particle System", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Position
+                ImGui::Text("Position");
+                ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
+
+                // Velocity
+                ImGui::Text("Velocity");
+                ImGui::DragFloat3("##ParticleVelocity", glm::value_ptr(particles.Velocity), 0.1f);
+
+                // Spread
+                ImGui::Text("Spread");
+                ImGui::DragFloat3("##ParticleSpread", glm::value_ptr(particles.Spread), 0.1f);
+
+                // Colour
+                ImGui::Text("Colour");
+                ImGui::ColorEdit4("##ParticleColour", glm::value_ptr(particles.Colour));
+
+                // Life Time
+                ImGui::Text("Life Time");
+                ImGui::DragFloat("##ParticleLife", &particles.Life, 0.1f, 0.0f, 100.0f);
+
+                // Size
+                ImGui::Text("Size");
+                ImGui::DragFloat("##ParticleSize", &particles.Size, 0.1f, 0.0f, 10.0f);
+
+                // Particle Amount
+                ImGui::Text("Max Particles");
+                ImGui::DragInt("##ParticleAmount", &particles.Amount, 1, 1, 10000);
+
+                // Texture Selector
+                ImGui::Text("Texture");
+                if (ImGui::Button("Select Texture"))
+                {
+                    // Open texture selection logic here
+                }
+            }
+
+            particles.m_Particles->updateTestSayHello();
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<ParticlesSystemComponent>();
+            }
+            ImGui::PopID();
+        }
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -871,7 +924,17 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component" };
+            std::string items[] = {"Tag Component",
+                                   "Transform Component",
+                                   "Mesh Component",
+                                   "Material Component",
+                                   "Light Component",
+                                   "Camera Component",
+                                   "Audio Source Component",
+                                   "Audio Listener Component",
+                                   "Audio Zone Component",
+                                   "Lua Script Component",
+                                   "Particles System Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1007,6 +1070,17 @@ namespace Coffee {
                         }
                         ImGui::CloseCurrentPopup();
                     }
+                }
+                else if (items[item_current] == "Particles System Component")
+                {
+                    if (!entity.HasComponent<ParticlesSystemComponent>())
+                    {
+                        if (!entity.HasComponent<ParticlesSystemComponent>())
+                            entity.AddComponent<ParticlesSystemComponent>();
+                        ImGui::CloseCurrentPopup();
+                    }
+
+                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {

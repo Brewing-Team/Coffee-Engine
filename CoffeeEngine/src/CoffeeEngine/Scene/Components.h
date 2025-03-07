@@ -25,6 +25,8 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/ParticleManager/ParticleManager.h"
+
 
 #include <glm/gtx/matrix_decompose.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -532,7 +534,10 @@ namespace Coffee {
                 }
             }
         }
-/* 
+
+
+       
+        /* 
         static void OnConstruct(entt::registry& registry, entt::entity entity)
         {
             auto& scriptComponent = registry.get<ScriptComponent<DerivedScript>>(entity);
@@ -545,6 +550,27 @@ namespace Coffee {
         } */
 
 
+    };
+
+     struct ParticlesSystemComponent
+    {
+        glm::vec3 Position = {0.0f, 0.0f, 0.0f};
+        glm::vec3 Velocity = {0.0f, 1.0f, 0.0f};
+        glm::vec3 Spread = {1.0f, 1.0f, 1.0f};
+        glm::vec4 Colour = {1.0f, 1.0f, 1.0f, 1.0f};
+        float Life = 5.0f;
+        float Size = 1.0f;
+        int Amount = 100;
+        int TextureID = -1; // Placeholder for texture handling
+        Ref<ParticleEmitter> m_Particles = nullptr; 
+
+        ParticlesSystemComponent() = default;
+        ParticlesSystemComponent(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& spread,
+                                 const glm::vec4& colour, float life, float size, int amount, int textureID = -1)
+            : Position(position), Velocity(velocity), Spread(spread), Colour(colour), Life(life), Size(size),
+              Amount(amount), TextureID(textureID)
+        {
+        }
     };
 }
 

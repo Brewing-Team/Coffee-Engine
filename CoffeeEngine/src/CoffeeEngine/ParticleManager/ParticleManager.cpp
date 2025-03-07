@@ -3,7 +3,8 @@
 
 namespace Coffee
 {
-    ParticleEmitter::ParticleEmitter()
+    
+   /* ParticleEmitter::ParticleEmitter()
     {
         m_ParticleCount = 1024;
         Init();
@@ -13,6 +14,12 @@ namespace Coffee
     {
         m_ParticleCount = amount;
         Init();
+    }*/
+
+    void ParticleEmitter::updateTestSayHello() {
+    
+        printf("Hello from ParticleEmitter\n");
+    
     }
 
     //void ParticleEmitter::Update(float dt, glm::vec3 emitterPosition)
@@ -118,11 +125,11 @@ namespace Coffee
     //    }
     //}
 
-    void ParticleEmitter::SetParticleCount(uint32_t particleCount)
+    /*void ParticleEmitter::SetParticleCount(uint32_t particleCount)
     {
         m_ParticleCount = particleCount;
         Init();
-    }
+    }*/
 
     //const std::array<glm::vec2, 4>& ParticleEmitter::GetDefaultUVs()
     //{
