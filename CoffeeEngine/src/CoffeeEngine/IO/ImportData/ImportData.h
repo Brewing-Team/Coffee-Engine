@@ -33,7 +33,7 @@ namespace Coffee {
         {
             // Implement the logic to check if the ImportData has the necessary embedded data
             // This is a placeholder implementation
-            return uuid != UUID::null && !cachedPath.empty();
+            return uuid != UUID::null && (!cache || !cachedPath.empty());
         }
     };
 
