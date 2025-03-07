@@ -3,6 +3,7 @@
 #include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include <cereal/cereal.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 namespace Coffee
 {

@@ -381,6 +381,7 @@ namespace Coffee {
     // TODO: Think if the path should be the .import path or the resource and replace the extension inside the function
     Scope<ImportData> ResourceLoader::LoadImportData(const std::filesystem::path& path)
     {
+        //ResourceType type = GetResourceTypeFromExtension(path);
         Scope<ImportData> importData;
 
         std::filesystem::path importFilePath = path;

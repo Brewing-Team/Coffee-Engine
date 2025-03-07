@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include <cereal/cereal.hpp>
+#include <cereal/types/polymorphic.hpp>
 
 namespace Coffee {
 

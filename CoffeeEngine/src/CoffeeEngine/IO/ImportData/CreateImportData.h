@@ -10,10 +10,9 @@
 
 namespace Coffee {
 
-    template<typename T>
-    static Scope<ImportData> CreateImportData()
+    static Scope<ImportData> CreateImportData(ResourceType type)
     {
-        switch(GetResourceType<T>())
+        switch(type)
         {
             case ResourceType::Texture2D:
             {
@@ -43,5 +42,11 @@ namespace Coffee {
         }
     }
 
+    template<typename T>
+    static Scope<ImportData> CreateImportData()
+    {
+        ResourceType type = GetResourceType<T>();
+        return CreateImportData(type);
+    }
 
 }

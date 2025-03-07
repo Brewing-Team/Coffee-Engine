@@ -132,6 +132,7 @@ namespace Coffee {
     }
 
     Texture2D::Texture2D(ImportData& importData)
+        : Texture(ResourceType::Texture2D)
     {
         Texture2DImportData& texture2DImportData = dynamic_cast<Texture2DImportData&>(importData);
 
