@@ -88,10 +88,6 @@ namespace Coffee {
     {
         MaterialImportData& materialImportData = dynamic_cast<MaterialImportData&>(importData);
 
-        m_Name = materialImportData.name;
-        m_UUID = materialImportData.uuid;
-        m_FilePath = materialImportData.cachedPath;
-
         if(materialImportData.materialTextures)
         {
             *this = Material(m_Name, *materialImportData.materialTextures);
@@ -100,6 +96,10 @@ namespace Coffee {
         {
             *this = Material(m_Name);
         }
+
+        m_Name = materialImportData.name;
+        m_UUID = materialImportData.uuid;
+        m_FilePath = materialImportData.cachedPath;
     }
 
     void Material::Use()
