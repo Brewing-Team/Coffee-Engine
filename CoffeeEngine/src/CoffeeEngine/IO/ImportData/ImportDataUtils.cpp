@@ -24,8 +24,10 @@ namespace Coffee {
 
         // backup the original path
         std::filesystem::path originalPathCopy = importData->originalPath;
+        std::filesystem::path cachedPathCopy = importData->cachedPath;
 
         importData->originalPath = std::filesystem::relative(importData->originalPath, ResourceLoader::GetWorkingDirectory());
+        importData->cachedPath = std::filesystem::relative(importData->cachedPath, ResourceLoader::GetWorkingDirectory());
 
         std::ofstream importFile(importFilePath);
         cereal::JSONOutputArchive archive(importFile);
@@ -33,6 +35,7 @@ namespace Coffee {
 
         // restore the original path
         importData->originalPath = originalPathCopy;
+        importData->cachedPath = cachedPathCopy;
     }
 
     // TODO: Think if the path should be the .import path or the resource and replace the extension inside the function
@@ -74,7 +77,8 @@ namespace Coffee {
     
         // Convert the relative path to an absolute path
         importData->originalPath = ResourceLoader::GetWorkingDirectory() / importData->originalPath;
-    
+        if (importData->cache)
+            importData->cachedPath = ResourceLoader::GetWorkingDirectory() / importData->cachedPath;
         return importData;
     }
 
