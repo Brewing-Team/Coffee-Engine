@@ -97,38 +97,7 @@ namespace Coffee {
 
         m_Properties.srgb = srgb;
 
-        int nrComponents;
-        stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load(m_FilePath.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
-
-        m_Properties.Width = m_Width, m_Properties.Height = m_Height;
-
-        if(data)
-        {
-            m_Data = std::vector<unsigned char>(data, data + m_Width * m_Height * nrComponents);
-            stbi_image_free(data);
-
-            switch (nrComponents)
-            {
-                case 1:
-                    m_Properties.Format = ImageFormat::R8;
-                break;
-                case 3:
-                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGB8 : ImageFormat::RGB8;
-                break;
-                case 4:
-                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGBA8 : ImageFormat::RGBA8;
-                break;
-            }
-
-            InitializeTexture2D();
-            SetData(m_Data.data(), m_Data.size());
-        }
-        else
-        {
-            COFFEE_CORE_ERROR("Failed to load texture: {0} (REASON: {1})", m_FilePath.string(), stbi_failure_reason());
-            m_textureID = 0; // Set texture ID to 0 to indicate failure
-        }
+        LoadFromFile(path);
     }
 
     Texture2D::Texture2D(ImportData& importData)
@@ -138,12 +107,22 @@ namespace Coffee {
 
         if(texture2DImportData.IsValid())
         {
-            *this = Texture2D(texture2DImportData.originalPath, texture2DImportData.sRGB);
+            m_FilePath = texture2DImportData.originalPath;
+            m_Name = m_FilePath.filename().string();
+            m_Properties.srgb = texture2DImportData.sRGB;
+
+            LoadFromFile(m_FilePath);
+    
             m_UUID = texture2DImportData.uuid;
         }
         else
         {
-            *this = Texture2D(texture2DImportData.originalPath, texture2DImportData.sRGB);
+            m_FilePath = texture2DImportData.originalPath;
+            m_Name = m_FilePath.filename().string();
+            m_Properties.srgb = texture2DImportData.sRGB;
+
+            LoadFromFile(m_FilePath);
+
             texture2DImportData.uuid = m_UUID;
         }
     }
@@ -212,7 +191,7 @@ namespace Coffee {
         ZoneScoped;
 
         GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
-        COFFEE_ASSERT(size == m_Width * m_Height * ImageFormatToChannelCount(m_Properties.Format), "Data must be entire texture!");
+        //COFFEE_ASSERT(size == m_Width * m_Height * ImageFormatToChannelCount(m_Properties.Format), "Data must be entire texture!");
         glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, data);
         glGenerateTextureMipmap(m_textureID);
     }
@@ -225,6 +204,42 @@ namespace Coffee {
     Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)
     {
         return CreateRef<Texture2D>(width, height, format);
+    }
+
+    void Texture2D::LoadFromFile(const std::filesystem::path& path)
+    {
+        int nrComponents;
+        stbi_set_flip_vertically_on_load(true);
+        unsigned char* data = stbi_load(path.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
+
+        m_Properties.Width = m_Width, m_Properties.Height = m_Height;
+
+        if(data)
+        {
+            m_Data = std::vector<unsigned char>(data, data + m_Width * m_Height * nrComponents);
+            stbi_image_free(data);
+
+            switch (nrComponents)
+            {
+                case 1:
+                    m_Properties.Format = ImageFormat::R8;
+                break;
+                case 3:
+                    m_Properties.Format = ImageFormat::RGB8;
+                break;
+                case 4:
+                    m_Properties.Format = ImageFormat::RGBA8;
+                break;
+            }
+
+            InitializeTexture2D();
+            SetData(m_Data.data(), m_Data.size());
+        }
+        else
+        {
+            COFFEE_CORE_ERROR("Failed to load texture: {0} (REASON: {1})", m_FilePath.string(), stbi_failure_reason());
+            m_textureID = 0; // Set texture ID to 0 to indicate failure
+        }
     }
 
     void Texture2D::InitializeTexture2D()
@@ -287,31 +302,19 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        m_FilePath = path;
-        m_Name = path.filename().string();
-
-        m_Properties.srgb = false;
-
-        if(path.extension() == ".hdr")
-        {
-            LoadHDRFromFile(path);
-        }
-        else
-        {
-            LoadStandardFromFile(path);
-        }
+        LoadFromFile(path);
     }
 
     Cubemap::Cubemap(ImportData& importData)
     {
         if(importData.IsValid())
         {
-            *this = Cubemap(importData.originalPath);
+            LoadFromFile(importData.originalPath);
             m_UUID = importData.uuid;
         }
         else
         {
-            *this = Cubemap(importData.originalPath);
+            LoadFromFile(importData.originalPath);
             importData.uuid = m_UUID;
         }
     }
@@ -325,6 +328,23 @@ namespace Coffee {
     void Cubemap::Bind(uint32_t slot)
     {
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
+    }
+
+    void Cubemap::LoadFromFile(const std::filesystem::path& path)
+    {
+        m_FilePath = path;
+        m_Name = path.filename().string();
+
+        m_Properties.srgb = false;
+
+        if(path.extension() == ".hdr")
+        {
+            LoadHDRFromFile(path);
+        }
+        else
+        {
+            LoadStandardFromFile(path);
+        }
     }
 
     void Cubemap::LoadStandardFromFile(const std::filesystem::path& path)

@@ -100,6 +100,7 @@ namespace Coffee {
         static Ref<Texture2D> Create(uint32_t width, uint32_t height, ImageFormat format);
 
     private:
+        void LoadFromFile(const std::filesystem::path& path);
         void InitializeTexture2D();
 
         friend class cereal::access;
@@ -155,7 +156,7 @@ namespace Coffee {
         static Ref<Cubemap> Load(const std::filesystem::path& path);
         static Ref<Cubemap> Create(const std::filesystem::path& path);
     private:
-
+        void LoadFromFile(const std::filesystem::path& path);
         void LoadStandardFromFile(const std::filesystem::path& path);
         void LoadHDRFromFile(const std::filesystem::path& path);
         void LoadStandardFromData(const std::vector<unsigned char>& data);
