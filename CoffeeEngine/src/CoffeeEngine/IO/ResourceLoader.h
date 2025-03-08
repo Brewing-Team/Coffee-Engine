@@ -9,8 +9,8 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
-#include "CoffeeEngine/IO/ImportData/CreateImportData.h"
 #include "ImportData/ImportData.h"
+#include "ImportData/ImportDataUtils.h"
 #include "ResourceRegistry.h"
 
 #include <filesystem>
@@ -45,21 +45,21 @@ namespace Coffee {
         template <typename T>
         inline static Ref<T> Load(const std::filesystem::path& path)
         {
-            if (HasImportFile(path))
+            if (ImportDataUtils::HasImportFile(path))
             {
                 std::filesystem::path importPath = path;
                 importPath += ".import";
-                Scope<ImportData> importData = LoadImportData(importPath);
+                Scope<ImportData> importData = ImportDataUtils::LoadImportData(importPath);
                 return Load<T>(*importData);
             }
             else
             {
-                Scope<ImportData> newImportData = CreateImportData<T>();
+                Scope<ImportData> newImportData = ImportDataUtils::CreateImportData<T>();
                 newImportData->originalPath = path;
 
                 const Ref<T>& resource = s_Importer.Import<T>(*newImportData);
 
-                SaveImportData(newImportData);
+                ImportDataUtils::SaveImportData(newImportData);
                 ResourceRegistry::Add(newImportData->uuid, resource);
 
                 return resource;
@@ -76,11 +76,6 @@ namespace Coffee {
 
             const Ref<T>& resource = s_Importer.Import<T>(importData);
             
-            // ------------------TESTING----------------------
-/*             Scope<ImportData> newImportData = CreateScope<ImportData>(importData);
-            SaveImportData(newImportData); // Should I do this for the case that the importData doesn't exist on disk? */
-            // -----------------------------------------------
-
             ResourceRegistry::Add(importData.uuid, resource);
             return resource;
         }
@@ -125,17 +120,7 @@ namespace Coffee {
         static void RemoveResource(const std::filesystem::path& path);
 
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
-    private:
-        
-        static void SaveImportData(Scope<ImportData>& importData);
-        static Scope<ImportData> LoadImportData(const std::filesystem::path& path);
-        static bool HasImportFile(const std::filesystem::path& path)
-        {
-            std::filesystem::path importFilePath = path;
-            importFilePath += ".import";
-
-            return std::filesystem::exists(importFilePath);
-        }
+        static const std::filesystem::path& GetWorkingDirectory() { return s_WorkingDirectory; }
 
     private:
         static std::filesystem::path s_WorkingDirectory; ///< The working directory of the resource loader.
