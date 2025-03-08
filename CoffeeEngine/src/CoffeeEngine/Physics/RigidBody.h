@@ -89,7 +89,6 @@ namespace Coffee {
         Ref<Collider> m_Collider;
         Properties m_Properties;
 
-
     private:
         friend class cereal::access;
         template<class Archive>
