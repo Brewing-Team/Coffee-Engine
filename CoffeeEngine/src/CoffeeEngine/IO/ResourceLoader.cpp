@@ -108,21 +108,29 @@ namespace Coffee {
 
     void ResourceLoader::LoadDirectory(const std::filesystem::path& directory)
     {
+        std::vector<std::filesystem::path> files;
+
         for (const auto& entry : std::filesystem::recursive_directory_iterator(directory))
         {
-            // This two if statements are duplicated in LoadFile but are necessary to suppress errors
-
-            if (!entry.is_regular_file())
+            if (!entry.is_regular_file() || GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
             {
                 continue;
             }
 
-            if(GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
-            {
-                continue;
-            }
+            files.push_back(entry.path());
+        }
 
-            LoadFile(entry.path());
+        std::sort(files.begin(), files.end(), [](const std::filesystem::path& a, const std::filesystem::path& b) {
+            if (a.extension() == ".import" && b.extension() != ".import") return true;
+            if (a.extension() != ".import" && b.extension() == ".import") return false;
+            if (GetResourceTypeFromExtension(a) == ResourceType::Model && GetResourceTypeFromExtension(b) != ResourceType::Model) return true;
+            if (GetResourceTypeFromExtension(a) != ResourceType::Model && GetResourceTypeFromExtension(b) == ResourceType::Model) return false;
+            return a < b;
+        });
+
+        for (const auto& path : files)
+        {
+            LoadFile(path);
         }
     }
 

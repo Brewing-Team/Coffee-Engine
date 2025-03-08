@@ -341,15 +341,18 @@ namespace Coffee {
 
         bool srgb = (type == aiTextureType_DIFFUSE || type == aiTextureType_EMISSIVE);
 
-        
+        if(!ImportDataUtils::HasImportFile(texturePath))
+        {
+            Texture2DImportData importData;
+            importData.originalPath = texturePath;
+            importData.sRGB = srgb;
+            importData.uuid = UUID();
+            importData.cachedPath = CacheManager::GetCachedFilePath(importData.uuid, ResourceType::Texture2D);
+            Scope<ImportData> importDataPtr = CreateScope<ImportData>(importData);
+            ImportDataUtils::SaveImportData(importDataPtr);
+            return ResourceLoader::Load<Texture2D>(importData);
+        }
 
-        Texture2DImportData importData;
-        importData.originalPath = texturePath;
-        importData.sRGB = srgb;
-        // THIS HAS A PROBLEM, THE UUID IS NOT BEING SET AND THE TEXTURE COULD BE LOADED MULTIPLE TIMES
-
-        //return ResourceLoader::Load<Texture2D>(importData);
-        //TMP FIX UNTIL I FIGURE OUT HOW TO PASS THE UUID
         return Texture2D::Load(texturePath);
     }
 
