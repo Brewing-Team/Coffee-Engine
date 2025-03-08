@@ -210,7 +210,7 @@ namespace Coffee {
     {
         int nrComponents;
         stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load(path.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
+        unsigned char* data = stbi_load(m_FilePath.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
 
         m_Properties.Width = m_Width, m_Properties.Height = m_Height;
 
@@ -225,10 +225,10 @@ namespace Coffee {
                     m_Properties.Format = ImageFormat::R8;
                 break;
                 case 3:
-                    m_Properties.Format = ImageFormat::RGB8;
+                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGB8 : ImageFormat::RGB8;
                 break;
                 case 4:
-                    m_Properties.Format = ImageFormat::RGBA8;
+                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGBA8 : ImageFormat::RGBA8;
                 break;
             }
 
