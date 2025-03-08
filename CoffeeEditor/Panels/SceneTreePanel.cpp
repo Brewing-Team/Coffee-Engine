@@ -894,8 +894,9 @@ namespace Coffee {
                     // Open texture selection logic here
                 }
             }
-
-            particles.m_Particles->updateTestSayHello();
+            
+           
+            particles.m_Particles->Update();
 
             if (!isCollapsingHeaderOpen)
             {
@@ -1079,7 +1080,7 @@ namespace Coffee {
                             entity.AddComponent<ParticlesSystemComponent>();
                         ImGui::CloseCurrentPopup();
                     }
-
+                    
                     ImGui::CloseCurrentPopup();
                 }
                 else
