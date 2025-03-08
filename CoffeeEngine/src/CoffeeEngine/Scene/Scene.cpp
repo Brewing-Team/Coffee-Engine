@@ -302,6 +302,20 @@ namespace Coffee {
             Renderer::Submit(lightComponent);
         }
 
+
+        // Get all entities with ParticlesSystemComponent and TransformComponent
+        auto particleSystemView = m_Registry.view<ParticlesSystemComponent, TransformComponent>();
+        for (auto& entity : particleSystemView)
+        {
+            auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
+            auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
+
+            particlesSystemComponent.GetParticleEmitter()->Update();
+
+            //Renderer::Submit(particlesSystemComponent);
+        }
+
+
         Renderer::EndScene();
     }
 
@@ -341,7 +355,8 @@ namespace Coffee {
             .get<ScriptComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+            .get<AudioZoneComponent>(archive)
+            .get<ParticlesSystemComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -384,7 +399,8 @@ namespace Coffee {
             .get<ScriptComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+            .get<AudioZoneComponent>(archive)
+            .get<ParticlesSystemComponent>(archive);
         
         scene->m_FilePath = path;
 

@@ -854,38 +854,39 @@ namespace Coffee {
         if (entity.HasComponent<ParticlesSystemComponent>())
         {
             auto& particles = entity.GetComponent<ParticlesSystemComponent>();
+            Ref<ParticleEmitter> emitter = particles.GetParticleEmitter();
             bool isCollapsingHeaderOpen = true;
 
             ImGui::PushID("ParticlesSystem");
             if (ImGui::CollapsingHeader("Particle System", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 // Position
-                ImGui::Text("Position");
-                ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
+                //ImGui::Text("Position");
+                //ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
 
                 // Velocity
                 ImGui::Text("Velocity");
-                ImGui::DragFloat3("##ParticleVelocity", glm::value_ptr(particles.Velocity), 0.1f);
+                ImGui::DragFloat3("##ParticleVelocity", glm::value_ptr(particles.velocity), 0.1f);
 
                 // Spread
                 ImGui::Text("Spread");
-                ImGui::DragFloat3("##ParticleSpread", glm::value_ptr(particles.Spread), 0.1f);
+                ImGui::DragFloat3("##ParticleSpread", glm::value_ptr(particles.spread), 0.1f);
 
                 // Colour
                 ImGui::Text("Colour");
-                ImGui::ColorEdit4("##ParticleColour", glm::value_ptr(particles.Colour));
+                ImGui::ColorEdit4("##ParticleColour", glm::value_ptr(particles.colour));
 
                 // Life Time
                 ImGui::Text("Life Time");
-                ImGui::DragFloat("##ParticleLife", &particles.Life, 0.1f, 0.0f, 100.0f);
+                ImGui::DragFloat("##ParticleLife", &emitter->lifeTime, 0.1f, 0.0f, 100.0f);
 
                 // Size
                 ImGui::Text("Size");
-                ImGui::DragFloat("##ParticleSize", &particles.Size, 0.1f, 0.0f, 10.0f);
+                ImGui::DragFloat("##ParticleSize", &particles.size, 0.1f, 0.0f, 10.0f);
 
                 // Particle Amount
                 ImGui::Text("Max Particles");
-                ImGui::DragInt("##ParticleAmount", &particles.Amount, 1, 1, 10000);
+                ImGui::DragInt("##ParticleAmount", &particles.amount, 1, 1, 10000);
 
                 // Texture Selector
                 ImGui::Text("Texture");
@@ -896,7 +897,7 @@ namespace Coffee {
             }
             
            
-            particles.m_Particles->Update();
+            //particles.m_Particles->Update();
 
             if (!isCollapsingHeaderOpen)
             {

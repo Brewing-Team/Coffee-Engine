@@ -552,25 +552,60 @@ namespace Coffee {
 
     };
 
-     struct ParticlesSystemComponent
+
+
+     struct ParticlesSystemComponent : public std::enable_shared_from_this<ParticlesSystemComponent>
     {
-        glm::vec3 Position = {0.0f, 0.0f, 0.0f};
-        glm::vec3 Velocity = {0.0f, 1.0f, 0.0f};
-        glm::vec3 Spread = {1.0f, 1.0f, 1.0f};
-        glm::vec4 Colour = {1.0f, 1.0f, 1.0f, 1.0f};
-        float Life = 5.0f;
-        float Size = 1.0f;
-        int Amount = 100;
-        int TextureID = -1; // Placeholder for texture handling
+        public:
+
+        glm::vec3 velocity = {0.0f, 1.0f, 0.0f};
+        glm::vec3 spread = {1.0f, 1.0f, 1.0f};
+        glm::vec4 colour = {1.0f, 1.0f, 1.0f, 1.0f};
+        float life = 5.0f;
+        float size = 1.0f;
+        int amount = 100;
+        int textureID = -1; // Placeholder for texture handling
+       
+
+        // Constructor por defecto
+        ParticlesSystemComponent() { 
+            m_Particles = std::make_shared<ParticleEmitter>();
+        }
+        
+       
+
+
+
+        Ref<ParticleEmitter> GetParticleEmitter() { return m_Particles; }
+
+
+
+        private:
         Ref<ParticleEmitter> m_Particles = nullptr; 
 
-        ParticlesSystemComponent() = default;
-        ParticlesSystemComponent(const glm::vec3& position, const glm::vec3& velocity, const glm::vec3& spread,
-                                 const glm::vec4& colour, float life, float size, int amount, int textureID = -1)
-            : Position(position), Velocity(velocity), Spread(spread), Colour(colour), Life(life), Size(size),
-              Amount(amount), TextureID(textureID)
+
+        public:
+        template <class Archive> void save(Archive& archive) const
         {
+            archive(cereal::make_nvp("Velocity", velocity),
+                    cereal::make_nvp("Spread", spread), cereal::make_nvp("Colour", colour),
+                    cereal::make_nvp("Life", life), cereal::make_nvp("Size", size), cereal::make_nvp("Amount", amount),
+                    cereal::make_nvp("TextureID", textureID),
+                    cereal::make_nvp("ParticleEmitter", m_Particles)
+                
+                );
         }
+
+        template <class Archive> void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("Velocity", velocity),
+                    cereal::make_nvp("Spread", spread), cereal::make_nvp("Colour", colour),
+                    cereal::make_nvp("Life", life), cereal::make_nvp("Size", size), cereal::make_nvp("Amount", amount),
+                    cereal::make_nvp("TextureID", textureID),
+                    cereal::make_nvp("ParticleEmitter", m_Particles) );
+        }
+
+
     };
 }
 

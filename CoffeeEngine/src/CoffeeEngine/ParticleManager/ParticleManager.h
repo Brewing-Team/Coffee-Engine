@@ -1,5 +1,7 @@
 ﻿#pragma once
 #include "CoffeeEngine/Math/BoundingBox.h"
+#include "CoffeeEngine/Core/Base.h"
+
 
 namespace Coffee
 {
@@ -13,24 +15,55 @@ namespace Coffee
         float lifetime;
 
         Particle();
-        void Init(const glm::vec3& startPos);
+        //void Init();
         void Update(float dt);
+
+
+         template <class Archive> void serialize(Archive& archive)
+        {
+            archive(position, velocity, color, size, lifetime);
+        }
+
     };
 
+
+
+    struct ParticlesSystemComponent;
     class ParticleEmitter
     {
+
+        public:
+        glm::vec3 velocity = {0.0f, 1.0f, 0.0f};
+        glm::vec3 spread = {1.0f, 1.0f, 1.0f};
+        glm::vec4 colour = {1.0f, 1.0f, 1.0f, 1.0f};
+        float lifeTime = 5.0f;
+        float size = 1.0f;
+        int amount = 100;
+        int textureID = -1; // Placeholder for texture handling
+
+
       private:
-        std::vector<Particle> activeParticles;
-        float rateOverTime = 0.0f;
+        std::vector<Ref<Particle>> activeParticles;
+        float rateOverTime = 1.0f;
         float elapsedTime = 0.0f;
+       
 
         void GenerateParticle();
 
       public:
-        ParticleEmitter(float rate);
+        ParticleEmitter() = default;
+        //ParticleEmitter(float rate);
         
+        void InitParticle(Ref<Particle> p);
         void Update();
         void Render();
+
+       
+
+        template <class Archive> void serialize(Archive& archive)
+        {
+            archive(activeParticles, rateOverTime, elapsedTime);
+        }
     };
 
 } // namespace Coffee

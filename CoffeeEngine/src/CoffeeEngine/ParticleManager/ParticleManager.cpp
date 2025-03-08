@@ -1,19 +1,13 @@
 #include "ParticleManager.h"
 #include <cstdlib>
 
+#include "CoffeeEngine/Scene/Components.h"
+
 namespace Coffee
 {
 
     Particle::Particle() : position(0.0f), velocity(0.0f), color(1.0f), size(1.0f), lifetime(1.0f) {}
 
-    void Particle::Init(const glm::vec3& startPos)
-    {
-        position = startPos;
-        velocity = glm::vec3((rand() % 100 - 50) / 50.0f, 1.0f, (rand() % 100 - 50) / 50.0f);
-        color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-        size = 0.1f + static_cast<float>(rand()) / RAND_MAX * 0.2f;
-        lifetime = 2.0f;
-    }
 
     void Particle::Update(float dt)
     {
@@ -21,12 +15,20 @@ namespace Coffee
         lifetime -= dt;
     }
 
-    
+
+    void ParticleEmitter::InitParticle(Ref<Particle> p)
+    {
+        p->position = glm::vec3(0.0f);
+        p->velocity = velocity; // Ya no es un puntero
+        p->color = colour;
+        p->size = size;
+        p->lifetime = lifeTime;
+    }
 
     void ParticleEmitter::GenerateParticle()
     {
-        Particle p;
-        p.Init(glm::vec3(0.0f)); 
+        Ref<Particle> p = CreateRef<Particle>();
+        InitParticle(p);
         activeParticles.push_back(p);
     }
 
@@ -43,8 +45,8 @@ namespace Coffee
 
         for (size_t i = 0; i < activeParticles.size();)
         {
-            activeParticles[i].Update(dt);
-            if (activeParticles[i].lifetime <= 0.0f)
+            activeParticles[i]->Update(dt);
+            if (activeParticles[i]->lifetime <= 0.0f)
             {
                 activeParticles.erase(activeParticles.begin() + i);
             }
@@ -53,6 +55,11 @@ namespace Coffee
                 ++i;
             }
         }
+
+
+        printf("Cantidad particulas: %d", activeParticles.size());
+
+
     }
 
     void ParticleEmitter::Render()
