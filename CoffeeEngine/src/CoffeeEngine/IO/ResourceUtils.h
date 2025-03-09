@@ -42,7 +42,7 @@ namespace Coffee {
         switch (type)
         {
         case ResourceType::Texture2D:
-            return "Textur2D";
+            return "Texture2D";
         case ResourceType::Cubemap:
             return "Cubemap";
         case ResourceType::Model:
