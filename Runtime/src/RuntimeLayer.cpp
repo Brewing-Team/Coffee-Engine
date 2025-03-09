@@ -73,20 +73,21 @@ namespace Coffee {
 
         m_ActiveScene->OnInitRuntime();
 
-        // TODO: Improve this, the event should update the window size
-        Renderer::OnResize(1600, 900);
+        m_ViewportSize = { 1600.0f, 900.0f };
     }
 
     void RuntimeLayer::OnUpdate(float dt)
     {
         ZoneScoped;
 
+        Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget);
+
         m_ActiveScene->OnUpdateRuntime(dt);
 
         Renderer::SetCurrentRenderTarget(nullptr);
 
         // Render the scene to backbuffer
-        const Ref<Texture2D>& finalTexture = Renderer::GetRenderTexture();
+        const Ref<Texture2D>& finalTexture = m_ViewportRenderTarget->GetFramebuffer("Forward")->GetColorTexture("Color");
         finalTexture->Bind(0);
 
         s_FinalPassShader->Bind();
@@ -125,7 +126,7 @@ namespace Coffee {
         if((m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f) &&
            (width != m_ViewportSize.x || height != m_ViewportSize.y))
         {
-            Renderer::OnResize((uint32_t)width, (uint32_t)height);
+            m_ViewportRenderTarget->Resize((uint32_t)width, (uint32_t)height);
         }
 
         m_ViewportSize = { width, height };

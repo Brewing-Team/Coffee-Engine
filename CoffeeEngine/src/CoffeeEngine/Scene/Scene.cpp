@@ -7,7 +7,6 @@
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
-#include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/Renderer3D.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
@@ -256,50 +255,12 @@ namespace Coffee {
         // TEST ------------------------------
         m_Octree.DebugDraw();
 
-        // TEMPORAL - Navigation
-        if (Input::IsKeyPressed(Key::B))
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
         {
-            Ref<NavMesh> navMesh = CreateRef<NavMesh>();
-            auto view = m_Registry.view<MeshComponent, TransformComponent>();
-
-            for (auto entity : view)
-            {
-                auto mesh = view.get<MeshComponent>(entity);
-                auto transform = view.get<TransformComponent>(entity);
-                navMesh->AddMesh(mesh.GetMesh(), transform.GetWorldTransform());
-            }
-
-            navMesh->CalculateWalkableAreas();
-            m_NavMesh = navMesh;
-
-            m_PathFinder = CreateRef<NavMeshPathfinding>(m_NavMesh);
-        }
-
-        if (m_NavMesh) {
-            m_NavMesh->RenderWalkableAreas();
-
-            if (Input::IsKeyPressed(Key::P))
-            {
-                m_PathStart = {-20,1,0};
-                COFFEE_INFO("Path start set to: ({0}, {1}, {2})", m_PathStart.x, m_PathStart.y, m_PathStart.z);
-            }
-
-            if (Input::IsKeyPressed(Key::O))
-            {
-                m_PathEnd = {20,1,0};
-                COFFEE_INFO("Path end set to: ({0}, {1}, {2})", m_PathEnd.x, m_PathEnd.y, m_PathEnd.z);
-            }
-
-            if (Input::IsKeyPressed(Key::I) && m_PathFinder)
-            {
-                m_CurrentPath = m_PathFinder->FindPath(m_PathStart, m_PathEnd);
-                COFFEE_INFO("Path found with {0} points", m_CurrentPath.size());
-            }
-
-            if (m_PathFinder && !m_CurrentPath.empty())
-            {
-                m_PathFinder->RenderPath(m_CurrentPath);
-            }
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
         }
 
         UpdateAudioComponentsPositions();
@@ -473,9 +434,13 @@ namespace Coffee {
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
             .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+            .get<AudioZoneComponent>(archive)
+            .get<LightComponent>(archive);
+
+            scene->AssignAnimatorsToMeshes(m_AnimationSystem->GetAnimators());
         
         scene->m_FilePath = path;
     
@@ -535,9 +500,11 @@ namespace Coffee {
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
             .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+            .get<AudioZoneComponent>(archive)
+            .get<LightComponent>(archive);
         
         scene->m_FilePath = path;
 
@@ -602,89 +569,22 @@ namespace Coffee {
         }
     }
 
-    void Scene::UpdateAudioComponentsPositions()
+    void Scene::AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators)
     {
-        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
-
-        for (auto& entity : audioSourceView)
+        std::vector<Entity> entities = GetAllEntities();
+        for (auto entity : entities)
         {
-            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
-            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
-
-            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
+            if (entity.HasComponent<MeshComponent>())
             {
-                audioSourceComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
-                transformComponent.GetWorldTransform()[3],
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
-            }
-        }
-
-        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
-
-        for (auto& entity : audioListenerView)
-        {
-            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
-            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
-
-            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioListenerComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
-                    transformComponent.GetWorldTransform()[3],
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
+                for (auto animator : animators)
+                {
+                    MeshComponent* meshComponent = &entity.GetComponent<MeshComponent>();
+                    if (meshComponent->animatorUUID == animator->animatorUUID && !meshComponent->animator)
+                        meshComponent->animator = animator;
+                }
             }
         }
     }
-    void Scene::UpdateAudioComponentsPositions()
-    {
-        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
-
-        for (auto& entity : audioSourceView)
-        {
-            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
-            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
-
-            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioSourceComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
-                transformComponent.GetWorldTransform()[3],
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
-            }
-        }
-
-        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
-
-        for (auto& entity : audioListenerView)
-        {
-            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
-            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
-
-            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
-            {
-                audioListenerComponent.transform = transformComponent.GetWorldTransform();
-
-                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
-                    transformComponent.GetWorldTransform()[3],
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
-                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
-                );
-            }
-        }
-    }
-
     void Scene::UpdateAudioComponentsPositions()
     {
         auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();

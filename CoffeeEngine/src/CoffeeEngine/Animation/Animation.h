@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/base/memory/unique_ptr.h>

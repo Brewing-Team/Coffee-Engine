@@ -10,58 +10,26 @@
     "Type": "User",
     "GUID": "{6088230F-1954-4D42-9B00-889897951AA0}",
     "Language": "SFX",
-    "Hash": "{4DB85838-2E1B-8D05-F775-7CAFE5B47CD9}",
+    "Hash": "{580C3AAB-2663-A8E6-8203-A317F311A323}",
     "ObjectPath": "\\SoundBanks\\Default Work Unit\\CoffeeEngine",
     "ShortName": "CoffeeEngine",
     "Path": "CoffeeEngine.bnk",
     "Media": [
      {
-      "Id": "187034672",
+      "Id": "626622315",
       "Language": "SFX",
       "Streaming": "false",
       "Location": "Memory",
-      "ShortName": "Combat-A-LowBrass_138bpm4-4_L8M-P0.wav",
-      "CachePath": "52/{52E43852-FA8C-6DED-6AAB-CFCCC36A1807}.wem"
+      "ShortName": "music.wav",
+      "CachePath": "DC/{DC83115A-D3DE-AA92-A5D4-CAE31BDE13C9}.wem"
      },
      {
-      "Id": "276561864",
+      "Id": "773483819",
       "Language": "SFX",
       "Streaming": "false",
       "Location": "Memory",
-      "ShortName": "test_sound4.wav",
-      "CachePath": "73/{73317DAE-A02E-60F5-4AB3-700A1EC322C7}.wem"
-     },
-     {
-      "Id": "505350705",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "Combat-Bridge-Gtr2_138bpm4-4_L17M-P1B.wav",
-      "CachePath": "98/{9861D752-27B3-BA7D-A56D-E5B78B4CA7A2}.wem"
-     },
-     {
-      "Id": "760241267",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "test_sound.wav",
-      "CachePath": "5D/{5DBA4F23-0EC7-B576-EE1E-81693A3E5BC2}.wem"
-     },
-     {
-      "Id": "788075634",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "test_sound2.wav",
-      "CachePath": "EF/{EFEB4EB2-3906-5C3A-DD6A-0C3CFA5AF569}.wem"
-     },
-     {
-      "Id": "868671724",
-      "Language": "SFX",
-      "Streaming": "false",
-      "Location": "Memory",
-      "ShortName": "test_sound3.wav",
-      "CachePath": "3D/{3D0AD3CB-F9AF-8981-C3FA-41A8401E0603}.wem"
+      "ShortName": "shot.wav",
+      "CachePath": "34/{3469334C-AB6D-DC26-529A-55703BB4BFB8}.wem"
      }
     ],
     "Plugins": {
@@ -78,65 +46,28 @@
     },
     "Events": [
      {
-      "Id": "1474158143",
-      "Name": "Play_BackgroundContainer",
-      "ObjectPath": "\\Events\\Default Work Unit\\Play_BackgroundContainer",
-      "GUID": "{A5674ED4-D568-42CC-9D09-49BC9EBD54DC}",
+      "Id": "137867063",
+      "Name": "Play_Music_Container",
+      "ObjectPath": "\\Events\\Default Work Unit\\Play_Music_Container",
+      "GUID": "{E516ACCB-9EC9-4E8C-BD30-BA0EA6F5698D}",
       "DurationType": "Infinite",
       "MediaRefs": [
        {
-        "Id": "187034672"
-       },
-       {
-        "Id": "505350705"
+        "Id": "626622315"
        }
       ]
      },
      {
-      "Id": "3211564518",
-      "Name": "Play_test_sound",
-      "ObjectPath": "\\Events\\Default Work Unit\\Play_test_sound",
-      "GUID": "{0A8F7CF1-331B-4605-9B4F-EC948529B47D}",
-      "DurationType": "Infinite",
+      "Id": "268953978",
+      "Name": "Play_shot",
+      "ObjectPath": "\\Events\\Default Work Unit\\Play_shot",
+      "GUID": "{FCD00402-5714-4A2E-941E-F4905C076A31}",
+      "DurationType": "OneShot",
+      "DurationMin": "0.18285714",
+      "DurationMax": "0.18285714",
       "MediaRefs": [
        {
-        "Id": "760241267"
-       }
-      ]
-     },
-     {
-      "Id": "1039137056",
-      "Name": "Play_test_sound2",
-      "ObjectPath": "\\Events\\Default Work Unit\\Play_test_sound2",
-      "GUID": "{BE8DE821-B5C8-4377-BA22-E24D05DD6217}",
-      "DurationType": "Infinite",
-      "MediaRefs": [
-       {
-        "Id": "788075634"
-       }
-      ]
-     },
-     {
-      "Id": "1039137057",
-      "Name": "Play_test_sound3",
-      "ObjectPath": "\\Events\\Default Work Unit\\Play_test_sound3",
-      "GUID": "{CBA2B51F-779A-4F61-913E-687DA7953BD2}",
-      "DurationType": "Infinite",
-      "MediaRefs": [
-       {
-        "Id": "868671724"
-       }
-      ]
-     },
-     {
-      "Id": "1039137062",
-      "Name": "Play_test_sound4",
-      "ObjectPath": "\\Events\\Default Work Unit\\Play_test_sound4",
-      "GUID": "{BCBC0DE2-EAF4-462E-A42F-3ED8270F891A}",
-      "DurationType": "Infinite",
-      "MediaRefs": [
-       {
-        "Id": "276561864"
+        "Id": "773483819"
        }
       ]
      }
@@ -166,6 +97,6 @@
     ]
    }
   ],
-  "FileHash": "{9B613145-A6E3-69BB-04E8-CE4DA7A4DC70}"
+  "FileHash": "{F92CC0A0-B2DC-9DD9-EE4A-7B31120D28E3}"
  }
 }
