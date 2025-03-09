@@ -7,9 +7,23 @@
 
 namespace Coffee
 {
+    using ButtonState = uint8_t;
+    namespace ButtonStates
+    {
+        enum : ButtonState
+        {
+            IDLE,
+            UP,
+            DOWN,
+            REPEAT
+        };
+    }
+
+
     class InputBinding
     {
       public:
+        // This is only used for easier identification within serialized files or debug mode
         std::string Name = "Undefined";
 
         KeyCode KeyPos = Key::Unknown;
@@ -18,14 +32,31 @@ namespace Coffee
         ButtonCode ButtonNeg = Button::Invalid;
 
         AxisCode Axis = Axis::Invalid;
-        bool IsAnalog = false;
+        float Deadzone = 0.2f;
 
         /**
-         * @brief Retrieves an input value based on whether it's analog or digital.
-         *
-         * @param controller The input source.
+         * @brief Retrieves an input value from the action as a controller axis. It doesn't need to be an actual axis to
+         * retrieve a value
+         * @param digital whether the output should be truncated or not
+         * @return A value between -1 and 1
          */
-        float GetValue(ControllerCode controller) const;
+        float AsAxis(bool digital) const;
+
+        /**
+         * @brief Returns the value of the action as a boolean. For axes it returns true if axisVal != 0
+         * @return True if any of the bound keys or buttons are pressed, or if the axis is not at 0
+         */
+        bool AsBool();
+
+        /**
+         * @brief Retrieves an input value from the action as a controller button. Can be used on axis and will return
+         * DOWN or REPEAT if its value surpasses the defined deadzone
+         * @return The current state of the action as a button
+         */
+        ButtonState AsButton();
+
+    private:
+        ButtonState m_State = ButtonStates::IDLE;
 
     };
 } // namespace Coffee
