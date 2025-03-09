@@ -488,78 +488,93 @@ namespace Coffee {
 
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
             bool isCollapsingHeaderOpen = true;
-            if(ImGui::CollapsingHeader("Material", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if(!materialComponent.material)
             {
-                MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
-                MaterialProperties& materialProperties = materialComponent.material->GetMaterialProperties();
+                if(ImGui::CollapsingHeader("Material (Missing)", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "Material is missing or invalid!");
 
-                if(ImGui::TreeNode("Albedo"))
+                    if(!isCollapsingHeaderOpen)
+                    {
+                        entity.RemoveComponent<MaterialComponent>();
+                    }
+                }
+            }
+            else
+            {
+                if(ImGui::CollapsingHeader("Material", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    ImGui::BeginChild("##Albedo Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    
-                    ImGui::Text("Color");
-                    DrawCustomColorEdit4("##Albedo Color", materialProperties.color);
+                    MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
+                    MaterialProperties& materialProperties = materialComponent.material->GetMaterialProperties();
 
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Albedo", materialTextures.albedo);
+                    if(ImGui::TreeNode("Albedo"))
+                    {
+                        ImGui::BeginChild("##Albedo Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
 
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-                if(ImGui::TreeNode("Metallic"))
-                {
-                    ImGui::BeginChild("##Metallic Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    ImGui::Text("Metallic");
-                    ImGui::SliderFloat("##Metallic Slider", &materialProperties.metallic, 0.0f, 1.0f);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Metallic", materialTextures.metallic);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-                if(ImGui::TreeNode("Roughness"))
-                {
-                    ImGui::BeginChild("##Roughness Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    ImGui::Text("Roughness");
-                    ImGui::SliderFloat("##Roughness Slider", &materialProperties.roughness, 0.1f, 1.0f);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Roughness", materialTextures.roughness);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-                if(ImGui::TreeNode("Emission"))
-                {
-                    ImGui::BeginChild("##Emission Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    //FIXME: Emissive color variable is local and do not affect the materialProperties.emissive!!
-                    glm::vec4& emissiveColor = reinterpret_cast<glm::vec4&>(materialProperties.emissive);
-                    emissiveColor.a = 1.0f;
-                    DrawCustomColorEdit4("Color", emissiveColor);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Emissive", materialTextures.emissive);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-                if(ImGui::TreeNode("Normal Map"))
-                {
-                    ImGui::BeginChild("##Normal Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Normal", materialTextures.normal);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-                if(ImGui::TreeNode("Ambient Occlusion"))
-                {
-                    ImGui::BeginChild("##AO Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    ImGui::Text("AO");
-                    ImGui::SliderFloat("##AO Slider", &materialProperties.ao, 0.0f, 1.0f);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##AO", materialTextures.ao);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-            
-                if(!isCollapsingHeaderOpen)
-                {
-                    entity.RemoveComponent<MaterialComponent>();
+                        ImGui::Text("Color");
+                        DrawCustomColorEdit4("##Albedo Color", materialProperties.color);
+
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Albedo", materialTextures.albedo);
+
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Metallic"))
+                    {
+                        ImGui::BeginChild("##Metallic Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        ImGui::Text("Metallic");
+                        ImGui::SliderFloat("##Metallic Slider", &materialProperties.metallic, 0.0f, 1.0f);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Metallic", materialTextures.metallic);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Roughness"))
+                    {
+                        ImGui::BeginChild("##Roughness Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        ImGui::Text("Roughness");
+                        ImGui::SliderFloat("##Roughness Slider", &materialProperties.roughness, 0.1f, 1.0f);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Roughness", materialTextures.roughness);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Emission"))
+                    {
+                        ImGui::BeginChild("##Emission Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        //FIXME: Emissive color variable is local and do not affect the materialProperties.emissive!!
+                        glm::vec4& emissiveColor = reinterpret_cast<glm::vec4&>(materialProperties.emissive);
+                        emissiveColor.a = 1.0f;
+                        DrawCustomColorEdit4("Color", emissiveColor);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Emissive", materialTextures.emissive);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Normal Map"))
+                    {
+                        ImGui::BeginChild("##Normal Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Normal", materialTextures.normal);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Ambient Occlusion"))
+                    {
+                        ImGui::BeginChild("##AO Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        ImGui::Text("AO");
+                        ImGui::SliderFloat("##AO Slider", &materialProperties.ao, 0.0f, 1.0f);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##AO", materialTextures.ao);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+
+                    if(!isCollapsingHeaderOpen)
+                    {
+                        entity.RemoveComponent<MaterialComponent>();
+                    }
                 }
             }
         }

@@ -6,11 +6,14 @@
 
 #pragma once
 
+#include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
-#include "CoffeeEngine/Math/BoundingBox.h"
-#include "CoffeeEngine/Renderer/Shader.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "ImportData/ImportData.h"
+#include "ImportData/ImportDataUtils.h"
+#include "ResourceRegistry.h"
+
 #include <filesystem>
 
 namespace Coffee {
@@ -40,59 +43,86 @@ namespace Coffee {
          */
         static void LoadFile(const std::filesystem::path& path);
 
-        /**
-         * @brief Loads a texture from a file.
-         * @param path The file path of the texture to load.
-         * @param srgb Whether the texture should be loaded in sRGB format.
-         * @param cache Whether the texture should be cached.
-         * @return A reference to the loaded texture.
-         */
-        static Ref<Texture2D> LoadTexture2D(const std::filesystem::path& path, bool srgb = true, bool cache = true);
-        static Ref<Texture2D> LoadTexture2D(UUID uuid);
+        template <typename T>
+        inline static Ref<T> Load(const std::filesystem::path& path)
+        {
+            if (ImportDataUtils::HasImportFile(path))
+            {
+                std::filesystem::path importPath = path;
+                importPath += ".import";
+                Scope<ImportData> importData = ImportDataUtils::LoadImportData(importPath);
+                return Load<T>(*importData);
+            }
+            else
+            {
+                Scope<ImportData> newImportData = ImportDataUtils::CreateImportData<T>();
+                newImportData->originalPath = path;
 
-        static Ref<Cubemap> LoadCubemap(const std::filesystem::path& path);
-        static Ref<Cubemap> LoadCubemap(UUID uuid);
+                const Ref<T>& resource = s_Importer.Import<T>(*newImportData);
 
-        /**
-         * @brief Loads a model from a file.
-         * @param path The file path of the model to load.
-         * @param cache Whether the model should be cached.
-         * @return A reference to the loaded model.
-         */
-        static Ref<Model> LoadModel(const std::filesystem::path& path, bool cache = true);
+                ImportDataUtils::SaveImportData(newImportData);
+                ResourceRegistry::Add(newImportData->uuid, resource);
 
-        static Ref<Mesh> LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb);
-        static Ref<Mesh> LoadMesh(UUID uuid);
+                return resource;
+            }
+        }
 
-        static Ref<Shader> LoadShader(const std::filesystem::path& shaderPath);
-        static Ref<Shader> LoadShader(const std::string& shaderSource);
+        template<typename T>
+        inline static Ref<T> Load(const ImportData& importData)
+        {
+            if (ResourceRegistry::Exists(importData.uuid))
+            {
+                return ResourceRegistry::Get<T>(importData.uuid);
+            }
 
-        static Ref<Material> LoadMaterial(const std::string& name);
-        static Ref<Material> LoadMaterial(const std::string& name, MaterialTextures& materialTextures);
-        static Ref<Material> LoadMaterial(UUID uuid);
+            const Ref<T>& resource = s_Importer.Import<T>(importData);
+            
+            ResourceRegistry::Add(importData.uuid, resource);
+            return resource;
+        }
 
-        static void RemoveResource(UUID uuid);
-        static void RemoveResource(const std::filesystem::path& path);
+        template<typename T>
+        static Ref<T> LoadEmbedded(const ImportData& importData)
+        {
+            if (ResourceRegistry::Exists(importData.uuid))
+            {
+                return ResourceRegistry::Get<T>(importData.uuid);
+            }
+
+            const Ref<T>& resource = s_Importer.ImportEmbedded<T>(importData);
+
+            ResourceRegistry::Add(importData.uuid, resource);
+            return resource;
+        }
+
+        template<typename T>
+        static Ref<T> GetResource(UUID uuid)
+        {
+            if (uuid == UUID::null)
+                return nullptr;
+
+            if (ResourceRegistry::Exists(uuid))
+            {
+                return ResourceRegistry::Get<T>(uuid);
+            }
+
+            const Ref<T>& resource = s_Importer.ImportFromCache<T>(uuid);
+
+            if (resource)
+            {
+                ResourceRegistry::Add(uuid, resource);
+                return resource;
+            }
+
+            return nullptr;
+        }
+
+        static void RemoveResource(const Ref<Resource>& resource);
+        static void ReimportResource(const Ref<Resource>& resource);
 
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
-    private:
-        struct ImportData
-        {
-            UUID uuid;
-            std::filesystem::path originalPath;
+        static const std::filesystem::path& GetWorkingDirectory() { return s_WorkingDirectory; }
 
-            template<typename Archive>
-            void serialize(Archive& archive)
-            {
-                archive(CEREAL_NVP(uuid), CEREAL_NVP(originalPath));
-            }
-        };
-        
-        static void GenerateImportFile(const std::filesystem::path& path);
-        static ImportData GetImportData(const std::filesystem::path& path);
-
-        static UUID GetUUIDFromImportFile(const std::filesystem::path& path);
-        static std::filesystem::path GetPathFromImportFile(const std::filesystem::path& path);
     private:
         static std::filesystem::path s_WorkingDirectory; ///< The working directory of the resource loader.
         static ResourceImporter s_Importer; ///< The importer used to load resources.

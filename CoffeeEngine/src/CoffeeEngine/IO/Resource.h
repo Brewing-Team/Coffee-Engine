@@ -6,11 +6,12 @@
 
 #pragma once
 #include "CoffeeEngine/Core/Assert.h"
+#include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 #include <cereal/access.hpp>
 #include <cereal/archives/binary.hpp>
 #include <filesystem>
-#include "CoffeeEngine/Core/UUID.h"
-#include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
+
 #include <cereal/types/polymorphic.hpp>
 
 namespace Coffee {

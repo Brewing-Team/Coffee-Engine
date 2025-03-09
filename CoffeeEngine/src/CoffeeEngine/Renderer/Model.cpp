@@ -1,6 +1,12 @@
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/IO/ImportData/MaterialImportData.h"
+#include "CoffeeEngine/IO/ImportData/MeshImportData.h"
+#include "CoffeeEngine/IO/ImportData/ModelImportData.h"
+#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -31,8 +37,40 @@ namespace Coffee {
         return glmMat;
     }
 
+    static std::unordered_map<std::string, UUID> s_ModelMeshesUUIDs;
+    static std::unordered_map<std::string, UUID> s_ModelMaterialsUUIDs;
+
     Model::Model(const std::filesystem::path& path)
         : Resource(ResourceType::Model)
+    {
+        LoadFromFilePath(path);
+    }
+
+    Model::Model(ImportData& importData)
+        : Resource(ResourceType::Model)
+    {
+        ModelImportData& modelImportData = dynamic_cast<ModelImportData&>(importData);
+
+        if(modelImportData.IsValid())
+        {
+            s_ModelMeshesUUIDs = modelImportData.meshUUIDs;
+            s_ModelMaterialsUUIDs = modelImportData.materialUUIDs;
+            LoadFromFilePath(modelImportData.originalPath);
+            m_UUID = modelImportData.uuid;
+        }
+        else
+        {
+            LoadFromFilePath(modelImportData.originalPath);
+            modelImportData.uuid = m_UUID;
+            modelImportData.meshUUIDs = s_ModelMeshesUUIDs;
+            modelImportData.materialUUIDs = s_ModelMaterialsUUIDs;
+        }
+
+        s_ModelMeshesUUIDs.clear();
+        s_ModelMaterialsUUIDs.clear();
+    }
+
+    void Model::LoadFromFilePath(const std::filesystem::path& path)
     {
         ZoneScoped;
 
@@ -54,7 +92,7 @@ namespace Coffee {
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::LoadModel(path, true);
+        return ResourceLoader::Load<Model>(path);
     }
 
     Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)
@@ -129,10 +167,30 @@ namespace Coffee {
         //The next code is rushed, please Hugo of the future refactor this ;_;
         if(material)
         {
-            MaterialTextures matTextures = LoadMaterialTextures(material);
             std::string materialName = (material->GetName().length > 0) ? material->GetName().C_Str() : m_Name;
             std::string referenceName = materialName + "_Mat" + std::to_string(mesh->mMaterialIndex);
-            meshMaterial = Material::Create(referenceName, &matTextures);
+
+            UUID materialUUID;
+
+            if(s_ModelMaterialsUUIDs.find(referenceName) != s_ModelMaterialsUUIDs.end())
+            {
+                materialUUID = s_ModelMaterialsUUIDs[referenceName];
+            }
+            else
+            {
+                materialUUID = UUID();
+                s_ModelMaterialsUUIDs[referenceName] = materialUUID;
+            }
+
+            MaterialTextures matTextures = LoadMaterialTextures(material);
+
+            MaterialImportData materialImportData;
+            materialImportData.name = referenceName;
+            materialImportData.materialTextures = &matTextures;
+            materialImportData.uuid = materialUUID;
+            materialImportData.cachedPath = CacheManager::GetCachedFilePath(materialUUID, ResourceType::Material);
+            
+            meshMaterial = ResourceLoader::LoadEmbedded<Material>(materialImportData);
         }
         else
         {
@@ -145,12 +203,30 @@ namespace Coffee {
             );
 
         std::string nameReference = m_FilePath.stem().string() + "_" + mesh->mName.C_Str();
-        Ref<Mesh> resultMesh = ResourceLoader::LoadMesh(nameReference, vertices, indices, meshMaterial, aabb);
-        //resultMesh->SetName(mesh->mName.C_Str());
-        //TODO: When the UUID is implemented, the name of the mesh will be resultMesh->SetName(mesh->mName.C_Str());, are your sure?
-        //resultMesh->SetName(nameReference);
-        //resultMesh->SetMaterial(meshMaterial);
-        //resultMesh->SetAABB(aabb);
+
+        UUID meshUUID;
+
+        if(s_ModelMeshesUUIDs.find(nameReference) != s_ModelMeshesUUIDs.end())
+        {
+            meshUUID = s_ModelMeshesUUIDs[nameReference];
+        }
+        else
+        {
+            meshUUID = UUID();
+            s_ModelMeshesUUIDs[nameReference] = meshUUID;
+        }
+
+        MeshImportData meshImportData;
+        meshImportData.name = nameReference;
+        meshImportData.uuid = meshUUID;
+        meshImportData.vertices = vertices;
+        meshImportData.indices = indices;
+        meshImportData.material = meshMaterial;
+        meshImportData.aabb = aabb;
+        // Think if this is the most comfortable way to do this
+        meshImportData.cachedPath = CacheManager::GetCachedFilePath(meshUUID, ResourceType::Mesh);
+
+        Ref<Mesh> resultMesh = ResourceLoader::LoadEmbedded<Mesh>(meshImportData);
 
         return resultMesh;
     }
@@ -197,7 +273,19 @@ namespace Coffee {
 
         bool srgb = (type == aiTextureType_DIFFUSE || type == aiTextureType_EMISSIVE);
 
-        return Texture2D::Load(texturePath, srgb);
+        if(!ImportDataUtils::HasImportFile(texturePath))
+        {
+            Texture2DImportData importData;
+            importData.originalPath = texturePath;
+            importData.sRGB = srgb;
+            importData.uuid = UUID();
+            importData.cachedPath = CacheManager::GetCachedFilePath(importData.uuid, ResourceType::Texture2D);
+            Scope<ImportData> importDataPtr = CreateScope<Texture2DImportData>(importData);
+            ImportDataUtils::SaveImportData(importDataPtr);
+            return ResourceLoader::Load<Texture2D>(importData);
+        }
+
+        return Texture2D::Load(texturePath);
     }
 
     MaterialTextures Model::LoadMaterialTextures(aiMaterial* material)

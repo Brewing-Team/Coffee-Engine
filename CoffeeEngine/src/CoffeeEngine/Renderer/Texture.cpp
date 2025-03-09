@@ -1,6 +1,8 @@
 #include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 
@@ -74,7 +76,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        Texture2D(m_Width, m_Height, m_Properties.Format);
+        InitializeTexture2D();
     }
 
     Texture2D::Texture2D(uint32_t width, uint32_t height, ImageFormat imageFormat)
@@ -82,22 +84,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
-
-        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
-        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
-
-        glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
-        glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
-
-        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-        glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        //Add an option to choose the anisotropic filtering level
-        glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+        InitializeTexture2D();
     }
 
     Texture2D::Texture2D(const std::filesystem::path& path, bool srgb)
@@ -110,55 +97,33 @@ namespace Coffee {
 
         m_Properties.srgb = srgb;
 
-        int nrComponents;
-        stbi_set_flip_vertically_on_load(true);
-        unsigned char* data = stbi_load(m_FilePath.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
+        LoadFromFile(path);
+    }
 
-        m_Properties.Width = m_Width, m_Properties.Height = m_Height;
+    Texture2D::Texture2D(ImportData& importData)
+        : Texture(ResourceType::Texture2D)
+    {
+        Texture2DImportData& texture2DImportData = dynamic_cast<Texture2DImportData&>(importData);
 
-        if(data)
+        if(texture2DImportData.IsValid())
         {
-            m_Data = std::vector<unsigned char>(data, data + m_Width * m_Height * nrComponents);
-            stbi_image_free(data);
+            m_FilePath = texture2DImportData.originalPath;
+            m_Name = m_FilePath.filename().string();
+            m_Properties.srgb = texture2DImportData.sRGB;
 
-            switch (nrComponents)
-            {
-                case 1:
-                    m_Properties.Format = ImageFormat::R8;
-                break;
-                case 3:
-                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGB8 : ImageFormat::RGB8;
-                break;
-                case 4:
-                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGBA8 : ImageFormat::RGBA8;
-                break;
-            }
-
-            int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
-
-            GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
-            GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
-
-            glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
-            glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
-
-            glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
-            glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-            glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-            //Add an option to choose the anisotropic filtering level
-            glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
-
-            glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, m_Data.data());
-
-            glGenerateTextureMipmap(m_textureID);
+            LoadFromFile(m_FilePath);
+    
+            m_UUID = texture2DImportData.uuid;
         }
         else
         {
-            COFFEE_CORE_ERROR("Failed to load texture: {0} (REASON: {1})", m_FilePath.string(), stbi_failure_reason());
-            m_textureID = 0; // Set texture ID to 0 to indicate failure
+            m_FilePath = texture2DImportData.originalPath;
+            m_Name = m_FilePath.filename().string();
+            m_Properties.srgb = texture2DImportData.sRGB;
+
+            LoadFromFile(m_FilePath);
+
+            texture2DImportData.uuid = m_UUID;
         }
     }
 
@@ -226,18 +191,75 @@ namespace Coffee {
         ZoneScoped;
 
         GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
+        //COFFEE_ASSERT(size == m_Width * m_Height * ImageFormatToChannelCount(m_Properties.Format), "Data must be entire texture!");
         glTextureSubImage2D(m_textureID, 0, 0, 0, m_Width, m_Height, format, GL_UNSIGNED_BYTE, data);
         glGenerateTextureMipmap(m_textureID);
     }
 
-    Ref<Texture2D> Texture2D::Load(const std::filesystem::path& path, bool srgb)
+    Ref<Texture2D> Texture2D::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::LoadTexture2D(path, srgb);
+        return ResourceLoader::Load<Texture2D>(path);
     }
 
     Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)
     {
         return CreateRef<Texture2D>(width, height, format);
+    }
+
+    void Texture2D::LoadFromFile(const std::filesystem::path& path)
+    {
+        int nrComponents;
+        stbi_set_flip_vertically_on_load(true);
+        unsigned char* data = stbi_load(m_FilePath.string().c_str(), &m_Width, &m_Height, &nrComponents, 0);
+
+        m_Properties.Width = m_Width, m_Properties.Height = m_Height;
+
+        if(data)
+        {
+            m_Data = std::vector<unsigned char>(data, data + m_Width * m_Height * nrComponents);
+            stbi_image_free(data);
+
+            switch (nrComponents)
+            {
+                case 1:
+                    m_Properties.Format = ImageFormat::R8;
+                break;
+                case 3:
+                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGB8 : ImageFormat::RGB8;
+                break;
+                case 4:
+                    m_Properties.Format = m_Properties.srgb ? ImageFormat::SRGBA8 : ImageFormat::RGBA8;
+                break;
+            }
+
+            InitializeTexture2D();
+            SetData(m_Data.data(), m_Data.size());
+        }
+        else
+        {
+            COFFEE_CORE_ERROR("Failed to load texture: {0} (REASON: {1})", m_FilePath.string(), stbi_failure_reason());
+            m_textureID = 0; // Set texture ID to 0 to indicate failure
+        }
+    }
+
+    void Texture2D::InitializeTexture2D()
+    {
+        int mipLevels = 1 + floor(log2(std::max(m_Width, m_Height)));
+
+        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
+
+        glCreateTextures(GL_TEXTURE_2D, 1, &m_textureID);
+        glTextureStorage2D(m_textureID, mipLevels, internalFormat, m_Width, m_Height);
+
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+        glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        //Add an option to choose the anisotropic filtering level
+        glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     }
 
     Cubemap::Cubemap(const std::vector<std::filesystem::path>& paths) : Texture(ResourceType::Cubemap)
@@ -280,6 +302,36 @@ namespace Coffee {
     {
         ZoneScoped;
 
+        LoadFromFile(path);
+    }
+
+    Cubemap::Cubemap(ImportData& importData)
+    {
+        if(importData.IsValid())
+        {
+            LoadFromFile(importData.originalPath);
+            m_UUID = importData.uuid;
+        }
+        else
+        {
+            LoadFromFile(importData.originalPath);
+            importData.uuid = m_UUID;
+        }
+    }
+
+    Cubemap::~Cubemap()
+    {
+        ZoneScoped;
+        glDeleteTextures(1, &m_textureID);
+    }
+
+    void Cubemap::Bind(uint32_t slot)
+    {
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
+    }
+
+    void Cubemap::LoadFromFile(const std::filesystem::path& path)
+    {
         m_FilePath = path;
         m_Name = path.filename().string();
 
@@ -293,17 +345,6 @@ namespace Coffee {
         {
             LoadStandardFromFile(path);
         }
-    }
-
-    Cubemap::~Cubemap()
-    {
-        ZoneScoped;
-        glDeleteTextures(1, &m_textureID);
-    }
-
-    void Cubemap::Bind(uint32_t slot)
-    {
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_textureID);
     }
 
     void Cubemap::LoadStandardFromFile(const std::filesystem::path& path)
@@ -502,7 +543,7 @@ namespace Coffee {
 
     Ref<Cubemap> Cubemap::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::LoadCubemap(path);
+        return ResourceLoader::Load<Cubemap>(path);
     }
     Ref<Cubemap> Cubemap::Create(const std::filesystem::path& path)
     {

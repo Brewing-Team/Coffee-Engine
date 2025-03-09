@@ -60,7 +60,7 @@ namespace Coffee {
 
         s_SkyboxMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
 
-        s_SkyboxShader = CreateRef<Shader>("assets/shaders/SkyboxShader.glsl");
+        s_SkyboxShader = Shader::Create("assets/shaders/SkyboxShader.glsl");
 
         ZoneScoped;
 
