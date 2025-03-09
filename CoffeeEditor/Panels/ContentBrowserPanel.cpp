@@ -239,14 +239,16 @@ namespace Coffee {
 
                 if (ImGui::MenuItem("Delete"))
                 {
-                    ResourceLoader::RemoveResource(path);
+                    const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(path.filename().string());
+                    ResourceLoader::RemoveResource(resource);
                 }
 
                 ImGui::Separator();
 
-                if (ImGui::MenuItem("Reimport", nullptr, false, false))
+                if (ImGui::MenuItem("Reimport"))
                 {
-                    // Reimport the file
+                    const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(path.filename().string());
+                    ResourceLoader::ReimportResource(resource);
                 }
 
                 ImGui::Separator();
