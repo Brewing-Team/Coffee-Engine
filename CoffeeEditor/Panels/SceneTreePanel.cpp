@@ -903,8 +903,8 @@ namespace Coffee {
                 ImGui::Text("Start Life Time");
                 // Use Random Start Life Time
                 ImGui::SameLine();
-                ImGui::Checkbox("##UseRandomStartLifeTime", &emitter->useRandom);
-                if (emitter->useRandom)
+                ImGui::Checkbox("##UseRandomStartLifeTime", &emitter->useRandomLifeTime);
+                if (emitter->useRandomLifeTime)
                 {
                     ImGui::Text("Min");
                     ImGui::SameLine();
@@ -918,7 +918,24 @@ namespace Coffee {
                     ImGui::DragFloat("##ParticleStartLifeTime", &emitter->startLifeTime, 0.1f, 0.0f, 100.0f);
                 }
 
-     
+                // Start speed
+                ImGui::Text("Start Speed");
+                // Use Random Start sppeed
+                ImGui::SameLine();
+                ImGui::Checkbox("##UseRandomStartSpeed", &emitter->useRandomSpeed);
+                if (emitter->useRandomSpeed)
+                {
+                    ImGui::Text("Min");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartSpeedMin", &emitter->startSpeedMin, 0.1f, 0.0f, 100.0f);
+                    ImGui::Text("Max");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartSpeedMax", &emitter->startSpeedMax, 0.1f, 0.0f, 100.0f);
+                }
+                else
+                {
+                    ImGui::DragFloat("##ParticleStartSpeed", &emitter->startSpeed, 0.1f, 0.0f, 100.0f);
+                }
 
               
 

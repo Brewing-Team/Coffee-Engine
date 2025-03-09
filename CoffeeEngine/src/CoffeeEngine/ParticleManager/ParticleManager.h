@@ -45,10 +45,16 @@ namespace Coffee
         bool looping = false;
 
         // Start Life Time
-        bool useRandom = false; 
+        bool useRandomLifeTime = false; 
         float startLifeTimeMin = 5.0f;
         float startLifeTimeMax = 5.0f;
         float startLifeTime = 5.0f;
+
+         // Start Speed
+        bool useRandomSpeed = false;
+        float startSpeedMin = 5.0f;
+        float startSpeedMax = 5.0f;
+        float startSpeed = 5.0f;
 
 
       private:
