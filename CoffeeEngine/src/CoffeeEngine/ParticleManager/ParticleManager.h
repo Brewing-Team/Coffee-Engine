@@ -73,6 +73,19 @@ namespace Coffee
 
         SimulationSpace simulationSpace = SimulationSpace::Local; // Default value
 
+        // Shape
+        enum class ShapeType
+        {
+            Sphere,
+            Cone,
+            Box
+        };
+        ShapeType shape = ShapeType::Sphere; 
+        bool useShape = false;
+        float shapeangle = 45.0f;                           
+        float shaperadius = 1.0f;                       
+        float shaperadiusThickness = 0.1f;                   
+
         // VelocityOverLifetime
 
         enum class Space
@@ -109,10 +122,10 @@ namespace Coffee
         float rotationOverLifetimeAngularVelocity;
 
         // Renderer
-        bool useRenderer = false;      // Checkbox to enable/disable the renderer
-        int renderMode = 0;            // Render mode (Billboard, Stretched Billboard, etc.)
-        char material[256];            // Material name or path (for simplicity, it's a string here)
-        int renderAlignment = 0;       // Render alignment (View, Local, World)
+        bool useRenderer = false;
+        int renderMode = 0;
+        char material[256];
+        int renderAlignment = 0;
 
       private:
         std::vector<Ref<Particle>> activeParticles;

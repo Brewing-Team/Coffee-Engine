@@ -1000,6 +1000,62 @@ namespace Coffee {
                 }
 
 
+                // Shape section: Select shape and control other properties (Angle, Radius, Radius Thickness)
+                ImGui::Checkbox("##UseShape", &emitter->useShape); // Shape toggle checkbox
+                ImGui::SameLine();
+                ImGui::PushID("Shape");
+
+                if (ImGui::TreeNodeEx("Shape Settings", ImGuiTreeNodeFlags_None))
+                {
+                    // If not enabled, set the text to gray and disable the controls
+                    if (!emitter->useShape)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    }
+
+                    // Select emitter shape
+                    const char* shapeNames[] = {"Sphere", "Cone", "Box"};
+                    ImGui::Text("Shape");
+                    ImGui::SameLine();
+                    ImGui::Combo("##ShapeType", reinterpret_cast<int*>(&emitter->shape), shapeNames,
+                                 IM_ARRAYSIZE(shapeNames));
+
+                    // Control the angle (only applies to Cone)
+                    if (emitter->shape == ParticleEmitter::ShapeType::Cone)
+                    {
+                        ImGui::Text("Angle");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##Angle", &emitter->shapeangle, 1.0f, 0.0f,
+                                         180.0f); // Control angle, range: 0 to 180
+                    }
+
+                    // Control the radius
+                    ImGui::Text("Radius");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##Radius", &emitter->shaperadius, 0.1f, 0.0f,
+                                     100.0f); // Control radius, range: 0 to 100
+
+                    // Control radius thickness (for ring-shaped emitter)
+                    ImGui::Text("Radius Thickness");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##RadiusThickness", &emitter->shaperadiusThickness, 0.01f, 0.0f,
+                                     10.0f); // Range: 0 to 10
+
+                    // Restore the default state
+                    if (!emitter->useShape)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+
+
+
+
 
                // Velocity Over Lifetime - Checkbox and Collapsing Header
                 if (ImGui::Checkbox("##UseVelocityOverLifetime", &emitter->useVelocityOverLifetime))
@@ -1012,12 +1068,12 @@ namespace Coffee {
                 ImGui::PushID("VelocityOverLifetime");
 
                 // Use TreeNodeEx to create a collapsible panel without a close button
-                if (ImGui::TreeNodeEx("Velocity Over Lifetime Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::TreeNodeEx("Velocity Over Lifetime Settings", ImGuiTreeNodeFlags_None))
                 {
                     // If the checkbox is not selected, set controls to gray and disable them
                     if (!emitter->useVelocityOverLifetime)
                     {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out text
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out text
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
                     }
 
@@ -1079,12 +1135,12 @@ namespace Coffee {
                 ImGui::PushID("ColorOverLifetime");
 
                 // Use TreeNodeEx to create a collapsible panel without a close button
-                if (ImGui::TreeNodeEx("Color Over Lifetime Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::TreeNodeEx("Color Over Lifetime Settings", ImGuiTreeNodeFlags_None))
                 {
                     // If the checkbox is not selected, set controls to gray and disable them
                     if (!emitter->useColorOverLifetime)
                     {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out text
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out text
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
                     }
 
@@ -1119,12 +1175,12 @@ namespace Coffee {
                 ImGui::SameLine();
                 ImGui::PushID("SizeOverLifetime");
 
-                if (ImGui::TreeNodeEx("Size Over Lifetime Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::TreeNodeEx("Size Over Lifetime Settings", ImGuiTreeNodeFlags_None))
                 {
                     // If not enabled, set text to gray and disable controls
                     if (!emitter->useSizeOverLifetime)
                     {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                     }
 
@@ -1170,12 +1226,12 @@ namespace Coffee {
                 ImGui::SameLine();
                 ImGui::PushID("RotationOverLifetime");
 
-                if (ImGui::TreeNodeEx("Rotation Over Lifetime Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::TreeNodeEx("Rotation Over Lifetime Settings", ImGuiTreeNodeFlags_None))
                 {
                     // If not enabled, set text to gray and disable controls
                     if (!emitter->useRotationOverLifetime)
                     {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                     }
 
@@ -1231,12 +1287,12 @@ namespace Coffee {
                 ImGui::SameLine();
                 ImGui::PushID("Renderer");
 
-                if (ImGui::TreeNodeEx("Renderer Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                if (ImGui::TreeNodeEx("Renderer Settings", ImGuiTreeNodeFlags_None))
                 {
                     // If not enabled, set text to gray and disable controls
                     if (!emitter->useRenderer)
                     {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                     }
 
