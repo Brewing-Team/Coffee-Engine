@@ -10,6 +10,7 @@
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
+#include <CoffeeEngine/Animation/Animation.h>
 #include "ImportData/ImportData.h"
 #include "ImportData/ImportDataUtils.h"
 #include "ResourceRegistry.h"

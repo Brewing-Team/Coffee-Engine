@@ -176,16 +176,18 @@ namespace Coffee {
                 meshUUIDs.push_back(mesh->GetUUID());
             }
             archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
+            SaveAnimations(m_UUID);
         }
         template<class Archive>
         void load(Archive& archive)
         {
             std::vector<UUID> meshUUIDs;
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, cereal::base_class<Resource>(this));
-            for(const auto& data : meshUUIDs)
+            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
+            for (const auto& data : meshUUIDs)
             {
                 m_Meshes.push_back(ResourceLoader::GetResource<Mesh>(data));
             }
+            ImportAnimations(m_UUID);
         }
 
         /**
