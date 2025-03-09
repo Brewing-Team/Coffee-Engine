@@ -896,14 +896,15 @@ namespace Coffee {
                 }
 
                 // Looping
-                ImGui::Text("Looping");
                 ImGui::Checkbox("##ParticleLooping", &emitter->looping);
+                ImGui::SameLine();
+                ImGui::Text("Looping");
 
                 // Start Life Time
-                ImGui::Text("Start Life Time");
                 // Use Random Start Life Time
-                ImGui::SameLine();
                 ImGui::Checkbox("##UseRandomStartLifeTime", &emitter->useRandomLifeTime);
+                ImGui::SameLine();
+                ImGui::Text("Start Life Time");
                 if (emitter->useRandomLifeTime)
                 {
                     ImGui::Text("Min");
@@ -919,10 +920,11 @@ namespace Coffee {
                 }
 
                 // Start speed
-                ImGui::Text("Start Speed");
                 // Use Random Start sppeed
-                ImGui::SameLine();
                 ImGui::Checkbox("##UseRandomStartSpeed", &emitter->useRandomSpeed);
+                ImGui::SameLine();
+                ImGui::Text("Start Speed");
+              
                 if (emitter->useRandomSpeed)
                 {
                     ImGui::Text("Min");
@@ -939,10 +941,11 @@ namespace Coffee {
 
 
                 // Start Size
-                ImGui::Text("Start Size");
                 // Use Random Start Size
-                ImGui::SameLine();
                 ImGui::Checkbox("##UseRandomStartSize", &emitter->useRandomSize);
+                ImGui::SameLine();
+                ImGui::Text("Start Size");
+
 
                 if (emitter->useRandomSize)
                 {
@@ -961,10 +964,10 @@ namespace Coffee {
 
 
                 // Start Rotation
-                ImGui::Text("Start Rotation");
                 // Use Random Start Rotation
-                ImGui::SameLine();
                 ImGui::Checkbox("##UseRandomStartRotation", &emitter->useRandomRotation);
+                ImGui::SameLine();
+                ImGui::Text("Start Rotation");
 
                 if (emitter->useRandomRotation)
                 {
@@ -995,6 +998,118 @@ namespace Coffee {
                 {
                     emitter->simulationSpace = static_cast<ParticleEmitter::SimulationSpace>(currentSimulationSpace);
                 }
+
+
+
+               // Velocity Over Lifetime - Checkbox and Collapsing Header
+                if (ImGui::Checkbox("##UseVelocityOverLifetime", &emitter->useVelocityOverLifetime))
+                {
+                    // Handle checkbox toggle logic and update state
+                }
+
+                // SameLine to make checkbox and header appear on the same line
+                ImGui::SameLine();
+                ImGui::PushID("VelocityOverLifetime");
+
+                // Use TreeNodeEx to create a collapsible panel without a close button
+                if (ImGui::TreeNodeEx("Velocity Over Lifetime Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    // If the checkbox is not selected, set controls to gray and disable them
+                    if (!emitter->useVelocityOverLifetime)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out text
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    }
+
+                    // Linear Velocity
+                    ImGui::Text("Linear");
+                    ImGui::SameLine();
+                    ImGui::DragFloat3("##LinearVelocity", glm::value_ptr(emitter->linearX), 0.1f, -100.0f, 100.0f);
+
+                    // Space (Local / World)
+                    ImGui::Text("Space");
+                    ImGui::SameLine();
+                    const char* spaceOptions[] = {"Local", "World"};
+                    ImGui::Combo("##VelocitySpace", reinterpret_cast<int*>(&emitter->space), spaceOptions,
+                                 IM_ARRAYSIZE(spaceOptions));
+
+                    // Orbital Velocity
+                    ImGui::Text("Orbital");
+                    ImGui::SameLine();
+                    ImGui::DragFloat3("##OrbitalVelocity", glm::value_ptr(emitter->orbitalX), 0.1f, -100.0f, 100.0f);
+
+                    // Offset
+                    ImGui::Text("Offset");
+                    ImGui::SameLine();
+                    ImGui::DragFloat3("##OffsetVelocity", glm::value_ptr(emitter->offsetX), 0.1f, -100.0f, 100.0f);
+
+                    // Radial Speed
+                    ImGui::Text("Radial");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##RadialVelocity", &emitter->radial, 0.1f, -100.0f, 100.0f);
+
+                    // Speed Modifier
+                    ImGui::Text("Speed Modifier");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##SpeedModifier", &emitter->speedModifier, 0.1f, -10.0f, 10.0f);
+
+                    // Restore default state
+                    if (!emitter->useVelocityOverLifetime)
+                    {
+                        ImGui::PopItemFlag();   // Restore control state
+                        ImGui::PopStyleColor(); // Restore color
+                    }
+
+                    // Close tree node
+                    ImGui::TreePop();
+                }
+
+                ImGui::PopID();
+
+             
+
+                // Color Over Lifetime - Checkbox and Collapsing Header
+                if (ImGui::Checkbox("##UseColorOverLifetime", &emitter->useColorOverLifetime))
+                {
+                    // Handle checkbox toggle logic and update state
+                }
+
+                // SameLine to make checkbox and header appear on the same line
+                ImGui::SameLine();
+                ImGui::PushID("ColorOverLifetime");
+
+                // Use TreeNodeEx to create a collapsible panel without a close button
+                if (ImGui::TreeNodeEx("Color Over Lifetime Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    // If the checkbox is not selected, set controls to gray and disable them
+                    if (!emitter->useColorOverLifetime)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out text
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    }
+
+                    // Gradient option (Placeholder: Need to implement gradient system)
+                    ImGui::Text("Gradient");
+                    ImGui::SameLine();
+                    if (ImGui::Button("Edit Gradient"))
+                    {
+                        // Open a gradient editor (Needs implementation)
+                    }
+
+                    // Restore default state
+                    if (!emitter->useColorOverLifetime)
+                    {
+                        ImGui::PopItemFlag();   // Restore control state
+                        ImGui::PopStyleColor(); // Restore color
+                    }
+
+                    // Close tree node
+                    ImGui::TreePop();
+                }
+
+                ImGui::PopID();
+
+
 
 
             }
