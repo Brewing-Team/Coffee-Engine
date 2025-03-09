@@ -57,11 +57,21 @@ namespace Coffee
         float startSpeed = 5.0f;
 
 
-          // Start Size
+        // Start Size
         bool useRandomSize = false;
         float startSizeMin = 5.0f;
         float startSizeMax = 5.0f;
         float startSize = 5.0f;
+
+        //SimulationSpace
+        enum class SimulationSpace
+        {
+            Local = 0,
+            World = 1,
+            Custom = 2
+        };
+
+        SimulationSpace simulationSpace = SimulationSpace::Local; // Default value
 
       private:
         std::vector<Ref<Particle>> activeParticles;

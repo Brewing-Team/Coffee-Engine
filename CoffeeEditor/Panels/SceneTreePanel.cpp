@@ -959,6 +959,20 @@ namespace Coffee {
                 }
 
               
+                // Simulation Space
+                ImGui::Text("Simulation Space");
+                ImGui::SameLine();
+
+                // Show Combo Menu
+                const char* simulationSpaceOptions[] = {"Local", "World", "Custom"};
+                int currentSimulationSpace = static_cast<int>(emitter->simulationSpace);
+
+                if (ImGui::Combo("##SimulationSpace", &currentSimulationSpace, simulationSpaceOptions,
+                                 IM_ARRAYSIZE(simulationSpaceOptions)))
+                {
+                    emitter->simulationSpace = static_cast<ParticleEmitter::SimulationSpace>(currentSimulationSpace);
+                }
+
 
             }
             
