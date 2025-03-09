@@ -5,8 +5,8 @@ namespace Coffee
 {
 
     using ControllerCode = uint32_t;
-    using ButtonCode = int8_t;
-    using AxisCode = int8_t;
+    using ButtonCode = uint8_t;
+    using AxisCode = uint8_t;
 
     namespace Button
     {
@@ -14,7 +14,7 @@ namespace Coffee
         {
             // From SDL_gamepad.h
 
-            Invalid = -1,
+            Invalid = 0,
             South,           /**< Bottom face button (e.g. Xbox A button) */
             East,            /**< Right face button (e.g. Xbox B button) */
             West,            /**< Left face button (e.g. Xbox X button) */
@@ -51,7 +51,7 @@ namespace Coffee
         {
             // From SDL_gamepad.h
 
-            Invalid = -1,
+            Invalid = 0,
             LeftX,
             LeftY,
             RightX,

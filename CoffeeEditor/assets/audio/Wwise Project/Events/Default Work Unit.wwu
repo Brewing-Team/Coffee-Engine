@@ -3,23 +3,81 @@
 	<Events>
 		<WorkUnit Name="Default Work Unit" ID="{975F2CA9-DA6F-46E5-8F4E-1960033B6F2F}" PersistMode="Standalone">
 			<ChildrenList>
-				<Event Name="Play_shot" ID="{FCD00402-5714-4A2E-941E-F4905C076A31}">
+				<Event Name="Play_BackgroundContainer" ID="{A5674ED4-D568-42CC-9D09-49BC9EBD54DC}">
 					<ChildrenList>
-						<Action Name="" ID="{1269E153-0CA8-478D-ABE6-9072BE2E22A6}" ShortID="386968743">
+						<Action Name="" ID="{F6FA3AD2-8588-4568-9305-D05FBA2F5402}" ShortID="33036580">
 							<ReferenceList>
 								<Reference Name="Target">
-									<ObjectRef Name="shot" ID="{1B958261-30CF-4730-9730-FD0AF8DCE9AF}" WorkUnitID="{ED91A1CE-E97E-4C12-9675-FF2AA2750BAD}"/>
+									<ObjectRef Name="BackgroundContainer" ID="{764EF809-C7BB-415B-8C03-C39F619D104E}" WorkUnitID="{170B5407-85FF-4198-AA44-6B128A7ACD49}"/>
 								</Reference>
 							</ReferenceList>
 						</Action>
 					</ChildrenList>
 				</Event>
-				<Event Name="Play_Music_Container" ID="{E516ACCB-9EC9-4E8C-BD30-BA0EA6F5698D}">
+				<Event Name="Play_test_sound" ID="{0A8F7CF1-331B-4605-9B4F-EC948529B47D}">
 					<ChildrenList>
-						<Action Name="" ID="{C87A2A74-AF46-4093-B88D-DFA5A0B79FD7}" ShortID="377574629">
+						<Action Name="" ID="{3CB4E129-F3E3-4DF5-A61A-AC4600D3DA2B}" ShortID="228707825">
 							<ReferenceList>
 								<Reference Name="Target">
-									<ObjectRef Name="Music Container" ID="{0594F90F-CC52-459A-AAAE-2FCC083ADB56}" WorkUnitID="{170B5407-85FF-4198-AA44-6B128A7ACD49}"/>
+									<ObjectRef Name="test_sound" ID="{245B5024-16B8-491B-92BC-7E9EA2AF1C99}" WorkUnitID="{ED91A1CE-E97E-4C12-9675-FF2AA2750BAD}"/>
+								</Reference>
+							</ReferenceList>
+						</Action>
+					</ChildrenList>
+				</Event>
+				<Event Name="Play_test_sound2" ID="{BE8DE821-B5C8-4377-BA22-E24D05DD6217}">
+					<ChildrenList>
+						<Action Name="" ID="{9281D6D6-D5D4-4C64-9A87-C73B8CAD4424}" ShortID="198263201">
+							<ReferenceList>
+								<Reference Name="Target">
+									<ObjectRef Name="test_sound2" ID="{2118E1D6-8521-4226-AB1C-1988A1027E87}" WorkUnitID="{ED91A1CE-E97E-4C12-9675-FF2AA2750BAD}"/>
+								</Reference>
+							</ReferenceList>
+						</Action>
+					</ChildrenList>
+				</Event>
+				<Event Name="Play_test_sound3" ID="{CBA2B51F-779A-4F61-913E-687DA7953BD2}">
+					<ChildrenList>
+						<Action Name="" ID="{8C85ED05-E520-43C3-9F6F-4596B6B5545C}" ShortID="1028421146">
+							<ReferenceList>
+								<Reference Name="Target">
+									<ObjectRef Name="test_sound3" ID="{4F0BD85D-51D0-49FB-9C09-E3A74052603A}" WorkUnitID="{ED91A1CE-E97E-4C12-9675-FF2AA2750BAD}"/>
+								</Reference>
+							</ReferenceList>
+						</Action>
+					</ChildrenList>
+				</Event>
+				<Event Name="Play_test_sound4" ID="{BCBC0DE2-EAF4-462E-A42F-3ED8270F891A}">
+					<ChildrenList>
+						<Action Name="" ID="{C6DB668F-4FEC-4F2A-BD73-7840D9AFEB7D}" ShortID="296199532">
+							<ReferenceList>
+								<Reference Name="Target">
+									<ObjectRef Name="test_sound4" ID="{5A0DB74E-7332-48E5-A362-1492EC233E8F}" WorkUnitID="{ED91A1CE-E97E-4C12-9675-FF2AA2750BAD}"/>
+								</Reference>
+							</ReferenceList>
+						</Action>
+					</ChildrenList>
+				</Event>
+				<Event Name="Foot_Player" ID="{BCF9233E-3CEA-439B-8521-9C87E48EAC46}">
+					<ChildrenList>
+						<Action Name="" ID="{506EF8B8-51AD-4841-8FA6-3A085C5E885A}" ShortID="458532999">
+							<ReferenceList>
+								<Reference Name="Target">
+									<ObjectRef Name="Footsteps" ID="{228F4794-B691-4B9B-AE70-2E83652802C7}" WorkUnitID="{ED91A1CE-E97E-4C12-9675-FF2AA2750BAD}"/>
+								</Reference>
+							</ReferenceList>
+						</Action>
+					</ChildrenList>
+				</Event>
+				<Event Name="Foot_Player_Stop" ID="{3E7A3FA4-9555-4F84-95F0-70FFAA4DFB58}">
+					<ChildrenList>
+						<Action Name="" ID="{D4CAD0D8-4CA9-4886-8BB1-DFF37F6DDFAE}" ShortID="790528592">
+							<PropertyList>
+								<Property Name="ActionType" Type="int16" Value="2"/>
+							</PropertyList>
+							<ReferenceList>
+								<Reference Name="Target">
+									<ObjectRef Name="Footsteps" ID="{228F4794-B691-4B9B-AE70-2E83652802C7}" WorkUnitID="{ED91A1CE-E97E-4C12-9675-FF2AA2750BAD}"/>
 								</Reference>
 							</ReferenceList>
 						</Action>

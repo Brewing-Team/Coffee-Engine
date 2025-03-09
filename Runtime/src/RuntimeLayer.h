@@ -3,7 +3,6 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
-#include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Scene/Scene.h"
 
 namespace Coffee {
@@ -28,7 +27,6 @@ namespace Coffee {
         void ResizeViewport(float width, float height);
 
     private:
-        RenderTarget* m_ViewportRenderTarget;
         Ref<Scene> m_ActiveScene;
 
         bool m_ViewportFocused = false, m_ViewportHovered = false;

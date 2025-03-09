@@ -63,7 +63,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     nfd::nfd
     icon_font_cpp_headers
     Wwise
-    msdf-atlas-gen
     ${LUA_LIBRARIES}
     ${BULLET_LIBRARIES}
 )
@@ -91,9 +90,7 @@ add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)
 add_subdirectory(vendor/ImGuizmo)
 add_subdirectory(vendor/IconFontCppHeaders)
-add_subdirectory(vendor/ozz_animation)
 add_subdirectory(vendor/Wwise)
-add_subdirectory(vendor/msdf-atlas-gen)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=1)
