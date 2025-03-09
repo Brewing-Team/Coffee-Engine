@@ -86,7 +86,6 @@ namespace Coffee {
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
         m_ContentBrowserPanel.SetContext(m_ActiveScene);
-        m_ImportPanel.SetContext(m_ActiveScene);
     }
 
     void EditorLayer::OnUpdate(float dt)
@@ -355,10 +354,8 @@ namespace Coffee {
         m_ContentBrowserPanel.OnImGuiRender();
         m_OutputPanel.OnImGuiRender();
         m_MonitorPanel.OnImGuiRender();
-        if (m_ContentBrowserPanel.GetSelectedResource() != nullptr)
-        {
-            m_ImportPanel.selectedResource = m_ContentBrowserPanel.GetSelectedResource();
-        }
+
+        m_ImportPanel.SetSelectedResource(m_ContentBrowserPanel.GetSelectedResource());
         m_ImportPanel.OnImGuiRender();
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
@@ -711,7 +708,6 @@ namespace Coffee {
         m_SceneTreePanel.SetContext(m_ActiveScene);
         m_SceneTreePanel.SetSelectedEntity(Entity());
         m_ContentBrowserPanel.SetContext(m_ActiveScene);
-        m_ImportPanel.SetContext(m_ActiveScene);
     }
 
     void EditorLayer::OnSceneStop()
@@ -727,7 +723,6 @@ namespace Coffee {
         m_SceneTreePanel.SetContext(m_ActiveScene);
         m_SceneTreePanel.SetSelectedEntity(Entity());
         m_ContentBrowserPanel.SetContext(m_ActiveScene);
-        m_ImportPanel.SetContext(m_ActiveScene);
     }
 
     void EditorLayer::NewProject()
@@ -785,7 +780,6 @@ namespace Coffee {
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
         m_ContentBrowserPanel.SetContext(m_ActiveScene);
-        m_ImportPanel.SetContext(m_ActiveScene);
     }
 
     void EditorLayer::OpenScene()
@@ -804,7 +798,6 @@ namespace Coffee {
 
             m_SceneTreePanel.SetContext(m_ActiveScene);
             m_ContentBrowserPanel.SetContext(m_ActiveScene);
-            m_ImportPanel.SetContext(m_ActiveScene);
         }
         else
         {
