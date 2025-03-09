@@ -182,7 +182,7 @@ namespace Coffee {
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
                 {
                     m_SelectedDirectory = path;
-                    m_SelectedResource = ResourceRegistry::Get<Resource>(path.filename().string());
+                    m_SelectedResource = directoryEntry.is_directory() ? nullptr : ResourceRegistry::Get<Resource>(path.filename().string());
                 }
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
                 {
