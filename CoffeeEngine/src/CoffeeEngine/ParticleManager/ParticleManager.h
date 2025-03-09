@@ -50,12 +50,18 @@ namespace Coffee
         float startLifeTimeMax = 5.0f;
         float startLifeTime = 5.0f;
 
-         // Start Speed
+        // Start Speed
         bool useRandomSpeed = false;
         float startSpeedMin = 5.0f;
         float startSpeedMax = 5.0f;
         float startSpeed = 5.0f;
 
+
+          // Start Size
+        bool useRandomSize = false;
+        float startSizeMin = 5.0f;
+        float startSizeMax = 5.0f;
+        float startSize = 5.0f;
 
       private:
         std::vector<Ref<Particle>> activeParticles;

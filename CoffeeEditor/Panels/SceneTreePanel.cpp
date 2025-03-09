@@ -937,6 +937,27 @@ namespace Coffee {
                     ImGui::DragFloat("##ParticleStartSpeed", &emitter->startSpeed, 0.1f, 0.0f, 100.0f);
                 }
 
+
+                // Start Size
+                ImGui::Text("Start Size");
+                // Use Random Start Size
+                ImGui::SameLine();
+                ImGui::Checkbox("##UseRandomStartSize", &emitter->useRandomSize);
+
+                if (emitter->useRandomSize)
+                {
+                    ImGui::Text("Min");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartSizeMin", &emitter->startSizeMin, 0.1f, 0.0f, 100.0f);
+                    ImGui::Text("Max");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartSizeMax", &emitter->startSizeMax, 0.1f, 0.0f, 100.0f);
+                }
+                else
+                {
+                    ImGui::DragFloat("##ParticleStartSize", &emitter->startSize, 0.1f, 0.0f, 100.0f);
+                }
+
               
 
             }
