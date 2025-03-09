@@ -530,7 +530,7 @@ namespace Coffee {
             std::filesystem::path cachedPath = CacheManager::GetCachedFilePath(uuid, ResourceType::Model);
             cachedPath.replace_extension(".ozz");
 
-            ozz::io::File skeletonFile(cachedPath.c_str(), "wb");
+            ozz::io::File skeletonFile(cachedPath.string().c_str(), "wb");
             if (skeletonFile.opened())
             {
                 ozz::io::OArchive oArchive(&skeletonFile);
@@ -539,7 +539,7 @@ namespace Coffee {
 
             for (const auto& anim : m_AnimationController->GetAnimations())
             {
-                ozz::io::File animationFile((CacheManager::GetCachePath() / anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
+                ozz::io::File animationFile((CacheManager::GetCachePath().string() + anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
                 if (animationFile.opened())
                 {
                     ozz::io::OArchive archive(&animationFile);
@@ -559,7 +559,7 @@ namespace Coffee {
 
             std::filesystem::path cachedPath = CacheManager::GetCachedFilePath(uuid, ResourceType::Model);
             cachedPath.replace_extension(".ozz");
-            ozz::io::File skeletonFile(cachedPath.c_str(), "rb");
+            ozz::io::File skeletonFile(cachedPath.string().c_str(), "rb");
             if (skeletonFile.opened())
             {
                 ozz::io::IArchive iArchive(&skeletonFile);
@@ -570,7 +570,7 @@ namespace Coffee {
 
             for (const auto& animName : m_AnimationsNames)
             {
-                ozz::io::File animationsFile((CacheManager::GetCachePath() / animName + std::to_string(uuid) + ".ozz").c_str(), "rb");
+                ozz::io::File animationsFile((CacheManager::GetCachePath().string() + animName + std::to_string(uuid) + ".ozz").c_str(), "rb");
                 if (animationsFile.opened())
                 {
                     ozz::io::IArchive iArchive(&animationsFile);
