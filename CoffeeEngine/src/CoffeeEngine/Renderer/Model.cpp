@@ -348,7 +348,7 @@ namespace Coffee {
             importData.sRGB = srgb;
             importData.uuid = UUID();
             importData.cachedPath = CacheManager::GetCachedFilePath(importData.uuid, ResourceType::Texture2D);
-            Scope<ImportData> importDataPtr = CreateScope<ImportData>(importData);
+            Scope<ImportData> importDataPtr = CreateScope<Texture2DImportData>(importData);
             ImportDataUtils::SaveImportData(importDataPtr);
             return ResourceLoader::Load<Texture2D>(importData);
         }
