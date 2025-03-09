@@ -866,15 +866,15 @@ namespace Coffee {
 
                 // Velocity
                 ImGui::Text("Velocity");
-                ImGui::DragFloat3("##ParticleVelocity", glm::value_ptr(particles.velocity), 0.1f);
+                ImGui::DragFloat3("##ParticleVelocity", glm::value_ptr(emitter->velocity), 0.1f);
 
                 // Spread
                 ImGui::Text("Spread");
-                ImGui::DragFloat3("##ParticleSpread", glm::value_ptr(particles.spread), 0.1f);
+                ImGui::DragFloat3("##ParticleSpread", glm::value_ptr(emitter->spread), 0.1f);
 
                 // Colour
                 ImGui::Text("Colour");
-                ImGui::ColorEdit4("##ParticleColour", glm::value_ptr(particles.colour));
+                ImGui::ColorEdit4("##ParticleColour", glm::value_ptr(emitter->colour));
 
                 // Life Time
                 ImGui::Text("Life Time");
@@ -882,11 +882,11 @@ namespace Coffee {
 
                 // Size
                 ImGui::Text("Size");
-                ImGui::DragFloat("##ParticleSize", &particles.size, 0.1f, 0.0f, 10.0f);
+                ImGui::DragFloat("##ParticleSize", &emitter->size, 0.1f, 0.0f, 10.0f);
 
                 // Particle Amount
                 ImGui::Text("Max Particles");
-                ImGui::DragInt("##ParticleAmount", &particles.amount, 1, 1, 10000);
+                ImGui::DragInt("##ParticleAmount", &emitter->amount, 1, 1, 10000);
 
                 // Texture Selector
                 ImGui::Text("Texture");
