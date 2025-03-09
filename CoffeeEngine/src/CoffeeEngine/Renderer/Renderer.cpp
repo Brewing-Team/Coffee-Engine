@@ -17,6 +17,22 @@ namespace Coffee {
 
     void Renderer::Init()
     {
+        /*std::vector<std::filesystem::path> paths = {
+            "assets/textures/skybox/right.jpg",
+            "assets/textures/skybox/left.jpg",
+            "assets/textures/skybox/top.jpg",
+            "assets/textures/skybox/bottom.jpg",
+            "assets/textures/skybox/front.jpg",
+            "assets/textures/skybox/back.jpg"
+        };
+        s_EnvironmentMap = CreateRef<Cubemap>(paths);*/
+
+        s_EnvironmentMap = /* CreateRef<Cubemap>("assets/textures/StandardCubeMap.hdr"); */ Cubemap::Load("assets/textures/StandardCubeMap.hdr");
+
+        s_SkyboxMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
+
+        s_SkyboxShader = Shader::Create("assets/shaders/SkyboxShader.glsl");
+
         ZoneScoped;
 
         RendererAPI::Init();

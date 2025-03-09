@@ -29,7 +29,7 @@ namespace Coffee {
             return;
         }
 
-        ResourceType type = GetResourceTypeFromExtension(path);
+        const ResourceType type = GetResourceTypeFromExtension(path);
 
         if(type == ResourceType::Unknown and path.extension() != ".import")
         {
@@ -87,23 +87,26 @@ namespace Coffee {
 
             switch (type)
             {
-                LoadTexture2D(resourcePath);
-                break;
-            }
-            case ResourceType::Cubemap:
-            {
-                LoadCubemap(resourcePath);
-                break;
-            }
-            case ResourceType::Model:
-            {
-                LoadModel(resourcePath);
-                break;
-            }
-            case ResourceType::Shader:
-            {
-                LoadShader(resourcePath);
-                break;
+                case ResourceType::Texture2D:
+                {
+                    Load<Texture2D>(path);
+                    break;
+                }
+                case ResourceType::Cubemap:
+                {
+                    Load<Cubemap>(path);
+                    break;
+                }
+                case ResourceType::Model:
+                {
+                    Load<Model>(path);
+                    break;
+                }
+                case ResourceType::Shader:
+                {
+                    Load<Shader>(path);
+                    break;
+                }
             }
         }
     }
@@ -120,19 +123,6 @@ namespace Coffee {
             }
 
             files.push_back(entry.path());
-        }
-
-        std::sort(files.begin(), files.end(), [](const std::filesystem::path& a, const std::filesystem::path& b) {
-            if (a.extension() == ".import" && b.extension() != ".import") return true;
-            if (a.extension() != ".import" && b.extension() == ".import") return false;
-            if (GetResourceTypeFromExtension(a) == ResourceType::Model && GetResourceTypeFromExtension(b) != ResourceType::Model) return true;
-            if (GetResourceTypeFromExtension(a) != ResourceType::Model && GetResourceTypeFromExtension(b) == ResourceType::Model) return false;
-            return a < b;
-        });
-
-        for (const auto& path : files)
-        {
-            LoadFile(path);
         }
 
         std::sort(files.begin(), files.end(), [](const std::filesystem::path& a, const std::filesystem::path& b) {
