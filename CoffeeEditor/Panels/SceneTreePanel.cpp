@@ -1222,6 +1222,57 @@ namespace Coffee {
                 ImGui::PopID();
 
 
+                // Renderer - Checkbox and Collapsing Header
+                if (ImGui::Checkbox("##UseRenderer", &emitter->useRenderer))
+                {
+                    // Handle checkbox toggle logic here
+                }
+
+                ImGui::SameLine();
+                ImGui::PushID("Renderer");
+
+                if (ImGui::TreeNodeEx("Renderer Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    // If not enabled, set text to gray and disable controls
+                    if (!emitter->useRenderer)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    }
+
+                    // Render Mode selection
+                    const char* renderModes[] = {"Billboard", "Stretched Billboard", "Horizontal Billboard",
+                                                 "Vertical Billboard"};
+                    ImGui::Text("Render Mode");
+                    ImGui::SameLine();
+                    ImGui::Combo("##RenderMode", reinterpret_cast<int*>(&emitter->renderMode), renderModes,
+                                 IM_ARRAYSIZE(renderModes));
+
+                    // Material selection
+                    ImGui::Text("Material");
+                    ImGui::SameLine();
+                    ImGui::InputText("##Material", emitter->material, IM_ARRAYSIZE(emitter->material));
+
+                    // Render Alignment selection
+                    const char* renderAlignments[] = {"View", "Local", "World"};
+                    ImGui::Text("Render Alignment");
+                    ImGui::SameLine();
+                    ImGui::Combo("##RenderAlignment", reinterpret_cast<int*>(&emitter->renderAlignment),
+                                 renderAlignments, IM_ARRAYSIZE(renderAlignments));
+
+                    // Restore default state
+                    if (!emitter->useRenderer)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+
+
+
             }
             
            

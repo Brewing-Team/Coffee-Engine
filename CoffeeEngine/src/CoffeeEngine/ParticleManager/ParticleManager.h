@@ -98,8 +98,8 @@ namespace Coffee
         // Size over Lifetime
         bool useSizeOverLifetime = false;
         bool separateAxes = false;
-        
 
+        // Rotation over Lifetime
         bool useRotationOverLifetime;
         bool rotationSeparateAxes = false;
         float rotationOverLifetimeX;
@@ -107,6 +107,12 @@ namespace Coffee
         float rotationOverLifetimeZ;
         glm::vec3 rotationOverLifetime;
         float rotationOverLifetimeAngularVelocity;
+
+        // Renderer
+        bool useRenderer = false;      // Checkbox to enable/disable the renderer
+        int renderMode = 0;            // Render mode (Billboard, Stretched Billboard, etc.)
+        char material[256];            // Material name or path (for simplicity, it's a string here)
+        int renderAlignment = 0;       // Render alignment (View, Local, World)
 
       private:
         std::vector<Ref<Particle>> activeParticles;
