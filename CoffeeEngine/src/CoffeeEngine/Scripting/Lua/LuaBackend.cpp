@@ -296,6 +296,54 @@ namespace Coffee {
         inputTable["mousecode"] = mouseCodeTable;
     }
 
+    void BindInputActionsToLua(sol::state& lua, sol::table& inputTable)
+    {
+        // Actions
+        std::vector<std::pair<std::string, InputAction>> actionCodes = {
+            {"MoveHorizontal", ActionsEnum::MoveHorizontal},
+            {"MoveVertical", ActionsEnum::MoveVertical},
+            {"Confirm", ActionsEnum::Confirm},
+            {"Cancel",  ActionsEnum::Cancel},
+            {"AimHorizontal", ActionsEnum::AimHorizontal},
+            {"AimVertical", ActionsEnum::AimVertical},
+            {"Shoot", ActionsEnum::Shoot},
+            {"Melee", ActionsEnum::Melee},
+            {"Interact",  ActionsEnum::Interact},
+            {"Dash", ActionsEnum::Dash},
+            {"Cover", ActionsEnum::Cover},
+            {"Skill1", ActionsEnum::Skill1},
+            {"Skill2", ActionsEnum::Skill2},
+            {"Skill3", ActionsEnum::Skill3},
+            {"Injector",ActionsEnum::Injector},
+            {"Grenade", ActionsEnum::Grenade},
+            {"Map", ActionsEnum::Map},
+            {"Pause", ActionsEnum::Pause}
+        };
+
+        sol::table actionCodeTable = lua.create_table();
+        for (const auto& actionCode : actionCodes) {
+            actionCodeTable[actionCode.first] = actionCode.second;
+        }
+        inputTable["action"] = actionCodeTable;
+
+        // Button states
+        std::vector<std::pair<std::string, ButtonState>> buttonStates = {
+            {"Idle", ButtonStates::IDLE},
+            {"Up", ButtonStates::UP},
+            {"Down", ButtonStates::DOWN},
+            {"Held", ButtonStates::REPEAT}
+        };
+
+        sol::table buttonStatesTable = lua.create_table();
+        for (const auto& buttonState : buttonStates)
+        {
+            buttonStatesTable[buttonState.first] = buttonState.second;
+        }
+
+        inputTable["state"] = buttonStatesTable;
+
+    }
+
     void LuaBackend::Initialize() {
         luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 
@@ -333,6 +381,18 @@ namespace Coffee {
         inputTable.set_function("get_mouse_position", []() {
             glm::vec2 mousePosition = Input::GetMousePosition();
             return std::make_tuple(mousePosition.x, mousePosition.y);
+        });
+
+        inputTable.set_function("get_axis", [](InputAction action) {
+            return Input::GetBinding(action).AsAxis(false);
+        });
+
+        inputTable.set_function("get_direction",[](InputAction action) {
+            return Input::GetBinding(action).AsAxis(true);
+        });
+
+        inputTable.set_function("get_button", [](InputAction action) {
+            return Input::GetBinding(action).AsButton();
         });
 
         luaState["Input"] = inputTable;

@@ -12,15 +12,23 @@
 
 namespace Coffee {
 
-    std::vector<Ref<Gamepad>> Input::m_gamepads;
-    std::unordered_map<ButtonCode, char> Input::m_buttonStates;
-    std::unordered_map<AxisCode, float> Input::m_axisStates;
-    std::vector<InputBinding> Input::m_bindings = std::vector<InputBinding>(static_cast<int>(InputAction::ActionCount));
-
+    std::vector<InputBinding> Input::m_Bindings = std::vector<InputBinding>(ActionsEnum::ActionCount);
+    std::vector<Ref<Gamepad>> Input::m_Gamepads;
+    std::unordered_map<ButtonCode, char> Input::m_ButtonStates;
+    std::unordered_map<AxisCode, float> Input::m_AxisStates;
+    std::unordered_map<AxisCode, float> Input::m_AxisDeadzones;
 
     void Input::Init()
     {
         SDL_InitSubSystem(SDL_INIT_GAMEPAD);
+
+        //Defaults
+        m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
+        m_AxisDeadzones[Axis::RightTrigger] = 0.15f;
+        m_AxisDeadzones[Axis::LeftX] = 0.15f;
+        m_AxisDeadzones[Axis::RightY] = 0.15f;
+        m_AxisDeadzones[Axis::LeftX] = 0.15f;
+        m_AxisDeadzones[Axis::RightY] = 0.15f;
     }
 
 
@@ -56,17 +64,21 @@ namespace Coffee {
 
     bool Input::GetButtonRaw(const ButtonCode button)
     {
-        return m_buttonStates[button];
+        return m_ButtonStates[button];
     }
 
     float Input::GetAxisRaw(const AxisCode axis)
     {
-        return m_axisStates[axis];
+        return m_AxisStates[axis];
+    }
+    InputBinding& Input::GetBinding(InputAction action)
+    {
+        return m_Bindings[action];
     }
 
     void Input::OnAddController(const ControllerAddEvent* cEvent)
     {
-        m_gamepads.emplace_back(new Gamepad(cEvent->Controller));
+        m_Gamepads.emplace_back(new Gamepad(cEvent->Controller));
     }
 
 
@@ -76,27 +88,27 @@ namespace Coffee {
         auto pred = [&cEvent](const Ref<Gamepad>& gamepad) {
             return gamepad->getId() == cEvent->Controller;
         };
-        erase_if(m_gamepads, pred);
+        erase_if(m_Gamepads, pred);
     }
     void Input::OnButtonPressed(const ButtonPressEvent& e) {
-        m_buttonStates[e.Button] += 1;
+        m_ButtonStates[e.Button] += 1;
     }
 
     void Input::OnButtonReleased(const ButtonReleaseEvent& e) {
-        m_buttonStates[e.Button] -= 1;
+        m_ButtonStates[e.Button] -= 1;
     }
 
     void Input::OnAxisMoved(const AxisMoveEvent& e) {
 
-        constexpr float DEADZONE = 0.15f;
+        float deadzone = m_AxisDeadzones[e.Axis];
         float normalizedValue = e.Value / 32767.0f;
 
-        if (std::abs(normalizedValue) < DEADZONE)
+        if (std::abs(normalizedValue) < deadzone)
         {
             normalizedValue = 0.0f;
         }
        
-        m_axisStates[e.Axis] = normalizedValue;
+        m_AxisStates[e.Axis] = normalizedValue;
     }
     void Input::OnKeyPressed(const KeyPressedEvent& kEvent) {
     }
@@ -115,6 +127,7 @@ namespace Coffee {
 
     void Input::OnEvent(Event& e)
 	{
+        //TODO change this code for an event dispatcher
 	    if (e.IsInCategory(EventCategoryInput))
 	    {
             switch (e.GetEventType())

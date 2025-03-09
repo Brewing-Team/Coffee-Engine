@@ -17,40 +17,43 @@
 #include <unordered_map>
 
 namespace Coffee {
-	// TODO Change for better action map layers method?
-	/**
-	 * @brief Current action context. Each key/button can only be in one InputAction per context layer
-	 */
-	enum class InputLayer : int
-	{
-		None = 0,
-		Gameplay = BIT(1),
-		Menu = BIT(2)
-	};
 
+    using InputAction = uint16_t;
     /**
      * @brief List of possible actions in ActionMap v0.1
      */
-    enum class InputAction
+    namespace ActionsEnum
     {
-        // UI
-    	Up,
-    	Down,
-    	Left,
-    	Right,
-        Confirm,
-        Cancel,
+        enum : InputAction
+        {
+            //Common
+            MoveHorizontal,
+            MoveVertical,
 
-        // Gameplay
-    	MoveHorizontal,
-		MoveVertical,
-        Attack,
-        Ability,
-        Pause,
+            // UI
+            Confirm,
+            Cancel,
 
-        // Action count for array creation and iteration
-        ActionCount
-    };
+            // Gameplay
+            AimHorizontal,
+            AimVertical,
+            Shoot,
+            Melee,
+            Interact,
+            Dash,
+            Cover,
+            Skill1,
+            Skill2,
+            Skill3,
+            Injector,
+            Grenade,
+            Map,
+            Pause,
+
+            // Action count for array creation and iteration
+            ActionCount
+        };
+    }
 
     /**
      * @defgroup core Core
@@ -116,11 +119,11 @@ namespace Coffee {
          */
         static float GetAxisRaw(AxisCode axis);
 
-		static InputLayer CurrentInputContext;
+        static InputBinding& GetBinding(InputAction action);
 
         static void OnEvent(Event& e);
 
-	private:
+      private:
         /**
 	     * @brief Handles controller connection events
 	     * @param cEvent The event data to process
@@ -180,13 +183,13 @@ namespace Coffee {
          */
 	    static void OnMouseMoved(const MouseMovedEvent& event);
 
-        static std::vector<InputBinding> m_bindings;
+        static std::vector<InputBinding> m_Bindings;
 
-	    static std::vector<Ref<Gamepad>> m_gamepads;
-	    static std::unordered_map<ButtonCode, char> m_buttonStates;
-	    static std::unordered_map<AxisCode, float> m_axisStates;
-	    static std::unordered_map<KeyCode, bool> m_keyStates;
-
-	};
+	    static std::vector<Ref<Gamepad>> m_Gamepads;
+	    static std::unordered_map<ButtonCode, char> m_ButtonStates;
+	    static std::unordered_map<AxisCode, float> m_AxisStates;
+	    static std::unordered_map<KeyCode, bool> m_KeyStates;
+        static std::unordered_map<AxisCode, float> m_AxisDeadzones;
+    };
     /** @} */
 }
