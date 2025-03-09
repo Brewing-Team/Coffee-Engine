@@ -63,6 +63,12 @@ namespace Coffee
         float startSizeMax = 5.0f;
         float startSize = 5.0f;
 
+        // Start Rotation
+        bool useRandomRotation = false;
+        float startRotationMin = 5.0f;
+        float startRotationMax = 5.0f;
+        float startRotation = 5.0f;
+
         //SimulationSpace
         enum class SimulationSpace
         {

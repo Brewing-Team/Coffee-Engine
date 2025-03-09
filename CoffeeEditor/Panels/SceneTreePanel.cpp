@@ -958,6 +958,29 @@ namespace Coffee {
                     ImGui::DragFloat("##ParticleStartSize", &emitter->startSize, 0.1f, 0.0f, 100.0f);
                 }
 
+
+
+                // Start Rotation
+                ImGui::Text("Start Rotation");
+                // Use Random Start Rotation
+                ImGui::SameLine();
+                ImGui::Checkbox("##UseRandomStartRotation", &emitter->useRandomRotation);
+
+                if (emitter->useRandomRotation)
+                {
+                    ImGui::Text("Min");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartRotationMin", &emitter->startRotationMin, 0.1f, 0.0f, 360.0f);
+                    ImGui::Text("Max");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartRotationMax", &emitter->startRotationMax, 0.1f, 0.0f, 360.0f);
+                }
+                else
+                {
+                    ImGui::DragFloat("##ParticleStartRotation", &emitter->startRotation, 0.1f, 0.0f, 360.0f);
+                }
+
+
               
                 // Simulation Space
                 ImGui::Text("Simulation Space");
