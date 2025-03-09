@@ -446,6 +446,8 @@ namespace Coffee {
                     self->AddComponent<ScriptComponent>();
                 } else if (componentName == "UIImageComponent") {
                     self->AddComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    self->AddComponent<UITextComponent>();
                 }
             },
             "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
@@ -465,6 +467,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
                 } else if (componentName == "UIImageComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
+                } else if (componentName == "UITextComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UITextComponent>()));
                 }
                 return sol::nil;
             },
@@ -483,6 +487,10 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
+                } else if (componentName == "UIImageComponent") {
+                    return self->HasComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    return self->HasComponent<UITextComponent>();
                 }
                 return false;
             },
@@ -501,6 +509,10 @@ namespace Coffee {
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
+                } else if (componentName == "UIImageComponent") {
+                    self->RemoveComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    self->RemoveComponent<UITextComponent>();
                 }
             },
             "set_parent", &Entity::SetParent,
@@ -573,9 +585,27 @@ namespace Coffee {
         );
 
         luaState.new_usertype<UIImageComponent>("UIImageComponent",
-            sol::constructors<UIImageComponent(), UIImageComponent()>(),
+            sol::constructors<UIImageComponent(), UIImageComponent(const std::string&, const glm::vec2&, const glm::vec2&, bool)>(),
             "get_texture", &UIImageComponent::Texture,
-            "set_texture", &UIImageComponent::SetTexture
+            "set_texture", &UIImageComponent::SetTexture,
+            "get_size", &UIImageComponent::Size,
+            "set_size", [](UIImageComponent& self, const glm::vec2& size) { self.Size = size; },
+            "is_visible", &UIImageComponent::Visible,
+            "set_visible", [](UIImageComponent& self, bool visible) { self.Visible = visible; }
+        );
+
+        luaState.new_usertype<UITextComponent>("UITextComponent",
+            sol::constructors<UITextComponent(), UITextComponent(const std::string&, const std::string&, const glm::vec2&, float, float, const glm::vec4&, bool)>(),
+            "get_text", &UITextComponent::Text,
+            "set_text", [](UITextComponent& self, const std::string& text) { self.Text = text; },
+            "get_font_path", &UITextComponent::FontPath,
+            "set_font_path", [](UITextComponent& self, const std::string& fontPath) { self.FontPath = fontPath; },
+            "get_font_size", &UITextComponent::FontSize,
+            "set_font_size", [](UITextComponent& self, float fontSize) { self.FontSize = fontSize; },
+            "get_color", &UITextComponent::Color,
+            "set_color", [](UITextComponent& self, const glm::vec4& color) { self.Color = color; },
+            "is_visible", &UITextComponent::Visible,
+            "set_visible", [](UITextComponent& self, bool visible) { self.Visible = visible; }
         );
 
         # pragma endregion
