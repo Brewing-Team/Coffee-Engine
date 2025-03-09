@@ -2,6 +2,8 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/IO/ImportData/ImportData.h"
+#include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -333,70 +335,93 @@ namespace Coffee {
         return material;
     }
 
-    void ResourceLoader::RemoveResource(UUID uuid) // Think if would be better to pass the Resource as parameter
-    {
-/*         if(!ResourceRegistry::Exists(uuid))
+    void ResourceLoader::RemoveResource(const Ref<Resource>& resource)
+    {   
+        std::filesystem::path importFilePath = resource->GetPath();
+        importFilePath += ".import";
+
+        Scope<ImportData> importData = ImportDataUtils::LoadImportData(importFilePath);
+
+        // Remove the cache file
+
+        if(std::filesystem::exists(importData->cachedPath))
         {
-            COFFEE_CORE_ERROR("ResourceLoader::RemoveResource: Resource {0} does not exist!", (uint64_t)uuid);
-            return;
+            std::filesystem::remove(importData->cachedPath);
         }
 
-        // Remove the Cache file and all dependencies(TODO)
-        std::filesystem::path cacheFilePath = CacheManager::GetCachePath() / (std::to_string(uuid) + ".res");
-        if(std::filesystem::exists(cacheFilePath))
+        // Remove the resource file
+
+        if(std::filesystem::exists(importData->originalPath))
         {
-            std::filesystem::remove(cacheFilePath);
+            std::filesystem::remove(importData->originalPath);
         }
 
-        const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(uuid);
-
-        const std::filesystem::path& resourcePath = resource->GetPath();
-        std::filesystem::path importFilePath = resourcePath;
-        importFilePath.replace_extension(".import");
+        // Remove the resource import file
 
         if(std::filesystem::exists(importFilePath))
         {
             std::filesystem::remove(importFilePath);
         }
 
-        if(std::filesystem::exists(resourcePath))
-        {
-            std::filesystem::remove(resourcePath);
-        }
-
-        ResourceRegistry::Remove(uuid); */
-    }
-
-    void ResourceLoader::RemoveResource(const std::filesystem::path& path)
-    {
-        /*UUID uuid = GetUUIDFromImportFile(path);
+        // TODO: Remove all the dependencies
         
-        // Remove the Cache file and all dependencies(TODO)
-        std::filesystem::path cacheFilePath = CacheManager::GetCachePath() / (std::to_string(uuid) + ".res");
-        if(std::filesystem::exists(cacheFilePath))
-        {
-            std::filesystem::remove(cacheFilePath);
-        }
-
-        const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(uuid);
-
-        const std::filesystem::path& resourcePath = resource->GetPath();
-        std::filesystem::path importFilePath = resourcePath;
-        importFilePath.replace_extension(".import");
-
-        if(std::filesystem::exists(importFilePath))
-        {
-            std::filesystem::remove(importFilePath);
-        }
-
-        if(std::filesystem::exists(resourcePath))
-        {
-            std::filesystem::remove(resourcePath);
-        }
-
-        if(ResourceRegistry::Exists(uuid))
-        {
-            ResourceRegistry::Remove(uuid);
-        }*/
+        // Remove the resource from the registry
+        
+        ResourceRegistry::Remove(resource->GetUUID());
     }
+
+    void ResourceLoader::ReimportResource(const Ref<Resource>& resource)
+    {
+        std::filesystem::path importFilePath = resource->GetPath();
+        importFilePath += ".import";
+
+        Scope<ImportData> importData = ImportDataUtils::LoadImportData(importFilePath);
+
+        // Remove the cache file
+
+        if(std::filesystem::exists(importData->cachedPath))
+        {
+            std::filesystem::remove(importData->cachedPath);
+        }
+
+        // Remove from the registry
+        ResourceRegistry::Remove(resource->GetUUID());
+
+        // Reimport the resource
+
+        switch (importData->type)
+        {
+            case ResourceType::Texture2D:
+            {
+                Load<Texture2D>(*importData);
+                break;
+            }
+            case ResourceType::Cubemap:
+            {
+                Load<Cubemap>(*importData);
+                break;
+            }
+            case ResourceType::Model:
+            {
+                Load<Model>(*importData);
+                break;
+            }
+            case ResourceType::Shader:
+            {
+                Load<Shader>(*importData);
+                break;
+            }
+            case ResourceType::Material:
+            {
+                Load<Material>(*importData);
+                break;
+            }
+            default:
+            {
+                COFFEE_CORE_ERROR("ResourceLoader::ReimportResource: Unsupported resource type {0}", ResourceTypeToString(importData->type));
+                break;
+            }
+        }
+    }
+
 }

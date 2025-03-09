@@ -8,6 +8,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceImporter.h"
 #include "ImportData/ImportData.h"
 #include "ImportData/ImportDataUtils.h"
@@ -116,8 +117,8 @@ namespace Coffee {
             return nullptr;
         }
 
-        static void RemoveResource(UUID uuid);
-        static void RemoveResource(const std::filesystem::path& path);
+        static void RemoveResource(const Ref<Resource>& resource);
+        static void ReimportResource(const Ref<Resource>& resource);
 
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
         static const std::filesystem::path& GetWorkingDirectory() { return s_WorkingDirectory; }
