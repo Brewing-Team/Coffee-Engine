@@ -75,7 +75,7 @@ namespace Coffee
 
         // VelocityOverLifetime
 
-          enum class Space
+        enum class Space
         {
             Local = 0,
             World = 1,
@@ -91,10 +91,22 @@ namespace Coffee
         float radial;
         float speedModifier;
 
-
         // ColorOverLifetime
         bool useColorOverLifetime;
         glm::vec4 overLifetimecolor;
+
+        // Size over Lifetime
+        bool useSizeOverLifetime = false;
+        bool separateAxes = false;
+        
+
+        bool useRotationOverLifetime;
+        bool rotationSeparateAxes = false;
+        float rotationOverLifetimeX;
+        float rotationOverLifetimeY;
+        float rotationOverLifetimeZ;
+        glm::vec3 rotationOverLifetime;
+        float rotationOverLifetimeAngularVelocity;
 
       private:
         std::vector<Ref<Particle>> activeParticles;

@@ -1110,6 +1110,116 @@ namespace Coffee {
                 ImGui::PopID();
 
 
+                // Size Over Lifetime - Checkbox and Collapsing Header
+                if (ImGui::Checkbox("##UseSizeOverLifetime", &emitter->useSizeOverLifetime))
+                {
+                    // Handle checkbox toggle logic here
+                }
+
+                ImGui::SameLine();
+                ImGui::PushID("SizeOverLifetime");
+
+                if (ImGui::TreeNodeEx("Size Over Lifetime Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    // If not enabled, set text to gray and disable controls
+                    if (!emitter->useSizeOverLifetime)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    }
+
+                    // Enable or disable separate XYZ axes
+                    ImGui::Checkbox("Separate Axes", &emitter->separateAxes);
+
+                    if (emitter->separateAxes)
+                    {
+                        ImGui::Text("Size X");
+                        ImGui::Button("Edit Curve##X"); // Curve edit button (to be implemented)
+
+                        ImGui::Text("Size Y");
+                        ImGui::Button("Edit Curve##Y");
+
+                        ImGui::Text("Size Z");
+                        ImGui::Button("Edit Curve##Z");
+                    }
+                    else
+                    {
+                        ImGui::Text("Size");
+                        ImGui::Button("Edit Curve##Size");
+                    }
+
+                    // Restore default state
+                    if (!emitter->useSizeOverLifetime)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+
+
+
+                // Rotation Over Lifetime - Checkbox and Collapsing Header
+                if (ImGui::Checkbox("##UseRotationOverLifetime", &emitter->useRotationOverLifetime))
+                {
+                    // Handle checkbox toggle logic here
+                }
+
+                ImGui::SameLine();
+                ImGui::PushID("RotationOverLifetime");
+
+                if (ImGui::TreeNodeEx("Rotation Over Lifetime Settings", ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    // If not enabled, set text to gray and disable controls
+                    if (!emitter->useRotationOverLifetime)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 1.0f, 1.0f)); // Gray out
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    }
+
+                    // Enable or disable separate XYZ axes
+                    ImGui::Checkbox("Separate Axes", &emitter->rotationSeparateAxes);
+
+                    if (emitter->rotationSeparateAxes)
+                    {
+                        // Rotation on X axis
+                        ImGui::Text("Rotation X");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##RotationX", &emitter->rotationOverLifetimeX, 0.1f, -360.0f, 360.0f);
+
+                        // Rotation on Y axis
+                        ImGui::Text("Rotation Y");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##RotationY", &emitter->rotationOverLifetimeY, 0.1f, -360.0f, 360.0f);
+
+                        // Rotation on Z axis
+                        ImGui::Text("Rotation Z");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##RotationZ", &emitter->rotationOverLifetimeZ, 0.1f, -360.0f, 360.0f);
+                    }
+                    else
+                    {
+                        // Angular velocity
+                        ImGui::Text("Angular Velocity");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##AngularVelocity", &emitter->rotationOverLifetimeAngularVelocity, 0.1f,
+                                         -360.0f, 360.0f);
+                    }
+
+                  
+
+                    // Restore default state
+                    if (!emitter->useRotationOverLifetime)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
 
 
             }
