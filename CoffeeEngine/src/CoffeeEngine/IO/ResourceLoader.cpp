@@ -134,6 +134,19 @@ namespace Coffee {
         {
             LoadFile(path);
         }
+
+        std::sort(files.begin(), files.end(), [](const std::filesystem::path& a, const std::filesystem::path& b) {
+            if (a.extension() == ".import" && b.extension() != ".import") return true;
+            if (a.extension() != ".import" && b.extension() == ".import") return false;
+            if (GetResourceTypeFromExtension(a) == ResourceType::Model && GetResourceTypeFromExtension(b) != ResourceType::Model) return true;
+            if (GetResourceTypeFromExtension(a) != ResourceType::Model && GetResourceTypeFromExtension(b) == ResourceType::Model) return false;
+            return a < b;
+        });
+
+        for (const auto& path : files)
+        {
+            LoadFile(path);
+        }
     }
 
     Ref<Texture2D> ResourceLoader::LoadTexture2D(const std::filesystem::path& path, bool srgb, bool cache)
