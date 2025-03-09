@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
+#include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
@@ -174,6 +175,52 @@ namespace Coffee {
 
         // TEST ------------------------------
         m_Octree.DebugDraw();
+
+        // TEMPORAL - Navigation
+        if (Input::IsKeyPressed(Key::B))
+        {
+            Ref<NavMesh> navMesh = CreateRef<NavMesh>();
+            auto view = m_Registry.view<MeshComponent, TransformComponent>();
+
+            for (auto entity : view)
+            {
+                auto mesh = view.get<MeshComponent>(entity);
+                auto transform = view.get<TransformComponent>(entity);
+                navMesh->AddMesh(mesh.GetMesh(), transform.GetWorldTransform());
+            }
+
+            navMesh->CalculateWalkableAreas();
+            m_NavMesh = navMesh;
+
+            m_PathFinder = CreateRef<NavMeshPathfinding>(m_NavMesh);
+        }
+
+        if (m_NavMesh) {
+            m_NavMesh->RenderWalkableAreas();
+
+            if (Input::IsKeyPressed(Key::P))
+            {
+                m_PathStart = {-20,1,0};
+                COFFEE_INFO("Path start set to: ({0}, {1}, {2})", m_PathStart.x, m_PathStart.y, m_PathStart.z);
+            }
+
+            if (Input::IsKeyPressed(Key::O))
+            {
+                m_PathEnd = {20,1,0};
+                COFFEE_INFO("Path end set to: ({0}, {1}, {2})", m_PathEnd.x, m_PathEnd.y, m_PathEnd.z);
+            }
+
+            if (Input::IsKeyPressed(Key::I) && m_PathFinder)
+            {
+                m_CurrentPath = m_PathFinder->FindPath(m_PathStart, m_PathEnd);
+                COFFEE_INFO("Path found with {0} points", m_CurrentPath.size());
+            }
+
+            if (m_PathFinder && !m_CurrentPath.empty())
+            {
+                m_PathFinder->RenderPath(m_CurrentPath);
+            }
+        }
 
         UpdateAudioComponentsPositions();
 
