@@ -876,13 +876,13 @@ namespace Coffee {
                 ImGui::Text("Colour");
                 ImGui::ColorEdit4("##ParticleColour", glm::value_ptr(emitter->colour));
 
-                // Life Time
-                ImGui::Text("Life Time");
-                ImGui::DragFloat("##ParticleLife", &emitter->lifeTime, 0.1f, 0.0f, 100.0f);
+                //// Life Time
+                //ImGui::Text("Life Time");
+                //ImGui::DragFloat("##ParticleLife", &emitter->lifeTime, 0.1f, 0.0f, 100.0f);
 
-                // Size
-                ImGui::Text("Size");
-                ImGui::DragFloat("##ParticleSize", &emitter->size, 0.1f, 0.0f, 10.0f);
+                //// Size
+                //ImGui::Text("Size");
+                //ImGui::DragFloat("##ParticleSize", &emitter->size, 0.1f, 0.0f, 10.0f);
 
                 // Particle Amount
                 ImGui::Text("Max Particles");
@@ -918,6 +918,7 @@ namespace Coffee {
                 {
                     ImGui::DragFloat("##ParticleStartLifeTime", &emitter->startLifeTime, 0.1f, 0.0f, 100.0f);
                 }
+                ImGui::Separator();
 
                 // Start speed
                 // Use Random Start sppeed
@@ -1147,10 +1148,12 @@ namespace Coffee {
                     // Gradient option (Placeholder: Need to implement gradient system)
                     ImGui::Text("Gradient");
                     ImGui::SameLine();
-                    if (ImGui::Button("Edit Gradient"))
-                    {
-                        // Open a gradient editor (Needs implementation)
-                    }
+                    //if (ImGui::Button("Edit Gradient"))
+                    //{
+                    //    // Open a gradient editor (Needs implementation)
+                    //}
+
+                    GradientEditor::ShowGradientEditor(emitter->colorOverLifetime_gradientPoints);
 
                     // Restore default state
                     if (!emitter->useColorOverLifetime)
@@ -1190,18 +1193,18 @@ namespace Coffee {
                     if (emitter->separateAxes)
                     {
                         ImGui::Text("Size X");
-                        ImGui::Button("Edit Curve##X"); // Curve edit button (to be implemented)
+                        CurveEditor::DrawCurve("Size X", emitter->sizeOverLifetimeX);
 
                         ImGui::Text("Size Y");
-                        ImGui::Button("Edit Curve##Y");
+                        CurveEditor::DrawCurve("Size Y", emitter->sizeOverLifetimeY);
 
                         ImGui::Text("Size Z");
-                        ImGui::Button("Edit Curve##Z");
+                        CurveEditor::DrawCurve("Size Z", emitter->sizeOverLifetimeZ);
                     }
                     else
                     {
                         ImGui::Text("Size");
-                        ImGui::Button("Edit Curve##Size");
+                        CurveEditor::DrawCurve("Size", emitter->sizeOverLifetimeGeneral);
                     }
 
                     // Restore default state

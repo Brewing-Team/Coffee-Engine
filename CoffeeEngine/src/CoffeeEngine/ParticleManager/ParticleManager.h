@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
+#include <CoffeeEngine/ImGui/ImGuiExtras.h>
 
 namespace Coffee
 {
@@ -108,9 +109,20 @@ namespace Coffee
         bool useColorOverLifetime;
         glm::vec4 overLifetimecolor;
 
+        std::vector<GradientPoint> colorOverLifetime_gradientPoints = {
+            {0.0f, ImVec4(1, 1, 1, 1)},
+            {0.3f, ImVec4(1, 1, 1, 1)}
+        };
+
         // Size over Lifetime
         bool useSizeOverLifetime = false;
         bool separateAxes = false;
+        std::vector<CurvePoint> sizeOverLifetimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        std::vector<CurvePoint> sizeOverLifetimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        std::vector<CurvePoint> sizeOverLifetimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        std::vector<CurvePoint> sizeOverLifetimeGeneral = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+
+
 
         // Rotation over Lifetime
         bool useRotationOverLifetime;
