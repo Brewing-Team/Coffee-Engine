@@ -2,7 +2,8 @@
 
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Events/Event.h"
-#include "CoffeeEngine/Physics/PhysicsWorld.h"
+#include "CoffeeEngine/Navigation/NavMesh.h"
+#include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scene/Components.h"
@@ -140,7 +141,11 @@ namespace Coffee {
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
 
-        static Ref<AnimationSystem> m_AnimationSystem; ///< The animation system.
+        Ref<NavMesh> m_NavMesh = nullptr;
+        Ref<NavMeshPathfinding> m_PathFinder = nullptr;
+        std::vector<glm::vec3> m_CurrentPath;
+        glm::vec3 m_PathStart = glm::vec3(0.0f);
+        glm::vec3 m_PathEnd = glm::vec3(0.0f);
 
         friend class Entity;
         friend class SceneTree;
