@@ -42,6 +42,25 @@ namespace Coffee {
         s_ScreenQuad = PrimitiveMesh::CreateQuad();
         s_FinalPassShader = CreateRef<Shader>("FinalPassShader", std::string(finalPassShaderSource));
 
+        std::initializer_list<Attachment> ForwardFramebufferAttachments = {
+            {ImageFormat::RGBA32F, "Color"},
+            {ImageFormat::RGB8, "EntityID"},
+            {ImageFormat::DEPTH24STENCIL8, "Depth"}
+        };
+
+        std::initializer_list<Attachment> PostProcessingFramebufferAttachments = {
+            {ImageFormat::RGBA8, "Color"}
+        };
+
+        std::vector<std::pair<std::string, std::initializer_list<Attachment>>> EditorViewportRenderTargetFramebufferAttachments = {
+            {"Forward", ForwardFramebufferAttachments},
+            {"PostProcessing", PostProcessingFramebufferAttachments}
+        };
+
+        m_ViewportRenderTarget = &Renderer::AddRenderTarget("EditorViewport",
+                                                            {1600, 900}, 
+                                        EditorViewportRenderTargetFramebufferAttachments);
+
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
         Project::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaProject");
@@ -63,6 +82,8 @@ namespace Coffee {
         ZoneScoped;
 
         m_ActiveScene->OnUpdateRuntime(dt);
+
+        Renderer::SetCurrentRenderTarget(nullptr);
 
         // Render the scene to backbuffer
         const Ref<Texture2D>& finalTexture = Renderer::GetRenderTexture();
