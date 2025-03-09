@@ -527,7 +527,10 @@ namespace Coffee {
     {
         if (HasAnimations() && m_Skeleton && m_AnimationController)
         {
-            ozz::io::File skeletonFile(("assets/skeleton" + std::to_string(uuid) + ".ozz").c_str(), "wb");
+            std::filesystem::path cachedPath = CacheManager::GetCachedFilePath(uuid, ResourceType::Model);
+            cachedPath.replace_extension(".ozz");
+
+            ozz::io::File skeletonFile(cachedPath.c_str(), "wb");
             if (skeletonFile.opened())
             {
                 ozz::io::OArchive oArchive(&skeletonFile);
@@ -536,7 +539,7 @@ namespace Coffee {
 
             for (const auto& anim : m_AnimationController->GetAnimations())
             {
-                ozz::io::File animationFile(("assets/" + anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
+                ozz::io::File animationFile((CacheManager::GetCachePath() / anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
                 if (animationFile.opened())
                 {
                     ozz::io::OArchive archive(&animationFile);
@@ -554,7 +557,9 @@ namespace Coffee {
             m_Skeleton = CreateRef<Skeleton>();
             m_Skeleton->SetSkeleton(std::move(skeleton));
 
-            ozz::io::File skeletonFile(("assets/skeleton" + std::to_string(uuid) + ".ozz").c_str(), "rb");
+            std::filesystem::path cachedPath = CacheManager::GetCachedFilePath(uuid, ResourceType::Model);
+            cachedPath.replace_extension(".ozz");
+            ozz::io::File skeletonFile(cachedPath.c_str(), "rb");
             if (skeletonFile.opened())
             {
                 ozz::io::IArchive iArchive(&skeletonFile);
@@ -565,7 +570,7 @@ namespace Coffee {
 
             for (const auto& animName : m_AnimationsNames)
             {
-                ozz::io::File animationsFile(("assets/" + animName + std::to_string(uuid) + ".ozz").c_str(), "rb");
+                ozz::io::File animationsFile((CacheManager::GetCachePath() / animName + std::to_string(uuid) + ".ozz").c_str(), "rb");
                 if (animationsFile.opened())
                 {
                     ozz::io::IArchive iArchive(&animationsFile);
