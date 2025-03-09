@@ -894,10 +894,37 @@ namespace Coffee {
                 {
                     // Open texture selection logic here
                 }
+
+                // Looping
+                ImGui::Text("Looping");
+                ImGui::Checkbox("##ParticleLooping", &emitter->looping);
+
+                // Start Life Time
+                ImGui::Text("Start Life Time");
+                // Use Random Start Life Time
+                ImGui::SameLine();
+                ImGui::Checkbox("##UseRandomStartLifeTime", &emitter->useRandom);
+                if (emitter->useRandom)
+                {
+                    ImGui::Text("Min");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartLifeTimeMin", &emitter->startLifeTimeMin, 0.1f, 0.0f, 100.0f);
+                    ImGui::Text("Max");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartLifeTimeMax", &emitter->startLifeTimeMax, 0.1f, 0.0f, 100.0f);
+                }
+                else
+                {
+                    ImGui::DragFloat("##ParticleStartLifeTime", &emitter->startLifeTime, 0.1f, 0.0f, 100.0f);
+                }
+
+     
+
+              
+
             }
             
            
-            //particles.m_Particles->Update();
 
             if (!isCollapsingHeaderOpen)
             {

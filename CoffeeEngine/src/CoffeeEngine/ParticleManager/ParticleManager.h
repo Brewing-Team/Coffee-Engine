@@ -41,6 +41,15 @@ namespace Coffee
         int amount = 100;
         int textureID = -1; // Placeholder for texture handling
 
+        //Looping
+        bool looping = false;
+
+        // Start Life Time
+        bool useRandom = false; 
+        float startLifeTimeMin = 5.0f;
+        float startLifeTimeMax = 5.0f;
+        float startLifeTime = 5.0f;
+
 
       private:
         std::vector<Ref<Particle>> activeParticles;
