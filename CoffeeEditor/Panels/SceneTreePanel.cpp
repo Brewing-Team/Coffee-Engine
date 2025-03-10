@@ -1138,7 +1138,7 @@ namespace Coffee {
                     {
                         if (ImGui::Selectable(name.c_str()) && name != animationName)
                         {
-                            animatorComponent.GetAnimationSystem()->SetCurrentAnimation(name, &animatorComponent);
+                            AnimationSystem::SetCurrentAnimation(name, &animatorComponent);
                         }
                     }
                     ImGui::EndCombo();
