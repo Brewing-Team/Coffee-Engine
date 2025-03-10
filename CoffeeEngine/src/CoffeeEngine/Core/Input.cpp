@@ -14,9 +14,12 @@ namespace Coffee {
 
     std::vector<InputBinding> Input::m_Bindings = std::vector<InputBinding>(ActionsEnum::ActionCount);
     std::vector<Ref<Gamepad>> Input::m_Gamepads;
-    std::unordered_map<ButtonCode, char> Input::m_ButtonStates;
-    std::unordered_map<AxisCode, float> Input::m_AxisStates;
+    std::unordered_map<ButtonCode, char> Input::m_ButtonStates = {{Button::Invalid, 0}};
+    std::unordered_map<AxisCode, float> Input::m_AxisStates = {{Axis::Invalid, 0.0f}};
     std::unordered_map<AxisCode, float> Input::m_AxisDeadzones;
+    std::unordered_map<KeyCode, bool> Input::m_KeyStates = {{Key::Unknown, false}};
+    std::unordered_map<MouseCode, bool> Input::m_MouseStates;
+    glm::vec2 Input::m_MousePosition = glm::vec2(0.0f);
 
     void Input::Init()
     {
@@ -34,30 +37,31 @@ namespace Coffee {
 
      bool Input::IsKeyPressed(const KeyCode key)
     {
-        const bool* state = SDL_GetKeyboardState(nullptr);
-
-        return state[key];
+        return m_KeyStates[key];
+        //const bool* state = SDL_GetKeyboardState(nullptr);
+        //return state[key];
     }
 
     bool Input::IsMouseButtonPressed(const MouseCode button)
     {
-        return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_MASK(button);
+        return m_MouseStates[button];
+        // return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_MASK(button);
     }
 
-    glm::vec2 Input::GetMousePosition()
+    const glm::vec2& Input::GetMousePosition()
     {
-        float x, y;
-        SDL_GetMouseState(&x, &y);
-
-        return {x, y};
+        return m_MousePosition;
+        // float x, y;
+        // SDL_GetMouseState(&x, &y);
+        // return {x, y};
     }
 
-    float Input::GetMouseX()
+    const float Input::GetMouseX()
     {
         return GetMousePosition().x;
     }
 
-    float Input::GetMouseY()
+    const float Input::GetMouseY()
     {
         return GetMousePosition().y;
     }
@@ -103,6 +107,7 @@ namespace Coffee {
         float deadzone = m_AxisDeadzones[e.Axis];
         float normalizedValue = e.Value / 32767.0f;
 
+        // TODO fix axis curve (currently starts at whatever the deadzone value is instead of at slightly larger than 0)
         if (std::abs(normalizedValue) < deadzone)
         {
             normalizedValue = 0.0f;
@@ -111,18 +116,24 @@ namespace Coffee {
         m_AxisStates[e.Axis] = normalizedValue;
     }
     void Input::OnKeyPressed(const KeyPressedEvent& kEvent) {
+        m_KeyStates[kEvent.GetKeyCode()] = true;
     }
 
     void Input::OnKeyReleased(const KeyReleasedEvent& kEvent) {
+        m_KeyStates[kEvent.GetKeyCode()] = false;
     }
 
     void Input::OnMouseButtonPressed(const MouseButtonPressedEvent& mEvent) {
+        m_MouseStates[mEvent.GetMouseButton()] = true;
     }
 
     void Input::OnMouseButtonReleased(const MouseButtonReleasedEvent& mEvent) {
+        m_MouseStates[mEvent.GetMouseButton()] = false;
     }
 
     void Input::OnMouseMoved(const MouseMovedEvent& mEvent) {
+        m_MousePosition.x = mEvent.GetX();
+        m_MousePosition.y = mEvent.GetY();
     }
 
     void Input::OnEvent(Event& e)
