@@ -11,6 +11,7 @@ namespace Coffee
     {
         //glm::vec3 position;
         glm::mat4 transformMatrix;
+
         glm::vec3 direction;
         glm::vec4 color;
         float size;
@@ -40,7 +41,6 @@ namespace Coffee
 
       public:
 
-        
 
         // Direction
         bool useDirectionRandom = false;
@@ -56,7 +56,7 @@ namespace Coffee
         float timetotal = 0.0f;
         float size = 1.0f;
         int amount = 100;
-        int textureID = -1; // Placeholder for texture handling
+       
 
         // Looping
         bool looping = false;

@@ -12,7 +12,8 @@ namespace Coffee
     void Particle::Update(float dt)
     {
         // position += direction * dt;
-        SetPosition(GetPosition() + direction * dt);
+       SetPosition(GetPosition() + direction * dt);
+       
         lifetime -= dt;
     }
 
@@ -29,14 +30,38 @@ namespace Coffee
 
     void Particle::SetRotation(glm::vec3 rotation)
     {
-        transformMatrix = glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(1, 0, 0));
-        transformMatrix = glm::rotate(transformMatrix, rotation.y, glm::vec3(0, 1, 0));
-        transformMatrix = glm::rotate(transformMatrix, rotation.z, glm::vec3(0, 0, 1));
+        // Extraer la posición y escala actuales
+        glm::vec3 position = GetPosition();
+        glm::vec3 scale = GetSize();
+
+        // Crear una nueva matriz solo con la rotación
+        glm::mat4 rotationMatrix = glm::mat4(1.0f);
+        rotationMatrix = glm::rotate(rotationMatrix, rotation.x, glm::vec3(1, 0, 0));
+        rotationMatrix = glm::rotate(rotationMatrix, rotation.y, glm::vec3(0, 1, 0));
+        rotationMatrix = glm::rotate(rotationMatrix, rotation.z, glm::vec3(0, 0, 1));
+
+        // Reconstruir la matriz con rotación y escala
+        transformMatrix = glm::scale(rotationMatrix, scale);
+
+        // Restaurar la posición
+        SetPosition(position);
     }
 
     void Particle::SetSize(glm::vec3 scale)
     {
-        transformMatrix = glm::scale(glm::mat4(1.0f), scale);
+        // Extraer la posición actual
+        glm::vec3 position = GetPosition();
+
+        // Extraer la rotación SIN la escala previa
+        glm::mat3 rotationMatrix = glm::mat3(glm::normalize(transformMatrix[0]), glm::normalize(transformMatrix[1]),
+                                             glm::normalize(transformMatrix[2]));
+
+        // Construir una nueva matriz con la rotación limpia y la nueva escala
+        transformMatrix = glm::mat4(rotationMatrix);          // Mantiene la rotación sin escala
+        transformMatrix = glm::scale(transformMatrix, scale); // Aplica la nueva escala
+
+        // Restaurar la posición
+        SetPosition(position);
     }
 
     glm::vec3 Particle::GetPosition()
@@ -94,7 +119,11 @@ namespace Coffee
         {
             while (elapsedTime > rateOverTime)
             {
-                GenerateParticle();
+                if (activeParticles.size() < amount)
+                {
+                    GenerateParticle();
+                }
+                
                 elapsedTime -= rateOverTime;
             }
         }
@@ -121,7 +150,7 @@ namespace Coffee
         printf("Cantidad particulas: %d", (int)activeParticles.size());
     }
 
-    void ParticleEmitter::Render() {}
+   
 
 
 } // namespace Coffee
