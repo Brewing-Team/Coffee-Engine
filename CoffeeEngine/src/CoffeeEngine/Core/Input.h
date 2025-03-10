@@ -25,15 +25,15 @@ namespace Coffee {
     {
         enum : InputAction
         {
-            //Common
-            MoveHorizontal,
-            MoveVertical,
-
             // UI
+            UiMoveHorizontal,
+            UiMoveVertical,
             Confirm,
             Cancel,
 
             // Gameplay
+            MoveHorizontal,
+            MoveVertical,
             AimHorizontal,
             AimVertical,
             Shoot,
@@ -68,6 +68,10 @@ namespace Coffee {
          * Initializes the module
          */
         static void Init();
+
+        static void Save();
+
+        static void Load();
 
         /**
          * Checks if a specific key is currently being pressed.
@@ -196,6 +200,7 @@ namespace Coffee {
         static std::unordered_map<MouseCode, bool> m_MouseStates;
         static std::unordered_map<AxisCode, float> m_AxisDeadzones;
         static glm::vec2 m_MousePosition; // Position relative to window
+
     };
     /** @} */
 }

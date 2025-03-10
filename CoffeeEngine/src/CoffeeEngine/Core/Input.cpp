@@ -4,13 +4,19 @@
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
+#include "CoffeeEngine/Project/Project.h"
 #include "SDL3/SDL_keyboard.h"
 #include "SDL3/SDL_mouse.h"
 
 #include <SDL3/SDL_init.h>
-#include <glm/gtc/constants.hpp>
+
+#include <cereal/types/vector.hpp>
+#include <cereal/archives/json.hpp>
+#include <fstream>
 
 namespace Coffee {
+
+    constexpr const char* MAPPING_FILE_PATH = "cfg/InputMapping.json";
 
     std::vector<InputBinding> Input::m_Bindings = std::vector<InputBinding>(ActionsEnum::ActionCount);
     std::vector<Ref<Gamepad>> Input::m_Gamepads;
@@ -25,17 +31,63 @@ namespace Coffee {
     {
         SDL_InitSubSystem(SDL_INIT_GAMEPAD);
 
-        //Defaults
+        #pragma region Defaults
+
+        // Axis deadzone defaults
         m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
         m_AxisDeadzones[Axis::RightTrigger] = 0.15f;
         m_AxisDeadzones[Axis::LeftX] = 0.15f;
         m_AxisDeadzones[Axis::RightY] = 0.15f;
         m_AxisDeadzones[Axis::LeftX] = 0.15f;
         m_AxisDeadzones[Axis::RightY] = 0.15f;
+
+        //UI defaults
+        m_Bindings[ActionsEnum::UiMoveHorizontal].SetName("UiMoveHorizontal").SetAxis(Axis::LeftX).SetButtonNeg(Button::DpadLeft).SetButtonPos(Button::DpadRight);
+        m_Bindings[ActionsEnum::UiMoveVertical].SetName("UiMoveVertical").SetAxis(Axis::LeftY).SetButtonNeg(Button::DpadDown).SetButtonPos(Button::DpadUp);
+        m_Bindings[ActionsEnum::Cancel].SetName("Cancel").SetButtonPos(Button::East);
+        m_Bindings[ActionsEnum::Confirm].SetName("Confirm").SetButtonPos(Button::South);
+
+        // Gameplay defaults
+        m_Bindings[ActionsEnum::MoveHorizontal].SetName("MoveHorizontal").SetAxis(Axis::LeftX);
+        m_Bindings[ActionsEnum::MoveVertical].SetName("MoveVertical").SetAxis(Axis::LeftY);
+        m_Bindings[ActionsEnum::AimHorizontal].SetName("AimHorizontal").SetAxis(Axis::RightX);
+        m_Bindings[ActionsEnum::AimVertical].SetName("AimVertical").SetAxis(Axis::RightY);
+        m_Bindings[ActionsEnum::Shoot].SetName("Shoot").SetAxis(Axis::RightTrigger);
+        m_Bindings[ActionsEnum::Melee].SetName("Melee").SetButtonPos(Button::RightShoulder);
+        m_Bindings[ActionsEnum::Interact].SetName("Interact").SetButtonPos(Button::South);
+        m_Bindings[ActionsEnum::Dash].SetName("Dash").SetButtonPos(Button::East);
+        m_Bindings[ActionsEnum::Cover].SetName("Cover").SetButtonPos(Button::West);
+        m_Bindings[ActionsEnum::Skill1].SetName("Skill1").SetButtonPos(Button::North);
+        m_Bindings[ActionsEnum::Skill2].SetName("Skill2").SetButtonPos(Button::LeftShoulder);
+        m_Bindings[ActionsEnum::Skill3].SetName("Skill3").SetAxis(Axis::LeftTrigger);
+        m_Bindings[ActionsEnum::Injector].SetName("Injector").SetButtonPos(Button::DpadUp);
+        m_Bindings[ActionsEnum::Grenade].SetName("Grenade").SetButtonPos(Button::DpadRight);
+        m_Bindings[ActionsEnum::Map].SetName("Map").SetButtonPos(Button::Back);
+        m_Bindings[ActionsEnum::Pause].SetName("Pause").SetButtonPos(Button::Start);
+
+        #pragma endregion
+
+    }
+    void Input::Save()
+    {
+        // Can't save project input mapping if there's no project
+        if (Project::GetActive() == nullptr) return;
+
+        auto path = Project::GetProjectDirectory() / MAPPING_FILE_PATH;
+
+        std::ofstream file(path);
+
+        cereal::JSONOutputArchive archive(file);
+
+        archive(m_Bindings);
     }
 
+    void Input::Load()
+    {
 
-     bool Input::IsKeyPressed(const KeyCode key)
+    }
+
+    bool Input::IsKeyPressed(const KeyCode key)
     {
         return m_KeyStates[key];
         //const bool* state = SDL_GetKeyboardState(nullptr);

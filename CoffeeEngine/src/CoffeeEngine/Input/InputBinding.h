@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
 
+#include <cereal/cereal.hpp>
 #include <string>
 
 namespace Coffee
@@ -36,7 +37,20 @@ namespace Coffee
         ButtonCode ButtonNeg = Button::Invalid;
 
         AxisCode Axis = Axis::Invalid;
-        float Deadzone = 0.2f;
+
+        InputBinding() = default;
+        ~InputBinding() = default;
+
+        template <class Archive>
+        void serialize(Archive& archive, const uint32_t version)
+        {
+            archive(CEREAL_NVP(KeyPos),
+                CEREAL_NVP(KeyNeg),
+                CEREAL_NVP(ButtonPos),
+                CEREAL_NVP(ButtonNeg),
+                CEREAL_NVP(Axis)
+                );
+        }
 
         /**
          * @brief Retrieves an input value from the action as a controller axis. It doesn't need to be an actual axis to
@@ -59,9 +73,23 @@ namespace Coffee
          */
         ButtonState AsButton();
 
-    private:
+      private:
+
+        // Chainable methods for InputBinding configuration
+        InputBinding& SetName(const std::string& name) { Name = name; return *this; }
+        InputBinding& SetPosKey(const KeyCode code) { KeyPos = code; return *this; }
+        InputBinding& SetNegKey(const KeyCode code) { KeyNeg = code; return *this; }
+        InputBinding& SetButtonPos(const ButtonCode code) { ButtonPos = code; return *this; }
+        InputBinding& SetButtonNeg(const ButtonCode code) { ButtonNeg = code; return *this; }
+        InputBinding& SetAxis(const AxisCode code) { Axis = code; return *this; }
+
         ButtonState m_State = ButtonStates::IDLE;
 
+        friend class Input;
+        friend class cereal::access;
     };
     /** @} */
+
 } // namespace Coffee
+
+CEREAL_CLASS_VERSION(Coffee::InputBinding, 1)
