@@ -106,3 +106,4 @@ message(STATUS "COFFEE_DEBUG DISABLED!")
 endif()
 
 add_definitions(-DUNICODE -D_UNICODE)
+add_definitions(-DNOMINMAX)

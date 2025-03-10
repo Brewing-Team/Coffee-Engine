@@ -1,4 +1,7 @@
 #pragma once
+
+#define BT_NO_SIMD_OPERATOR_OVERLOADS
+
 #include <functional>
 #include <BulletCollision/NarrowPhaseCollision/btPersistentManifold.h>
 

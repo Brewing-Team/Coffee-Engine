@@ -1,5 +1,7 @@
 #pragma once
 
+#define BT_NO_SIMD_OPERATOR_OVERLOADS
+
 #include "CoffeeEngine/Core/Base.h"
 #include "Collider.h"
 

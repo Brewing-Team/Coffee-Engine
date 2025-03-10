@@ -1,5 +1,7 @@
 #pragma once
 
+#define BT_NO_SIMD_OPERATOR_OVERLOADS
+
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Scene/Entity.h"

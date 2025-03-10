@@ -1,5 +1,7 @@
 #pragma once
 
+#define BT_NO_SIMD_OPERATOR_OVERLOADS
+
 #include <btBulletDynamicsCommon.h>
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>

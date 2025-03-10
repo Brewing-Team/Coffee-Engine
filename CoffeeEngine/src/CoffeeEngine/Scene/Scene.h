@@ -1,5 +1,7 @@
 #pragma once
 
+#define BT_NO_SIMD_OPERATOR_OVERLOADS
+
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Navigation/NavMesh.h"

@@ -9,10 +9,10 @@
  #include "CoffeeEngine/IO/ResourceLoader.h"
  #include "CoffeeEngine/IO/ResourceRegistry.h"
  #include "CoffeeEngine/Physics/Collider.h"
+ #include "CoffeeEngine/Animation/AnimationSystem.h"
  #include "CoffeeEngine/Physics/RigidBody.h"
  #include "CoffeeEngine/Renderer/Material.h"
  #include "CoffeeEngine/Renderer/Mesh.h"
- #include "CoffeeEngine/Renderer/Model.h"
  #include "CoffeeEngine/Scene/SceneCamera.h"
  #include "CoffeeEngine/Scripting/Script.h"
  #include "CoffeeEngine/Scripting/ScriptManager.h"
@@ -281,12 +281,13 @@
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
                      cereal::make_nvp("ModelUUID", modelUUID),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
- 
-             Ref<Model> model = ResourceRegistry::Get<Model>(modelUUID);
+
+             // FIXME
+             /*Ref<Model> model = ResourceRegistry::Get<Model>(modelUUID);
              m_Skeleton = model->GetSkeleton();
              m_AnimationController = model->GetAnimationController();
-             m_AnimationSystem = Scene::GetAnimationSystem();
- 
+             m_AnimationSystem = Scene::GetAnimationSystem();*/
+
              JointMatrices = m_Skeleton->GetJointMatrices();
          }
  
