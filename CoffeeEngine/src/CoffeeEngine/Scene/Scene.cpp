@@ -310,9 +310,19 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-            particlesSystemComponent.GetParticleEmitter()->Update();
+            particlesSystemComponent.GetParticleEmitter()->Update(dt);
 
-            //Renderer::Submit(particlesSystemComponent);
+
+
+            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+
+
+            //particlesSystemComponent.GetParticleEmitter()->Render(dt);
+
+            
+            //Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), ParticleEmitter::particleMesh, material, (uint32_t)entity});
+            Renderer::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
         }
 
 

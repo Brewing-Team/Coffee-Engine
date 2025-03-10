@@ -269,6 +269,25 @@ namespace Coffee {
         s_RendererData.renderData.lightCount++;
     }
 
+     void Renderer::Submit(Ref<ParticleEmitter> emitter, Ref<Material> material, uint32_t entity)
+    {
+        
+
+          for (size_t i = 0; i < emitter->activeParticles.size(); i++)
+          {
+
+              Ref<Particle> p = emitter->activeParticles.at(i);
+
+              Renderer::Submit( RenderCommand{p->GetWorldTransform(), ParticleEmitter::particleMesh,
+                                             material, entity});
+
+          }
+
+         
+    }
+
+
+
     void Renderer::Submit(const RenderCommand& command)
     {
         s_RendererData.renderQueue.push_back(command);

@@ -1590,12 +1590,16 @@ namespace Coffee {
                 {
                     if (!entity.HasComponent<ParticlesSystemComponent>())
                     {
-                        if (!entity.HasComponent<ParticlesSystemComponent>())
-                            entity.AddComponent<ParticlesSystemComponent>();
-                        ImGui::CloseCurrentPopup();
+                       
+                       entity.AddComponent<ParticlesSystemComponent>();
+                      /* if (!entity.HasComponent<Material>())
+                       {
+                           entity.AddComponent<Material>();
+                       }*/
+                       ImGui::CloseCurrentPopup();
                     }
                     
-                    ImGui::CloseCurrentPopup();
+                    
                 }
                 else
                 {

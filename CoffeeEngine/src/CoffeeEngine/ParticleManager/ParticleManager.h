@@ -2,33 +2,46 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include <CoffeeEngine/ImGui/ImGuiExtras.h>
+#include <CoffeeEngine/Scene/PrimitiveMesh.h>
 
 namespace Coffee
 {
 
     struct Particle
     {
-        glm::vec3 position;
+        //glm::vec3 position;
+        glm::mat4 transformMatrix;
         glm::vec3 direction;
         glm::vec4 color;
         float size;
         float lifetime;
 
+        
+
         Particle();
         // void Init();
         void Update(float dt);
 
-        template <class Archive> void serialize(Archive& archive)
-        {
-            archive(position, direction, color, size, lifetime);
-        }
+        glm::mat4 GetWorldTransform();
+
+        void SetPosition(glm::vec3 position);
+        void SetRotation(glm::vec3 rotation);
+        void SetSize(glm::vec3 size);
+
+        glm::vec3 GetPosition();
+        glm::vec3 GetRotation();
+        glm::vec3 GetSize();
+        
     };
 
-    struct ParticlesSystemComponent;
+    
     class ParticleEmitter
     {
 
       public:
+
+        
+
         // Direction
         bool useDirectionRandom = false;
         glm::vec3 direction = {0.0f, 1.0f, 0.0f};
@@ -115,7 +128,7 @@ namespace Coffee
         float speedModifier;
 
         // ColorOverLifetime
-        bool useColorOverLifetime;
+        bool useColorOverLifetime = false;
         glm::vec4 overLifetimecolor;
 
         std::vector<GradientPoint> colorOverLifetime_gradientPoints = {
@@ -134,7 +147,7 @@ namespace Coffee
 
 
         // Rotation over Lifetime
-        bool useRotationOverLifetime;
+        bool useRotationOverLifetime = false;
         bool rotationSeparateAxes = false;
         float rotationOverLifetimeX;
         float rotationOverLifetimeY;
@@ -145,27 +158,30 @@ namespace Coffee
         // Renderer
         bool useRenderer = true;
         int renderMode = 0;
-        char material[256];
+        static Ref<Mesh> particleMesh;
         int renderAlignment = 0;
 
+         std::vector<Ref<Particle>> activeParticles;
       private:
-        std::vector<Ref<Particle>> activeParticles;
+       
         float rateOverTime = 1.0f;
         float elapsedTime = 0.0f;
 
         void GenerateParticle();
 
       public:
-        ParticleEmitter() = default;
+        ParticleEmitter();
         // ParticleEmitter(float rate);
 
         void InitParticle(Ref<Particle> p);
-        void Update();
-        void Render();
+        void Update(float dt);
+       
+
+
 
         template <class Archive> void serialize(Archive& archive)
         {
-            archive(activeParticles, rateOverTime, elapsedTime);
+            //archive(rateOverTime, elapsedTime);
         }
     };
 

@@ -558,18 +558,13 @@ namespace Coffee {
     {
         public:
 
-        //glm::vec3 velocity = {0.0f, 1.0f, 0.0f};
-        //glm::vec3 spread = {1.0f, 1.0f, 1.0f};
-        //glm::vec4 colour = {1.0f, 1.0f, 1.0f, 1.0f};
-        //float life = 5.0f;
-        //float size = 1.0f;
-        //int amount = 100;
-        //int textureID = -1; // Placeholder for texture handling
+        
        
 
         // Constructor por defecto
         ParticlesSystemComponent() { 
             m_Particles = std::make_shared<ParticleEmitter>();
+            
         }
         
 
