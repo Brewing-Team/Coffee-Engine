@@ -1153,7 +1153,7 @@ namespace Coffee {
             }
         }
         
-        if (entity.HasComponent<ScriptComponent>())
+        if(entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
             bool isCollapsingHeaderOpen = true;
@@ -1291,7 +1291,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1410,7 +1410,6 @@ namespace Coffee {
                                 scriptFile << "end\n\n";
                                 scriptFile << "function on_exit()\n";
                                 scriptFile << "    -- Add cleanup code here\n";
-                                scriptFile << "end\n";
                                 scriptFile.close();
 
                                 // Add the script component to the entity
@@ -1427,6 +1426,43 @@ namespace Coffee {
                         }
                         ImGui::CloseCurrentPopup();
                     }
+                }
+                else if(items[item_current] == "Rigidbody Component")
+                {
+                    if(!entity.HasComponent<RigidbodyComponent>())
+                    {
+                        try {
+                            Ref<BoxCollider> collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+                            
+                            RigidBody::Properties props;
+                            props.type = RigidBody::Type::Dynamic;
+                            props.mass = 1.0f;
+                            props.useGravity = true;
+                            
+                            auto& rbComponent = entity.AddComponent<RigidbodyComponent>(props, collider);
+                            
+                            // Set initial transform from the entity
+                            if (entity.HasComponent<TransformComponent>()) {
+                                auto& transform = entity.GetComponent<TransformComponent>();
+                                rbComponent.rb->SetPosition(transform.Position);
+                                rbComponent.rb->SetRotation(transform.Rotation);
+                            }
+                            
+                            // Add the rigidbody to the physics world
+                            m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                            
+                            // Set user pointer for collision detection
+                            rbComponent.rb->GetNativeBody()->setUserPointer(
+                                reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                        }
+                        catch (const std::exception& e) {
+                            COFFEE_CORE_ERROR("Exception creating rigidbody: {0}", e.what());
+                            if (entity.HasComponent<RigidbodyComponent>()) {
+                                entity.RemoveComponent<RigidbodyComponent>();
+                            }
+                        }
+                    }
+                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {

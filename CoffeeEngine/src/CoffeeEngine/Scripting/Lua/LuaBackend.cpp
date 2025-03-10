@@ -717,25 +717,117 @@ namespace Coffee {
             "type", &RigidBody::Properties::type,
             "mass", &RigidBody::Properties::mass,
             "useGravity", &RigidBody::Properties::useGravity,
+            "freezeX", &RigidBody::Properties::freezeX,
             "freezeY", &RigidBody::Properties::freezeY,
+            "freezeZ", &RigidBody::Properties::freezeZ,
+            "freezeRotX", &RigidBody::Properties::freezeRotX,
+            "freezeRotY", &RigidBody::Properties::freezeRotY,
+            "freezeRotZ", &RigidBody::Properties::freezeRotZ,
             "isTrigger", &RigidBody::Properties::isTrigger,
-            "velocity", &RigidBody::Properties::velocity
+            "velocity", &RigidBody::Properties::velocity,
+            "friction", &RigidBody::Properties::friction,
+            "linearDrag", &RigidBody::Properties::linearDrag,
+            "angularDrag", &RigidBody::Properties::angularDrag
         );
 
         // Bind RigidBody methods
         luaState.new_usertype<RigidBody>("RigidBody",
+            // Position and rotation
             "set_position", &RigidBody::SetPosition,
             "get_position", &RigidBody::GetPosition,
             "set_rotation", &RigidBody::SetRotation,
             "get_rotation", &RigidBody::GetRotation,
+            
+            // Velocity and forces
             "set_velocity", &RigidBody::SetVelocity,
             "get_velocity", &RigidBody::GetVelocity,
+            "add_velocity", &RigidBody::AddVelocity,
             "apply_force", &RigidBody::ApplyForce,
             "apply_impulse", &RigidBody::ApplyImpulse,
-            "set_trigger", &RigidBody::SetTrigger,
             "reset_velocity", &RigidBody::ResetVelocity,
-            "clear_forces", &RigidBody::ClearForces
+            "clear_forces", &RigidBody::ClearForces,
+            
+            // Torque and angular velocity methods
+            "apply_torque", &RigidBody::ApplyTorque,
+            "apply_torque_impulse", &RigidBody::ApplyTorqueImpulse,
+            "set_angular_velocity", &RigidBody::SetAngularVelocity,
+            "get_angular_velocity", &RigidBody::GetAngularVelocity,
+            
+            // Collisions and triggers
+            "set_trigger", &RigidBody::SetTrigger,
+            
+            // Body type
+            "get_body_type", &RigidBody::GetBodyType,
+            "set_body_type", &RigidBody::SetBodyType,
+            
+            // Mass
+            "get_mass", &RigidBody::GetMass,
+            "set_mass", &RigidBody::SetMass,
+            
+            // Gravity
+            "get_use_gravity", &RigidBody::GetUseGravity,
+            "set_use_gravity", &RigidBody::SetUseGravity,
+            
+            // Constraints
+            "get_freeze_x", &RigidBody::GetFreezeX,
+            "set_freeze_x", &RigidBody::SetFreezeX,
+            "get_freeze_y", &RigidBody::GetFreezeY,
+            "set_freeze_y", &RigidBody::SetFreezeY,
+            "get_freeze_z", &RigidBody::GetFreezeZ,
+            "set_freeze_z", &RigidBody::SetFreezeZ,
+            "get_freeze_rot_x", &RigidBody::GetFreezeRotX,
+            "set_freeze_rot_x", &RigidBody::SetFreezeRotX,
+            "get_freeze_rot_y", &RigidBody::GetFreezeRotY,
+            "set_freeze_rot_y", &RigidBody::SetFreezeRotY,
+            "get_freeze_rot_z", &RigidBody::GetFreezeRotZ,
+            "set_freeze_rot_z", &RigidBody::SetFreezeRotZ,
+            
+            // Physical properties
+            "get_friction", &RigidBody::GetFriction,
+            "set_friction", &RigidBody::SetFriction,
+            "get_linear_drag", &RigidBody::GetLinearDrag,
+            "set_linear_drag", &RigidBody::SetLinearDrag,
+            "get_angular_drag", &RigidBody::GetAngularDrag,
+            "set_angular_drag", &RigidBody::SetAngularDrag,
+            
+            // Utility
+            "get_is_trigger", &RigidBody::GetIsTrigger
         );
+
+        // Add Collider usertype bindings
+        luaState.new_usertype<Collider>("Collider");
+        
+        luaState.new_usertype<BoxCollider>("BoxCollider",
+            sol::constructors<BoxCollider(), BoxCollider(const glm::vec3&)>(),
+            sol::base_classes, sol::bases<Collider>()
+        );
+        
+        luaState.new_usertype<SphereCollider>("SphereCollider",
+            sol::constructors<SphereCollider(), SphereCollider(float)>(),
+            sol::base_classes, sol::bases<Collider>()
+        );
+        
+        luaState.new_usertype<CapsuleCollider>("CapsuleCollider",
+            sol::constructors<CapsuleCollider(), CapsuleCollider(float, float)>(),
+            sol::base_classes, sol::bases<Collider>()
+        );
+        
+        // Helper functions for creating colliders and rigidbodies
+        luaState.set_function("create_box_collider", [](const glm::vec3& size) {
+            return CreateRef<BoxCollider>(size);
+        });
+        
+        luaState.set_function("create_sphere_collider", [](float radius) {
+            return CreateRef<SphereCollider>(radius);
+        });
+        
+        luaState.set_function("create_capsule_collider", [](float radius, float height) {
+            return CreateRef<CapsuleCollider>(radius, height);
+        });
+        
+        luaState.set_function("create_rigidbody", [](const RigidBody::Properties& props, const Ref<Collider>& collider) {
+            return RigidBody::Create(props, collider);
+        });
 
         # pragma endregion
     }

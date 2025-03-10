@@ -58,12 +58,18 @@ namespace Coffee {
     }
 
     void PhysicsWorld::drawCollisionShapes() const {
-
+        if (!dynamicsWorld) return;
         const int numCollisionObjects = dynamicsWorld->getNumCollisionObjects();
         for (int i = 0; i < numCollisionObjects; i++) {
             constexpr float margin = 0.05f;
             const btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
+            
+            if (!obj) continue;
+            
             const btCollisionShape* shape = obj->getCollisionShape();
+            
+            if (!shape) continue;
+            
             const btTransform& transform = obj->getWorldTransform();
 
             btVector3 origin = transform.getOrigin();
@@ -71,22 +77,36 @@ namespace Coffee {
             glm::vec3 position(origin.x(), origin.y(), origin.z());
             glm::quat orientation(rotation.w(), rotation.x(), rotation.y(), rotation.z());
 
-            if (shape->getShapeType() == BOX_SHAPE_PROXYTYPE) {
-                const auto* boxShape = dynamic_cast<const btBoxShape*>(shape);
-                btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
-                glm::vec3 size((halfExtents.x() + margin) * 2.0f, (halfExtents.y() + margin) * 2.0f, (halfExtents.z() + margin) * 2.0f);
-                DebugRenderer::DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-            } else if (shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
-                const auto* sphereShape = dynamic_cast<const btSphereShape*>(shape);
-                const float radius = sphereShape->getRadius() + margin;
-                DebugRenderer::DrawSphere(position, radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-            } else if (shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
-                const auto* capsuleShape = dynamic_cast<const btCapsuleShape*>(shape);
-                const float radius = capsuleShape->getRadius() + margin;
-                const float height = capsuleShape->getHalfHeight() * 2.0f + margin;
-                DebugRenderer::DrawBox(position, orientation, glm::vec3(radius * 2.0f, height, radius * 2.0f), glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-            } else {
-                // Handle other shape types if needed
+            switch (shape->getShapeType()) {
+                case BOX_SHAPE_PROXYTYPE: {
+                    const btBoxShape* boxShape = static_cast<const btBoxShape*>(shape);
+                    if (!boxShape) continue;
+    
+                    btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
+                    glm::vec3 size((halfExtents.x() + margin) * 2.0f, (halfExtents.y() + margin) * 2.0f, (halfExtents.z() + margin) * 2.0f);
+                    DebugRenderer::DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    break;
+                }
+                case SPHERE_SHAPE_PROXYTYPE: {
+                    const btSphereShape* sphereShape = static_cast<const btSphereShape*>(shape);
+                    if (!sphereShape) continue;
+                    
+                    const float radius = sphereShape->getRadius() + margin;
+                    DebugRenderer::DrawSphere(position, radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    break;
+                }
+                case CAPSULE_SHAPE_PROXYTYPE: {
+                    const btCapsuleShape* capsuleShape = static_cast<const btCapsuleShape*>(shape);
+                    if (!capsuleShape) continue;
+                    
+                    const float radius = capsuleShape->getRadius() + margin;
+                    const float cylinderHeight = capsuleShape->getHalfHeight() * 2.0f + margin;
+                    
+                    DebugRenderer::DrawCapsule(position, orientation, radius, cylinderHeight, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    break;
+                }
+                default:
+                    continue;
             }
         }
     }

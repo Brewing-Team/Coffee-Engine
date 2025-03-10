@@ -4,6 +4,12 @@
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Math/Frustum.h"
+#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/CollisionCallback.h"
+#include "CoffeeEngine/Physics/CollisionSystem.h"
+#include "CoffeeEngine/Physics/PhysicsWorld.h"
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
@@ -349,6 +355,7 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
+            .get<RigidbodyComponent>(archive)
             .get<ScriptComponent>(archive)
             .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
@@ -407,7 +414,7 @@ namespace Coffee {
         {
             Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
         }
-
+    
         return scene;
     }
 
@@ -430,6 +437,7 @@ namespace Coffee {
             .get<MeshComponent>(archive)
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
+            .get<RigidbodyComponent>(archive)
             .get<ScriptComponent>(archive)
             .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)

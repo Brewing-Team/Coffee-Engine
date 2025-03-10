@@ -33,13 +33,27 @@ namespace Coffee {
         m_Body->setActivationState(DISABLE_DEACTIVATION);
         m_Body->setUserPointer(nullptr);
 
+        // Apply friction and damping
+        m_Body->setFriction(props.friction);
+        m_Body->setDamping(props.linearDrag, props.angularDrag);
+
         if (props.type == Type::Static) {
             m_Body->setCollisionFlags(m_Body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
             m_Body->setMassProps(0, btVector3(0, 0, 0)); // Zero mass for static objects
         }
 
-        if (props.freezeY) {
-            m_Body->setLinearFactor(btVector3(1, 0, 1));
+        // Apply linear factor based on freeze settings
+        UpdateLinearFactor();
+
+        // Apply angular factor based on freeze rotation settings
+        UpdateAngularFactor();
+
+        // Apply gravity based on useGravity property
+        if (props.useGravity) {
+            m_Body->setGravity(btVector3(0, GRAVITY, 0)); // Default gravity
+        } else {
+            m_Body->setFlags(m_Body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+            m_Body->setGravity(btVector3(0, 0, 0)); // No gravity
         }
     }
 
@@ -64,6 +78,19 @@ namespace Coffee {
     void RigidBody::SetVelocity(const glm::vec3& velocity) const
     {
         m_Body->setLinearVelocity(btVector3(velocity.x, velocity.y, velocity.z));
+        m_Body->activate(true);
+    }
+    
+    void RigidBody::AddVelocity(const glm::vec3& deltaVelocity) const
+    {
+        btVector3 currentVel = m_Body->getLinearVelocity();
+        btVector3 newVel(
+            currentVel.x() + deltaVelocity.x,
+            currentVel.y() + deltaVelocity.y,
+            currentVel.z() + deltaVelocity.z
+        );
+        m_Body->setLinearVelocity(newVel);
+        m_Body->activate(true); 
     }
 
     glm::vec3 RigidBody::GetPosition() const {
@@ -81,7 +108,10 @@ namespace Coffee {
     {
         btTransform transform = m_Body->getWorldTransform();
         btQuaternion quat;
-        quat.setEulerZYX(rotation.z, rotation.y, rotation.x);
+        
+        glm::vec3 rotationRadians = glm::radians(rotation);
+        quat.setEulerZYX(rotationRadians.z, rotationRadians.y, rotationRadians.x);
+        
         transform.setRotation(quat);
         m_Body->setWorldTransform(transform);
     }
@@ -92,7 +122,8 @@ namespace Coffee {
         const btQuaternion quat = transform.getRotation();
         btScalar x, y, z;
         quat.getEulerZYX(z, y, x);
-        return {x, y, z};
+        
+        return glm::degrees(glm::vec3(x, y, z));
     }
 
     glm::vec3 RigidBody::GetVelocity() const
@@ -131,4 +162,172 @@ namespace Coffee {
     {
         m_Body->clearForces();
     }
+
+    void RigidBody::SetBodyType(Type type) 
+    {
+        m_Properties.type = type;
+        
+        if (type == Type::Static) 
+        {
+            m_Body->setCollisionFlags(m_Body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
+            m_Body->setMassProps(0, btVector3(0, 0, 0));
+        }
+        else 
+        {
+            m_Body->setCollisionFlags(m_Body->getCollisionFlags() & ~btCollisionObject::CF_STATIC_OBJECT);
+            
+            if (type == Type::Dynamic) 
+            {
+                btVector3 inertia(0, 0, 0);
+                m_Collider->getShape()->calculateLocalInertia(m_Properties.mass, inertia);
+                m_Body->setMassProps(m_Properties.mass, inertia);
+            }
+        }
+        
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetMass(float mass) 
+    {
+        m_Properties.mass = mass;
+        
+        if (m_Properties.type == Type::Dynamic) 
+        {
+            btVector3 inertia(0, 0, 0);
+            m_Collider->getShape()->calculateLocalInertia(mass, inertia);
+            m_Body->setMassProps(mass, inertia);
+            m_Body->activate(true);
+        }
+    }
+
+    void RigidBody::SetUseGravity(bool useGravity) 
+    {
+        m_Properties.useGravity = useGravity;
+        
+        // Apply or remove gravity effect
+        if (m_Body) {
+            if (useGravity) {
+                m_Body->setFlags(m_Body->getFlags() & ~BT_DISABLE_WORLD_GRAVITY);
+                m_Body->setGravity(btVector3(0, GRAVITY, 0)); // Standard gravity
+            } else {
+                m_Body->setFlags(m_Body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+                m_Body->setGravity(btVector3(0, 0, 0)); // No gravity
+            }
+            m_Body->activate(true);
+        }
+    }
+
+    void RigidBody::SetFreezeX(bool freezeX) 
+    {
+        m_Properties.freezeX = freezeX;
+        UpdateLinearFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeY(bool freezeY) 
+    {
+        m_Properties.freezeY = freezeY;
+        UpdateLinearFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeZ(bool freezeZ) 
+    {
+        m_Properties.freezeZ = freezeZ;
+        UpdateLinearFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::UpdateLinearFactor()
+    {
+        btVector3 linearFactor(
+            m_Properties.freezeX ? 0 : 1,
+            m_Properties.freezeY ? 0 : 1,
+            m_Properties.freezeZ ? 0 : 1
+        );
+        m_Body->setLinearFactor(linearFactor);
+    }
+
+    void RigidBody::SetFriction(float friction) 
+    {
+        m_Properties.friction = friction;
+        if (m_Body) {
+            m_Body->setFriction(friction);
+            m_Body->activate(true);
+        }
+    }
+
+    void RigidBody::SetLinearDrag(float linearDrag) 
+    {
+        m_Properties.linearDrag = linearDrag;
+        if (m_Body) {
+            m_Body->setDamping(linearDrag, m_Properties.angularDrag);
+            m_Body->activate(true);
+        }
+    }
+
+    void RigidBody::SetAngularDrag(float angularDrag) 
+    {
+        m_Properties.angularDrag = angularDrag;
+        if (m_Body) {
+            m_Body->setDamping(m_Properties.linearDrag, angularDrag);
+            m_Body->activate(true);
+        }
+    }
+
+    void RigidBody::SetFreezeRotX(bool freezeRotX) 
+    {
+        m_Properties.freezeRotX = freezeRotX;
+        UpdateAngularFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeRotY(bool freezeRotY) 
+    {
+        m_Properties.freezeRotY = freezeRotY;
+        UpdateAngularFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::SetFreezeRotZ(bool freezeRotZ) 
+    {
+        m_Properties.freezeRotZ = freezeRotZ;
+        UpdateAngularFactor();
+        m_Body->activate(true);
+    }
+
+    void RigidBody::UpdateAngularFactor()
+    {
+        btVector3 angularFactor(
+            m_Properties.freezeRotX ? 0 : 1,
+            m_Properties.freezeRotY ? 0 : 1,
+            m_Properties.freezeRotZ ? 0 : 1
+        );
+        m_Body->setAngularFactor(angularFactor);
+    }
+
+    void RigidBody::ApplyTorque(const glm::vec3& torque) const
+    {
+        m_Body->activate(true);
+        m_Body->applyTorque(btVector3(torque.x, torque.y, torque.z));
+    }
+
+    void RigidBody::ApplyTorqueImpulse(const glm::vec3& torque) const
+    {
+        m_Body->activate(true);
+        m_Body->applyTorqueImpulse(btVector3(torque.x, torque.y, torque.z));
+    }
+
+    void RigidBody::SetAngularVelocity(const glm::vec3& velocity) const
+    {
+        m_Body->activate(true);
+        m_Body->setAngularVelocity(btVector3(velocity.x, velocity.y, velocity.z));
+    }
+
+    glm::vec3 RigidBody::GetAngularVelocity() const
+    {
+        btVector3 vel = m_Body->getAngularVelocity();
+        return {vel.x(), vel.y(), vel.z()};
+    }
+
 } // namespace Coffee
