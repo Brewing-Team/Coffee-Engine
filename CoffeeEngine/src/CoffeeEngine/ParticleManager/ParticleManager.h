@@ -53,12 +53,13 @@ namespace Coffee
         glm::vec4 colourRandom = {1.0f, 1.0f, 1.0f, 1.0f};
         //LifeTime
         float lifeTime = 5.0f;
+        float timetotal = 0.0f;
         float size = 1.0f;
         int amount = 100;
         int textureID = -1; // Placeholder for texture handling
 
         // Looping
-        bool looping = true;
+        bool looping = false;
 
         // Start Life Time
         bool useRandomLifeTime = false;

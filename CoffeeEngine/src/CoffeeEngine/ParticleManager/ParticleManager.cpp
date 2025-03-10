@@ -5,7 +5,9 @@
 namespace Coffee
 {
 
+
     Particle::Particle() : transformMatrix(glm::mat4(1.0f)), direction(0.0f), color(1.0f), size(1.0f), lifetime(1.0f) {}
+
 
     void Particle::Update(float dt)
     {
@@ -13,6 +15,7 @@ namespace Coffee
         SetPosition(GetPosition() + direction * dt);
         lifetime -= dt;
     }
+
 
     glm::mat4 Particle::GetWorldTransform()
     {
@@ -43,7 +46,7 @@ namespace Coffee
 
     glm::vec3 Particle::GetRotation()
     {
-        // Extraer rotación de la matriz de transformación (simplificado)
+        // Extraer rotaciï¿½n de la matriz de transformaciï¿½n (simplificado)
         return glm::vec3(atan2(transformMatrix[1][2], transformMatrix[2][2]),
                          atan2(-transformMatrix[0][2], sqrt(transformMatrix[1][2] * transformMatrix[1][2] +
                                                             transformMatrix[2][2] * transformMatrix[2][2])),
@@ -85,17 +88,21 @@ namespace Coffee
     {
 
         elapsedTime += dt;
+        timetotal += dt;
 
-        while (elapsedTime > rateOverTime)
+        if (looping || elapsedTime < lifeTime)
         {
-            GenerateParticle();
-            elapsedTime -= rateOverTime;
+            while (elapsedTime > rateOverTime)
+            {
+                GenerateParticle();
+                elapsedTime -= rateOverTime;
+            }
         }
 
         for (size_t i = 0; i < activeParticles.size();)
         {
             activeParticles[i]->Update(dt);
-            if (activeParticles.size() > amount)
+            if (activeParticles[i]->lifetime <= 0)
             {
                 activeParticles.erase(activeParticles.begin() + i);
             }
@@ -105,7 +112,16 @@ namespace Coffee
             }
         }
 
-        printf("Cantidad particulas: %d", activeParticles.size());
+        if (!looping && timetotal >= lifeTime )
+        {
+            // Detener generaciï¿½n de partï¿½culas si no es en bucle y ya han expirado
+            return;
+        }
+
+        printf("Cantidad particulas: %d", (int)activeParticles.size());
     }
+
+    void ParticleEmitter::Render() {}
+
 
 } // namespace Coffee
