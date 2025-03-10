@@ -55,7 +55,7 @@ namespace Coffee
         /**
          * @brief Retrieves an input value from the action as a controller axis. It doesn't need to be an actual axis to
          * retrieve a value
-         * @param digital whether the output should be truncated or not
+         * @param digital whether the output should be rounded to an integer or not. Useful to use like directional buttons
          * @return A value between -1 and 1
          */
         float AsAxis(bool digital) const;

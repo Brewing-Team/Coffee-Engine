@@ -37,8 +37,8 @@ namespace Coffee {
         m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
         m_AxisDeadzones[Axis::RightTrigger] = 0.15f;
         m_AxisDeadzones[Axis::LeftX] = 0.15f;
-        m_AxisDeadzones[Axis::RightY] = 0.15f;
-        m_AxisDeadzones[Axis::LeftX] = 0.15f;
+        m_AxisDeadzones[Axis::RightX] = 0.15f;
+        m_AxisDeadzones[Axis::LeftY] = 0.15f;
         m_AxisDeadzones[Axis::RightY] = 0.15f;
 
         //UI defaults
