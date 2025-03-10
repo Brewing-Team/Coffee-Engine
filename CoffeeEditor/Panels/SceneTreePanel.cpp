@@ -1098,32 +1098,32 @@ namespace Coffee {
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
                     }
 
-                    // Linear Velocity
-                    ImGui::Text("Linear");
-                    ImGui::SameLine();
-                    ImGui::DragFloat3("##LinearVelocity", glm::value_ptr(emitter->linearX), 0.1f, -100.0f, 100.0f);
+                    //// Linear Velocity
+                    //ImGui::Text("Linear");
+                    //ImGui::SameLine();
+                    //ImGui::DragFloat3("##LinearVelocity", glm::value_ptr(emitter->linearX), 0.1f, -100.0f, 100.0f);
 
-                    // Space (Local / World)
-                    ImGui::Text("Space");
-                    ImGui::SameLine();
-                    const char* spaceOptions[] = {"Local", "World"};
-                    ImGui::Combo("##VelocitySpace", reinterpret_cast<int*>(&emitter->space), spaceOptions,
-                                 IM_ARRAYSIZE(spaceOptions));
+                    //// Space (Local / World)
+                    //ImGui::Text("Space");
+                    //ImGui::SameLine();
+                    //const char* spaceOptions[] = {"Local", "World"};
+                    //ImGui::Combo("##VelocitySpace", reinterpret_cast<int*>(&emitter->space), spaceOptions,
+                    //             IM_ARRAYSIZE(spaceOptions));
 
-                    // Orbital Velocity
-                    ImGui::Text("Orbital");
-                    ImGui::SameLine();
-                    ImGui::DragFloat3("##OrbitalVelocity", glm::value_ptr(emitter->orbitalX), 0.1f, -100.0f, 100.0f);
+                    //// Orbital Velocity
+                    //ImGui::Text("Orbital");
+                    //ImGui::SameLine();
+                    //ImGui::DragFloat3("##OrbitalVelocity", glm::value_ptr(emitter->orbitalX), 0.1f, -100.0f, 100.0f);
 
-                    // Offset
-                    ImGui::Text("Offset");
-                    ImGui::SameLine();
-                    ImGui::DragFloat3("##OffsetVelocity", glm::value_ptr(emitter->offsetX), 0.1f, -100.0f, 100.0f);
+                    //// Offset
+                    //ImGui::Text("Offset");
+                    //ImGui::SameLine();
+                    //ImGui::DragFloat3("##OffsetVelocity", glm::value_ptr(emitter->offsetX), 0.1f, -100.0f, 100.0f);
 
-                    // Radial Speed
-                    ImGui::Text("Radial");
-                    ImGui::SameLine();
-                    ImGui::DragFloat("##RadialVelocity", &emitter->radial, 0.1f, -100.0f, 100.0f);
+                    //// Radial Speed
+                    //ImGui::Text("Radial");
+                    //ImGui::SameLine();
+                    //ImGui::DragFloat("##RadialVelocity", &emitter->radial, 0.1f, -100.0f, 100.0f);
 
                     // Speed Modifier
                     ImGui::Text("Speed Modifier");
