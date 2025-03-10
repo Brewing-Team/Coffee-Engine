@@ -194,9 +194,6 @@
            modelUUID(other.modelUUID),
            animatorUUID(other.animatorUUID)
          {
-             m_BlendJob.layers = ozz::make_span(m_BlendLayers);
-             m_AnimationSystem->SetCurrentAnimation(CurrentAnimation, this);
-             m_AnimationSystem->AddAnimator(this);
          }
  
          /**
@@ -281,14 +278,6 @@
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
                      cereal::make_nvp("ModelUUID", modelUUID),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
-
-             // FIXME
-             /*Ref<Model> model = ResourceRegistry::Get<Model>(modelUUID);
-             m_Skeleton = model->GetSkeleton();
-             m_AnimationController = model->GetAnimationController();
-             m_AnimationSystem = Scene::GetAnimationSystem();*/
-
-             JointMatrices = m_Skeleton->GetJointMatrices();
          }
  
      public:
@@ -305,8 +294,7 @@
          std::vector<glm::mat4> JointMatrices; ///< The joint matrices.
          UUID modelUUID; ///< The UUID of the model.
          UUID animatorUUID; ///< The UUID of the animator.
- 
-     private:
+
          Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
          Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
          Ref<AnimationSystem> m_AnimationSystem; ///< The animation system reference.

@@ -443,6 +443,21 @@ namespace Coffee {
             .get<AudioZoneComponent>(archive)
             .get<LightComponent>(archive);
 
+            // FIXME - Temporal fix for animations
+            for (auto entity : scene->m_Registry.view<AnimatorComponent>())
+            {
+                auto& animatorComponent = scene->m_Registry.get<AnimatorComponent>(entity);
+                Ref<Model> model = ResourceRegistry::Get<Model>(animatorComponent.modelUUID);
+                animatorComponent.m_Skeleton = model->GetSkeleton();
+                animatorComponent.m_AnimationController = model->GetAnimationController();
+                animatorComponent.m_AnimationSystem = GetAnimationSystem();
+                animatorComponent.JointMatrices = animatorComponent.m_Skeleton->GetJointMatrices();
+
+                animatorComponent.m_BlendJob.layers = ozz::make_span(animatorComponent.m_BlendLayers);
+                animatorComponent.m_AnimationSystem->SetCurrentAnimation(animatorComponent.CurrentAnimation, &animatorComponent);
+                animatorComponent.m_AnimationSystem->AddAnimator(&animatorComponent);
+            }
+
             scene->AssignAnimatorsToMeshes(m_AnimationSystem->GetAnimators());
         
         scene->m_FilePath = path;
