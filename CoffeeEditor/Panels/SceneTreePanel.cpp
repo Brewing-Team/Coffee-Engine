@@ -903,17 +903,6 @@ namespace Coffee {
                 //ImGui::Text("Size");
                 //ImGui::DragFloat("##ParticleSize", &emitter->size, 0.1f, 0.0f, 10.0f);
 
-                // Particle Amount
-                ImGui::Text("Max Particles");
-                ImGui::DragInt("##ParticleAmount", &emitter->amount, 1, 1, 10000);
-
-                // Texture Selector
-                ImGui::Text("Texture");
-                if (ImGui::Button("Select Texture"))
-                {
-                    // Open texture selection logic here
-                }
-
                 // Looping
                 ImGui::Checkbox("##ParticleLooping", &emitter->looping);
                 ImGui::SameLine();
@@ -1330,6 +1319,11 @@ namespace Coffee {
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                     }
 
+                    // Particle Amount
+                    ImGui::Text("Max Particles");
+                    ImGui::SameLine();
+                    ImGui::DragInt("##ParticleAmount", &emitter->amount, 1, 1, 10000);
+
                     // Render Mode selection
                     const char* renderModes[] = {"Billboard", "Stretched Billboard", "Horizontal Billboard",
                                                  "Vertical Billboard"};
@@ -1342,6 +1336,14 @@ namespace Coffee {
                     ImGui::Text("Material");
                     ImGui::SameLine();
                     ImGui::InputText("##Material", emitter->material, IM_ARRAYSIZE(emitter->material));
+
+                    // Texture Selector
+                    ImGui::Text("Texture");
+                    ImGui::SameLine();
+                    if (ImGui::Button("Select Texture"))
+                    {
+                        // Open texture selection logic here
+                    }
 
                     // Render Alignment selection
                     const char* renderAlignments[] = {"View", "Local", "World"};
