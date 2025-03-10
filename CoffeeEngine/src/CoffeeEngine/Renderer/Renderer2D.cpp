@@ -72,7 +72,8 @@ namespace Coffee {
 
     struct Renderer2DData
     {
-        std::vector<Batch> Batches;
+        std::vector<Batch> WorldBatches;
+        std::vector<Batch> ScreenBatches;
 
         Ref<VertexArray> QuadVertexArray;
         Ref<VertexBuffer> QuadVertexBuffer;
@@ -160,13 +161,21 @@ namespace Coffee {
 
     void Renderer2D::Render(const RenderTarget& target)
     {
+    }
+
+    void Renderer2D::WorldPass(const RenderTarget& target)
+    {
+    }
+
+    void Renderer2D::ScreenPass(const RenderTarget& target)
+    {
         // TODO: Modify the target to have a framebuffer for 2D elements
         const Ref<Framebuffer>& forwardBuffer = target.GetFramebuffer("Forward");
 
         forwardBuffer->Bind();
         //forwardBuffer->SetDrawBuffers({0, 1}); //TODO: This should only be done in the editor
 
-        for (Batch& batch : s_Renderer2DData.Batches)
+        for (Batch& batch : s_Renderer2DData.ScreenBatches)
         {
             if(batch.QuadIndexCount > 0)
             {
@@ -196,19 +205,19 @@ namespace Coffee {
 
         forwardBuffer->UnBind();
 
-        s_Renderer2DData.Batches.clear();
+        s_Renderer2DData.ScreenBatches.clear();
     }
 
     void Renderer2D::Shutdown()
     {
     }
 
-    void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color)
+    void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color, uint32_t entityID)
     {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), {position.x, position.y, 0.0f})
                             * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
         
-        DrawQuad(transform, color);
+        DrawRect(transform, color, RenderMode::Screen, entityID);
     }
 
 /*     void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
@@ -219,7 +228,7 @@ namespace Coffee {
         DrawQuad(transform, texture, tilingFactor, tintColor);
     } */
 
-    void Renderer2D::DrawQuad(const glm::mat4& transform, const glm::vec4& color, uint32_t entityID)
+    void Renderer2D::DrawRect(const glm::mat4& transform, const glm::vec4& color, RenderMode mode, uint32_t entityID)
     {
         constexpr size_t quadVertexCount = 4;
         constexpr glm::vec2 texCoords[] = {
@@ -229,20 +238,12 @@ namespace Coffee {
             {0.0f, 1.0f}
         };
 
-        // TODO: Think if this should be done here
-        if(s_Renderer2DData.Batches.empty())
-        {
-            s_Renderer2DData.Batches.push_back(Batch());
-        }
-
-        Batch& batch = s_Renderer2DData.Batches.back();
+        Batch& batch = GetBatch(mode);
 
         if(batch.QuadIndexCount >= Batch::MaxIndices)
         {
-            // TODO: Wrap this in a function
-
-            s_Renderer2DData.Batches.push_back(Batch());
-            batch = s_Renderer2DData.Batches.back();
+            NextBatch(mode);
+            batch = GetBatch(mode);
         }
 
         // Convert entityID to vec3
@@ -267,7 +268,7 @@ namespace Coffee {
         batch.QuadIndexCount += 6;
     }
 
-    void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, uint32_t entityID)
+    void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, RenderMode mode, uint32_t entityID)
     {
         constexpr size_t quadVertexCount = 4;
         constexpr glm::vec2 texCoords[] = {
@@ -277,17 +278,12 @@ namespace Coffee {
             {0.0f, 1.0f}
         };
 
-        if(s_Renderer2DData.Batches.empty())
-        {
-            s_Renderer2DData.Batches.push_back(Batch());
-        }
-
-        Batch& batch = s_Renderer2DData.Batches.back();
+        Batch& batch = GetBatch(mode);
 
         if(batch.QuadIndexCount >= Batch::MaxIndices)
         {
-            s_Renderer2DData.Batches.push_back(Batch());
-            batch = s_Renderer2DData.Batches.back();
+            NextBatch(mode);
+            batch = GetBatch(mode);
         }
 
         float textureIndex = 0.0f;
@@ -304,8 +300,8 @@ namespace Coffee {
         {
             if(batch.TextureSlotIndex >= Batch::MaxTextureSlots)
             {
-                s_Renderer2DData.Batches.push_back(Batch());
-                batch = s_Renderer2DData.Batches.back();
+                NextBatch(mode);
+                batch = GetBatch(mode);
             }
 
             textureIndex = (float)batch.TextureSlotIndex;
@@ -335,19 +331,15 @@ namespace Coffee {
         batch.QuadIndexCount += 6;
     }
 
-    void Renderer2D::DrawText(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, uint32_t entityID)
+    void Renderer2D::DrawText(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, RenderMode mode, uint32_t entityID)
     {
-        if(s_Renderer2DData.Batches.empty())
-        {
-            s_Renderer2DData.Batches.push_back(Batch());
-        }
 
-        Batch& batch = s_Renderer2DData.Batches.back();
+        Batch& batch = GetBatch(mode);
 
         if(batch.TextIndexCount >= Batch::MaxIndices)
         {
-            s_Renderer2DData.Batches.push_back(Batch());
-            batch = s_Renderer2DData.Batches.back();
+            NextBatch(mode);
+            batch = GetBatch(mode);
         }
 
         const auto& fontGeometry = font->GetMSDFData()->FontGeometry;
@@ -467,6 +459,40 @@ namespace Coffee {
 
 				x += fsScale * advance + textParams.Kerning;
 			}
+        }
+    }
+
+    Batch& Renderer2D::GetBatch(RenderMode mode)
+    {
+        if(mode == RenderMode::World)
+        {
+            if(s_Renderer2DData.WorldBatches.empty())
+            {
+                s_Renderer2DData.WorldBatches.push_back(Batch());
+            }
+
+            return s_Renderer2DData.WorldBatches.back();
+        }
+        else
+        {
+            if(s_Renderer2DData.ScreenBatches.empty())
+            {
+                s_Renderer2DData.ScreenBatches.push_back(Batch());
+            }
+
+            return s_Renderer2DData.ScreenBatches.back();
+        }
+    }
+
+    void Renderer2D::NextBatch(RenderMode mode)
+    {
+        if(mode == RenderMode::World)
+        {
+            s_Renderer2DData.WorldBatches.push_back(Batch());
+        }
+        else
+        {
+            s_Renderer2DData.ScreenBatches.push_back(Batch());
         }
     }
 }
