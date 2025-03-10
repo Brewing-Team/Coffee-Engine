@@ -351,7 +351,7 @@ namespace Coffee {
                 ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale),  0.1f);
             }
         }
-        // En la sección donde se maneja el UIImageComponent
+
         if (entity.HasComponent<UIImageComponent>())
         {
             auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
@@ -392,18 +392,25 @@ namespace Coffee {
                             }
                         }
                     }
-
-                    // Tamaño
-                    ImGui::Text("Size");
-                    ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
-
-                    // Visibilidad
-                    ImGui::Checkbox("Visible", &uiImageComponent.Visible);
                 }
                 else
                 {
                     ImGui::Text("No material assigned");
+
+                    // Botón para asignar un material
+                    if (ImGui::Button("Assign Material"))
+                    {
+                        // Crear un material por defecto
+                        uiImageComponent.material = Material::Create("UIImageMaterial");
+                    }
                 }
+
+                // Tamaño
+                ImGui::Text("Size");
+                ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
+
+                // Visibilidad
+                ImGui::Checkbox("Visible", &uiImageComponent.Visible);
 
                 if (!isCollapsingHeaderOpen)
                 {

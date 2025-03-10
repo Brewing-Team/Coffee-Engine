@@ -339,9 +339,10 @@ namespace Coffee {
         bool Visible = true;
 
         UIImageComponent() = default;
+        // En el constructor de UIImageComponent
         UIImageComponent(const std::string& texturePath, const glm::vec2& size, bool visible)
             : Size(size), Visible(visible)
-        {
+            {
             if (!texturePath.empty())
             {
                 // Cargar la textura
@@ -350,15 +351,15 @@ namespace Coffee {
                 {
                     // Crear un material basado en la textura
                     material = Material::Create("UIImageMaterial");
-
-                    // Asignar la textura al albedo del material
-                    MaterialTextures textures;
-                    textures.albedo = texture;
-                    material->GetMaterialTextures() = textures;
+                    material->GetMaterialTextures().albedo = texture;
                 }
             }
-        }
-
+                else
+                {
+                // Crear un material por defecto si no hay textura
+                material = Material::Create("UIImageMaterial");
+                }
+            }
         void SetTexture(const std::string& texturePath)
         {
             Ref<Texture2D> texture = Texture2D::Load(texturePath);
@@ -397,6 +398,8 @@ namespace Coffee {
             }
         }
     };
+
+
     struct UITextComponent
     {
         std::string Text = "Default Text";
