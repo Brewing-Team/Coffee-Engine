@@ -886,8 +886,14 @@ namespace Coffee {
               
 
                 // Colour
+                ImGui::Checkbox("##ParticleColorUseRandom", &emitter->useColorRandom);
+                ImGui::SameLine();
                 ImGui::Text("Colour");
-                ImGui::ColorEdit4("##ParticleColour", glm::value_ptr(emitter->colour));
+                ImGui::ColorEdit4("##ParticleColourNormal", glm::value_ptr(emitter->colourNormal));
+                if (emitter->useColorRandom){
+                    ImGui::ColorEdit4("##ParticleColorRandom", glm::value_ptr(emitter->colourRandom));
+                }
+                
 
                 //// Life Time
                 //ImGui::Text("Life Time");

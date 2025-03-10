@@ -20,7 +20,7 @@ namespace Coffee
     {
         p->position = glm::vec3(0.0f);
         p->direction = direction; // Ya no es un puntero
-        p->color = colour;
+        p->color = colourNormal;
         p->size = size;
         p->lifetime = lifeTime;
     }

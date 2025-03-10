@@ -32,7 +32,11 @@ namespace Coffee
         glm::vec3 direction = {0.0f, 1.0f, 0.0f};
         glm::vec3 minSpread = {1.0f, 1.0f, 1.0f};
         glm::vec3 maxSpread = {1.0f, 1.0f, 1.0f};
-        glm::vec4 colour = {1.0f, 1.0f, 1.0f, 1.0f};
+        //Color
+        bool useColorRandom = false;
+        glm::vec4 colourNormal = {1.0f, 1.0f, 1.0f, 1.0f};
+        glm::vec4 colourRandom = {1.0f, 1.0f, 1.0f, 1.0f};
+        //LifeTime
         float lifeTime = 5.0f;
         float size = 1.0f;
         int amount = 100;
