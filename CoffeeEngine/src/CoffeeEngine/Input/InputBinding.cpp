@@ -14,7 +14,7 @@ namespace Coffee {
         value = glm::clamp(value, -1.0f, 1.0f);
 
         if (digital)
-            return glm::trunc(value);
+            return glm::round(value);
         else
             return value;
     }
