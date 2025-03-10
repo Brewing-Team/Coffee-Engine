@@ -887,10 +887,10 @@ namespace Coffee {
                 }
                 ImGui::SameLine();
                 ImGui::Text("Direction");
-                ImGui::DragFloat3("##ParticleDirectionNormal", glm::value_ptr(emitter->direction), 0.1f);
+                ImGui::DragFloat3("##ParticleDirectionNormal", glm::value_ptr(emitter->direction), 0.1f, -1.0f, 1.0f);
                 if (emitter->useDirectionRandom)
                 {
-                    ImGui::DragFloat3("##ParticleDirectionRandom", glm::value_ptr(emitter->directionRandom), 0.1f);
+                    ImGui::DragFloat3("##ParticleDirectionRandom", glm::value_ptr(emitter->directionRandom), 0.1f, -1.0f, 1.0f);
                 }
 
               

@@ -1,7 +1,7 @@
 #include "ParticleManager.h"
 #include <cstdlib>
 #include <ctime>
-
+#include <glm/gtc/random.hpp>
 namespace Coffee
 {
 
@@ -95,11 +95,66 @@ namespace Coffee
 
     void ParticleEmitter::InitParticle(Ref<Particle> p)
     {
-        p->transformMatrix = glm::mat4(1.0f);
-        p->direction = direction; // Ya no es un puntero
-        p->color = colourNormal;
-        p->size = size;
-        p->lifetime = lifeTime;
+        glm::vec3 spawnpos = {0.0f, 0.0f, 0.0f};
+        spawnpos = glm::linearRand(minSpread, maxSpread);
+        p->SetPosition(glm::vec3(spawnpos.x, spawnpos.y, spawnpos.z));
+        if (useDirectionRandom)
+        {
+            p->direction = glm::linearRand(direction, directionRandom);
+        }
+        else
+        {
+            p->direction = direction;
+        }
+
+        if (useColorRandom)
+        {
+            p->color = glm::linearRand(colourNormal, colourRandom);
+        }
+        else
+        {
+            p->color = colourNormal;
+        }
+
+        
+        if (useRandomLifeTime)
+        {
+            p->lifetime = glm::linearRand(startLifeTimeMin, startLifeTimeMax);
+        }
+        else
+        {
+            p->lifetime = startLifeTime;
+        }
+        float startSpeedValue;
+        if (useRandomSpeed)
+        {
+            startSpeedValue = glm::linearRand(startSpeedMin, startSpeedMax);
+        }
+        else
+        {
+            startSpeedValue = startSpeed;
+        }
+        p->direction *= startSpeedValue;
+
+        if (useRandomSize)
+        {
+            float randomsize = glm::linearRand(startSizeMin, startSizeMax);
+            p->SetSize(glm::vec3(randomsize, randomsize, randomsize));
+        }
+        else
+        {
+            p->SetSize(glm::vec3(startSize, startSize, startSize));
+        }
+        if (useRandomRotation)
+        {
+            float randomrot = glm::linearRand(startRotationMin, startRotationMax);
+            p->SetRotation(glm::vec3(randomrot, randomrot, randomrot));
+        }
+        else
+        {
+            p->SetRotation(glm::vec3(startRotation, startRotation, startRotation));
+        }
+        
     }
 
     void ParticleEmitter::GenerateParticle()

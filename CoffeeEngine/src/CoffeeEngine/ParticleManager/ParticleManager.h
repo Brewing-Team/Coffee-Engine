@@ -103,8 +103,8 @@ namespace Coffee
             Box
         };
         ShapeType shape = ShapeType::Sphere; 
-        glm::vec3 minSpread = {1.0f, 1.0f, 1.0f};
-        glm::vec3 maxSpread = {1.0f, 1.0f, 1.0f};
+        glm::vec3 minSpread = {0.0f, 0.0f, 0.0f};
+        glm::vec3 maxSpread = {0.0f, 0.0f, 0.0f};
         bool useShape = false;
         float shapeangle = 45.0f;                           
         float shaperadius = 1.0f;                       
