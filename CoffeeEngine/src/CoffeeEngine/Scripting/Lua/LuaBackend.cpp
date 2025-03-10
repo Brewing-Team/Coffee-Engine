@@ -584,7 +584,7 @@ namespace Coffee {
             }
         );
 
-        luaState.new_usertype<UIImageComponent>("UIImageComponent",
+        /*luaState.new_usertype<UIImageComponent>("UIImageComponent",
             sol::constructors<UIImageComponent(), UIImageComponent(const std::string&, const glm::vec2&, const glm::vec2&, bool)>(),
             "get_texture", &UIImageComponent::Texture,
             "set_texture", &UIImageComponent::SetTexture,
@@ -592,7 +592,7 @@ namespace Coffee {
             "set_size", [](UIImageComponent& self, const glm::vec2& size) { self.Size = size; },
             "is_visible", &UIImageComponent::Visible,
             "set_visible", [](UIImageComponent& self, bool visible) { self.Visible = visible; }
-        );
+        );*/
 
         luaState.new_usertype<UITextComponent>("UITextComponent",
             sol::constructors<UITextComponent(), UITextComponent(const std::string&, const std::string&, const glm::vec2&, float, float, const glm::vec4&, bool)>(),

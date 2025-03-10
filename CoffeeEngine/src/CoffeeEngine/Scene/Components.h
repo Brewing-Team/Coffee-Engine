@@ -334,46 +334,69 @@ namespace Coffee {
 
     struct UIImageComponent
     {
-        std::string TexturePath; // path
-        Ref<Texture2D> Texture;  // texture loaded
+        Ref<Material> material; // Material reference
         glm::vec2 Size = {100.0f, 100.0f};
         bool Visible = true;
 
         UIImageComponent() = default;
-        UIImageComponent(const std::string& texturePath, const glm::vec2& position, const glm::vec2& size, bool visible)
-            : TexturePath(texturePath), Size(size), Visible(visible)
+        UIImageComponent(const std::string& texturePath, const glm::vec2& size, bool visible)
+            : Size(size), Visible(visible)
         {
             if (!texturePath.empty())
             {
-                Texture = Texture2D::Load(texturePath);
+                // Cargar la textura
+                Ref<Texture2D> texture = Texture2D::Load(texturePath);
+                if (texture)
+                {
+                    // Crear un material basado en la textura
+                    material = Material::Create("UIImageMaterial");
+
+                    // Asignar la textura al albedo del material
+                    MaterialTextures textures;
+                    textures.albedo = texture;
+                    material->GetMaterialTextures() = textures;
+                }
             }
         }
 
         void SetTexture(const std::string& texturePath)
         {
-            TexturePath = texturePath;
+            Ref<Texture2D> texture = Texture2D::Load(texturePath);
+            if (texture)
+            {
+                if (!material)
+                {
+                    // Si no hay material, crear uno nuevo
+                    material = Material::Create("UIImageMaterial");
+                }
+
+                // Asignar la textura al albedo del material
+                MaterialTextures textures = material->GetMaterialTextures();
+                textures.albedo = texture;
+                material->GetMaterialTextures() = textures;
+            }
         }
 
         template<class Archive>
         void save(Archive& archive) const {
-            archive(cereal::make_nvp("TexturePath", TexturePath),
+            archive(cereal::make_nvp("Material", material->GetUUID()),
                     cereal::make_nvp("Size", Size),
                     cereal::make_nvp("Visible", Visible));
         }
 
         template<class Archive>
         void load(Archive& archive) {
-            archive(cereal::make_nvp("TexturePath", TexturePath),
+            UUID materialUUID;
+            archive(cereal::make_nvp("Material", materialUUID),
                     cereal::make_nvp("Size", Size),
                     cereal::make_nvp("Visible", Visible));
 
-            // Load the texture after deserialization
-            if (!TexturePath.empty()) {
-                Texture = ResourceLoader::LoadTexture2D(TexturePath, true, true);
+            // Cargar el material desde el ResourceRegistry usando el UUID
+            if (materialUUID != UUID::null) {
+                material = ResourceRegistry::Get<Material>(materialUUID);
             }
         }
     };
-
     struct UITextComponent
     {
         std::string Text = "Default Text";

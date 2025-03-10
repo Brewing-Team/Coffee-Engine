@@ -351,6 +351,7 @@ namespace Coffee {
                 ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale),  0.1f);
             }
         }
+        // En la sección donde se maneja el UIImageComponent
         if (entity.HasComponent<UIImageComponent>())
         {
             auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
@@ -358,30 +359,56 @@ namespace Coffee {
 
             if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // Show Path
-                ImGui::Text("Texture Path");
-                ImGui::SameLine();
-                ImGui::Text("%s", uiImageComponent.TexturePath.c_str());
-
-                // Selct texture wiht a button
-                if (ImGui::Button("Select Texture"))
+                // Mostrar el material asociado
+                if (uiImageComponent.material)
                 {
-                    std::string path = FileDialog::OpenFile({}).string();
-                    if (!path.empty())
+                    ImGui::Text("Material");
+                    ImGui::SameLine();
+                    ImGui::Text("%s", uiImageComponent.material->GetName().c_str());
+
+                    // Seleccionar textura para el albedo del material
+                    ImGui::Text("Albedo Texture");
+                    Ref<Texture2D>& albedoTexture = uiImageComponent.material->GetMaterialTextures().albedo;
+                    if (albedoTexture)
                     {
-                        uiImageComponent.TexturePath = path;
-                        uiImageComponent.Texture = Texture2D::Load(path);
+                        ImGui::Image((ImTextureID)albedoTexture->GetID(), {64, 64});
+                        ImGui::SameLine();
+                        ImGui::Text("%s", albedoTexture->GetPath().c_str());
                     }
+                    else
+                    {
+                        ImGui::Text("No texture selected");
+                    }
+
+                    if (ImGui::Button("Select Albedo Texture"))
+                    {
+                        std::string path = FileDialog::OpenFile({}).string();
+                        if (!path.empty())
+                        {
+                            Ref<Texture2D> texture = Texture2D::Load(path);
+                            if (texture)
+                            {
+                                uiImageComponent.material->GetMaterialTextures().albedo = texture;
+                            }
+                        }
+                    }
+
+                    // Tamaño
+                    ImGui::Text("Size");
+                    ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
+
+                    // Visibilidad
+                    ImGui::Checkbox("Visible", &uiImageComponent.Visible);
+                }
+                else
+                {
+                    ImGui::Text("No material assigned");
                 }
 
-                // size
-                ImGui::Text("Size");
-                ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
-
-                // visibility
-                ImGui::Checkbox("Visible", &uiImageComponent.Visible);
-
-
+                if (!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<UIImageComponent>();
+                }
             }
         }
         if (entity.HasComponent<UITextComponent>())
