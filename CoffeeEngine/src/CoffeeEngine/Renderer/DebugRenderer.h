@@ -143,6 +143,10 @@ namespace Coffee {
         static void DrawFrustum(const glm::mat4& viewProjection, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
         //static void DrawFrustum(const glm::mat4& transform, float aspect, float fov, float near, float far, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
+        static void DrawCapsule(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color = glm::vec4(1.0f));
+        
+        static void DrawCylinder(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color = glm::vec4(1.0f));
+
     private:
         static Ref<VertexArray> m_LineVertexArray;
         static Ref<VertexBuffer> m_LineVertexBuffer;

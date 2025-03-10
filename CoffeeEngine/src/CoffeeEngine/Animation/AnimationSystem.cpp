@@ -1,5 +1,7 @@
 #include "AnimationSystem.h"
 
+#define BT_NO_SIMD_OPERATOR_OVERLOADS
+
 #include "CoffeeEngine/Scene/Components.h"
 
 #include <iostream>
