@@ -157,12 +157,19 @@ namespace Coffee {
         // TEST ------------------------------
         m_Octree.DebugDraw();
 
-        auto animatorView = m_Registry.view<AnimatorComponent>();
+        // TEMPORAL - Navigation
+        auto navMeshView = m_Registry.view<NavMeshComponent>();
 
-        for (auto& entity : animatorView)
+        for (auto& entity : navMeshView)
         {
-            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
-            AnimationSystem::Update(dt, animatorComponent);
+            auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
+            if (navMeshComponent.m_NavMesh && navMeshComponent.m_NavMesh->IsCalculated())
+            {
+                navMeshComponent.m_NavMesh->RenderWalkableAreas();
+
+                if (navMeshComponent.m_PathFinder)
+                    navMeshComponent.m_PathFinder->RenderPath(navMeshComponent.m_CurrentPath);
+            }
         }
 
         UpdateAudioComponentsPositions();

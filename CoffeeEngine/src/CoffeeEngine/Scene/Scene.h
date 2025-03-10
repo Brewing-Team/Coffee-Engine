@@ -134,7 +134,6 @@ namespace Coffee {
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
 
-
         friend class Entity;
         friend class SceneTree;
         friend class SceneTreePanel;

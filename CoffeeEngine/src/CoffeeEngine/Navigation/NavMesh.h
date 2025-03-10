@@ -22,12 +22,13 @@ namespace Coffee
         NavMesh() : m_WalkableSlopeAngle(45.0f) {}
         ~NavMesh() { Clear(); }
 
-        void AddMesh(const std::shared_ptr<Mesh>& mesh, const glm::mat4& worldTransform);
-        bool CalculateWalkableAreas();
+        bool CalculateWalkableAreas(const std::shared_ptr<Mesh>& mesh, const glm::mat4& worldTransform);
         void RenderWalkableAreas() const;
         void Clear();
 
         const std::vector<NavMeshTriangle>& GetTriangles() const { return m_Triangles; }
+
+        bool IsCalculated() const { return m_Calculated; }
 
     private:
         void ProcessMesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const glm::mat4& transform);
@@ -42,8 +43,8 @@ namespace Coffee
             glm::mat4 worldTransform;
         };
 
-        std::vector<MeshInfo> m_Meshes;
         std::vector<NavMeshTriangle> m_Triangles;
         float m_WalkableSlopeAngle;
+        bool m_Calculated = false;
     };
 }

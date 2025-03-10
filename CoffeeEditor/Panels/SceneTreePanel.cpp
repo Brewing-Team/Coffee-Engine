@@ -1271,6 +1271,27 @@ namespace Coffee {
             }
         }
 
+        if (entity.HasComponent<NavMeshComponent>())
+        {
+            auto& navMeshComponent = entity.GetComponent<NavMeshComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::SmallButton("Generate NavMesh"))
+                {
+                    navMeshComponent.m_NavMesh->CalculateWalkableAreas(entity.GetComponent<MeshComponent>().GetMesh(), entity.GetComponent<TransformComponent>().GetWorldTransform());
+                }
+
+                ImGui::DragFloat3("Start", glm::value_ptr(navMeshComponent.m_PathStart));
+                ImGui::DragFloat3("End", glm::value_ptr(navMeshComponent.m_PathEnd));
+
+                if (ImGui::SmallButton("Find Path"))
+                {
+                    navMeshComponent.m_CurrentPath = navMeshComponent.m_PathFinder->FindPath(navMeshComponent.m_PathStart, navMeshComponent.m_PathEnd);
+                }
+            }
+        }
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -1291,7 +1312,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "NavMesh Component"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1427,41 +1448,15 @@ namespace Coffee {
                         ImGui::CloseCurrentPopup();
                     }
                 }
-                else if(items[item_current] == "Rigidbody Component")
+                else if(items[item_current] == "NavMesh Component")
                 {
-                    if(!entity.HasComponent<RigidbodyComponent>())
+                    if(!entity.HasComponent<NavMeshComponent>() && entity.HasComponent<MeshComponent>() && entity.HasComponent<TransformComponent>())
                     {
-                        try {
-                            Ref<BoxCollider> collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
-                            
-                            RigidBody::Properties props;
-                            props.type = RigidBody::Type::Dynamic;
-                            props.mass = 1.0f;
-                            props.useGravity = true;
-                            
-                            auto& rbComponent = entity.AddComponent<RigidbodyComponent>(props, collider);
-                            
-                            // Set initial transform from the entity
-                            if (entity.HasComponent<TransformComponent>()) {
-                                auto& transform = entity.GetComponent<TransformComponent>();
-                                rbComponent.rb->SetPosition(transform.Position);
-                                rbComponent.rb->SetRotation(transform.Rotation);
-                            }
-                            
-                            // Add the rigidbody to the physics world
-                            m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
-                            
-                            // Set user pointer for collision detection
-                            rbComponent.rb->GetNativeBody()->setUserPointer(
-                                reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
-                        }
-                        catch (const std::exception& e) {
-                            COFFEE_CORE_ERROR("Exception creating rigidbody: {0}", e.what());
-                            if (entity.HasComponent<RigidbodyComponent>()) {
-                                entity.RemoveComponent<RigidbodyComponent>();
-                            }
-                        }
+                        auto& navMeshComponent = entity.AddComponent<NavMeshComponent>();
+                        navMeshComponent.m_NavMesh = CreateRef<NavMesh>();
+                        navMeshComponent.m_PathFinder = CreateRef<NavMeshPathfinding>(navMeshComponent.m_NavMesh);
                     }
+
                     ImGui::CloseCurrentPopup();
                 }
                 else
