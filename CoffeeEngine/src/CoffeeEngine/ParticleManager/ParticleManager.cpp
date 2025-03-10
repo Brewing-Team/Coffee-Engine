@@ -46,7 +46,7 @@ namespace Coffee
         for (size_t i = 0; i < activeParticles.size();)
         {
             activeParticles[i]->Update(dt);
-            if (activeParticles[i]->lifetime <= 0.0f)
+            if (activeParticles.size() > amount)
             {
                 activeParticles.erase(activeParticles.begin() + i);
             }
