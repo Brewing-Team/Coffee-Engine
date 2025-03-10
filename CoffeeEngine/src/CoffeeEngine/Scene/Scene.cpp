@@ -360,8 +360,7 @@ namespace Coffee {
             .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive)
-            .get<LightComponent>(archive);
+            .get<AudioZoneComponent>(archive);
 
             scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         
@@ -427,8 +426,7 @@ namespace Coffee {
             .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive)
-            .get<LightComponent>(archive);
+            .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
 
