@@ -880,12 +880,10 @@ namespace Coffee {
                 //ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
 
                 // Velocity
-                ImGui::Text("Velocity");
-                ImGui::DragFloat3("##ParticleVelocity", glm::value_ptr(emitter->velocity), 0.1f);
+                ImGui::Text("Direction");
+                ImGui::DragFloat3("##ParticleDirection", glm::value_ptr(emitter->direction), 0.1f);
 
-                // Spread
-                ImGui::Text("Spread");
-                ImGui::DragFloat3("##ParticleSpread", glm::value_ptr(emitter->spread), 0.1f);
+              
 
                 // Colour
                 ImGui::Text("Colour");
@@ -1037,6 +1035,14 @@ namespace Coffee {
                     ImGui::Combo("##ShapeType", reinterpret_cast<int*>(&emitter->shape), shapeNames,
                                  IM_ARRAYSIZE(shapeNames));
 
+                   
+                    
+                      // Spread
+                    ImGui::Text("Spread");
+                    /*ImGui::SameLine();*/
+                    ImGui::DragFloat3("##ParticleSpreadMin", glm::value_ptr(emitter->minSpread), 0.1f);
+                    ImGui::DragFloat3("##ParticleSpreadMax", glm::value_ptr(emitter->maxSpread), 0.1f);
+
                     // Control the angle (only applies to Cone)
                     if (emitter->shape == ParticleEmitter::ShapeType::Cone)
                     {
@@ -1046,17 +1052,21 @@ namespace Coffee {
                                          180.0f); // Control angle, range: 0 to 180
                     }
 
-                    // Control the radius
-                    ImGui::Text("Radius");
-                    ImGui::SameLine();
-                    ImGui::DragFloat("##Radius", &emitter->shaperadius, 0.1f, 0.0f,
-                                     100.0f); // Control radius, range: 0 to 100
+                    if (emitter->shape != ParticleEmitter::ShapeType::Box){
+                    
+                          // Control the radius
+                        ImGui::Text("Radius");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##Radius", &emitter->shaperadius, 0.1f, 0.0f,
+                                         100.0f); // Control radius, range: 0 to 100
 
-                    // Control radius thickness (for ring-shaped emitter)
-                    ImGui::Text("Radius Thickness");
-                    ImGui::SameLine();
-                    ImGui::DragFloat("##RadiusThickness", &emitter->shaperadiusThickness, 0.01f, 0.0f,
-                                     10.0f); // Range: 0 to 10
+                        // Control radius thickness (for ring-shaped emitter)
+                        ImGui::Text("Radius Thickness");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##RadiusThickness", &emitter->shaperadiusThickness, 0.01f, 0.0f,
+                                         10.0f); // Range: 0 to 10
+                    }
+          
 
                     // Restore the default state
                     if (!emitter->useShape)

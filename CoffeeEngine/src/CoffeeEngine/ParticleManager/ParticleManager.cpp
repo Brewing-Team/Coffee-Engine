@@ -6,12 +6,12 @@
 namespace Coffee
 {
 
-    Particle::Particle() : position(0.0f), velocity(0.0f), color(1.0f), size(1.0f), lifetime(1.0f) {}
+    Particle::Particle() : position(0.0f), direction(0.0f), color(1.0f), size(1.0f), lifetime(1.0f) {}
 
 
     void Particle::Update(float dt)
     {
-        position += velocity * dt;
+        position += direction * dt;
         lifetime -= dt;
     }
 
@@ -19,7 +19,7 @@ namespace Coffee
     void ParticleEmitter::InitParticle(Ref<Particle> p)
     {
         p->position = glm::vec3(0.0f);
-        p->velocity = velocity; // Ya no es un puntero
+        p->direction = direction; // Ya no es un puntero
         p->color = colour;
         p->size = size;
         p->lifetime = lifeTime;
