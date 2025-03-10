@@ -359,14 +359,12 @@ namespace Coffee {
 
             if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // Mostrar el material asociado
                 if (uiImageComponent.material)
                 {
                     ImGui::Text("Material");
                     ImGui::SameLine();
                     ImGui::Text("%s", uiImageComponent.material->GetName().c_str());
 
-                    // Seleccionar textura para el albedo del material
                     ImGui::Text("Albedo Texture");
                     Ref<Texture2D>& albedoTexture = uiImageComponent.material->GetMaterialTextures().albedo;
                     if (albedoTexture)
@@ -397,19 +395,15 @@ namespace Coffee {
                 {
                     ImGui::Text("No material assigned");
 
-                    // Botón para asignar un material
                     if (ImGui::Button("Assign Material"))
                     {
-                        // Crear un material por defecto
                         uiImageComponent.material = Material::Create("UIImageMaterial");
                     }
                 }
 
-                // Tamaño
                 ImGui::Text("Size");
                 ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
 
-                // Visibilidad
                 ImGui::Checkbox("Visible", &uiImageComponent.Visible);
 
                 if (!isCollapsingHeaderOpen)

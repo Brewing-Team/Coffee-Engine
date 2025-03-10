@@ -339,24 +339,20 @@ namespace Coffee {
         bool Visible = true;
 
         UIImageComponent() = default;
-        // En el constructor de UIImageComponent
         UIImageComponent(const std::string& texturePath, const glm::vec2& size, bool visible)
             : Size(size), Visible(visible)
             {
             if (!texturePath.empty())
             {
-                // Cargar la textura
                 Ref<Texture2D> texture = Texture2D::Load(texturePath);
                 if (texture)
                 {
-                    // Crear un material basado en la textura
                     material = Material::Create("UIImageMaterial");
                     material->GetMaterialTextures().albedo = texture;
                 }
             }
                 else
                 {
-                // Crear un material por defecto si no hay textura
                 material = Material::Create("UIImageMaterial");
                 }
             }
@@ -367,11 +363,9 @@ namespace Coffee {
             {
                 if (!material)
                 {
-                    // Si no hay material, crear uno nuevo
                     material = Material::Create("UIImageMaterial");
                 }
 
-                // Asignar la textura al albedo del material
                 MaterialTextures textures = material->GetMaterialTextures();
                 textures.albedo = texture;
                 material->GetMaterialTextures() = textures;
@@ -380,7 +374,8 @@ namespace Coffee {
 
         template<class Archive>
         void save(Archive& archive) const {
-            archive(cereal::make_nvp("Material", material->GetUUID()),
+            UUID uuid = material->GetUUID();
+            archive(cereal::make_nvp("Material", uuid),
                     cereal::make_nvp("Size", Size),
                     cereal::make_nvp("Visible", Visible));
         }
@@ -392,13 +387,15 @@ namespace Coffee {
                     cereal::make_nvp("Size", Size),
                     cereal::make_nvp("Visible", Visible));
 
-            // Cargar el material desde el ResourceRegistry usando el UUID
             if (materialUUID != UUID::null) {
                 material = ResourceRegistry::Get<Material>(materialUUID);
+                if (!material) {
+                    std::cerr << "Material with UUID " << materialUUID << " not found in ResourceRegistry!" << std::endl;
+                    material = Material::Create("DefaultMaterial");
+                }
             }
         }
     };
-
 
     struct UITextComponent
     {

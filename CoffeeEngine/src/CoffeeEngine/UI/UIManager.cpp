@@ -10,7 +10,6 @@ namespace Coffee {
         auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
         glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
 
-        // Renderizar imágenes de la UI
         auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
         for (auto& entity : uiImageView) {
             auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
@@ -19,7 +18,6 @@ namespace Coffee {
             if (!uiImageComponent.Visible || !uiImageComponent.material)
                 continue;
 
-            // Obtener la textura albedo del material
             Ref<Texture2D> texture = uiImageComponent.material->GetMaterialTextures().albedo;
             if (!texture)
                 continue;
@@ -37,7 +35,6 @@ namespace Coffee {
             );
         }
 
-        // Renderizar texto de la UI
         auto uiTextView = registry.view<UITextComponent, TransformComponent>();
         for (auto& entity : uiTextView) {
             auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
@@ -68,7 +65,6 @@ namespace Coffee {
         auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
         glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
 
-        // Renderizar imágenes de la UI
         auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
         for (auto& entity : uiImageView) {
             auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
@@ -77,7 +73,6 @@ namespace Coffee {
             if (!uiImageComponent.Visible || !uiImageComponent.material)
                 continue;
 
-            // Obtener la textura albedo del material
             Ref<Texture2D> texture = uiImageComponent.material->GetMaterialTextures().albedo;
             if (!texture)
                 continue;
@@ -95,7 +90,6 @@ namespace Coffee {
             );
         }
 
-        // Renderizar texto de la UI
         auto uiTextView = registry.view<UITextComponent, TransformComponent>();
         for (auto& entity : uiTextView) {
             auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
