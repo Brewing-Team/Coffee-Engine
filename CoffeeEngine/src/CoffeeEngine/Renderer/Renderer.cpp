@@ -58,7 +58,7 @@ namespace Coffee {
             RendererAPI::SetFaceCulling(false);
             RendererAPI::SetDepthMask(false);
 
-            Renderer2D::Render(target);
+            Renderer2D::ScreenPass(target);
 
             RendererAPI::SetDepthMask(true);
             RendererAPI::SetFaceCulling(true);
