@@ -29,9 +29,11 @@ namespace Coffee
     {
 
       public:
+        // Direction
+        bool useDirectionRandom = false;
         glm::vec3 direction = {0.0f, 1.0f, 0.0f};
-        glm::vec3 minSpread = {1.0f, 1.0f, 1.0f};
-        glm::vec3 maxSpread = {1.0f, 1.0f, 1.0f};
+        glm::vec3 directionRandom = {0.0f, 1.0f, 0.0f};
+
         //Color
         bool useColorRandom = false;
         glm::vec4 colourNormal = {1.0f, 1.0f, 1.0f, 1.0f};
@@ -43,7 +45,7 @@ namespace Coffee
         int textureID = -1; // Placeholder for texture handling
 
         // Looping
-        bool looping = false;
+        bool looping = true;
 
         // Start Life Time
         bool useRandomLifeTime = false;
@@ -87,6 +89,8 @@ namespace Coffee
             Box
         };
         ShapeType shape = ShapeType::Sphere; 
+        glm::vec3 minSpread = {1.0f, 1.0f, 1.0f};
+        glm::vec3 maxSpread = {1.0f, 1.0f, 1.0f};
         bool useShape = false;
         float shapeangle = 45.0f;                           
         float shaperadius = 1.0f;                       

@@ -879,14 +879,29 @@ namespace Coffee {
                 //ImGui::Text("Position");
                 //ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
 
-                // Velocity
+                // Direction
+                ImGui::Checkbox("##ParticleDirectionUseRandom", &emitter->useDirectionRandom);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and the value below is the max.");
+                }
+                ImGui::SameLine();
                 ImGui::Text("Direction");
-                ImGui::DragFloat3("##ParticleDirection", glm::value_ptr(emitter->direction), 0.1f);
+                ImGui::DragFloat3("##ParticleDirectionNormal", glm::value_ptr(emitter->direction), 0.1f);
+                if (emitter->useDirectionRandom)
+                {
+                    ImGui::DragFloat3("##ParticleDirectionRandom", glm::value_ptr(emitter->directionRandom), 0.1f);
+                }
 
               
 
                 // Colour
                 ImGui::Checkbox("##ParticleColorUseRandom", &emitter->useColorRandom);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
                 ImGui::SameLine();
                 ImGui::Text("Colour");
                 ImGui::ColorEdit4("##ParticleColourNormal", glm::value_ptr(emitter->colourNormal));
@@ -911,6 +926,11 @@ namespace Coffee {
                 // Start Life Time
                 // Use Random Start Life Time
                 ImGui::Checkbox("##UseRandomStartLifeTime", &emitter->useRandomLifeTime);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
                 ImGui::SameLine();
                 ImGui::Text("Start Life Time");
                 if (emitter->useRandomLifeTime)
@@ -931,6 +951,11 @@ namespace Coffee {
                 // Start speed
                 // Use Random Start sppeed
                 ImGui::Checkbox("##UseRandomStartSpeed", &emitter->useRandomSpeed);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
                 ImGui::SameLine();
                 ImGui::Text("Start Speed");
               
@@ -952,6 +977,11 @@ namespace Coffee {
                 // Start Size
                 // Use Random Start Size
                 ImGui::Checkbox("##UseRandomStartSize", &emitter->useRandomSize);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
                 ImGui::SameLine();
                 ImGui::Text("Start Size");
 
@@ -975,6 +1005,11 @@ namespace Coffee {
                 // Start Rotation
                 // Use Random Start Rotation
                 ImGui::Checkbox("##UseRandomStartRotation", &emitter->useRandomRotation);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
                 ImGui::SameLine();
                 ImGui::Text("Start Rotation");
 
@@ -1345,13 +1380,13 @@ namespace Coffee {
                         // Open Material selection logic here
                     }
 
-                    // Texture Selector
-                    ImGui::Text("Texture");
-                    ImGui::SameLine();
-                    if (ImGui::Button("Select Texture"))
-                    {
-                        // Open texture selection logic here
-                    }
+                    //// Texture Selector
+                    //ImGui::Text("Texture");
+                    //ImGui::SameLine();
+                    //if (ImGui::Button("Select Texture"))
+                    //{
+                    //    // Open texture selection logic here
+                    //}
 
                     // Render Alignment selection
                     const char* renderAlignments[] = {"View", "Local", "World"};
