@@ -14,14 +14,13 @@
 #include <vector>
 
 namespace Coffee {
-    class AnimationSystem;
 
     /**
      * @defgroup scene Scene
      * @{
      */
 
-    class AnimatorComponent;
+    struct AnimatorComponent;
     class Entity;
     class Model;
 
@@ -119,11 +118,6 @@ namespace Coffee {
 
         const std::filesystem::path& GetFilePath() { return m_FilePath; }
 
-        /**
-         * @brief Gets the animation system.
-         * @return A reference to the animation system.
-         */
-        static const Ref<AnimationSystem> GetAnimationSystem() { return m_AnimationSystem; }
 
         /**
          * @brief Assigns animators to meshes.
@@ -140,7 +134,6 @@ namespace Coffee {
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
 
-        static Ref<AnimationSystem> m_AnimationSystem; ///< The animation system.
 
         friend class Entity;
         friend class SceneTree;

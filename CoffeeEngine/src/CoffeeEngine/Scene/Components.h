@@ -190,20 +190,21 @@
            JointMatrices(other.JointMatrices),
            m_Skeleton(other.m_Skeleton),
            m_AnimationController(other.m_AnimationController),
-           m_AnimationSystem(other.m_AnimationSystem),
            modelUUID(other.modelUUID),
            animatorUUID(other.animatorUUID)
          {
+             m_BlendJob.layers = ozz::make_span(m_BlendLayers);
+             AnimationSystem::SetCurrentAnimation(CurrentAnimation, this);
+             AnimationSystem::AddAnimator(this);
          }
  
          /**
           * @brief Constructs an AnimatorComponent with the given skeleton, animation controller, and animation system.
           * @param skeleton The skeleton reference.
           * @param animationController The animation controller reference.
-          * @param animationSystem The animation system reference.
           */
-         AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController, Ref<AnimationSystem> animationSystem)
-         : m_Skeleton(std::move(skeleton)), m_AnimationController(std::move(animationController)), m_AnimationSystem(std::move(animationSystem))
+         AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController)
+         : m_Skeleton(std::move(skeleton)), m_AnimationController(std::move(animationController))
          {
              m_BlendJob.layers = ozz::make_span(m_BlendLayers);
              JointMatrices = m_Skeleton->GetJointMatrices();
@@ -214,19 +215,25 @@
           * @return The skeleton reference.
           */
          Ref<Skeleton> GetSkeleton() const { return m_Skeleton; }
+
+         /**
+          * @brief Sets the skeleton reference.
+          * @param skeleton The skeleton reference to set.
+          */
+         void SetSkeleton(Ref<Skeleton> skeleton) { m_Skeleton = skeleton; }
  
          /**
           * @brief Gets the animation controller reference.
           * @return The animation controller reference.
           */
          Ref<AnimationController> GetAnimationController() const { return m_AnimationController; }
- 
+
          /**
-          * @brief Gets the animation system reference.
-          * @return The animation system reference.
+          * @brief Sets the animation controller reference.
+          * @param animationController The animation controller reference to set.
           */
-         Ref<AnimationSystem> GetAnimationSystem() const { return m_AnimationSystem; }
- 
+         void SetAnimationController(Ref<AnimationController> animationController) { m_AnimationController = animationController; }
+
          /**
           * @brief Gets the sampling job context.
           * @return The sampling job context.
@@ -246,7 +253,7 @@
          ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
  
  
-         void SetCurrentAnimation(int index) { m_AnimationSystem->SetCurrentAnimation(index, this);}
+         void SetCurrentAnimation(int index) { AnimationSystem::SetCurrentAnimation(index, this);}
  
          /**
           * @brief Serializes the AnimatorComponent.
@@ -278,6 +285,8 @@
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
                      cereal::make_nvp("ModelUUID", modelUUID),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
+
+             AnimationSystem::LoadAnimator(this);
          }
  
      public:
@@ -295,9 +304,9 @@
          UUID modelUUID; ///< The UUID of the model.
          UUID animatorUUID; ///< The UUID of the animator.
 
+     private:
          Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
          Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
-         Ref<AnimationSystem> m_AnimationSystem; ///< The animation system reference.
  
          ozz::animation::SamplingJob::Context m_Context; ///< The sampling job context.
          ozz::animation::BlendingJob::Layer m_BlendLayers[2]; ///< The blend layers.

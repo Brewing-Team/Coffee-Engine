@@ -40,12 +40,10 @@
 
 namespace Coffee {
 
-    Ref<AnimationSystem> Scene::m_AnimationSystem;
 
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
-        m_AnimationSystem = CreateRef<AnimationSystem>();
     }
 
     Entity Scene::CreateEntity(const std::string& name)
@@ -164,7 +162,7 @@ namespace Coffee {
         for (auto& entity : animatorView)
         {
             AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
-            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
+            AnimationSystem::Update(dt, animatorComponent);
         }
 
         UpdateAudioComponentsPositions();
@@ -279,7 +277,7 @@ namespace Coffee {
         for (auto& entity : animatorView)
         {
             AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
-            animatorComponent->GetAnimationSystem()->Update(dt, animatorComponent);
+            AnimationSystem::Update(dt, animatorComponent);
         }
         
         // Get all entities with ModelComponent and TransformComponent
@@ -342,6 +340,8 @@ namespace Coffee {
         
         // Initialize physics system
         CollisionSystem::Initialize(scene.get());
+
+        AnimationSystem::ResetAnimators();
     
         std::ifstream sceneFile(path);
         cereal::JSONInputArchive archive(sceneFile);
@@ -363,22 +363,7 @@ namespace Coffee {
             .get<AudioZoneComponent>(archive)
             .get<LightComponent>(archive);
 
-            // FIXME - Temporal fix for animations
-            for (auto entity : scene->m_Registry.view<AnimatorComponent>())
-            {
-                auto& animatorComponent = scene->m_Registry.get<AnimatorComponent>(entity);
-                Ref<Model> model = ResourceRegistry::Get<Model>(animatorComponent.modelUUID);
-                animatorComponent.m_Skeleton = model->GetSkeleton();
-                animatorComponent.m_AnimationController = model->GetAnimationController();
-                animatorComponent.m_AnimationSystem = GetAnimationSystem();
-                animatorComponent.JointMatrices = animatorComponent.m_Skeleton->GetJointMatrices();
-
-                animatorComponent.m_BlendJob.layers = ozz::make_span(animatorComponent.m_BlendLayers);
-                animatorComponent.m_AnimationSystem->SetCurrentAnimation(animatorComponent.CurrentAnimation, &animatorComponent);
-                animatorComponent.m_AnimationSystem->AddAnimator(&animatorComponent);
-            }
-
-            scene->AssignAnimatorsToMeshes(m_AnimationSystem->GetAnimators());
+            scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         
         scene->m_FilePath = path;
     
@@ -466,8 +451,8 @@ namespace Coffee {
 
         if (model->HasAnimations())
         {
-            animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController(), Scene::GetAnimationSystem());
-            animatorComponent->GetAnimationSystem()->SetCurrentAnimation(0, animatorComponent);
+            animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController());
+            AnimationSystem::SetCurrentAnimation(0, animatorComponent);
             animatorComponent->modelUUID = model->GetUUID();
             animatorComponent->animatorUUID = UUID();
         }
@@ -506,6 +491,8 @@ namespace Coffee {
             parent = modelEntity;
             AddModelToTheSceneTree(scene, c, animatorComponent);
         }
+
+        parent = Entity{entt::null, scene};
     }
 
     void Scene::AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators)

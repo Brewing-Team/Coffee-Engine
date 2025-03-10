@@ -2,11 +2,14 @@
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 
+#include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Scene/Components.h"
 
 #include <iostream>
 
 namespace Coffee {
+
+    std::vector<AnimatorComponent*> AnimationSystem::m_Animators;
 
     void AnimationSystem::Update(float deltaTime, AnimatorComponent* animator)
     {
@@ -30,9 +33,18 @@ namespace Coffee {
             }
         }
 
-        if (!animator->GetAnimationController()->GetAnimation(animator->CurrentAnimation)) return;
+        if (!animator->GetAnimationController()->GetAnimation(animator->CurrentAnimation))
+            return;
 
         SampleAnimation(deltaTime, animator);
+    }
+
+    void AnimationSystem::LoadAnimator(AnimatorComponent* animator)
+    {
+        Ref<Model> model = ResourceRegistry::Get<Model>(animator->modelUUID);
+        animator->SetSkeleton(model->GetSkeleton());
+        animator->SetAnimationController(model->GetAnimationController());
+        animator->JointMatrices = animator->GetSkeleton()->GetJointMatrices();
     }
 
     void AnimationSystem::SampleAnimation(float deltaTime, AnimatorComponent* animator)
