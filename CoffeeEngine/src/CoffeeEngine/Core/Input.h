@@ -9,7 +9,6 @@
 #include "CoffeeEngine/Events/MouseEvent.h"
 #include "CoffeeEngine/Input/InputBinding.h"
 
-
 #include "CoffeeEngine/Events/Event.h"
 
 #include <SDL3/SDL_gamepad.h>
@@ -90,20 +89,20 @@ namespace Coffee {
          *
          * @return The current position of the mouse as a 2D vector.
          */
-        static glm::vec2 GetMousePosition();
+        static const glm::vec2& GetMousePosition();
         /**
          * @brief Retrieves the current x-coordinate of the mouse cursor.
          *
          * @return The x-coordinate of the mouse cursor.
          */
-        static float GetMouseX();
+        static const float GetMouseX();
         /**
          * @brief Retrieves the current y-coordinate of the mouse cursor.
          *
          * @return The y-coordinate of the mouse cursor.
          */
 
-        static float GetMouseY();
+        static const float GetMouseY();
         /**
          * @brief Checks if a specific button is currently pressed on a given controller.
          *
@@ -189,7 +188,9 @@ namespace Coffee {
 	    static std::unordered_map<ButtonCode, char> m_ButtonStates;
 	    static std::unordered_map<AxisCode, float> m_AxisStates;
 	    static std::unordered_map<KeyCode, bool> m_KeyStates;
+        static std::unordered_map<MouseCode, bool> m_MouseStates;
         static std::unordered_map<AxisCode, float> m_AxisDeadzones;
+        static glm::vec2 m_MousePosition; // Position relative to window
     };
     /** @} */
 }
