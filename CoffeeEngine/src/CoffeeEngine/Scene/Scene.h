@@ -124,12 +124,6 @@ namespace Coffee {
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
 
-        Ref<NavMesh> m_NavMesh = nullptr;
-        Ref<NavMeshPathfinding> m_PathFinder = nullptr;
-        std::vector<glm::vec3> m_CurrentPath;
-        glm::vec3 m_PathStart = glm::vec3(0.0f);
-        glm::vec3 m_PathEnd = glm::vec3(0.0f);
-
         friend class Entity;
         friend class SceneTree;
         friend class SceneTreePanel;

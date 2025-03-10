@@ -9,35 +9,17 @@
 
 namespace Coffee
 {
-    void NavMesh::AddMesh(const std::shared_ptr<Mesh>& mesh, const glm::mat4& worldTransform)
-    {
-        if (!mesh)
-            return;
-
-        MeshInfo info;
-        info.mesh = mesh;
-        info.worldTransform = worldTransform;
-        m_Meshes.push_back(info);
-    }
-
-    bool NavMesh::CalculateWalkableAreas()
+    bool NavMesh::CalculateWalkableAreas(const std::shared_ptr<Mesh>& mesh, const glm::mat4& worldTransform)
     {
         m_Triangles.clear();
 
-        if (m_Meshes.empty())
-            return false;
-
-        for (const auto& [mesh, worldTransform] : m_Meshes)
-        {
-            if (!mesh)
-                continue;
-
-            ProcessMesh(mesh->GetVertices(), mesh->GetIndices(), worldTransform);
-        }
+        ProcessMesh(mesh->GetVertices(), mesh->GetIndices(), worldTransform);
 
         CalculateNeighbors();
 
-        return !m_Triangles.empty();
+        m_Calculated = !m_Triangles.empty();
+
+        return m_Calculated;
     }
 
     void NavMesh::ProcessMesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, const glm::mat4& transform)
@@ -96,7 +78,6 @@ namespace Coffee
 
     void NavMesh::Clear()
     {
-        m_Meshes.clear();
         m_Triangles.clear();
     }
 
