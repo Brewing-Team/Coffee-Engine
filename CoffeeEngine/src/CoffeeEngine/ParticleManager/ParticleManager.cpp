@@ -1,6 +1,6 @@
 #include "ParticleManager.h"
 #include <cstdlib>
-
+#include <ctime>   
 #include "CoffeeEngine/Scene/Components.h"
 
 namespace Coffee

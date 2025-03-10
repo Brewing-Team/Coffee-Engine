@@ -139,7 +139,7 @@ namespace Coffee
         float rotationOverLifetimeAngularVelocity;
 
         // Renderer
-        bool useRenderer = false;
+        bool useRenderer = true;
         int renderMode = 0;
         char material[256];
         int renderAlignment = 0;

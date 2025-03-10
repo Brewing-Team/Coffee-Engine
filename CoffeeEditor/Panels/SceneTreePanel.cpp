@@ -1280,13 +1280,18 @@ namespace Coffee {
                     }
                     else
                     {
-                        // Angular velocity
-                        ImGui::Text("Angular Velocity");
-                        ImGui::SameLine();
-                        ImGui::DragFloat("##AngularVelocity", &emitter->rotationOverLifetimeAngularVelocity, 0.1f,
-                                         -360.0f, 360.0f);
+                        //// Angular velocity
+                        //ImGui::Text("Angular Velocity");
+                        //ImGui::SameLine();
+                        //ImGui::DragFloat("##AngularVelocity", &emitter->rotationOverLifetimeAngularVelocity, 0.1f,
+                        //                 -360.0f, 360.0f);
                     }
 
+                    // Angular velocity
+                    ImGui::Text("Angular Velocity");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##AngularVelocity", &emitter->rotationOverLifetimeAngularVelocity, 0.1f, -360.0f,
+                                     360.0f);
                   
 
                     // Restore default state
@@ -1335,7 +1340,10 @@ namespace Coffee {
                     // Material selection
                     ImGui::Text("Material");
                     ImGui::SameLine();
-                    ImGui::InputText("##Material", emitter->material, IM_ARRAYSIZE(emitter->material));
+                    if (ImGui::Button("Select Material"))
+                    {
+                        // Open Material selection logic here
+                    }
 
                     // Texture Selector
                     ImGui::Text("Texture");
