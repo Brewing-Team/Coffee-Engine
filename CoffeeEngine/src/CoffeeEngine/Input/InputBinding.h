@@ -17,13 +17,17 @@ namespace Coffee
             DOWN,
             REPEAT
         };
-    }
+    } // namespace ButtonStates
 
-
+    /**
+     * @defgroup core Input
+     * @brief Data structure containing the bound buttons, keys and axis of an input action
+     * @{
+     */
     class InputBinding
     {
       public:
-        // This is only used for easier identification within serialized files or debug mode
+        // This is only used for easier identification within serialized files,debug mode or config UI (if implemented)
         std::string Name = "Undefined";
 
         KeyCode KeyPos = Key::Unknown;
@@ -59,4 +63,5 @@ namespace Coffee
         ButtonState m_State = ButtonStates::IDLE;
 
     };
+    /** @} */
 } // namespace Coffee

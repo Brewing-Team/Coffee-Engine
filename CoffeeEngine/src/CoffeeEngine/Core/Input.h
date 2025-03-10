@@ -118,6 +118,11 @@ namespace Coffee {
          */
         static float GetAxisRaw(AxisCode axis);
 
+        /**
+         * Gets the InputBinding object for the given action
+         * @param action The action to retrieve an InputBinding for
+         * @return The InputBinding containing the bounds keys, buttons and axis for the provided action
+         */
         static InputBinding& GetBinding(InputAction action);
 
         static void OnEvent(Event& e);
@@ -185,7 +190,7 @@ namespace Coffee {
         static std::vector<InputBinding> m_Bindings;
 
 	    static std::vector<Ref<Gamepad>> m_Gamepads;
-	    static std::unordered_map<ButtonCode, char> m_ButtonStates;
+	    static std::unordered_map<ButtonCode, uint8_t> m_ButtonStates;
 	    static std::unordered_map<AxisCode, float> m_AxisStates;
 	    static std::unordered_map<KeyCode, bool> m_KeyStates;
         static std::unordered_map<MouseCode, bool> m_MouseStates;

@@ -14,7 +14,7 @@ namespace Coffee {
 
     std::vector<InputBinding> Input::m_Bindings = std::vector<InputBinding>(ActionsEnum::ActionCount);
     std::vector<Ref<Gamepad>> Input::m_Gamepads;
-    std::unordered_map<ButtonCode, char> Input::m_ButtonStates = {{Button::Invalid, 0}};
+    std::unordered_map<ButtonCode, uint8_t> Input::m_ButtonStates = {{Button::Invalid, 0}};
     std::unordered_map<AxisCode, float> Input::m_AxisStates = {{Axis::Invalid, 0.0f}};
     std::unordered_map<AxisCode, float> Input::m_AxisDeadzones;
     std::unordered_map<KeyCode, bool> Input::m_KeyStates = {{Key::Unknown, false}};
@@ -75,7 +75,7 @@ namespace Coffee {
     {
         return m_AxisStates[axis];
     }
-    InputBinding& Input::GetBinding(InputAction action)
+    InputBinding& Input::GetBinding(const InputAction action)
     {
         return m_Bindings[action];
     }
