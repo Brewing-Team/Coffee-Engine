@@ -18,6 +18,7 @@
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Renderer/Renderer3D.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
@@ -106,6 +107,19 @@ namespace Coffee {
                 m_ActiveScene->OnUpdateRuntime(dt);
             break;
 
+        }
+
+        // Ensure viewport size is valid
+        if (m_ViewportSize.x > 0 && m_ViewportSize.y > 0) {
+            // Fill the screen with thousands of rectangles at random positions and colors
+            for (int i = 0; i < 11000; ++i) {
+                float x = static_cast<float>(std::rand() % static_cast<int>(m_ViewportSize.x));
+                float y = static_cast<float>(std::rand() % static_cast<int>(m_ViewportSize.y));
+                float r = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+                float g = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+                float b = static_cast<float>(std::rand()) / static_cast<float>(RAND_MAX);
+                Renderer2D::DrawRect({x, y}, {10, 10}, {r, g, b, 1.0f});
+            }
         }
         
         Renderer::SetCurrentRenderTarget(nullptr);
