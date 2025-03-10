@@ -70,7 +70,25 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     ${BULLET_LIBRARIES}
 )
 
-option(MSDF_ATLAS_MSDFGEN_EXTERNAL "Use external msdfgen" ON)
+# Libraries Cofigurations
+
+#option(MSDF_ATLAS_BUILD_STANDALONE "Build the msdf-atlas-gen standalone executable" OFF)
+#option(MSDF_ATLAS_USE_SKIA "Build with the Skia library" OFF)
+#option(MSDF_ATLAS_NO_ARTERY_FONT "Disable Artery Font export and do not require its submodule" ON)
+#option(MSDF_ATLAS_USE_VCPKG "Use vcpkg package manager to link project dependencies" ON)
+#option(MSDF_ATLAS_MSDFGEN_EXTERNAL "Do not build the msdfgen submodule but find it as an external package" ON)
+
+# Temporal fix for the msdf-atlas-gen build to not take ages due to skia
+option(MSDF_ATLAS_USE_SKIA "Build with the Skia library" OFF)
+option(MSDF_ATLAS_USE_VCPKG "Use vcpkg package manager to link project dependencies" OFF)
+option(MSDF_ATLAS_MSDFGEN_EXTERNAL "Do not build the msdfgen submodule but find it as an external package" OFF)
+
+option(ozz_build_tools "Build tools" OFF)
+option(ozz_build_fbx "Build Fbx pipeline (Requires Fbx SDK)" OFF)
+option(ozz_build_gltf "Build glTF importer (Requires c++11)" OFF)
+option(ozz_build_samples "Build samples" OFF)
+option(ozz_build_howtos "Build howtos" OFF)
+option(ozz_build_tests "Build unit tests" OFF)
 
 # Set this in a profile like (Release + Profile)
 option(TRACY_ENABLE "Enable Tracy Profiler" ON)
