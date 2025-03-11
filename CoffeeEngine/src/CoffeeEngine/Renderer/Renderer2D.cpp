@@ -1,4 +1,6 @@
 #include "Renderer2D.h"
+#include "CoffeeEngine/Math/BoundingBox.h"
+#include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Renderer/MSDFData.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -7,12 +9,16 @@
 
 #include "CoffeeEngine/Embedded/QuadShader.inl"
 #include "CoffeeEngine/Embedded/TextShader.inl"
+#include "CoffeeEngine/Embedded/LineShader.inl"
 
 #include <array>
 #include <cstddef>
 #include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/quaternion.hpp>
 
 #include <cstdint>
 #include <queue>
@@ -69,6 +75,8 @@ namespace Coffee {
         uint32_t TextureSlotIndex = 1; // 0 is reserved for white texture
 
         Ref<Texture2D> FontAtlasTexture;
+
+        float LineWidth = 1.0f;
     };
 
     struct Renderer2DData
@@ -138,6 +146,18 @@ namespace Coffee {
         s_Renderer2DData.QuadVertexArray->SetIndexBuffer(quadIB);
         quadIndices.clear();
 
+        // Line
+        s_Renderer2DData.LineVertexArray = VertexArray::Create();
+
+        s_Renderer2DData.LineVertexBuffer = VertexBuffer::Create(Batch::MaxVertices * sizeof(LineVertex));
+        BufferLayout lineLayout = {
+            {ShaderDataType::Vec3, "a_Position"},
+            {ShaderDataType::Vec4, "a_Color"},
+            {ShaderDataType::Vec3, "a_EntityID"}
+        };
+        s_Renderer2DData.LineVertexBuffer->SetLayout(lineLayout);
+        s_Renderer2DData.LineVertexArray->AddVertexBuffer(s_Renderer2DData.LineVertexBuffer);
+
         // Text
         s_Renderer2DData.TextVertexArray = VertexArray::Create();
 
@@ -157,15 +177,58 @@ namespace Coffee {
         s_Renderer2DData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
         s_Renderer2DData.QuadShader = CreateRef<Shader>("QuadShader", std::string(quadShaderSource));
+        s_Renderer2DData.LineShader = CreateRef<Shader>("LineShader", std::string(lineShaderSource));
         s_Renderer2DData.TextShader = CreateRef<Shader>("TextShader", std::string(textShaderSource));
-    }
-
-    void Renderer2D::Render(const RenderTarget& target)
-    {
     }
 
     void Renderer2D::WorldPass(const RenderTarget& target)
     {
+        const Ref<Framebuffer>& forwardBuffer = target.GetFramebuffer("Forward");
+
+        forwardBuffer->Bind();
+        //forwardBuffer->SetDrawBuffers({0, 1}); //TODO: This should only be done in the editor
+
+        while (!s_Renderer2DData.WorldBatches.empty())
+        {
+            Batch& batch = s_Renderer2DData.WorldBatches.front();
+
+            if(batch.QuadIndexCount > 0)
+            {
+                s_Renderer2DData.QuadVertexBuffer->SetData(batch.QuadVertices.data(), batch.QuadVertices.size() * sizeof(QuadVertex));
+
+                batch.TextureSlots[0] = s_Renderer2DData.WhiteTexture;
+
+                for(uint32_t i = 0; i < batch.TextureSlotIndex; i++)
+                {
+                    batch.TextureSlots[i]->Bind(i);
+                }
+
+                s_Renderer2DData.QuadShader->Bind();
+                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
+            }
+
+            if(batch.LineIndexCount > 0)
+            {
+                s_Renderer2DData.LineVertexBuffer->SetData(batch.LineVertices.data(), batch.LineVertices.size() * sizeof(LineVertex));
+
+                s_Renderer2DData.LineShader->Bind();
+                RendererAPI::DrawLines(s_Renderer2DData.LineVertexArray, batch.LineIndexCount, batch.LineWidth);
+            }
+
+            if(batch.TextIndexCount > 0)
+            {
+                s_Renderer2DData.TextVertexBuffer->SetData(batch.TextVertices.data(), batch.TextVertices.size() * sizeof(TextVertex));
+
+                batch.FontAtlasTexture->Bind(0);
+
+                s_Renderer2DData.TextShader->Bind();
+                RendererAPI::DrawIndexed(s_Renderer2DData.TextVertexArray, batch.TextIndexCount);
+            }
+
+            s_Renderer2DData.WorldBatches.pop();
+        }
+
+        forwardBuffer->UnBind();
     }
 
     void Renderer2D::ScreenPass(const RenderTarget& target)
@@ -193,6 +256,14 @@ namespace Coffee {
 
                 s_Renderer2DData.QuadShader->Bind();
                 RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
+            }
+
+            if(batch.LineIndexCount > 0)
+            {
+                s_Renderer2DData.LineVertexBuffer->SetData(batch.LineVertices.data(), batch.LineVertices.size() * sizeof(LineVertex));
+
+                s_Renderer2DData.LineShader->Bind();
+                RendererAPI::DrawLines(s_Renderer2DData.LineVertexArray, batch.LineIndexCount, batch.LineWidth);
             }
 
             if(batch.TextIndexCount > 0)
@@ -223,13 +294,22 @@ namespace Coffee {
         DrawRect(transform, color, RenderMode::Screen, entityID);
     }
 
-/*     void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
+    void Renderer2D::DrawRect(const glm::vec2& position, const glm::vec2& size, const float rotation, const glm::vec4& color, uint32_t entityID)
     {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), {position.x, position.y, 0.0f})
+                            * glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f})
                             * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
         
-        DrawQuad(transform, texture, tilingFactor, tintColor);
-    } */
+        DrawRect(transform, color, RenderMode::Screen, entityID);
+    }
+
+    void Renderer2D::DrawRect(const glm::vec3& position, const glm::vec2& size, const glm::vec4& color, uint32_t entityID)
+    {
+        glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
+                            * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
+        
+        DrawRect(transform, color, RenderMode::World, entityID);
+    }
 
     void Renderer2D::DrawRect(const glm::mat4& transform, const glm::vec4& color, RenderMode mode, uint32_t entityID)
     {
@@ -332,6 +412,375 @@ namespace Coffee {
         }
 
         batch.QuadIndexCount += 6;
+    }
+
+    void Renderer2D::DrawLine(const glm::vec2& start, const glm::vec2& end, const glm::vec4& color, float linewidth)
+    {
+        Batch& batch = GetBatch(RenderMode::Screen);
+
+        if(batch.LineIndexCount >= Batch::MaxIndices)
+        {
+            NextBatch(RenderMode::Screen);
+            batch = GetBatch(RenderMode::Screen);
+        }
+
+/*         // Convert entityID to vec3
+        uint32_t r = (4294967295 & 0x000000FF) >> 0;
+        uint32_t g = (4294967295 & 0x0000FF00) >> 8;
+        uint32_t b = (4294967295 & 0x00FF0000) >> 16;
+        glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f); */
+
+        glm::vec3 entityIDVec3 = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        batch.LineVertices.push_back({glm::vec3(start, 0.0f), color, entityIDVec3});
+        batch.LineVertices.push_back({glm::vec3(end, 0.0f), color, entityIDVec3});
+
+        batch.LineIndexCount += 2;
+    }
+
+    void Renderer2D::DrawLine(const glm::vec3& start, const glm::vec3& end, const glm::vec4& color , float linewidth)
+    {
+        Batch& batch = GetBatch(RenderMode::World);
+
+        if(batch.LineIndexCount >= Batch::MaxIndices)
+        {
+            NextBatch(RenderMode::World);
+            batch = GetBatch(RenderMode::World);
+        }
+
+/*         // entt::null is 4294967295
+        uint32_t r = (4294967295 & 0x000000FF) >> 0;
+        uint32_t g = (4294967295 & 0x0000FF00) >> 8;
+        uint32_t b = (4294967295 & 0x00FF0000) >> 16;
+        glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f); */
+
+        glm::vec3 entityIDVec3 = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        batch.LineVertices.push_back({start, color, entityIDVec3});
+        batch.LineVertices.push_back({end, color, entityIDVec3});
+
+        batch.LineIndexCount += 2;
+    }
+
+    void Renderer2D::DrawCircle(const glm::vec2& position, float radius, const glm::vec4& color , float linewidth)
+    {
+        Batch& batch = GetBatch(RenderMode::Screen);
+
+        if(batch.LineIndexCount >= Batch::MaxIndices)
+        {
+            NextBatch(RenderMode::Screen);
+            batch = GetBatch(RenderMode::Screen);
+        }
+
+        glm::vec3 entityIDVec3 = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        const uint32_t segments = 32;
+        const float increment = glm::two_pi<float>() / segments;
+
+        for(uint32_t i = 0; i < segments; i++)
+        {
+            float angle0 = increment * i;
+            float angle1 = increment * (i + 1);
+
+            glm::vec2 start = position + glm::vec2(glm::cos(angle0), glm::sin(angle0)) * radius;
+            glm::vec2 end = position + glm::vec2(glm::cos(angle1), glm::sin(angle1)) * radius;
+
+            batch.LineVertices.push_back({glm::vec3(start, 0.0f), color, entityIDVec3});
+            batch.LineVertices.push_back({glm::vec3(end, 0.0f), color, entityIDVec3});
+
+            batch.LineIndexCount += 2;
+        }
+    }
+    void Renderer2D::DrawCircle(const glm::vec3& position, float radius, const glm::quat& rotation, const glm::vec4& color , float linewidth)
+    {
+        Batch& batch = GetBatch(RenderMode::World);
+
+        if(batch.LineIndexCount >= Batch::MaxIndices)
+        {
+            NextBatch(RenderMode::World);
+            batch = GetBatch(RenderMode::World);
+        }
+
+        glm::vec3 entityIDVec3 = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        const uint32_t segments = 32;
+        const float increment = glm::two_pi<float>() / segments;
+
+        for(uint32_t i = 0; i < segments; i++)
+        {
+            float angle0 = increment * i;
+            float angle1 = increment * (i + 1);
+
+            glm::vec3 start = position + glm::toMat3(rotation) * glm::vec3(glm::cos(angle0), glm::sin(angle0), 0.0f) * radius;
+            glm::vec3 end = position + glm::toMat3(rotation) * glm::vec3(glm::cos(angle1), glm::sin(angle1), 0.0f) * radius;
+
+            batch.LineVertices.push_back({start, color, entityIDVec3});
+            batch.LineVertices.push_back({end, color, entityIDVec3});
+
+            batch.LineIndexCount += 2;
+        }
+    }
+
+    void Renderer2D::DrawSphere(const glm::vec3& position, float radius, const glm::quat& rotation, const glm::vec4& color , float linewidth)
+    {
+        DrawCircle(position, radius, rotation, color, linewidth);
+        DrawCircle(position, radius, rotation * glm::angleAxis(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)), color, linewidth);
+        DrawCircle(position, radius, rotation * glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f)), color, linewidth);
+    }
+
+    void Renderer2D::DrawBox(const glm::vec3& position, const glm::quat& rotation, const glm::vec3& size, const glm::vec4& color , const bool& isCentered, float linewidth)
+    {
+        glm::vec3 halfSize = size * 0.5f;
+        glm::vec3 vertices[8];
+
+        if (isCentered) {
+            vertices[0] = position + rotation * glm::vec3(-halfSize.x, -halfSize.y, -halfSize.z);
+            vertices[1] = position + rotation * glm::vec3(halfSize.x, -halfSize.y, -halfSize.z);
+            vertices[2] = position + rotation * glm::vec3(halfSize.x, halfSize.y, -halfSize.z);
+            vertices[3] = position + rotation * glm::vec3(-halfSize.x, halfSize.y, -halfSize.z);
+            vertices[4] = position + rotation * glm::vec3(-halfSize.x, -halfSize.y, halfSize.z);
+            vertices[5] = position + rotation * glm::vec3(halfSize.x, -halfSize.y, halfSize.z);
+            vertices[6] = position + rotation * glm::vec3(halfSize.x, halfSize.y, halfSize.z);
+            vertices[7] = position + rotation * glm::vec3(-halfSize.x, halfSize.y, halfSize.z);
+        } else {
+            vertices[0] = position + rotation * glm::vec3(0.0f, 0.0f, 0.0f);
+            vertices[1] = position + rotation * glm::vec3(size.x, 0.0f, 0.0f);
+            vertices[2] = position + rotation * glm::vec3(size.x, size.y, 0.0f);
+            vertices[3] = position + rotation * glm::vec3(0.0f, size.y, 0.0f);
+            vertices[4] = position + rotation * glm::vec3(0.0f, 0.0f, size.z);
+            vertices[5] = position + rotation * glm::vec3(size.x, 0.0f, size.z);
+            vertices[6] = position + rotation * glm::vec3(size.x, size.y, size.z);
+            vertices[7] = position + rotation * glm::vec3(0.0f, size.y, size.z);
+        }
+
+        DrawLine(vertices[0], vertices[1], color, linewidth);
+        DrawLine(vertices[1], vertices[2], color, linewidth);
+        DrawLine(vertices[2], vertices[3], color, linewidth);
+        DrawLine(vertices[3], vertices[0], color, linewidth);
+
+        DrawLine(vertices[4], vertices[5], color, linewidth);
+        DrawLine(vertices[5], vertices[6], color, linewidth);
+        DrawLine(vertices[6], vertices[7], color, linewidth);
+        DrawLine(vertices[7], vertices[4], color, linewidth);
+
+        DrawLine(vertices[0], vertices[4], color, linewidth);
+        DrawLine(vertices[1], vertices[5], color, linewidth);
+        DrawLine(vertices[2], vertices[6], color, linewidth);
+        DrawLine(vertices[3], vertices[7], color, linewidth);
+    }
+
+    void Renderer2D::DrawBox(const glm::vec3& min, const glm::vec3& max, const glm::vec4& color , float linewidth)
+    {
+        DrawLine(glm::vec3(min.x, min.y, min.z), glm::vec3(max.x, min.y, min.z), color, linewidth);
+        DrawLine(glm::vec3(max.x, min.y, min.z), glm::vec3(max.x, max.y, min.z), color, linewidth);
+        DrawLine(glm::vec3(max.x, max.y, min.z), glm::vec3(min.x, max.y, min.z), color, linewidth);
+        DrawLine(glm::vec3(min.x, max.y, min.z), glm::vec3(min.x, min.y, min.z), color, linewidth);
+
+        DrawLine(glm::vec3(min.x, min.y, max.z), glm::vec3(max.x, min.y, max.z), color, linewidth);
+        DrawLine(glm::vec3(max.x, min.y, max.z), glm::vec3(max.x, max.y, max.z), color, linewidth);
+        DrawLine(glm::vec3(max.x, max.y, max.z), glm::vec3(min.x, max.y, max.z), color, linewidth);
+        DrawLine(glm::vec3(min.x, max.y, max.z), glm::vec3(min.x, min.y, max.z), color, linewidth);
+
+        DrawLine(glm::vec3(min.x, min.y, min.z), glm::vec3(min.x, min.y, max.z), color, linewidth);
+        DrawLine(glm::vec3(max.x, min.y, min.z), glm::vec3(max.x, min.y, max.z), color, linewidth);
+        DrawLine(glm::vec3(max.x, max.y, min.z), glm::vec3(max.x, max.y, max.z), color, linewidth);
+        DrawLine(glm::vec3(min.x, max.y, min.z), glm::vec3(min.x, max.y, max.z), color, linewidth);
+    }
+
+    void Renderer2D::DrawBox(const AABB& aabb, const glm::vec4& color , float linewidth)
+    {
+        DrawBox(aabb.min, aabb.max, color, linewidth);
+    }
+
+    void Renderer2D::DrawBox(const OBB& obb, const glm::vec4& color , float linewidth)
+    {
+        for (int i = 0; i < 4; i++) {
+            DrawLine(obb.corners[i], obb.corners[(i + 1) % 4], color, linewidth);
+            DrawLine(obb.corners[i + 4], obb.corners[(i + 1) % 4 + 4], color, linewidth);
+            DrawLine(obb.corners[i], obb.corners[i + 4], color, linewidth);
+        }
+    }
+    
+    void Renderer2D::DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength, glm::vec4 color , float linewidth)
+    {
+        Batch& batch = GetBatch(RenderMode::World);
+
+        if(batch.LineIndexCount >= Batch::MaxIndices)
+        {
+            NextBatch(RenderMode::World);
+            batch = GetBatch(RenderMode::World);
+        }
+
+        glm::vec3 entityIDVec3 = glm::vec3(1.0f, 1.0f, 1.0f);
+
+        const int arrow_points = 7;
+        const float arrow_length = fixedLength ? 1.5f : glm::length(end - start);
+
+        glm::vec3 arrow[arrow_points] = {
+            glm::vec3(0, 0, -1),
+            glm::vec3(0, 0.8f, 0),
+            glm::vec3(0, 0.3f, 0),
+            glm::vec3(0, 0.3f, arrow_length),
+            glm::vec3(0, -0.3f, arrow_length),
+            glm::vec3(0, -0.3f, 0),
+            glm::vec3(0, -0.8f, 0)
+        };
+
+        const int arrow_sides = 2;
+
+        glm::vec3 direction = glm::normalize(end - start);
+        glm::vec3 up = glm::vec3(0, 1, 0);
+        if (glm::abs(glm::dot(direction, up)) > 0.99f) {
+            up = glm::vec3(1, 0, 0);
+        }
+        glm::vec3 right = glm::normalize(glm::cross(up, direction));
+        up = glm::cross(direction, right);
+
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform[0] = glm::vec4(right, 0.0f);
+        transform[1] = glm::vec4(up, 0.0f);
+        transform[2] = glm::vec4(direction, 0.0f);
+        transform[3] = glm::vec4(start, 1.0f);
+
+        for (int i = 0; i < arrow_sides; i++) {
+            for (int j = 0; j < arrow_points; j++) {
+                if(batch.LineIndexCount >= Batch::MaxIndices)
+                {
+                    NextBatch(RenderMode::World);
+                    batch = GetBatch(RenderMode::World);
+                }
+
+                glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::pi<float>() * i / arrow_sides, glm::vec3(0, 0, 1));
+
+                glm::vec3 v1 = arrow[j] - glm::vec3(0, 0, arrow_length);
+                glm::vec3 v2 = arrow[(j + 1) % arrow_points] - glm::vec3(0, 0, arrow_length);
+
+                glm::vec3 transformed_v1 = glm::vec3(transform * rotation * glm::vec4(v1, 1.0f));
+                glm::vec3 transformed_v2 = glm::vec3(transform * rotation * glm::vec4(v2, 1.0f));
+
+                batch.LineVertices.push_back({transformed_v1, color, entityIDVec3});
+                batch.LineVertices.push_back({transformed_v2, color, entityIDVec3});
+
+                batch.LineIndexCount += 2;
+            }
+        }
+    }
+    void Renderer2D::DrawArrow(const glm::vec3& origin, const glm::vec3& direction, float length, glm::vec4 color , float linewidth)
+    {
+        glm::vec3 end = origin - direction * length;
+        DrawArrow(origin, end, false, color, linewidth);
+    }
+
+    void Renderer2D::DrawFrustum(const Frustum& frustum, const glm::vec4& color , float linewidth)
+    {
+        const glm::vec3* points = frustum.GetPoints();
+        
+        // Draw near plane rectangle
+        DrawLine(points[0], points[1], color, linewidth);
+        DrawLine(points[0], points[2], color, linewidth);
+        DrawLine(points[2], points[3], color, linewidth);
+        DrawLine(points[1], points[3], color, linewidth);
+        
+        // Draw far plane rectangle
+        DrawLine(points[4], points[5], color, linewidth);
+        DrawLine(points[4], points[6], color, linewidth);
+        DrawLine(points[6], points[7], color, linewidth);
+        DrawLine(points[5], points[7], color, linewidth);
+        
+        // Draw connecting lines between near and far planes
+        DrawLine(points[0], points[4], color, linewidth);
+        DrawLine(points[1], points[5], color, linewidth);
+        DrawLine(points[2], points[6], color, linewidth);
+        DrawLine(points[3], points[7], color, linewidth);
+    }
+
+    void Renderer2D::DrawFrustum(const glm::mat4& viewProjection, const glm::vec4& color , float linewidth)
+    {
+        glm::mat4 invVP = glm::inverse(viewProjection);
+
+        glm::vec3 frustumCorners[8] = {
+            glm::vec3(-1.0f, -1.0f, -1.0f),
+            glm::vec3(1.0f, -1.0f, -1.0f),
+            glm::vec3(1.0f, 1.0f, -1.0f),
+            glm::vec3(-1.0f, 1.0f, -1.0f),
+            glm::vec3(-1.0f, -1.0f, 1.0f),
+            glm::vec3(1.0f, -1.0f, 1.0f),
+            glm::vec3(1.0f, 1.0f, 1.0f),
+            glm::vec3(-1.0f, 1.0f, 1.0f)
+        };
+
+        for (int i = 0; i < 8; i++) {
+            glm::vec4 clipSpace = invVP * glm::vec4(frustumCorners[i], 1.0f);
+            clipSpace /= clipSpace.w;
+            frustumCorners[i] = clipSpace;
+        }
+
+        DrawLine(frustumCorners[0], frustumCorners[1], color, linewidth);
+        DrawLine(frustumCorners[1], frustumCorners[2], color, linewidth);
+        DrawLine(frustumCorners[2], frustumCorners[3], color, linewidth);
+        DrawLine(frustumCorners[3], frustumCorners[0], color, linewidth);
+
+        DrawLine(frustumCorners[4], frustumCorners[5], color, linewidth);
+        DrawLine(frustumCorners[5], frustumCorners[6], color, linewidth);
+        DrawLine(frustumCorners[6], frustumCorners[7], color, linewidth);
+        DrawLine(frustumCorners[7], frustumCorners[4], color, linewidth);
+
+        DrawLine(frustumCorners[0], frustumCorners[4], color, linewidth);
+        DrawLine(frustumCorners[1], frustumCorners[5], color, linewidth);
+        DrawLine(frustumCorners[2], frustumCorners[6], color, linewidth);
+        DrawLine(frustumCorners[3], frustumCorners[7], color, linewidth);
+    }
+
+    void Renderer2D::DrawCapsule(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color)
+    {
+        float halfCylinderHeight = height * 0.5f;
+        
+        glm::vec3 upVector = rotation * glm::vec3(0, 1, 0);
+        glm::vec3 topSpherePos = position + upVector * halfCylinderHeight;
+        glm::vec3 bottomSpherePos = position - upVector * halfCylinderHeight;
+        
+        DrawSphere(topSpherePos, radius,glm::identity<glm::quat>(), color);
+        DrawSphere(bottomSpherePos, radius,glm::identity<glm::quat>(), color);
+        
+        DrawCylinder(position, rotation, radius, height, color);
+    }
+    
+    void Renderer2D::DrawCylinder(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color)
+    {
+        const int segments = 24;
+        const float angleStep = 2.0f * glm::pi<float>() / segments;
+        
+        glm::vec3 topPoints[25]; 
+        glm::vec3 bottomPoints[25];
+        
+        float halfHeight = height * 0.5f;
+        
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = i * angleStep;
+            float x = radius * cos(angle);
+            float z = radius * sin(angle);
+            
+            glm::vec3 localTop(x, halfHeight, z);
+            glm::vec3 localBottom(x, -halfHeight, z);
+            
+            glm::vec3 worldTop = position + rotation * localTop;
+            glm::vec3 worldBottom = position + rotation * localBottom;
+            
+            topPoints[i] = worldTop;
+            bottomPoints[i] = worldBottom;
+        }
+        
+        for (int i = 0; i < segments; i++)
+        {
+            DrawLine(topPoints[i], topPoints[i + 1], color);
+            
+            DrawLine(bottomPoints[i], bottomPoints[i + 1], color);
+            
+            if (i % 4 == 0) {
+                DrawLine(topPoints[i], bottomPoints[i], color);
+            }
+        }
     }
 
     void Renderer2D::DrawText(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, RenderMode mode, uint32_t entityID)
