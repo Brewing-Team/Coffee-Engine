@@ -125,7 +125,15 @@ namespace Coffee
 
         static Ref<Mesh> particleMesh;
         Ref<Material> particleMaterial;
-        int renderAlignment = 0;
+
+
+        enum class RenderAligment
+        {
+            Billboard = 0,
+            Custom
+        };
+
+        RenderAligment renderAlignment = RenderAligment::Billboard;
 
         std::vector<Ref<Particle>> activeParticles;
 

@@ -1387,11 +1387,10 @@ namespace Coffee
                     ImGui::DragInt("##ParticleAmount", &emitter->amount, 1, 1, 10000);
 
                     // Render Mode selection
-                    const char* renderModes[] = {"Billboard", "Stretched Billboard", "Horizontal Billboard",
-                                                 "Vertical Billboard"};
-                    ImGui::Text("Render Mode");
+                    const char* renderModes[] = {"Billboard", "Custom"};
+                    ImGui::Text("Render Alignment");
                     ImGui::SameLine();
-                    ImGui::Combo("##RenderMode", reinterpret_cast<int*>(&emitter->renderMode), renderModes,
+                    ImGui::Combo("##RenderAlignment", reinterpret_cast<int*>(&emitter->renderAlignment), renderModes,
                                  IM_ARRAYSIZE(renderModes));
 
                     // Material selection
@@ -1411,11 +1410,11 @@ namespace Coffee
                     // }
 
                     // Render Alignment selection
-                    const char* renderAlignments[] = {"View", "Local", "World"};
+                    /*const char* renderAlignments[] = {"View", "Local", "World"};
                     ImGui::Text("Render Alignment");
                     ImGui::SameLine();
                     ImGui::Combo("##RenderAlignment", reinterpret_cast<int*>(&emitter->renderAlignment),
-                                 renderAlignments, IM_ARRAYSIZE(renderAlignments));
+                                 renderAlignments, IM_ARRAYSIZE(renderAlignments));*/
 
                     // Restore default state
                     if (!emitter->useRenderer)

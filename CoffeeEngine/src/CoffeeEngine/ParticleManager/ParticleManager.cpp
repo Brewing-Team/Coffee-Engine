@@ -144,7 +144,17 @@ namespace Coffee
 
 
 
-
+         if (renderAlignment == RenderAligment::Billboard) // Supongamos que 0 es billboarding
+        {
+            glm::mat4 viewMatrix = cameraViewMatrix; // Obtén la matriz de vista de la cámara
+            glm::mat4 billboardTransform = CalculateBillboardTransform(particle->transformMatrix, viewMatrix);
+            particle->transformMatrix = billboardTransform;
+        }
+        else
+        {
+        
+        
+        }
 
 
 
@@ -202,23 +212,6 @@ namespace Coffee
             particle->SetPosition(particle->GetPosition() +
                                   particle->direction * deltaTime * newVelocity * particle->startSpeed);
         }
-
-
-
-
-        if (renderAlignment == 0) // Supongamos que 0 es billboarding
-        {
-            glm::mat4 viewMatrix = cameraViewMatrix; // Obtén la matriz de vista de la cámara
-            glm::mat4 billboardTransform = CalculateBillboardTransform(particle->transformMatrix, viewMatrix);
-            particle->transformMatrix = billboardTransform;
-        }
-
-
-
-
-
-
-
 
         particle->lifetime -= deltaTime;
     }
