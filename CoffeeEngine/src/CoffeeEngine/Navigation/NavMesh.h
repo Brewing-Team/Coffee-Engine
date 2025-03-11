@@ -14,6 +14,12 @@ struct NavMeshTriangle
     glm::vec3 center; ///< Center of the triangle
     glm::vec3 normal; ///< Normal of the triangle
     std::vector<int> neighbors; ///< Indices of neighboring triangles
+
+    template<class Archive>
+    void serialize(Archive& archive)
+    {
+        archive(cereal::make_nvp("Vertices", vertices), cereal::make_nvp("Center", center), cereal::make_nvp("Normal", normal), cereal::make_nvp("Neighbors", neighbors));
+    }
 };
 
 namespace Coffee
@@ -64,6 +70,12 @@ namespace Coffee
          */
         bool IsCalculated() const { return m_Calculated; }
 
+        template <class Archive>
+        void serialize(Archive& archive)
+        {
+            archive(cereal::make_nvp("Triangles", m_Triangles), cereal::make_nvp("Calculated", m_Calculated));
+        }
+
     private:
         /**
          * @brief Processes the mesh data to generate navigation mesh triangles.
@@ -94,15 +106,6 @@ namespace Coffee
         bool IsWalkableSurface(const glm::vec3& normal) const;
 
     private:
-        /**
-         * @brief Structure to hold mesh information.
-         */
-        struct MeshInfo
-        {
-            std::shared_ptr<Mesh> mesh; ///< The mesh
-            glm::mat4 worldTransform; ///< The world transform of the mesh
-        };
-
         std::vector<NavMeshTriangle> m_Triangles; ///< Triangles in the navigation mesh
         float m_WalkableSlopeAngle; ///< Maximum walkable slope angle
         bool m_Calculated = false; ///< Flag indicating if the navigation mesh has been calculated

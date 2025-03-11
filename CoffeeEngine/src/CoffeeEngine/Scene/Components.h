@@ -554,6 +554,20 @@ namespace Coffee {
         std::vector<glm::vec3> m_CurrentPath;
         glm::vec3 m_PathStart = glm::vec3(0.0f);
         glm::vec3 m_PathEnd = glm::vec3(0.0f);
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("NavMesh", m_NavMesh));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("NavMesh", m_NavMesh));
+
+            m_PathFinder = CreateRef<NavMeshPathfinding>(m_NavMesh);
+        }
     };
 }
 

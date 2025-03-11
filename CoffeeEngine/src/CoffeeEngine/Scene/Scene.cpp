@@ -355,6 +355,7 @@ namespace Coffee {
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
             .get<ScriptComponent>(archive)
+            .get<NavMeshComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
@@ -398,6 +399,7 @@ namespace Coffee {
             .get<MaterialComponent>(archive)
             .get<LightComponent>(archive)
             .get<ScriptComponent>(archive)
+            .get<NavMeshComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
