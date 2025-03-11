@@ -7,6 +7,7 @@
 #include "CoffeeEngine/Project/Project.h"
 #include "SDL3/SDL_keyboard.h"
 #include "SDL3/SDL_mouse.h"
+#include "imgui_internal.h"
 
 #include <SDL3/SDL_init.h>
 
@@ -16,7 +17,7 @@
 
 namespace Coffee {
 
-    constexpr const char* MAPPING_FILE_PATH = "cfg/InputMapping.json";
+    constexpr const char* MAPPING_FILE_PATH = "InputMapping.json";
 
     std::vector<InputBinding> Input::m_Bindings = std::vector<InputBinding>(ActionsEnum::ActionCount);
     std::vector<Ref<Gamepad>> Input::m_Gamepads;
@@ -30,48 +31,13 @@ namespace Coffee {
     void Input::Init()
     {
         SDL_InitSubSystem(SDL_INIT_GAMEPAD);
-
-        #pragma region Defaults
-
-        // Axis deadzone defaults
-        m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
-        m_AxisDeadzones[Axis::RightTrigger] = 0.15f;
-        m_AxisDeadzones[Axis::LeftX] = 0.15f;
-        m_AxisDeadzones[Axis::RightX] = 0.15f;
-        m_AxisDeadzones[Axis::LeftY] = 0.15f;
-        m_AxisDeadzones[Axis::RightY] = 0.15f;
-
-        //UI defaults
-        m_Bindings[ActionsEnum::UiMoveHorizontal].SetName("UiMoveHorizontal").SetAxis(Axis::LeftX).SetButtonNeg(Button::DpadLeft).SetButtonPos(Button::DpadRight);
-        m_Bindings[ActionsEnum::UiMoveVertical].SetName("UiMoveVertical").SetAxis(Axis::LeftY).SetButtonNeg(Button::DpadDown).SetButtonPos(Button::DpadUp);
-        m_Bindings[ActionsEnum::Cancel].SetName("Cancel").SetButtonPos(Button::East);
-        m_Bindings[ActionsEnum::Confirm].SetName("Confirm").SetButtonPos(Button::South);
-
-        // Gameplay defaults
-        m_Bindings[ActionsEnum::MoveHorizontal].SetName("MoveHorizontal").SetAxis(Axis::LeftX);
-        m_Bindings[ActionsEnum::MoveVertical].SetName("MoveVertical").SetAxis(Axis::LeftY);
-        m_Bindings[ActionsEnum::AimHorizontal].SetName("AimHorizontal").SetAxis(Axis::RightX);
-        m_Bindings[ActionsEnum::AimVertical].SetName("AimVertical").SetAxis(Axis::RightY);
-        m_Bindings[ActionsEnum::Shoot].SetName("Shoot").SetAxis(Axis::RightTrigger);
-        m_Bindings[ActionsEnum::Melee].SetName("Melee").SetButtonPos(Button::RightShoulder);
-        m_Bindings[ActionsEnum::Interact].SetName("Interact").SetButtonPos(Button::South);
-        m_Bindings[ActionsEnum::Dash].SetName("Dash").SetButtonPos(Button::East);
-        m_Bindings[ActionsEnum::Cover].SetName("Cover").SetButtonPos(Button::West);
-        m_Bindings[ActionsEnum::Skill1].SetName("Skill1").SetButtonPos(Button::North);
-        m_Bindings[ActionsEnum::Skill2].SetName("Skill2").SetButtonPos(Button::LeftShoulder);
-        m_Bindings[ActionsEnum::Skill3].SetName("Skill3").SetAxis(Axis::LeftTrigger);
-        m_Bindings[ActionsEnum::Injector].SetName("Injector").SetButtonPos(Button::DpadUp);
-        m_Bindings[ActionsEnum::Grenade].SetName("Grenade").SetButtonPos(Button::DpadRight);
-        m_Bindings[ActionsEnum::Map].SetName("Map").SetButtonPos(Button::Back);
-        m_Bindings[ActionsEnum::Pause].SetName("Pause").SetButtonPos(Button::Start);
-
-        #pragma endregion
-
     }
+
     void Input::Save()
     {
         // Can't save project input mapping if there's no project
-        if (Project::GetActive() == nullptr) return;
+        if (Project::GetActive() == nullptr)
+            return;
 
         auto path = Project::GetProjectDirectory() / MAPPING_FILE_PATH;
 
@@ -84,7 +50,25 @@ namespace Coffee {
 
     void Input::Load()
     {
+        if (Project::GetActive() == nullptr)
+            return;
 
+        auto path = Project::GetProjectDirectory() / MAPPING_FILE_PATH;
+
+        if (!std::filesystem::exists(path))
+        {
+            COFFEE_INFO("Mappings file not found, generating...");
+            Input::GenerateDefaultMappingFile();
+            return;
+        }
+
+        std::ifstream file(path);
+
+        cereal::JSONInputArchive archive(file);
+
+        archive(m_Bindings);
+
+        COFFEE_INFO("Loaded input mappings");
     }
 
     bool Input::IsKeyPressed(const KeyCode key)
@@ -189,80 +173,110 @@ namespace Coffee {
     }
 
     void Input::OnEvent(Event& e)
-	{
-        //TODO change this code for an event dispatcher
-	    if (e.IsInCategory(EventCategoryInput))
-	    {
+    {
+        // TODO change this code for an event dispatcher
+        if (e.IsInCategory(EventCategoryInput))
+        {
             switch (e.GetEventType())
             {
-            	using enum EventType;
-                case ControllerConnected:
-                {
+                using enum EventType;
+            case ControllerConnected: {
                 if (const auto* cEvent = static_cast<ControllerAddEvent*>(&e))
-                        OnAddController(cEvent);
-                    break;
-                }
-                case ControllerDisconnected:
-                {
-                    if (const auto* cEvent = static_cast<ControllerRemoveEvent*>(&e))
-                        OnRemoveController(cEvent);
-                    break;
-                }
-                case ButtonPressed:
-                {
-                    if (const auto* bEvent = static_cast<ButtonPressEvent*>(&e))
-                        OnButtonPressed(*bEvent);
-                    break;
-                }
-                case ButtonReleased:
-                {
-                    if (const auto* bEvent = static_cast<ButtonReleaseEvent*>(&e))
-                        OnButtonReleased(*bEvent);
-                    break;
-                }
-                case AxisMoved:
-                {
-                    if (const auto* aEvent = static_cast<AxisMoveEvent*>(&e))
-                        OnAxisMoved(*aEvent);
-                    break;
-                }
-                case KeyPressed:
-                {
-                    if (const auto* kEvent = static_cast<KeyPressedEvent*>(&e))
-                        OnKeyPressed(*kEvent);
-                    break;
-                }
-                case KeyReleased:
-                {
-                    if (const auto* kEvent = static_cast<KeyReleasedEvent*>(&e))
-                        OnKeyReleased(*kEvent);
-                    break;
-                }
-                case MouseButtonPressed:
-                {
-                    if (const auto* mEvent = static_cast<MouseButtonPressedEvent*>(&e))
-                        OnMouseButtonPressed(*mEvent);
-                    break;
-                }
-                case MouseButtonReleased:
-                {
-                    if (const auto* mEvent = static_cast<MouseButtonReleasedEvent*>(&e))
-                        OnMouseButtonReleased(*mEvent);
-                    break;
-                }
-                case MouseMoved:
-                {
-                    if (const auto* mEvent = static_cast<MouseMovedEvent*>(&e))
-                        OnMouseMoved(*mEvent);
-                    break;
-                }
-
-                default:
-                {
-                    break;
-                }
+                    OnAddController(cEvent);
+                break;
             }
-	    }
-	}
+            case ControllerDisconnected: {
+                if (const auto* cEvent = static_cast<ControllerRemoveEvent*>(&e))
+                    OnRemoveController(cEvent);
+                break;
+            }
+            case ButtonPressed: {
+                if (const auto* bEvent = static_cast<ButtonPressEvent*>(&e))
+                    OnButtonPressed(*bEvent);
+                break;
+            }
+            case ButtonReleased: {
+                if (const auto* bEvent = static_cast<ButtonReleaseEvent*>(&e))
+                    OnButtonReleased(*bEvent);
+                break;
+            }
+            case AxisMoved: {
+                if (const auto* aEvent = static_cast<AxisMoveEvent*>(&e))
+                    OnAxisMoved(*aEvent);
+                break;
+            }
+            case KeyPressed: {
+                if (const auto* kEvent = static_cast<KeyPressedEvent*>(&e))
+                    OnKeyPressed(*kEvent);
+                break;
+            }
+            case KeyReleased: {
+                if (const auto* kEvent = static_cast<KeyReleasedEvent*>(&e))
+                    OnKeyReleased(*kEvent);
+                break;
+            }
+            case MouseButtonPressed: {
+                if (const auto* mEvent = static_cast<MouseButtonPressedEvent*>(&e))
+                    OnMouseButtonPressed(*mEvent);
+                break;
+            }
+            case MouseButtonReleased: {
+                if (const auto* mEvent = static_cast<MouseButtonReleasedEvent*>(&e))
+                    OnMouseButtonReleased(*mEvent);
+                break;
+            }
+            case MouseMoved: {
+                if (const auto* mEvent = static_cast<MouseMovedEvent*>(&e))
+                    OnMouseMoved(*mEvent);
+                break;
+            }
 
-}
+            default: {
+                break;
+            }
+            }
+        }
+    }
+
+    void Input::GenerateDefaultMappingFile()
+    {
+        #pragma region Defaults
+
+        // Axis deadzone defaults
+        m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
+        m_AxisDeadzones[Axis::RightTrigger] = 0.15f;
+        m_AxisDeadzones[Axis::LeftX] = 0.15f;
+        m_AxisDeadzones[Axis::RightX] = 0.15f;
+        m_AxisDeadzones[Axis::LeftY] = 0.15f;
+        m_AxisDeadzones[Axis::RightY] = 0.15f;
+
+        //UI defaults
+        m_Bindings[ActionsEnum::UiMoveHorizontal].SetName("UiMoveHorizontal").SetAxis(Axis::LeftX).SetButtonNeg(Button::DpadLeft).SetButtonPos(Button::DpadRight);
+        m_Bindings[ActionsEnum::UiMoveVertical].SetName("UiMoveVertical").SetAxis(Axis::LeftY).SetButtonNeg(Button::DpadDown).SetButtonPos(Button::DpadUp);
+        m_Bindings[ActionsEnum::Cancel].SetName("Cancel").SetButtonPos(Button::East);
+        m_Bindings[ActionsEnum::Confirm].SetName("Confirm").SetButtonPos(Button::South);
+
+        // Gameplay defaults
+        m_Bindings[ActionsEnum::MoveHorizontal].SetName("MoveHorizontal").SetAxis(Axis::LeftX);
+        m_Bindings[ActionsEnum::MoveVertical].SetName("MoveVertical").SetAxis(Axis::LeftY);
+        m_Bindings[ActionsEnum::AimHorizontal].SetName("AimHorizontal").SetAxis(Axis::RightX);
+        m_Bindings[ActionsEnum::AimVertical].SetName("AimVertical").SetAxis(Axis::RightY);
+        m_Bindings[ActionsEnum::Shoot].SetName("Shoot").SetAxis(Axis::RightTrigger);
+        m_Bindings[ActionsEnum::Melee].SetName("Melee").SetButtonPos(Button::RightShoulder);
+        m_Bindings[ActionsEnum::Interact].SetName("Interact").SetButtonPos(Button::South);
+        m_Bindings[ActionsEnum::Dash].SetName("Dash").SetButtonPos(Button::East);
+        m_Bindings[ActionsEnum::Cover].SetName("Cover").SetButtonPos(Button::West);
+        m_Bindings[ActionsEnum::Skill1].SetName("Skill1").SetButtonPos(Button::North);
+        m_Bindings[ActionsEnum::Skill2].SetName("Skill2").SetButtonPos(Button::LeftShoulder);
+        m_Bindings[ActionsEnum::Skill3].SetName("Skill3").SetAxis(Axis::LeftTrigger);
+        m_Bindings[ActionsEnum::Injector].SetName("Injector").SetButtonPos(Button::DpadUp);
+        m_Bindings[ActionsEnum::Grenade].SetName("Grenade").SetButtonPos(Button::DpadRight);
+        m_Bindings[ActionsEnum::Map].SetName("Map").SetButtonPos(Button::Back);
+        m_Bindings[ActionsEnum::Pause].SetName("Pause").SetButtonPos(Button::Start);
+
+        #pragma endregion
+
+        Input::Save();
+    }
+
+} // namespace Coffee

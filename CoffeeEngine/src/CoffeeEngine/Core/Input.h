@@ -132,6 +132,9 @@ namespace Coffee {
         static void OnEvent(Event& e);
 
       private:
+
+        static void GenerateDefaultMappingFile();
+
         /**
 	     * @brief Handles controller connection events
 	     * @param cEvent The event data to process
