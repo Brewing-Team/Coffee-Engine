@@ -879,6 +879,11 @@ namespace Coffee {
                 //ImGui::Text("Position");
                 //ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
 
+                //Rate over time
+                
+
+
+
                 // Direction
                 ImGui::Checkbox("##ParticleDirectionUseRandom", &emitter->useDirectionRandom);
                 if (ImGui::IsItemHovered())
@@ -1030,18 +1035,64 @@ namespace Coffee {
 
               
                 // Simulation Space
-                ImGui::Text("Simulation Space");
+                //ImGui::Text("Simulation Space");
+                //ImGui::SameLine();
+
+                //// Show Combo Menu
+                //const char* simulationSpaceOptions[] = {"Local", "World", "Custom"};
+                //int currentSimulationSpace = static_cast<int>(emitter->simulationSpace);
+
+                //if (ImGui::Combo("##SimulationSpace", &currentSimulationSpace, simulationSpaceOptions,
+                //                 IM_ARRAYSIZE(simulationSpaceOptions)))
+                //{
+                //    emitter->simulationSpace = static_cast<ParticleEmitter::SimulationSpace>(currentSimulationSpace);
+                //}
+
+
+
+                
+                ImGui::Checkbox("##UseEmission", &emitter->useEmission); 
                 ImGui::SameLine();
+                ImGui::PushID("Emission");
 
-                // Show Combo Menu
-                const char* simulationSpaceOptions[] = {"Local", "World", "Custom"};
-                int currentSimulationSpace = static_cast<int>(emitter->simulationSpace);
-
-                if (ImGui::Combo("##SimulationSpace", &currentSimulationSpace, simulationSpaceOptions,
-                                 IM_ARRAYSIZE(simulationSpaceOptions)))
+                if (ImGui::TreeNodeEx("Emission Settings", ImGuiTreeNodeFlags_None))
                 {
-                    emitter->simulationSpace = static_cast<ParticleEmitter::SimulationSpace>(currentSimulationSpace);
+                    // If not enabled, set the text to gray and disable the controls
+                    if (!emitter->useEmission)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    }
+
+                    // Select emitter shape
+                    ImGui::Text("Rate over Time");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleRateOverTime", &emitter->rateOverTime, 0.1, 0);
+
+                    
+
+                    ImGui::TreePop();
                 }
+                ImGui::PopID();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                 // Shape section: Select shape and control other properties (Angle, Radius, Radius Thickness)

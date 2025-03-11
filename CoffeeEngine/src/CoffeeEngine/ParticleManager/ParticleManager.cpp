@@ -2,24 +2,27 @@
 #include <cstdlib>
 #include <ctime>
 #include <glm/gtc/random.hpp>
+
+
+
+
 namespace Coffee
 {
 
-
+    // Constructor de Particle
     Particle::Particle() : transformMatrix(glm::mat4(1.0f)), direction(0.0f), color(1.0f), size(1.0f), lifetime(1.0f) {}
-
-
-    void Particle::Update(float dt)
-    {
-        // position += direction * dt;
-       SetPosition(GetPosition() + direction * dt);
-       
-        lifetime -= dt;
-    }
-
 
     glm::mat4 Particle::GetWorldTransform()
     {
+        /*switch (simulationSpace)
+        {
+            case SimulationSpace::Local:
+                return transformMatrix;
+            case SimulationSpace::World:
+                return glm::mat4(1.0f) * transformMatrix;
+            case SimulationSpace::Custom:
+                return customTransform * transformMatrix;
+        }*/
         return transformMatrix;
     }
 
@@ -30,37 +33,25 @@ namespace Coffee
 
     void Particle::SetRotation(glm::vec3 rotation)
     {
-        // Extraer la posición y escala actuales
         glm::vec3 position = GetPosition();
         glm::vec3 scale = GetSize();
 
-        // Crear una nueva matriz solo con la rotación
         glm::mat4 rotationMatrix = glm::mat4(1.0f);
         rotationMatrix = glm::rotate(rotationMatrix, rotation.x, glm::vec3(1, 0, 0));
         rotationMatrix = glm::rotate(rotationMatrix, rotation.y, glm::vec3(0, 1, 0));
         rotationMatrix = glm::rotate(rotationMatrix, rotation.z, glm::vec3(0, 0, 1));
 
-        // Reconstruir la matriz con rotación y escala
         transformMatrix = glm::scale(rotationMatrix, scale);
-
-        // Restaurar la posición
         SetPosition(position);
     }
 
     void Particle::SetSize(glm::vec3 scale)
     {
-        // Extraer la posición actual
         glm::vec3 position = GetPosition();
-
-        // Extraer la rotación SIN la escala previa
         glm::mat3 rotationMatrix = glm::mat3(glm::normalize(transformMatrix[0]), glm::normalize(transformMatrix[1]),
                                              glm::normalize(transformMatrix[2]));
-
-        // Construir una nueva matriz con la rotación limpia y la nueva escala
-        transformMatrix = glm::mat4(rotationMatrix);          // Mantiene la rotación sin escala
-        transformMatrix = glm::scale(transformMatrix, scale); // Aplica la nueva escala
-
-        // Restaurar la posición
+        transformMatrix = glm::mat4(rotationMatrix);
+        transformMatrix = glm::scale(transformMatrix, scale);
         SetPosition(position);
     }
 
@@ -71,7 +62,6 @@ namespace Coffee
 
     glm::vec3 Particle::GetRotation()
     {
-        // Extraer rotaci�n de la matriz de transformaci�n (simplificado)
         return glm::vec3(atan2(transformMatrix[1][2], transformMatrix[2][2]),
                          atan2(-transformMatrix[0][2], sqrt(transformMatrix[1][2] * transformMatrix[1][2] +
                                                             transformMatrix[2][2] * transformMatrix[2][2])),
@@ -84,7 +74,10 @@ namespace Coffee
                          glm::length(glm::vec3(transformMatrix[2])));
     }
 
+
+    // Constructor de ParticleEmitter
     Ref<Mesh> ParticleEmitter::particleMesh = nullptr;
+
     ParticleEmitter::ParticleEmitter()
     {
         if (!particleMesh)
@@ -95,66 +88,28 @@ namespace Coffee
 
     void ParticleEmitter::InitParticle(Ref<Particle> p)
     {
-        glm::vec3 spawnpos = {0.0f, 0.0f, 0.0f};
-        spawnpos = glm::linearRand(minSpread, maxSpread);
-        p->SetPosition(glm::vec3(spawnpos.x, spawnpos.y, spawnpos.z));
-        if (useDirectionRandom)
-        {
-            p->direction = glm::linearRand(direction, directionRandom);
-        }
-        else
-        {
-            p->direction = direction;
-        }
+       
+        glm::vec3 startPos = glm::linearRand(minSpread, maxSpread);
+        glm::vec4 startPosVec4 = glm::vec4(startPos.x, startPos.y, startPos.z, 0);
 
-        if (useColorRandom)
-        {
-            p->color = glm::linearRand(colourNormal, colourRandom);
-        }
-        else
-        {
-            p->color = colourNormal;
-        }
+        glm::mat4 auxMatrix = transformComponentMatrix;
+        auxMatrix[3] = transformComponentMatrix[3] + startPosVec4;
 
+        p->transformMatrix = auxMatrix;
         
-        if (useRandomLifeTime)
-        {
-            p->lifetime = glm::linearRand(startLifeTimeMin, startLifeTimeMax);
-        }
-        else
-        {
-            p->lifetime = startLifeTime;
-        }
-        float startSpeedValue;
-        if (useRandomSpeed)
-        {
-            startSpeedValue = glm::linearRand(startSpeedMin, startSpeedMax);
-        }
-        else
-        {
-            startSpeedValue = startSpeed;
-        }
+
+        p->direction = useDirectionRandom ? glm::linearRand(direction, directionRandom) : direction;
+        p->color = useColorRandom ? glm::linearRand(colourNormal, colourRandom) : colourNormal;
+        p->lifetime = useRandomLifeTime ? glm::linearRand(startLifeTimeMin, startLifeTimeMax) : startLifeTime;
+
+        float startSpeedValue = useRandomSpeed ? glm::linearRand(startSpeedMin, startSpeedMax) : startSpeed;
         p->direction *= startSpeedValue;
 
-        if (useRandomSize)
-        {
-            float randomsize = glm::linearRand(startSizeMin, startSizeMax);
-            p->SetSize(glm::vec3(randomsize, randomsize, randomsize));
-        }
-        else
-        {
-            p->SetSize(glm::vec3(startSize, startSize, startSize));
-        }
-        if (useRandomRotation)
-        {
-            float randomrot = glm::linearRand(startRotationMin, startRotationMax);
-            p->SetRotation(glm::vec3(randomrot, randomrot, randomrot));
-        }
-        else
-        {
-            p->SetRotation(glm::vec3(startRotation, startRotation, startRotation));
-        }
-        
+        float sizeValue = useRandomSize ? glm::linearRand(startSizeMin, startSizeMax) : startSize;
+        p->SetSize(glm::vec3(sizeValue));
+
+        float rotationValue = useRandomRotation ? glm::linearRand(startRotationMin, startRotationMax) : startRotation;
+        p->SetRotation(glm::vec3(rotationValue));
     }
 
     void ParticleEmitter::GenerateParticle()
@@ -166,26 +121,22 @@ namespace Coffee
 
     void ParticleEmitter::Update(float dt)
     {
-
         elapsedTime += dt;
-        timetotal += dt;
 
-        if (looping || elapsedTime < lifeTime)
+        if (looping)
         {
-            while (elapsedTime > rateOverTime)
+            accumulatedParticles += rateOverTime * dt;
+            while (accumulatedParticles >= 1.0f && activeParticles.size() < amount)
             {
-                if (activeParticles.size() < amount)
-                {
-                    GenerateParticle();
-                }
-                
-                elapsedTime -= rateOverTime;
+                GenerateParticle();
+                accumulatedParticles -= 1.0f;
             }
         }
 
         for (size_t i = 0; i < activeParticles.size();)
         {
-            activeParticles[i]->Update(dt);
+            UpdateParticle(activeParticles[i], dt);
+            //activeParticles[i]->Update(dt);
             if (activeParticles[i]->lifetime <= 0)
             {
                 activeParticles.erase(activeParticles.begin() + i);
@@ -195,17 +146,22 @@ namespace Coffee
                 ++i;
             }
         }
-
-        if (!looping && timetotal >= lifeTime )
-        {
-            // Detener generaci�n de part�culas si no es en bucle y ya han expirado
-            return;
-        }
-
-        printf("Cantidad particulas: %d", (int)activeParticles.size());
     }
 
-   
+    void ParticleEmitter::UpdateParticle(Ref<Particle> p, float dt) {
 
+
+        if (simulationSpace == SimulationSpace::Local)
+        {
+            p->SetPosition(p->GetPosition() + direction * dt);
+        }
+        else
+        {
+            p->SetPosition(p->GetPosition() + direction * dt);
+        }
+
+        //p->SetPosition(p->GetPosition() + direction * dt);
+        p->lifetime -= dt;
+    }
 
 } // namespace Coffee

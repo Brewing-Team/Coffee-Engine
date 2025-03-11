@@ -210,6 +210,25 @@ namespace Coffee {
             Renderer::Submit(lightComponent);
         }
 
+
+        // Get all entities with ParticlesSystemComponent and TransformComponent
+        auto particleSystemView = m_Registry.view<ParticlesSystemComponent, TransformComponent>();
+        for (auto& entity : particleSystemView)
+        {
+            auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
+            auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
+
+            particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
+            particlesSystemComponent.GetParticleEmitter()->Update(dt);
+
+            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+
+            Renderer::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
+        }
+
+
+
         Renderer::EndScene();
     }
 
@@ -310,18 +329,13 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
+            particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
+            
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
-
-
 
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
-
-            //particlesSystemComponent.GetParticleEmitter()->Render(dt);
-
-            
-            //Renderer::Submit(RenderCommand{transformComponent.GetWorldTransform(), ParticleEmitter::particleMesh, material, (uint32_t)entity});
             Renderer::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
         }
 

@@ -271,19 +271,17 @@ namespace Coffee {
 
      void Renderer::Submit(Ref<ParticleEmitter> emitter, Ref<Material> material, uint32_t entity)
     {
-        
-
           for (size_t i = 0; i < emitter->activeParticles.size(); i++)
           {
-
               Ref<Particle> p = emitter->activeParticles.at(i);
 
-              Renderer::Submit( RenderCommand{p->GetWorldTransform(), ParticleEmitter::particleMesh,
-                                             material, entity});
+              
+                Renderer::Submit(RenderCommand{p->GetWorldTransform(), ParticleEmitter::particleMesh,
+                                                material, entity});
+              
 
+             
           }
-
-         
     }
 
 

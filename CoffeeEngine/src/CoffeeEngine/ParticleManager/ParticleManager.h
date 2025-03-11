@@ -6,22 +6,27 @@
 
 namespace Coffee
 {
-
+    class ParticleEmitter;
     struct Particle
     {
         //glm::vec3 position;
         glm::mat4 transformMatrix;
+
+
+       
 
         glm::vec3 direction;
         glm::vec4 color;
         float size;
         float lifetime;
 
+
+
         
 
         Particle();
         // void Init();
-        void Update(float dt);
+        //void Update(float dt);
 
         glm::mat4 GetWorldTransform();
 
@@ -41,6 +46,8 @@ namespace Coffee
 
       public:
 
+         glm::mat4 transformComponentMatrix;
+
 
         // Direction
         bool useDirectionRandom = false;
@@ -51,15 +58,13 @@ namespace Coffee
         bool useColorRandom = false;
         glm::vec4 colourNormal = {1.0f, 1.0f, 1.0f, 1.0f};
         glm::vec4 colourRandom = {1.0f, 1.0f, 1.0f, 1.0f};
-        //LifeTime
-        float lifeTime = 5.0f;
-        float timetotal = 0.0f;
-        float size = 1.0f;
-        int amount = 100;
+        
+
+        int amount = 1000;
        
 
         // Looping
-        bool looping = false;
+        bool looping = true;
 
         // Start Life Time
         bool useRandomLifeTime = false;
@@ -93,7 +98,13 @@ namespace Coffee
             Custom = 2
         };
 
-        SimulationSpace simulationSpace = SimulationSpace::Local; // Default value
+        SimulationSpace simulationSpace = SimulationSpace::World; // Default value
+
+        //Emission
+        bool useEmission = true;
+        float rateOverTime = 1.0f;
+
+
 
         // Shape
         enum class ShapeType
@@ -163,9 +174,13 @@ namespace Coffee
         int renderAlignment = 0;
 
          std::vector<Ref<Particle>> activeParticles;
+
+
+
       private:
        
-        float rateOverTime = 1.0f;
+    
+        float accumulatedParticles = 0.0f;
         float elapsedTime = 0.0f;
 
         void GenerateParticle();
@@ -176,7 +191,7 @@ namespace Coffee
 
         void InitParticle(Ref<Particle> p);
         void Update(float dt);
-       
+        void UpdateParticle(Ref<Particle> p, float dt);
 
 
 
