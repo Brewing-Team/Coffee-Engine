@@ -275,6 +275,34 @@ input = {
         X1 = 3,
         X2 = 4
     },
+    action = {
+    UiMoveHorizontal = 0,
+    UiMoveVertical = 1,
+    Confirm = 2,
+    Cancel = 3,
+    MoveHorizontal = 4,
+    MoveVertical = 5,
+    AimHorizontal = 6,
+    AimVertical = 7,
+    Shoot = 8,
+    Melee = 9,
+    Interact = 10,
+    Dash = 11,
+    Cover = 12,
+    Skill1 = 13,
+    Skill2 = 14,
+    Skill3 = 15,
+    Injector = 16,
+    Grenade = 17,
+    Map = 18,
+    Pause = 19,
+    },
+    state = {
+        Idle = 0,
+        Up = 1,
+        Down = 2,
+        Repeat = 3,
+    },
     is_key_pressed = function(key)
         -- Implementation here
         return false
@@ -286,6 +314,18 @@ input = {
     get_mouse_position = function()
         -- Implementation here
         return 0, 0
+    end,
+    get_axis = function(action)
+        -- Implementation here
+        return 0.0
+    end,
+    get_direction = function(action)
+        -- Implementation here
+        return 0
+    end,
+    get_button = function(action)
+        -- Implementation here
+        return 0
     end
 }
 

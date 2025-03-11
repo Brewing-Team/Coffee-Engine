@@ -14,7 +14,7 @@ namespace Coffee
         {
             // From SDL_gamepad.h
 
-            Invalid = 0,
+            Invalid = -1,
             South,           /**< Bottom face button (e.g. Xbox A button) */
             East,            /**< Right face button (e.g. Xbox B button) */
             West,            /**< Left face button (e.g. Xbox X button) */

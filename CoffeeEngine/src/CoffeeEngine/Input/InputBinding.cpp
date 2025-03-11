@@ -22,11 +22,11 @@ namespace Coffee {
     {
         bool value = glm::abs(Input::GetAxisRaw(Axis)) != 0.0f;
         value |= Input::GetButtonRaw(ButtonPos);
-        value |= Input::GetButtonRaw(KeyPos);
+        value |= Input::IsKeyPressed(KeyPos);
 
         // "Negative" buttons and keys used as alternatives to the main button and key
         value |= Input::GetButtonRaw(ButtonNeg);
-        value |= Input::GetButtonRaw(KeyNeg);
+        value |= Input::IsKeyPressed(KeyNeg);
 
         return value;
     }

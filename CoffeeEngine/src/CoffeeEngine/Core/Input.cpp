@@ -31,6 +31,14 @@ namespace Coffee {
     void Input::Init()
     {
         SDL_InitSubSystem(SDL_INIT_GAMEPAD);
+
+        // Axis deadzone defaults
+        m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
+        m_AxisDeadzones[Axis::RightTrigger] = 0.15f;
+        m_AxisDeadzones[Axis::LeftX] = 0.15f;
+        m_AxisDeadzones[Axis::RightX] = 0.15f;
+        m_AxisDeadzones[Axis::LeftY] = 0.15f;
+        m_AxisDeadzones[Axis::RightY] = 0.15f;
     }
 
     void Input::Save()
@@ -241,14 +249,6 @@ namespace Coffee {
     void Input::GenerateDefaultMappingFile()
     {
         #pragma region Defaults
-
-        // Axis deadzone defaults
-        m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
-        m_AxisDeadzones[Axis::RightTrigger] = 0.15f;
-        m_AxisDeadzones[Axis::LeftX] = 0.15f;
-        m_AxisDeadzones[Axis::RightX] = 0.15f;
-        m_AxisDeadzones[Axis::LeftY] = 0.15f;
-        m_AxisDeadzones[Axis::RightY] = 0.15f;
 
         //UI defaults
         m_Bindings[ActionsEnum::UiMoveHorizontal].SetName("UiMoveHorizontal").SetAxis(Axis::LeftX).SetButtonNeg(Button::DpadLeft).SetButtonPos(Button::DpadRight);
