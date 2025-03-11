@@ -15,6 +15,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include <cstdint>
+#include <queue>
 #include <vector>
 
 namespace Coffee {
@@ -72,8 +73,8 @@ namespace Coffee {
 
     struct Renderer2DData
     {
-        std::vector<Batch> WorldBatches;
-        std::vector<Batch> ScreenBatches;
+        std::queue<Batch> WorldBatches;
+        std::queue<Batch> ScreenBatches;
 
         Ref<VertexArray> QuadVertexArray;
         Ref<VertexBuffer> QuadVertexBuffer;
@@ -175,8 +176,10 @@ namespace Coffee {
         forwardBuffer->Bind();
         //forwardBuffer->SetDrawBuffers({0, 1}); //TODO: This should only be done in the editor
 
-        for (Batch& batch : s_Renderer2DData.ScreenBatches)
+        while (!s_Renderer2DData.ScreenBatches.empty())
         {
+            Batch& batch = s_Renderer2DData.ScreenBatches.front();
+
             if(batch.QuadIndexCount > 0)
             {
                 s_Renderer2DData.QuadVertexBuffer->SetData(batch.QuadVertices.data(), batch.QuadVertices.size() * sizeof(QuadVertex));
@@ -201,11 +204,11 @@ namespace Coffee {
                 s_Renderer2DData.TextShader->Bind();
                 RendererAPI::DrawIndexed(s_Renderer2DData.TextVertexArray, batch.TextIndexCount);
             }
+
+            s_Renderer2DData.ScreenBatches.pop();
         }
 
         forwardBuffer->UnBind();
-
-        s_Renderer2DData.ScreenBatches.clear();
     }
 
     void Renderer2D::Shutdown()
@@ -385,7 +388,6 @@ namespace Coffee {
 
 			if (character == '\t')
 			{
-				// NOTE(Yan): is this right?
 				x += 4.0f * (fsScale * spaceGlyphAdvance + textParams.Kerning);
 				continue;
 			}
@@ -464,35 +466,17 @@ namespace Coffee {
 
     Batch& Renderer2D::GetBatch(RenderMode mode)
     {
-        if(mode == RenderMode::World)
+        auto& batches = (mode == RenderMode::World) ? s_Renderer2DData.WorldBatches : s_Renderer2DData.ScreenBatches;
+        if (batches.empty())
         {
-            if(s_Renderer2DData.WorldBatches.empty())
-            {
-                s_Renderer2DData.WorldBatches.push_back(Batch());
-            }
-
-            return s_Renderer2DData.WorldBatches.back();
+            batches.emplace();
         }
-        else
-        {
-            if(s_Renderer2DData.ScreenBatches.empty())
-            {
-                s_Renderer2DData.ScreenBatches.push_back(Batch());
-            }
-
-            return s_Renderer2DData.ScreenBatches.back();
-        }
+        return batches.back();
     }
-
+    
     void Renderer2D::NextBatch(RenderMode mode)
     {
-        if(mode == RenderMode::World)
-        {
-            s_Renderer2DData.WorldBatches.push_back(Batch());
-        }
-        else
-        {
-            s_Renderer2DData.ScreenBatches.push_back(Batch());
-        }
+        auto& batches = (mode == RenderMode::World) ? s_Renderer2DData.WorldBatches : s_Renderer2DData.ScreenBatches;
+        batches.emplace();
     }
 }
