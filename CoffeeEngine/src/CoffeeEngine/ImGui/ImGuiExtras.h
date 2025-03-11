@@ -2,6 +2,7 @@
 
 #include <imgui.h>
 #include <imgui_internal.h>
+#include "CoffeeEngine/Core/Base.h"
 #include <vector>
 
 
@@ -10,12 +11,17 @@ struct GradientPoint
 {
     float position; // Rango 0.0 - 1.0 (posición en la barra de gradiente)
     ImVec4 color;   // Color en RGBA
+
+   template <class Archive> void serialize(Archive& archive) { archive(position, color); }
 };
 
 struct CurvePoint
 {
     float time;  // Rango 0.0 - 1.0
     float value; // Escala de tamaño
+
+    template <class Archive> void serialize(Archive& archive) { archive(time, value); }
+
 };
 
 // 🟢 Clase estática GradientEditor

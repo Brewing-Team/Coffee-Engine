@@ -7,7 +7,7 @@ namespace Coffee
 {
     Particle::Particle() : transformMatrix(glm::mat4(1.0f)), direction(0.0f), color(1.0f), size(1.0f), lifetime(1.0f) {}
 
-    glm::mat4 Particle::GetWorldTransform()
+    glm::mat4 Particle::GetWorldTransform() const
     {
         return transformMatrix;
     }
@@ -41,12 +41,12 @@ namespace Coffee
         SetPosition(position);
     }
 
-    glm::vec3 Particle::GetPosition()
+    glm::vec3 Particle::GetPosition() const
     {
         return glm::vec3(transformMatrix[3]);
     }
 
-    glm::vec3 Particle::GetRotation()
+    glm::vec3 Particle::GetRotation() const
     {
         return glm::vec3(atan2(transformMatrix[1][2], transformMatrix[2][2]),
                          atan2(-transformMatrix[0][2], sqrt(transformMatrix[1][2] * transformMatrix[1][2] +
@@ -54,7 +54,7 @@ namespace Coffee
                          atan2(transformMatrix[0][1], transformMatrix[0][0]));
     }
 
-    glm::vec3 Particle::GetSize()
+    glm::vec3 Particle::GetSize() const
     {
         return glm::vec3(glm::length(glm::vec3(transformMatrix[0])), glm::length(glm::vec3(transformMatrix[1])),
                          glm::length(glm::vec3(transformMatrix[2])));

@@ -3,6 +3,7 @@
 #include <cereal/cereal.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <imgui.h>
 
 /**
  * @defgroup io IO
@@ -45,6 +46,11 @@ namespace cereal {
     void serialize(Archive& archive, glm::vec4& vec)
     {
         archive(cereal::make_nvp("x", vec.x), cereal::make_nvp("y", vec.y), cereal::make_nvp("z", vec.z), cereal::make_nvp("w", vec.w));
+    }
+
+    template <class Archive> void serialize(Archive& archive, ImVec4& vec)
+    {
+        archive(vec.x, vec.y, vec.z, vec.w); // Serializa los componentes x, y, z, w de ImVec4
     }
 
     /**

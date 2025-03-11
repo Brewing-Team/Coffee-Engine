@@ -21,13 +21,13 @@ namespace Coffee
         glm::vec3 startRotation;
 
         Particle();
-        glm::mat4 GetWorldTransform();
+        glm::mat4 GetWorldTransform() const;
         void SetPosition(glm::vec3 position);
         void SetRotation(glm::vec3 rotation);
         void SetSize(glm::vec3 size);
-        glm::vec3 GetPosition();
-        glm::vec3 GetRotation();
-        glm::vec3 GetSize();
+        glm::vec3 GetPosition() const;
+        glm::vec3 GetRotation() const;
+        glm::vec3 GetSize() const;
     };
 
     class ParticleEmitter
@@ -146,7 +146,17 @@ namespace Coffee
 
         template <class Archive> void serialize(Archive& archive)
         {
-            // archive(rateOverTime, elapsedTime);
+            archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
+                    colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
+                    startLifeTime, useRandomSpeed, startSpeedMin, startSpeedMax, startSpeed, useRandomSize,
+                    useSplitAxesSize, startSizeMin, startSizeMax, startSize, useRandomRotation, startRotationMin,
+                    startRotationMax, startRotation, simulationSpace, useEmission, rateOverTime, shape, minSpread,
+                    maxSpread, useShape, shapeAngle, shapeRadius, shapeRadiusThickness, useVelocityOverLifetime,
+                    velocityOverLifeTimeSeparateAxes, speedOverLifeTimeX, speedOverLifeTimeY, speedOverLifeTimeZ,
+                    speedOverLifeTimeGeneral, useSizeOverLifetime, sizeOverLifeTimeSeparateAxes, sizeOverLifetimeX,
+                    sizeOverLifetimeY, sizeOverLifetimeZ, sizeOverLifetimeGeneral, useRotationOverLifetime,
+                    rotationOverLifetimeX, rotationOverLifetimeY, rotationOverLifetimeZ, useColorOverLifetime,
+                    overLifetimecolor, colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment, elapsedTime);
         }
 
     };
