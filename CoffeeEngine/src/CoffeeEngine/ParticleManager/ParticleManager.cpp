@@ -149,26 +149,25 @@ namespace Coffee
         }
     }
 
-    void ParticleEmitter::UpdateParticle(Ref<Particle> p, float dt) {
-
+    void ParticleEmitter::UpdateParticle(Ref<Particle> p, float dt)
+    {
         float normalizedLife = 1.0f - (p->lifetime / p->startLifetime);
+
+        float speedFactor = 1.0f + (speedModifier * dt);      
+        p->direction *= glm::clamp(speedFactor, 0.1f, 10.0f);
 
         if (simulationSpace == SimulationSpace::Local)
         {
-            p->SetPosition(p->GetPosition() + direction * dt);
+            p->SetPosition(p->GetPosition() + p->direction * dt);
         }
         else
         {
-            p->SetPosition(p->GetPosition() + direction * dt);
+            p->SetPosition(p->GetPosition() + p->direction * dt);
         }
-
-
-
 
         if (useSizeOverLifetime)
         {
             glm::vec3 newSize;
-
             if (separateAxes)
             {
                 newSize.x = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeX);
@@ -183,10 +182,29 @@ namespace Coffee
             p->SetSize(newSize);
         }
 
+        if (useRotationOverLifetime)
+        {
+            glm::vec3 newRotation;
 
+            if (rotationSeparateAxes)
+            {
+                newRotation.x = rotationOverLifetimeX * normalizedLife;
+                newRotation.y = rotationOverLifetimeY * normalizedLife;
+                newRotation.z = rotationOverLifetimeZ * normalizedLife;
+            }
+            else
+            {
+                newRotation = rotationOverLifetime * normalizedLife;
+            }
 
+            if (rotationOverLifetimeAngularVelocity != 0.0f)
+            {
+                newRotation += glm::vec3(rotationOverLifetimeAngularVelocity * dt);
+            }
 
-        
+            p->SetRotation(newRotation);
+        }
+
         p->lifetime -= dt;
     }
 

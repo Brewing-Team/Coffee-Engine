@@ -137,7 +137,7 @@ namespace Coffee
         glm::vec3 orbitalX = {0.0f, 0.0f, 0.0f};
         glm::vec3 offsetX;
         float radial;
-        float speedModifier;
+        float speedModifier = 0.0f;
 
         // ColorOverLifetime
         bool useColorOverLifetime = false;
@@ -161,11 +161,11 @@ namespace Coffee
         // Rotation over Lifetime
         bool useRotationOverLifetime = false;
         bool rotationSeparateAxes = false;
-        float rotationOverLifetimeX;
-        float rotationOverLifetimeY;
-        float rotationOverLifetimeZ;
-        glm::vec3 rotationOverLifetime;
-        float rotationOverLifetimeAngularVelocity;
+        float rotationOverLifetimeX = 0.0f;
+        float rotationOverLifetimeY = 0.0f;
+        float rotationOverLifetimeZ = 0.0f;
+        glm::vec3 rotationOverLifetime = {0.0f, 0.0f, 0.0f};
+        float rotationOverLifetimeAngularVelocity = 0.0f;
 
         // Renderer
         bool useRenderer = true;
