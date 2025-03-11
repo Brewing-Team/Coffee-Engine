@@ -26,9 +26,6 @@ namespace Coffee {
     public:
         static void Init();
 
-        //TEMPORAL
-        static void Render(const RenderTarget& target);
-
         /*
         static Render();
 
