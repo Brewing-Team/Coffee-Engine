@@ -3,26 +3,12 @@
 #include <ctime>
 #include <glm/gtc/random.hpp>
 
-
-
-
 namespace Coffee
 {
-
-    // Constructor de Particle
     Particle::Particle() : transformMatrix(glm::mat4(1.0f)), direction(0.0f), color(1.0f), size(1.0f), lifetime(1.0f) {}
 
     glm::mat4 Particle::GetWorldTransform()
     {
-        /*switch (simulationSpace)
-        {
-            case SimulationSpace::Local:
-                return transformMatrix;
-            case SimulationSpace::World:
-                return glm::mat4(1.0f) * transformMatrix;
-            case SimulationSpace::Custom:
-                return customTransform * transformMatrix;
-        }*/
         return transformMatrix;
     }
 
@@ -74,8 +60,6 @@ namespace Coffee
                          glm::length(glm::vec3(transformMatrix[2])));
     }
 
-
-    // Constructor de ParticleEmitter
     Ref<Mesh> ParticleEmitter::particleMesh = nullptr;
 
     ParticleEmitter::ParticleEmitter()
@@ -86,50 +70,49 @@ namespace Coffee
         }
     }
 
-    void ParticleEmitter::InitParticle(Ref<Particle> p)
+    void ParticleEmitter::InitParticle(Ref<Particle> particle)
     {
-       
         glm::vec3 startPos = glm::linearRand(minSpread, maxSpread);
         glm::vec4 startPosVec4 = glm::vec4(startPos.x, startPos.y, startPos.z, 0);
 
         glm::mat4 auxMatrix = transformComponentMatrix;
         auxMatrix[3] = transformComponentMatrix[3] + startPosVec4;
 
-        p->transformMatrix = auxMatrix;
-        
+        particle->transformMatrix = auxMatrix;
 
-        p->direction = useDirectionRandom ? glm::linearRand(direction, directionRandom) : direction;
-        p->color = useColorRandom ? glm::linearRand(colourNormal, colourRandom) : colourNormal;
-        p->lifetime = useRandomLifeTime ? glm::linearRand(startLifeTimeMin, startLifeTimeMax) : startLifeTime;
-        p->startLifetime = p->lifetime;
+        particle->direction = useDirectionRandom ? glm::linearRand(direction, directionRandom) : direction;
+        particle->color = useColorRandom ? glm::linearRand(colorNormal, colorRandom) : colorNormal;
+        particle->lifetime = useRandomLifeTime ? glm::linearRand(startLifeTimeMin, startLifeTimeMax) : startLifeTime;
+        particle->startLifetime = particle->lifetime;
 
-        p->startSpeed = useRandomSpeed ? glm::linearRand(startSpeedMin, startSpeedMax) : startSpeed;
-        
-        p->startSize = useRandomSize ? glm::linearRand(startSizeMin, startSizeMax) : startSize;
+        particle->startSpeed = useRandomSpeed ? glm::linearRand(startSpeedMin, startSpeedMax) : startSpeed;
+
+        particle->startSize = useRandomSize ? glm::linearRand(startSizeMin, startSizeMax) : startSize;
         if (!useSplitAxesSize)
         {
-            p->startSize = glm::vec3(p->startSize.x);
+            particle->startSize = glm::vec3(particle->startSize.x);
         }
-        p->SetSize(p->startSize);
+        particle->SetSize(particle->startSize);
 
-        p->startRotation = useRandomRotation ? glm::linearRand(startRotationMin, startRotationMax) : startRotation;
-        p->SetRotation(p->startRotation);
+        particle->startRotation =
+            useRandomRotation ? glm::linearRand(startRotationMin, startRotationMax) : startRotation;
+        particle->SetRotation(particle->startRotation);
     }
 
     void ParticleEmitter::GenerateParticle()
     {
-        Ref<Particle> p = CreateRef<Particle>();
-        InitParticle(p);
-        activeParticles.push_back(p);
+        Ref<Particle> particle = CreateRef<Particle>();
+        InitParticle(particle);
+        activeParticles.push_back(particle);
     }
 
-    void ParticleEmitter::Update(float dt)
+    void ParticleEmitter::Update(float deltaTime)
     {
-        elapsedTime += dt;
+        elapsedTime += deltaTime;
 
         if (looping)
         {
-            accumulatedParticles += rateOverTime * dt;
+            accumulatedParticles += rateOverTime * deltaTime;
             while (accumulatedParticles >= 1.0f && activeParticles.size() < amount)
             {
                 GenerateParticle();
@@ -139,8 +122,7 @@ namespace Coffee
 
         for (size_t i = 0; i < activeParticles.size();)
         {
-            UpdateParticle(activeParticles[i], dt);
-            //activeParticles[i]->Update(dt);
+            UpdateParticle(activeParticles[i], deltaTime);
             if (activeParticles[i]->lifetime <= 0)
             {
                 activeParticles.erase(activeParticles.begin() + i);
@@ -152,23 +134,23 @@ namespace Coffee
         }
     }
 
-    void ParticleEmitter::UpdateParticle(Ref<Particle> p, float dt)
+    void ParticleEmitter::UpdateParticle(Ref<Particle> particle, float deltaTime)
     {
-        float normalizedLife = 1.0f - (p->lifetime / p->startLifetime);
-
-        
-
-       
+        float normalizedLife = 1.0f - (particle->lifetime / particle->startLifetime);
 
 
-        glm::vec3 newVelocity = glm::vec3(1,1,1);
+
+
+
+
+
+
+
+        glm::vec3 newVelocity = glm::vec3(1, 1, 1);
 
         if (useVelocityOverLifetime)
         {
-            //float speedFactor = 1.0f + (speedModifier * dt);
-            //p->direction *= glm::clamp(speedFactor, 0.1f, 10.0f);
-
-            if (sizeOverLifeTimeSeparateAxes)
+            if (velocityOverLifeTimeSeparateAxes)
             {
                 newVelocity.x = CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeX);
                 newVelocity.y = CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeY);
@@ -180,8 +162,6 @@ namespace Coffee
                 newVelocity = glm::vec3(uniformSize);
             }
         }
-
-
 
         if (useSizeOverLifetime)
         {
@@ -197,34 +177,68 @@ namespace Coffee
                 float uniformSize = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeGeneral);
                 newSize = glm::vec3(uniformSize);
             }
-            p->SetSize(newSize * p->startSize);
+            particle->SetSize(newSize * particle->startSize);
         }
 
         if (useRotationOverLifetime)
         {
             glm::vec3 newRotation;
-
-
             newRotation.x = CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeX);
             newRotation.y = CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeY);
             newRotation.z = CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeZ);
 
-            p->SetRotation(newRotation + p->startRotation);
+            particle->SetRotation(newRotation + particle->startRotation);
         }
 
-
-
-         if (simulationSpace == SimulationSpace::Local)
+        if (simulationSpace == SimulationSpace::Local)
         {
-             p->SetPosition(p->GetPosition() + p->direction * dt * newVelocity * p->startSpeed);
+            particle->SetPosition(particle->GetPosition() +
+                                  particle->direction * deltaTime * newVelocity * particle->startSpeed);
         }
         else
         {
-            p->SetPosition(p->GetPosition() + p->direction * dt * newVelocity * p->startSpeed);
+            particle->SetPosition(particle->GetPosition() +
+                                  particle->direction * deltaTime * newVelocity * particle->startSpeed);
         }
 
 
-        p->lifetime -= dt;
+
+
+        if (renderAlignment == 0) // Supongamos que 0 es billboarding
+        {
+            glm::mat4 viewMatrix = cameraViewMatrix; // Obtén la matriz de vista de la cámara
+            glm::mat4 billboardTransform = CalculateBillboardTransform(particle->transformMatrix, viewMatrix);
+            particle->transformMatrix = billboardTransform;
+        }
+
+
+
+
+
+
+
+
+        particle->lifetime -= deltaTime;
+    }
+
+
+    glm::mat4 ParticleEmitter::CalculateBillboardTransform(const glm::mat4& particleTransform,
+                                                           const glm::mat4& viewMatrix)
+    {
+        // Extrae la posición de la partícula
+        glm::vec3 position = glm::vec3(particleTransform[3]);
+
+        // Elimina la rotación de la partícula (solo mantenemos la escala y la posición)
+        glm::mat4 billboardTransform = glm::mat4(1.0f);
+        billboardTransform[3] = glm::vec4(position, 1.0f);
+
+        // Aplica la inversa de la rotación de la cámara para que la partícula mire hacia la cámara
+        glm::mat4 inverseView = glm::inverse(viewMatrix);
+        inverseView[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ignorar la traslación de la cámara
+
+        billboardTransform = billboardTransform * inverseView;
+
+        return billboardTransform;
     }
 
 } // namespace Coffee

@@ -932,10 +932,10 @@ namespace Coffee
                 }
                 ImGui::SameLine();
                 ImGui::Text("Colour");
-                ImGui::ColorEdit4("##ParticleColourNormal", glm::value_ptr(emitter->colourNormal));
+                ImGui::ColorEdit4("##ParticleColourNormal", glm::value_ptr(emitter->colorNormal));
                 if (emitter->useColorRandom)
                 {
-                    ImGui::ColorEdit4("##ParticleColorRandom", glm::value_ptr(emitter->colourRandom));
+                    ImGui::ColorEdit4("##ParticleColorRandom", glm::value_ptr(emitter->colorRandom));
                 }
 
                 //// Life Time
@@ -1160,7 +1160,7 @@ namespace Coffee
                     {
                         ImGui::Text("Angle");
                         ImGui::SameLine();
-                        ImGui::DragFloat("##Angle", &emitter->shapeangle, 1.0f, 0.0f,
+                        ImGui::DragFloat("##Angle", &emitter->shapeAngle, 1.0f, 0.0f,
                                          180.0f); // Control angle, range: 0 to 180
                     }
 
@@ -1170,13 +1170,13 @@ namespace Coffee
                         // Control the radius
                         ImGui::Text("Radius");
                         ImGui::SameLine();
-                        ImGui::DragFloat("##Radius", &emitter->shaperadius, 0.1f, 0.0f,
+                        ImGui::DragFloat("##Radius", &emitter->shapeRadius, 0.1f, 0.0f,
                                          100.0f); // Control radius, range: 0 to 100
 
                         // Control radius thickness (for ring-shaped emitter)
                         ImGui::Text("Radius Thickness");
                         ImGui::SameLine();
-                        ImGui::DragFloat("##RadiusThickness", &emitter->shaperadiusThickness, 0.01f, 0.0f,
+                        ImGui::DragFloat("##RadiusThickness", &emitter->shapeRadiusThickness, 0.01f, 0.0f,
                                          10.0f); // Range: 0 to 10
                     }
 

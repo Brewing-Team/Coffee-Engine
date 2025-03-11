@@ -31,6 +31,8 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
+
+
 namespace Coffee {
 
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
@@ -218,11 +220,21 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-            particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
-            particlesSystemComponent.GetParticleEmitter()->Update(dt);
-
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+
+            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
+            {
+                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
+            }
+
+            particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
+            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = Renderer::GetData().cameraData.view;
+            particlesSystemComponent.GetParticleEmitter()->Update(dt);
+
+           
+
+
 
             Renderer::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
         }
@@ -329,12 +341,21 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-            particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
-            
-            particlesSystemComponent.GetParticleEmitter()->Update(dt);
-
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+
+            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
+            {
+                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
+            }
+
+            particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
+            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = Renderer::GetData().cameraData.view;
+            particlesSystemComponent.GetParticleEmitter()->Update(dt);
+
+            
+
+           
 
             Renderer::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
         }
