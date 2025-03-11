@@ -301,10 +301,12 @@ namespace Coffee {
     {
         // Actions
         std::vector<std::pair<std::string, InputAction>> actionCodes = {
-            {"MoveHorizontal", ActionsEnum::MoveHorizontal},
-            {"MoveVertical", ActionsEnum::MoveVertical},
+            {"UiMoveHorizontal", ActionsEnum::UiMoveHorizontal},
+            {"UiMoveVertical", ActionsEnum::UiMoveVertical},
             {"Confirm", ActionsEnum::Confirm},
             {"Cancel",  ActionsEnum::Cancel},
+            {"MoveHorizontal", ActionsEnum::MoveHorizontal},
+            {"MoveVertical", ActionsEnum::MoveVertical},
             {"AimHorizontal", ActionsEnum::AimHorizontal},
             {"AimVertical", ActionsEnum::AimVertical},
             {"Shoot", ActionsEnum::Shoot},
@@ -332,7 +334,7 @@ namespace Coffee {
             {"Idle", ButtonStates::IDLE},
             {"Up", ButtonStates::UP},
             {"Down", ButtonStates::DOWN},
-            {"Held", ButtonStates::REPEAT}
+            {"Repeat", ButtonStates::REPEAT}
         };
 
         sol::table buttonStatesTable = lua.create_table();
