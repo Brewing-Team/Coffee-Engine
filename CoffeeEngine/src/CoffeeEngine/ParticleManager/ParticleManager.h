@@ -84,6 +84,7 @@ namespace Coffee
 
         // Start Size
         bool useRandomSize = false;
+        bool useSplitAxesSize = false;
         glm::vec3 startSizeMin = glm::vec3(5,5,5);
         glm::vec3 startSizeMax = glm::vec3(5, 5, 5);
         glm::vec3 startSize = glm::vec3(5, 5, 5);

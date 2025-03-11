@@ -106,6 +106,10 @@ namespace Coffee
         p->startSpeed = useRandomSpeed ? glm::linearRand(startSpeedMin, startSpeedMax) : startSpeed;
         
         p->startSize = useRandomSize ? glm::linearRand(startSizeMin, startSizeMax) : startSize;
+        if (!useSplitAxesSize)
+        {
+            p->startSize = glm::vec3(p->startSize.x);
+        }
         p->SetSize(p->startSize);
 
         p->startRotation = useRandomRotation ? glm::linearRand(startRotationMin, startRotationMax) : startRotation;
