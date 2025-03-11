@@ -20,6 +20,10 @@ namespace Coffee
         float size;
         float lifetime;
         float startLifetime;
+        float startSpeed;
+        glm::vec3 startSize;
+        glm::vec3 startRotation;
+        
 
 
         
@@ -80,15 +84,15 @@ namespace Coffee
 
         // Start Size
         bool useRandomSize = false;
-        float startSizeMin = 5.0f;
-        float startSizeMax = 5.0f;
-        float startSize = 5.0f;
+        glm::vec3 startSizeMin = glm::vec3(5,5,5);
+        glm::vec3 startSizeMax = glm::vec3(5, 5, 5);
+        glm::vec3 startSize = glm::vec3(5, 5, 5);
 
         // Start Rotation
         bool useRandomRotation = false;
-        float startRotationMin = 5.0f;
-        float startRotationMax = 5.0f;
-        float startRotation = 5.0f;
+        glm::vec3 startRotationMin = glm::vec3(5, 5, 5);
+        glm::vec3 startRotationMax = glm::vec3(5, 5, 5);
+        glm::vec3 startRotation = glm::vec3(5, 5, 5);
 
         // SimulationSpace
         enum class SimulationSpace
@@ -113,10 +117,10 @@ namespace Coffee
             Cone,
             Box
         };
-        ShapeType shape = ShapeType::Sphere; 
+        ShapeType shape = ShapeType::Box; 
         glm::vec3 minSpread = {0.0f, 0.0f, 0.0f};
         glm::vec3 maxSpread = {0.0f, 0.0f, 0.0f};
-        bool useShape = false;
+        bool useShape = true;
         float shapeangle = 45.0f;                           
         float shaperadius = 1.0f;                       
         float shaperadiusThickness = 0.1f;                   
@@ -129,15 +133,15 @@ namespace Coffee
             World = 1,
         };
 
-        Space Space = Space::Local; // Default value
+       
 
         bool useVelocityOverLifetime = false;
-        glm::vec3 linearX = {0.0f, 0.0f, 0.0f};
-        float space;
-        glm::vec3 orbitalX = {0.0f, 0.0f, 0.0f};
-        glm::vec3 offsetX;
-        float radial;
-        float speedModifier = 0.0f;
+        bool velocityOverLifeTimeSeparateAxes = false;
+        std::vector<CurvePoint> speedOverLifeTimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        std::vector<CurvePoint> speedOverLifeTimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        std::vector<CurvePoint> speedOverLifeTimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        std::vector<CurvePoint> speedOverLifeTimeGeneral = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        
 
         // ColorOverLifetime
         bool useColorOverLifetime = false;
@@ -150,7 +154,7 @@ namespace Coffee
 
         // Size over Lifetime
         bool useSizeOverLifetime = false;
-        bool separateAxes = false;
+        bool sizeOverLifeTimeSeparateAxes = false;
         std::vector<CurvePoint> sizeOverLifetimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}};
         std::vector<CurvePoint> sizeOverLifetimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}};
         std::vector<CurvePoint> sizeOverLifetimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}};
@@ -160,12 +164,18 @@ namespace Coffee
 
         // Rotation over Lifetime
         bool useRotationOverLifetime = false;
-        bool rotationSeparateAxes = false;
-        float rotationOverLifetimeX = 0.0f;
+       /* float rotationOverLifetimeX = 0.0f;
         float rotationOverLifetimeY = 0.0f;
-        float rotationOverLifetimeZ = 0.0f;
-        glm::vec3 rotationOverLifetime = {0.0f, 0.0f, 0.0f};
-        float rotationOverLifetimeAngularVelocity = 0.0f;
+        float rotationOverLifetimeZ = 0.0f;*/
+
+
+        std::vector<CurvePoint> rotationOverLifetimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        std::vector<CurvePoint> rotationOverLifetimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        std::vector<CurvePoint> rotationOverLifetimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+        //std::vector<CurvePoint> sizeOverLifetimeGeneral = {{0.0f, 1.0f}, {1.0f, 0.5f}};
+
+
+
 
         // Renderer
         bool useRenderer = true;

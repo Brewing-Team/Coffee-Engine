@@ -103,14 +103,13 @@ namespace Coffee
         p->lifetime = useRandomLifeTime ? glm::linearRand(startLifeTimeMin, startLifeTimeMax) : startLifeTime;
         p->startLifetime = p->lifetime;
 
-        float startSpeedValue = useRandomSpeed ? glm::linearRand(startSpeedMin, startSpeedMax) : startSpeed;
-        p->direction *= startSpeedValue;
+        p->startSpeed = useRandomSpeed ? glm::linearRand(startSpeedMin, startSpeedMax) : startSpeed;
+        
+        p->startSize = useRandomSize ? glm::linearRand(startSizeMin, startSizeMax) : startSize;
+        p->SetSize(p->startSize);
 
-        float sizeValue = useRandomSize ? glm::linearRand(startSizeMin, startSizeMax) : startSize;
-        p->SetSize(glm::vec3(sizeValue));
-
-        float rotationValue = useRandomRotation ? glm::linearRand(startRotationMin, startRotationMax) : startRotation;
-        p->SetRotation(glm::vec3(rotationValue));
+        p->startRotation = useRandomRotation ? glm::linearRand(startRotationMin, startRotationMax) : startRotation;
+        p->SetRotation(p->startRotation);
     }
 
     void ParticleEmitter::GenerateParticle()
@@ -153,22 +152,37 @@ namespace Coffee
     {
         float normalizedLife = 1.0f - (p->lifetime / p->startLifetime);
 
-        float speedFactor = 1.0f + (speedModifier * dt);      
-        p->direction *= glm::clamp(speedFactor, 0.1f, 10.0f);
+        
 
-        if (simulationSpace == SimulationSpace::Local)
+       
+
+
+        glm::vec3 newVelocity = glm::vec3(1,1,1);
+
+        if (useVelocityOverLifetime)
         {
-            p->SetPosition(p->GetPosition() + p->direction * dt);
+            //float speedFactor = 1.0f + (speedModifier * dt);
+            //p->direction *= glm::clamp(speedFactor, 0.1f, 10.0f);
+
+            if (sizeOverLifeTimeSeparateAxes)
+            {
+                newVelocity.x = CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeX);
+                newVelocity.y = CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeY);
+                newVelocity.z = CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeZ);
+            }
+            else
+            {
+                float uniformSize = CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeGeneral);
+                newVelocity = glm::vec3(uniformSize);
+            }
         }
-        else
-        {
-            p->SetPosition(p->GetPosition() + p->direction * dt);
-        }
+
+
 
         if (useSizeOverLifetime)
         {
             glm::vec3 newSize;
-            if (separateAxes)
+            if (sizeOverLifeTimeSeparateAxes)
             {
                 newSize.x = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeX);
                 newSize.y = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeY);
@@ -179,31 +193,32 @@ namespace Coffee
                 float uniformSize = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeGeneral);
                 newSize = glm::vec3(uniformSize);
             }
-            p->SetSize(newSize);
+            p->SetSize(newSize * p->startSize);
         }
 
         if (useRotationOverLifetime)
         {
             glm::vec3 newRotation;
 
-            if (rotationSeparateAxes)
-            {
-                newRotation.x = rotationOverLifetimeX * normalizedLife;
-                newRotation.y = rotationOverLifetimeY * normalizedLife;
-                newRotation.z = rotationOverLifetimeZ * normalizedLife;
-            }
-            else
-            {
-                newRotation = rotationOverLifetime * normalizedLife;
-            }
 
-            if (rotationOverLifetimeAngularVelocity != 0.0f)
-            {
-                newRotation += glm::vec3(rotationOverLifetimeAngularVelocity * dt);
-            }
+            newRotation.x = CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeX);
+            newRotation.y = CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeY);
+            newRotation.z = CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeZ);
 
-            p->SetRotation(newRotation);
+            p->SetRotation(newRotation + p->startRotation);
         }
+
+
+
+         if (simulationSpace == SimulationSpace::Local)
+        {
+             p->SetPosition(p->GetPosition() + p->direction * dt * newVelocity * p->startSpeed);
+        }
+        else
+        {
+            p->SetPosition(p->GetPosition() + p->direction * dt * newVelocity * p->startSpeed);
+        }
+
 
         p->lifetime -= dt;
     }

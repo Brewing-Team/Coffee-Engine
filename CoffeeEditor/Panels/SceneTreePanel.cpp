@@ -993,16 +993,17 @@ namespace Coffee {
 
                 if (emitter->useRandomSize)
                 {
+
                     ImGui::Text("Min");
                     ImGui::SameLine();
-                    ImGui::DragFloat("##ParticleStartSizeMin", &emitter->startSizeMin, 0.1f, 0.0f, 100.0f);
+                    ImGui::DragFloat3("##ParticleStartSizeMin", glm::value_ptr(emitter->startSizeMin), 0.1f);
                     ImGui::Text("Max");
                     ImGui::SameLine();
-                    ImGui::DragFloat("##ParticleStartSizeMax", &emitter->startSizeMax, 0.1f, 0.0f, 100.0f);
+                    ImGui::DragFloat3("##ParticleStartSizeMax", glm::value_ptr(emitter->startSizeMax), 0.1f);
                 }
                 else
                 {
-                    ImGui::DragFloat("##ParticleStartSize", &emitter->startSize, 0.1f, 0.0f, 100.0f);
+                    ImGui::DragFloat3("##ParticleStartSize", glm::value_ptr(emitter->startSize), 0.1f);
                 }
 
 
@@ -1022,14 +1023,14 @@ namespace Coffee {
                 {
                     ImGui::Text("Min");
                     ImGui::SameLine();
-                    ImGui::DragFloat("##ParticleStartRotationMin", &emitter->startRotationMin, 0.1f, 0.0f, 360.0f);
+                    ImGui::DragFloat3("##ParticleStartRotationMin",  glm::value_ptr(emitter->startRotationMin), 0.1f);
                     ImGui::Text("Max");
                     ImGui::SameLine();
-                    ImGui::DragFloat("##ParticleStartRotationMax", &emitter->startRotationMax, 0.1f, 0.0f, 360.0f);
+                    ImGui::DragFloat3("##ParticleStartRotationMax",  glm::value_ptr(emitter->startRotationMax), 0.1f);
                 }
                 else
                 {
-                    ImGui::DragFloat("##ParticleStartRotation", &emitter->startRotation, 0.1f, 0.0f, 360.0f);
+                    ImGui::DragFloat3("##ParticleStartRotation",  glm::value_ptr(emitter->startRotation), 0.1f);
                 }
 
 
@@ -1184,37 +1185,29 @@ namespace Coffee {
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
                     }
 
-                    //// Linear Velocity
-                    //ImGui::Text("Linear");
-                    //ImGui::SameLine();
-                    //ImGui::DragFloat3("##LinearVelocity", glm::value_ptr(emitter->linearX), 0.1f, -100.0f, 100.0f);
 
-                    //// Space (Local / World)
-                    //ImGui::Text("Space");
-                    //ImGui::SameLine();
-                    //const char* spaceOptions[] = {"Local", "World"};
-                    //ImGui::Combo("##VelocitySpace", reinterpret_cast<int*>(&emitter->space), spaceOptions,
-                    //             IM_ARRAYSIZE(spaceOptions));
+                    ImGui::Checkbox("Separate Axes", &emitter->velocityOverLifeTimeSeparateAxes);
 
-                    //// Orbital Velocity
-                    //ImGui::Text("Orbital");
-                    //ImGui::SameLine();
-                    //ImGui::DragFloat3("##OrbitalVelocity", glm::value_ptr(emitter->orbitalX), 0.1f, -100.0f, 100.0f);
+                    if (emitter->velocityOverLifeTimeSeparateAxes)
+                    {
+                    
+                        ImGui::Text("Velocity X");
+                        CurveEditor::DrawCurve("Velocity X", emitter->speedOverLifeTimeX);
 
-                    //// Offset
-                    //ImGui::Text("Offset");
-                    //ImGui::SameLine();
-                    //ImGui::DragFloat3("##OffsetVelocity", glm::value_ptr(emitter->offsetX), 0.1f, -100.0f, 100.0f);
+                        ImGui::Text("Velocity Y ");
+                        CurveEditor::DrawCurve("Velocity Y", emitter->speedOverLifeTimeY);
 
-                    //// Radial Speed
-                    //ImGui::Text("Radial");
-                    //ImGui::SameLine();
-                    //ImGui::DragFloat("##RadialVelocity", &emitter->radial, 0.1f, -100.0f, 100.0f);
+                        ImGui::Text("Velocity Z");
+                        CurveEditor::DrawCurve("Velocity Z", emitter->speedOverLifeTimeZ);
 
-                    // Speed Modifier
-                    ImGui::Text("Speed Modifier");
-                    ImGui::SameLine();
-                    ImGui::DragFloat("##SpeedModifier", &emitter->speedModifier, 0.1f, -10.0f, 10.0f);
+                    }
+                    else
+                    {
+                    
+                        ImGui::Text("Velocity");
+                        CurveEditor::DrawCurve("Velocity", emitter->speedOverLifeTimeGeneral);
+                    }
+
 
                     // Restore default state
                     if (!emitter->useVelocityOverLifetime)
@@ -1276,10 +1269,7 @@ namespace Coffee {
 
 
                 // Size Over Lifetime - Checkbox and Collapsing Header
-                if (ImGui::Checkbox("##UseSizeOverLifetime", &emitter->useSizeOverLifetime))
-                {
-                    // Handle checkbox toggle logic here
-                }
+                ImGui::Checkbox("##UseSizeOverLifetime", &emitter->useSizeOverLifetime);
 
                 ImGui::SameLine();
                 ImGui::PushID("SizeOverLifetime");
@@ -1294,9 +1284,9 @@ namespace Coffee {
                     }
 
                     // Enable or disable separate XYZ axes
-                    ImGui::Checkbox("Separate Axes", &emitter->separateAxes);
+                    ImGui::Checkbox("Separate Axes", &emitter->sizeOverLifeTimeSeparateAxes);
 
-                    if (emitter->separateAxes)
+                    if (emitter->sizeOverLifeTimeSeparateAxes)
                     {
                         ImGui::Text("Size X");
                         CurveEditor::DrawCurve("Size X", emitter->sizeOverLifetimeX);
@@ -1344,40 +1334,22 @@ namespace Coffee {
                         ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
                     }
 
-                    // Enable or disable separate XYZ axes
-                    ImGui::Checkbox("Separate Axes", &emitter->rotationSeparateAxes);
+                    // Rotation on X axis
+                    ImGui::Text("Rotation X");
+                    CurveEditor::DrawCurve("##RotationX", emitter->rotationOverLifetimeX);
+                    
 
-                    if (emitter->rotationSeparateAxes)
-                    {
-                        // Rotation on X axis
-                        ImGui::Text("Rotation X");
-                        ImGui::SameLine();
-                        ImGui::DragFloat("##RotationX", &emitter->rotationOverLifetimeX, 0.1f, -360.0f, 360.0f);
+                    // Rotation on Y axis
+                    ImGui::Text("Rotation Y");
+                    CurveEditor::DrawCurve("##RotationY", emitter->rotationOverLifetimeZ);
+                    
 
-                        // Rotation on Y axis
-                        ImGui::Text("Rotation Y");
-                        ImGui::SameLine();
-                        ImGui::DragFloat("##RotationY", &emitter->rotationOverLifetimeY, 0.1f, -360.0f, 360.0f);
-
-                        // Rotation on Z axis
-                        ImGui::Text("Rotation Z");
-                        ImGui::SameLine();
-                        ImGui::DragFloat("##RotationZ", &emitter->rotationOverLifetimeZ, 0.1f, -360.0f, 360.0f);
-                    }
-                    else
-                    {
-                        //// Angular velocity
-                        //ImGui::Text("Angular Velocity");
-                        //ImGui::SameLine();
-                        //ImGui::DragFloat("##AngularVelocity", &emitter->rotationOverLifetimeAngularVelocity, 0.1f,
-                        //                 -360.0f, 360.0f);
-                    }
-
-                    // Angular velocity
-                    ImGui::Text("Angular Velocity");
-                    ImGui::SameLine();
-                    ImGui::DragFloat("##AngularVelocity", &emitter->rotationOverLifetimeAngularVelocity, 0.1f, -360.0f,
-                                     360.0f);
+                    // Rotation on Z axis
+                    ImGui::Text("Rotation Z");
+                    CurveEditor::DrawCurve("##RotationZ", emitter->rotationOverLifetimeY);
+                    
+                    
+                    
                   
 
                     // Restore default state
