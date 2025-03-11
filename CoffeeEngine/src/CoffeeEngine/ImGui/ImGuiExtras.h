@@ -37,4 +37,5 @@ class CurveEditor
   public:
     // Dibuja la curva en una ventana de ImGui
     static void DrawCurve(const char* label, std::vector<CurvePoint>& points, ImVec2 graph_size = ImVec2(200, 50));
+    static float GetCurveValue(float time, const std::vector<CurvePoint>& points);
 };

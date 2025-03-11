@@ -19,7 +19,7 @@ namespace Coffee
         glm::vec4 color;
         float size;
         float lifetime;
-
+        float startLifetime;
 
 
         

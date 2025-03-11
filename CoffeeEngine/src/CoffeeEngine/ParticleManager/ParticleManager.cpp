@@ -101,6 +101,7 @@ namespace Coffee
         p->direction = useDirectionRandom ? glm::linearRand(direction, directionRandom) : direction;
         p->color = useColorRandom ? glm::linearRand(colourNormal, colourRandom) : colourNormal;
         p->lifetime = useRandomLifeTime ? glm::linearRand(startLifeTimeMin, startLifeTimeMax) : startLifeTime;
+        p->startLifetime = p->lifetime;
 
         float startSpeedValue = useRandomSpeed ? glm::linearRand(startSpeedMin, startSpeedMax) : startSpeed;
         p->direction *= startSpeedValue;
@@ -150,6 +151,7 @@ namespace Coffee
 
     void ParticleEmitter::UpdateParticle(Ref<Particle> p, float dt) {
 
+        float normalizedLife = 1.0f - (p->lifetime / p->startLifetime);
 
         if (simulationSpace == SimulationSpace::Local)
         {
@@ -160,7 +162,31 @@ namespace Coffee
             p->SetPosition(p->GetPosition() + direction * dt);
         }
 
-        //p->SetPosition(p->GetPosition() + direction * dt);
+
+
+
+        if (useSizeOverLifetime)
+        {
+            glm::vec3 newSize;
+
+            if (separateAxes)
+            {
+                newSize.x = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeX);
+                newSize.y = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeY);
+                newSize.z = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeZ);
+            }
+            else
+            {
+                float uniformSize = CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeGeneral);
+                newSize = glm::vec3(uniformSize);
+            }
+            p->SetSize(newSize);
+        }
+
+
+
+
+        
         p->lifetime -= dt;
     }
 

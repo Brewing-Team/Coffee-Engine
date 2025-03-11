@@ -212,5 +212,33 @@ void CurveEditor::DrawCurve(const char* label, std::vector<CurvePoint>& points, 
     }
 }
 
+float CurveEditor::GetCurveValue(float time, const std::vector<CurvePoint>& points)
+{
+    if (points.empty())
+        return 0.0f; // Si no hay puntos, devolver 0
+    if (time <= points.front().time)
+        return points.front().value; // Si está antes del primer punto
+    if (time >= points.back().time)
+        return points.back().value; // Si está después del último punto
+
+    // 🟢 Buscar los dos puntos entre los que se encuentra `time`
+    for (size_t i = 1; i < points.size(); i++)
+    {
+        if (time <= points[i].time)
+        {
+            const CurvePoint& p1 = points[i - 1];
+            const CurvePoint& p2 = points[i];
+
+            // Interpolación lineal
+            float t = (time - p1.time) / (p2.time - p1.time);
+            return p1.value * (1.0f - t) + p2.value * t; // LERP
+        }
+    }
+
+    return 0.0f; // No debería llegar aquí
+}
+
+
+
 
 
