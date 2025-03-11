@@ -927,7 +927,8 @@ namespace Coffee {
                 ImGui::Checkbox("##ParticleLooping", &emitter->looping);
                 ImGui::SameLine();
                 ImGui::Text("Looping");
-
+                ImGui::Text("MaxParicle");
+                ImGui::DragInt("##MaxParticle", &emitter->amount, 1, 0, 10000);
                 // Start Life Time
                 // Use Random Start Life Time
                 ImGui::Checkbox("##UseRandomStartLifeTime", &emitter->useRandomLifeTime);
