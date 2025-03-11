@@ -1629,7 +1629,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = {"Empty", "Camera", "Primitive", "Light"};
+            std::string items[] = {"Empty", "Camera", "Primitive", "Light", "Particle System"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1684,6 +1684,14 @@ namespace Coffee
                 {
                     Entity e = m_Context->CreateEntity("Light");
                     e.AddComponent<LightComponent>();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Particle System")
+                {
+                    Entity e = m_Context->CreateEntity("ParticleSystem");
+                    e.AddComponent<ParticlesSystemComponent>();
+                    e.AddComponent<MaterialComponent>();
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }

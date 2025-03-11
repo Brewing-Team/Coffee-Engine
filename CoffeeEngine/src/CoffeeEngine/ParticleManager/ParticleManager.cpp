@@ -82,6 +82,8 @@ namespace Coffee
 
         particle->direction = useDirectionRandom ? glm::linearRand(direction, directionRandom) : direction;
         particle->color = useColorRandom ? glm::linearRand(colorNormal, colorRandom) : colorNormal;
+        if (particleMaterial)particleMaterial->GetMaterialProperties().color = particle->color;
+
         particle->lifetime = useRandomLifeTime ? glm::linearRand(startLifeTimeMin, startLifeTimeMax) : startLifeTime;
         particle->startLifetime = particle->lifetime;
 
