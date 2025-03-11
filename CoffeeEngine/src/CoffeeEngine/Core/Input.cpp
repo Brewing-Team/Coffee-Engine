@@ -251,28 +251,90 @@ namespace Coffee {
         #pragma region Defaults
 
         //UI defaults
-        m_Bindings[ActionsEnum::UiMoveHorizontal].SetName("UiMoveHorizontal").SetAxis(Axis::LeftX).SetButtonNeg(Button::DpadLeft).SetButtonPos(Button::DpadRight);
-        m_Bindings[ActionsEnum::UiMoveVertical].SetName("UiMoveVertical").SetAxis(Axis::LeftY).SetButtonNeg(Button::DpadDown).SetButtonPos(Button::DpadUp);
-        m_Bindings[ActionsEnum::Cancel].SetName("Cancel").SetButtonPos(Button::East);
-        m_Bindings[ActionsEnum::Confirm].SetName("Confirm").SetButtonPos(Button::South);
+        m_Bindings[ActionsEnum::UiMoveHorizontal].SetName("UiMoveHorizontal")
+            .SetAxis(Axis::LeftX)
+            .SetButtonNeg(Button::DpadLeft).SetButtonPos(Button::DpadRight)
+            .SetPosKey(Key::D).SetNegKey(Key::A);
+
+        m_Bindings[ActionsEnum::UiMoveVertical].SetName("UiMoveVertical")
+            .SetAxis(Axis::LeftY)
+            .SetButtonNeg(Button::DpadDown).SetButtonPos(Button::DpadUp)
+            .SetPosKey(Key::W).SetNegKey(Key::S);
+
+        m_Bindings[ActionsEnum::Cancel].SetName("Cancel")
+            .SetButtonPos(Button::East)
+            .SetPosKey(Key::RShift);
+
+        m_Bindings[ActionsEnum::Confirm].SetName("Confirm")
+            .SetButtonPos(Button::South)
+            .SetPosKey(Key::Return);
+
 
         // Gameplay defaults
-        m_Bindings[ActionsEnum::MoveHorizontal].SetName("MoveHorizontal").SetAxis(Axis::LeftX);
-        m_Bindings[ActionsEnum::MoveVertical].SetName("MoveVertical").SetAxis(Axis::LeftY);
-        m_Bindings[ActionsEnum::AimHorizontal].SetName("AimHorizontal").SetAxis(Axis::RightX);
-        m_Bindings[ActionsEnum::AimVertical].SetName("AimVertical").SetAxis(Axis::RightY);
-        m_Bindings[ActionsEnum::Shoot].SetName("Shoot").SetAxis(Axis::RightTrigger);
-        m_Bindings[ActionsEnum::Melee].SetName("Melee").SetButtonPos(Button::RightShoulder);
-        m_Bindings[ActionsEnum::Interact].SetName("Interact").SetButtonPos(Button::South);
-        m_Bindings[ActionsEnum::Dash].SetName("Dash").SetButtonPos(Button::East);
-        m_Bindings[ActionsEnum::Cover].SetName("Cover").SetButtonPos(Button::West);
-        m_Bindings[ActionsEnum::Skill1].SetName("Skill1").SetButtonPos(Button::North);
-        m_Bindings[ActionsEnum::Skill2].SetName("Skill2").SetButtonPos(Button::LeftShoulder);
-        m_Bindings[ActionsEnum::Skill3].SetName("Skill3").SetAxis(Axis::LeftTrigger);
-        m_Bindings[ActionsEnum::Injector].SetName("Injector").SetButtonPos(Button::DpadUp);
-        m_Bindings[ActionsEnum::Grenade].SetName("Grenade").SetButtonPos(Button::DpadRight);
-        m_Bindings[ActionsEnum::Map].SetName("Map").SetButtonPos(Button::Back);
-        m_Bindings[ActionsEnum::Pause].SetName("Pause").SetButtonPos(Button::Start);
+        m_Bindings[ActionsEnum::MoveHorizontal].SetName("MoveHorizontal")
+            .SetAxis(Axis::LeftX)
+            .SetNegKey(Key::A).SetPosKey(Key::D);
+
+        m_Bindings[ActionsEnum::MoveVertical].SetName("MoveVertical")
+            .SetAxis(Axis::LeftY)
+            .SetNegKey(Key::S).SetPosKey(Key::W);
+
+        m_Bindings[ActionsEnum::AimHorizontal].SetName("AimHorizontal")
+            .SetAxis(Axis::RightX)
+            .SetNegKey(Key::Kp4).SetPosKey(Key::Kp6);
+
+        m_Bindings[ActionsEnum::AimVertical].SetName("AimVertical")
+            .SetAxis(Axis::RightY)
+            .SetNegKey(Key::Kp2).SetPosKey(Key::Kp8);
+
+        m_Bindings[ActionsEnum::Shoot].SetName("Shoot")
+            .SetAxis(Axis::RightTrigger)
+            .SetPosKey(Key::Kp0);
+
+        m_Bindings[ActionsEnum::Melee].SetName("Melee")
+            .SetButtonPos(Button::RightShoulder)
+            .SetPosKey(Key::E);
+
+        m_Bindings[ActionsEnum::Interact].SetName("Interact")
+            .SetButtonPos(Button::South)
+            .SetPosKey(Key::V);
+
+        m_Bindings[ActionsEnum::Dash].SetName("Dash")
+            .SetButtonPos(Button::East)
+            .SetPosKey(Key::Space);
+
+        m_Bindings[ActionsEnum::Cover].SetName("Cover")
+            .SetButtonPos(Button::West)
+            .SetPosKey(Key::C);
+
+        m_Bindings[ActionsEnum::Skill1].SetName("Skill1")
+            .SetButtonPos(Button::North)
+            .SetPosKey(Key::D1);
+
+        m_Bindings[ActionsEnum::Skill2].SetName("Skill2")
+            .SetButtonPos(Button::LeftShoulder)
+            .SetPosKey(Key::D2);
+
+        m_Bindings[ActionsEnum::Skill3].SetName("Skill3")
+            .SetAxis(Axis::LeftTrigger)
+            .SetPosKey(Key::D3);
+
+        m_Bindings[ActionsEnum::Injector].SetName("Injector")
+            .SetButtonPos(Button::DpadUp)
+            .SetPosKey(Key::D4);
+
+        m_Bindings[ActionsEnum::Grenade].SetName("Grenade")
+            .SetButtonPos(Button::DpadRight)
+            .SetPosKey(Key::Q);
+
+        m_Bindings[ActionsEnum::Map].SetName("Map")
+            .SetButtonPos(Button::Back)
+            .SetPosKey(Key::Tab);
+
+        m_Bindings[ActionsEnum::Pause].SetName("Pause")
+            .SetButtonPos(Button::Start)
+            .SetPosKey(Key::Escape);
+
 
         #pragma endregion
 
