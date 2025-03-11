@@ -1013,6 +1013,10 @@ namespace Coffee
                 ImGui::Text("Start Size");
                 ImGui::SameLine();
                 ImGui::Checkbox("##UseSplitAxesStartSize", &emitter->useSplitAxesSize);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to split the startSize value in to three axes");
+                }
 
                 if (emitter->useSplitAxesSize)
                 {
