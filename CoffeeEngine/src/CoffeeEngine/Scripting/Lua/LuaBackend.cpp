@@ -372,8 +372,7 @@ namespace Coffee {
         sol::table inputTable = luaState.create_table();
         BindKeyCodesToLua(luaState, inputTable);
         BindMouseCodesToLua(luaState, inputTable);
-        BindControllerCodesToLua(luaState, inputTable);
-        BindAxisCodesToLua(luaState, inputTable);
+        BindInputActionsToLua(luaState, inputTable);
 
         inputTable.set_function("is_key_pressed", [](KeyCode key) {
             return Input::IsKeyPressed(key);

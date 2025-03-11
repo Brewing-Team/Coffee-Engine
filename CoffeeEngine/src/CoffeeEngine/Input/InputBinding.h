@@ -44,7 +44,9 @@ namespace Coffee
         template <class Archive>
         void serialize(Archive& archive, const uint32_t version)
         {
-            archive(CEREAL_NVP(KeyPos),
+            archive(
+                CEREAL_NVP(Name),
+                CEREAL_NVP(KeyPos),
                 CEREAL_NVP(KeyNeg),
                 CEREAL_NVP(ButtonPos),
                 CEREAL_NVP(ButtonNeg),
