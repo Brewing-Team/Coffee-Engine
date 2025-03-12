@@ -447,6 +447,8 @@ namespace Coffee {
                     self->AddComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->AddComponent<ScriptComponent>();
+                }else if (componentName == "ParticlesSystemComponent"){
+                    self->AddComponent<ParticlesSystemComponent>();
                 }
             },
             "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
@@ -464,6 +466,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
+                } else if (componentName == "ParticlesSystemComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<ParticlesSystemComponent>()));
                 }
                 return sol::nil;
             },
@@ -482,6 +486,8 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
+                } else if (componentName == "ParticlesSystemComponent") {
+                    return self->HasComponent<ParticlesSystemComponent>();
                 }
                 return false;
             },
@@ -500,6 +506,8 @@ namespace Coffee {
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
+                } else if (componentName == "ParticlesSystemComponent") {
+                    self->RemoveComponent<ParticlesSystemComponent>();
                 }
             },
             "set_parent", &Entity::SetParent,
@@ -570,6 +578,16 @@ namespace Coffee {
                 std::dynamic_pointer_cast<LuaScript>(self.script)->CallFunction(functionName);
             }
         );
+
+
+
+
+        luaState.new_usertype<ParticlesSystemComponent>("ParticlesSystemComponent", sol::constructors<ParticlesSystemComponent()>(), 
+            "emit",&ParticlesSystemComponent::Emit, 
+            "get_emitter", &ParticlesSystemComponent::GetParticleEmitter
+            );
+
+
         # pragma endregion
 
         # pragma region Bind Scene Functions

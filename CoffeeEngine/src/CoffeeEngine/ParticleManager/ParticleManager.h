@@ -150,6 +150,8 @@ namespace Coffee
         void UpdateParticle(Ref<Particle> particle, float deltaTime);
         void DrawDebug();
 
+        void Emit(int cuantity);
+
         glm::mat4 CalculateBillboardTransform(const glm::mat4& particleTransform, const glm::mat4& viewMatrix);
 
 

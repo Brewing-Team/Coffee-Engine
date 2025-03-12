@@ -248,4 +248,18 @@ namespace Coffee
 
     }
 
+
+
+    void ParticleEmitter::Emit(int quantity) {
+        for (int i = 0; i < quantity; i++)
+        {
+            GenerateParticle();
+            if (activeParticles.size() >= amount)
+            {
+                break;
+            }
+        }
+    }
+
+
 } // namespace Coffee
