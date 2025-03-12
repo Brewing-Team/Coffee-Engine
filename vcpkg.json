@@ -39,5 +39,8 @@
   }, {
     "name" : "lua",
     "version>=" : "5.4.7"
+  }, {
+    "name" : "bullet3",
+    "version>=" : "3.25#2"
   } ]
 }

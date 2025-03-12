@@ -38,6 +38,8 @@ namespace Coffee {
         glm::vec3 Normals = glm::vec3(0.0f); ///< The normal vector of the vertex.
         glm::vec3 Tangent = glm::vec3(0.0f); ///< The tangent vector of the vertex.
         glm::vec3 Bitangent = glm::vec3(0.0f); ///< The bitangent vector of the vertex.
+        glm::ivec4 BoneIDs = glm::ivec4(-1); ///< The bone IDs of the vertex.
+        glm::vec4 BoneWeights = glm::vec4(0.0f); ///< The bone weights of the vertex.
 
         private:
             friend class cereal::access;
@@ -45,7 +47,7 @@ namespace Coffee {
             template<class Archive>
             void serialize(Archive& archive)
             {
-                archive(Position, TexCoords, Normals, Tangent, Bitangent);
+                archive(Position, TexCoords, Normals, Tangent, Bitangent, BoneIDs, BoneWeights);
             }
     };
 

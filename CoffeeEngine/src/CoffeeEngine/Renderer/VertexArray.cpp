@@ -15,7 +15,8 @@ namespace Coffee {
 			case ShaderDataType::Vec2:     return GL_FLOAT;
 			case ShaderDataType::Vec3:     return GL_FLOAT;
 			case ShaderDataType::Vec4:     return GL_FLOAT;
-            case ShaderDataType::Mat2:     return GL_FLOAT;
+		    case ShaderDataType::IVec4:    return GL_INT;
+		    case ShaderDataType::Mat2:     return GL_FLOAT;
 			case ShaderDataType::Mat3:     return GL_FLOAT;
 			case ShaderDataType::Mat4:     return GL_FLOAT;
 		}
@@ -83,6 +84,7 @@ namespace Coffee {
 				}
 				case ShaderDataType::Int:
 				case ShaderDataType::Bool:
+			    case ShaderDataType::IVec4:
 				{
 					glEnableVertexAttribArray(m_VertexBufferIndex);
 					glVertexAttribIPointer(m_VertexBufferIndex,

@@ -1,9 +1,6 @@
 Event	ID	Name			Wwise Object Path	Notes
-	1039137056	Play_test_sound2			\Default Work Unit\Play_test_sound2	
-	1039137057	Play_test_sound3			\Default Work Unit\Play_test_sound3	
-	1039137062	Play_test_sound4			\Default Work Unit\Play_test_sound4	
-	1474158143	Play_BackgroundContainer			\Default Work Unit\Play_BackgroundContainer	
-	3211564518	Play_test_sound			\Default Work Unit\Play_test_sound	
+	137867063	Play_Music_Container			\Default Work Unit\Play_Music_Container	
+	268953978	Play_shot			\Default Work Unit\Play_shot	
 
 Audio Bus	ID	Name			Wwise Object Path	Notes
 	3803692087	Master Audio Bus			\Default Work Unit\Master Audio Bus	
@@ -15,10 +12,6 @@ Effect plug-ins	ID	Name	Type				Notes
 	1059792370	RoomVerb (Custom)	Wwise RoomVerb			
 
 In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
-	187034672	Combat-A-LowBrass_138bpm4-4_L8M-P0	C:\Users\guill\OneDrive\Documentos\Coffee-Engine-Audio\CoffeeEditor\assets\audio\Wwise Project\.cache\52\{52E43852-FA8C-6DED-6AAB-CFCCC36A1807}.wem		\Interactive Music Hierarchy\Music\BackgroundContainer\Background\Combat-A-LowBrass_138bpm4-4_L8M-P0		3339228
-	276561864	test_sound4	C:\Users\guill\OneDrive\Documentos\Coffee-Engine-Audio\CoffeeEditor\assets\audio\Wwise Project\.cache\73\{73317DAE-A02E-60F5-4AB3-700A1EC322C7}.wem		\Actor-Mixer Hierarchy\Default Work Unit\test_sound4		194240
-	505350705	Combat-Bridge-Gtr2_138bpm4-4_L17M-P1B	C:\Users\guill\OneDrive\Documentos\Coffee-Engine-Audio\CoffeeEditor\assets\audio\Wwise Project\.cache\98\{9861D752-27B3-BA7D-A56D-E5B78B4CA7A2}.wem		\Interactive Music Hierarchy\Music\BackgroundContainer\Background\Combat-Bridge-Gtr2_138bpm4-4_L17M-P1B		5843576
-	760241267	test_sound	C:\Users\guill\OneDrive\Documentos\Coffee-Engine-Audio\CoffeeEditor\assets\audio\Wwise Project\.cache\5D\{5DBA4F23-0EC7-B576-EE1E-81693A3E5BC2}.wem		\Actor-Mixer Hierarchy\Default Work Unit\test_sound		322656
-	788075634	test_sound2	C:\Users\guill\OneDrive\Documentos\Coffee-Engine-Audio\CoffeeEditor\assets\audio\Wwise Project\.cache\EF\{EFEB4EB2-3906-5C3A-DD6A-0C3CFA5AF569}.wem		\Actor-Mixer Hierarchy\Default Work Unit\test_sound2		339920
-	868671724	test_sound3	C:\Users\guill\OneDrive\Documentos\Coffee-Engine-Audio\CoffeeEditor\assets\audio\Wwise Project\.cache\3D\{3D0AD3CB-F9AF-8981-C3FA-41A8401E0603}.wem		\Actor-Mixer Hierarchy\Default Work Unit\test_sound3		1042632
+	626622315	music	D:\GitHub\Coffee-Engine\CoffeeEditor\assets\audio\Wwise Project\.cache\DC\{DC83115A-D3DE-AA92-A5D4-CAE31BDE13C9}.wem		\Interactive Music Hierarchy\Music\Music Container\music\music		12052832
+	773483819	shot	D:\GitHub\Coffee-Engine\CoffeeEditor\assets\audio\Wwise Project\.cache\34\{3469334C-AB6D-DC26-529A-55703BB4BFB8}.wem		\Actor-Mixer Hierarchy\Default Work Unit\shot		16224
 
