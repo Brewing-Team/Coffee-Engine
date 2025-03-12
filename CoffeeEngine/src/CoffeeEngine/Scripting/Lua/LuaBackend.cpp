@@ -584,6 +584,7 @@ namespace Coffee {
 
         luaState.new_usertype<ParticlesSystemComponent>("ParticlesSystemComponent", sol::constructors<ParticlesSystemComponent()>(), 
             "emit",&ParticlesSystemComponent::Emit, 
+            "set_looping",&ParticlesSystemComponent::SetLooping, 
             "get_emitter", &ParticlesSystemComponent::GetParticleEmitter
             );
 

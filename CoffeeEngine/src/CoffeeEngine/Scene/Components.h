@@ -571,6 +571,7 @@ namespace Coffee {
         Ref<ParticleEmitter> GetParticleEmitter() { return m_Particles; }
 
         void Emit(int quantity) { m_Particles->Emit(quantity); }
+        void SetLooping(bool active) { m_Particles->looping = active; }
 
 
         private:
