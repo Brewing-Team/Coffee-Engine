@@ -165,9 +165,6 @@ namespace Coffee {
             if (navMeshComponent.m_NavMesh && navMeshComponent.m_NavMesh->IsCalculated())
             {
                 navMeshComponent.m_NavMesh->RenderWalkableAreas();
-
-                if (navMeshComponent.m_PathFinder)
-                    navMeshComponent.m_PathFinder->RenderPath(navMeshComponent.m_CurrentPath);
             }
         }
 
@@ -235,17 +232,25 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
-        m_PhysicsWorld.stepSimulation(dt);
-        m_PhysicsWorld.drawCollisionShapes();
+        // TEMPORAL - Navigation
+        auto navMeshView = m_Registry.view<NavMeshComponent>();
 
-        // Update transforms from physics
-        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
-        for (auto entity : viewPhysics) {
-            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
-            if (rb.rb) {
-                transform.Position = rb.rb->GetPosition();
-                transform.Rotation = rb.rb->GetRotation();
+        for (auto& entity : navMeshView)
+        {
+            auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
+            if (navMeshComponent.m_NavMesh && navMeshComponent.m_NavMesh->IsCalculated())
+            {
+                navMeshComponent.m_NavMesh->RenderWalkableAreas();
             }
+        }
+
+        auto navigationAgentView = m_Registry.view<NavigationAgentComponent>();
+
+        for (auto& agent : navigationAgentView)
+        {
+            auto& navAgentComponent = navigationAgentView.get<NavigationAgentComponent>(agent);
+            if (navAgentComponent.m_PathFinder)
+                navAgentComponent.m_PathFinder->RenderPath(navAgentComponent.m_Path);
         }
 
         UpdateAudioComponentsPositions();
@@ -364,6 +369,7 @@ namespace Coffee {
             .get<RigidbodyComponent>(archive)
             .get<ScriptComponent>(archive)
             .get<NavMeshComponent>(archive)
+            .get<NavigationAgentComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
@@ -430,6 +436,7 @@ namespace Coffee {
             .get<RigidbodyComponent>(archive)
             .get<ScriptComponent>(archive)
             .get<NavMeshComponent>(archive)
+            .get<NavigationAgentComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
