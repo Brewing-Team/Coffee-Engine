@@ -25,8 +25,7 @@ namespace Coffee {
          * @brief Default destructor.
          */
         ~SceneCamera() = default;
-    private:
-        glm::mat4 m_ViewMatrix; ///< The view matrix of the camera.
+
     };
 
     /** @} */ // end of scene group

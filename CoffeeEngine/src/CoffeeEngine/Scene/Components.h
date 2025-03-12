@@ -16,6 +16,7 @@
  #include "CoffeeEngine/Scene/SceneCamera.h"
  #include "CoffeeEngine/Scripting/Script.h"
  #include "CoffeeEngine/Scripting/ScriptManager.h"
+ #include "CoffeeEngine/ParticleManager/ParticleManager.h"
  #include <cereal/cereal.hpp>
  #include <cereal/access.hpp>
  #include <cereal/cereal.hpp>
@@ -39,6 +40,7 @@
  
  // FIXME : DONT MOVE THIS INCLUDE
  #include "CoffeeEngine/Audio/Audio.h"
+
  
  
  namespace Coffee {
@@ -796,24 +798,12 @@
         public:
         template <class Archive> void save(Archive& archive) const
         {
-            /*archive(cereal::make_nvp("Velocity", velocity),
-                    cereal::make_nvp("Spread", spread), cereal::make_nvp("Colour", colour),
-                    cereal::make_nvp("Life", life), cereal::make_nvp("Size", size), cereal::make_nvp("Amount", amount),
-                    cereal::make_nvp("TextureID", textureID),
-                    cereal::make_nvp("ParticleEmitter", m_Particles)
-                
-                ); */
-            archive(cereal::make_nvp("ParticleEmitter", m_Particles));
+            //archive(cereal::make_nvp("ParticleEmitter", m_Particles));
         }
 
         template <class Archive> void load(Archive& archive)
         {
-            /*archive(cereal::make_nvp("Velocity", velocity),
-                    cereal::make_nvp("Spread", spread), cereal::make_nvp("Colour", colour),
-                    cereal::make_nvp("Life", life), cereal::make_nvp("Size", size), cereal::make_nvp("Amount", amount),
-                    cereal::make_nvp("TextureID", textureID),
-                    cereal::make_nvp("ParticleEmitter", m_Particles) );*/
-            archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
+            //archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
         }
 
 

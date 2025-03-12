@@ -219,7 +219,8 @@ namespace Coffee {
             }
 
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
-            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = Renderer::GetData().cameraData.view;
+            //particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = Renderer::GetCameraData().view;
+            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(Renderer::GetCurrentRenderTarget()->GetCameraTransform());
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
             particlesSystemComponent.GetParticleEmitter()->DrawDebug();
 
@@ -227,12 +228,8 @@ namespace Coffee {
 
 
 
-            Renderer::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
+            Renderer3D::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
         }
-
-
-
-        Renderer::EndScene();
     }
 
     void Scene::OnUpdateRuntime(float dt)
@@ -363,18 +360,15 @@ namespace Coffee {
             }
 
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
-            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = Renderer::GetData().cameraData.view;
+            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = Renderer::GetCameraData().view;
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
 
             
 
            
 
-            Renderer::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
+            Renderer3D::Submit(particlesSystemComponent.GetParticleEmitter(), material, (uint32_t)entity);
         }
-
-
-        Renderer::EndScene();
     }
 
     void Scene::OnEvent(Event& e)

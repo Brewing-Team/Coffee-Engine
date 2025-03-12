@@ -103,6 +103,7 @@ namespace Coffee
          */
         const glm::mat4& GetProjection() const { return m_Projection; }
 
+
         /**
          * @brief Gets the projection type of the camera.
          * @return The projection type.
@@ -153,6 +154,8 @@ namespace Coffee
             m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
             m_Projection = ProjectionTypeToMat4(m_ProjectionType);
         }
+
+
         
     private:
         friend class cereal::access;
@@ -178,6 +181,7 @@ namespace Coffee
         float m_FarClip = 1000.0f; ///< The far clipping plane distance.
 
         glm::mat4 m_Projection = glm::mat4(1.0f); ///< The projection matrix.
+        glm::mat4 m_view = glm::mat4(1.0f);
 
         ProjectionType m_ProjectionType = ProjectionType::PERSPECTIVE; ///< The type of projection.
 

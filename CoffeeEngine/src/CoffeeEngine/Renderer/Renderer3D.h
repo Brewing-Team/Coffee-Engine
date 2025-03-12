@@ -112,6 +112,9 @@ namespace Coffee {
 
          //Todo change this to a light class and not a component
         static void Submit(const LightComponent& light);
+
+        // Todo change this to a light class and not a component
+        static void Submit(const Ref<ParticleEmitter> emitter, Ref<Material> material, uint32_t entity);
         
         //static void DepthPrePass(const RenderTarget& target);
         //static void SSAOPass(const RenderTarget& target);
