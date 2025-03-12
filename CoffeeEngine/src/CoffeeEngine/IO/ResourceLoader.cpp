@@ -2,6 +2,8 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/IO/ImportData/ImportData.h"
+#include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -35,389 +37,195 @@ namespace Coffee {
             return;
         }
 
-        std::filesystem::path resourcePath = path;
-
-        if(resourcePath.extension() == ".import")
+        if(path.extension() == ".import")
         {
-            resourcePath = GetPathFromImportFile(path);
-            COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", resourcePath.string());
+            COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Loading resource from import file {0}", path.string());
+
+            Scope<ImportData> importData = ImportDataUtils::LoadImportData(path);
+            switch (importData->type)
+            {
+                case ResourceType::Texture2D:
+                {
+                    Load<Texture2D>(*importData);
+                    break;
+                }
+                case ResourceType::Cubemap:
+                {
+                    Load<Cubemap>(*importData);
+                    break;
+                }
+                case ResourceType::Model:
+                {
+                    Load<Model>(*importData);
+                    break;
+                }
+                case ResourceType::Shader:
+                {
+                    Load<Shader>(*importData);
+                    break;
+                }
+                case ResourceType::Material:
+                {
+                    Load<Material>(*importData);
+                    break;
+                }
+                default:
+                {
+                    COFFEE_CORE_ERROR("ResourceLoader::LoadResources: Unsupported resource type {0}", ResourceTypeToString(importData->type));
+                    break;
+                }
+            }
         }
         else
         {
-            std::filesystem::path importFilePath = resourcePath;
-            importFilePath.replace_extension(".import");
-            if(!std::filesystem::exists(importFilePath))
+            std::filesystem::path importFilePath = path;
+            importFilePath += ".import";
+            if(std::filesystem::exists(importFilePath))
             {
-                COFFEE_CORE_INFO("ResourceLoader::LoadDirectory: Generating import file for {0}", resourcePath.string());
-                GenerateImportFile(resourcePath);
+                return;
             }
-        }
 
-        switch (type)
-        {
-            case ResourceType::Texture2D:
+            switch (type)
             {
-                LoadTexture2D(path);
-                break;
-            }
-            case ResourceType::Cubemap:
-            {
-                LoadCubemap(path);
-                break;
-            }
-            case ResourceType::Model:
-            {
-                LoadModel(path);
-                break;
-            }
-            case ResourceType::Shader:
-            {
-                LoadShader(path);
-                break;
+                case ResourceType::Texture2D:
+                {
+                    Load<Texture2D>(path);
+                    break;
+                }
+                case ResourceType::Cubemap:
+                {
+                    Load<Cubemap>(path);
+                    break;
+                }
+                case ResourceType::Model:
+                {
+                    Load<Model>(path);
+                    break;
+                }
+                case ResourceType::Shader:
+                {
+                    Load<Shader>(path);
+                    break;
+                }
             }
         }
     }
 
     void ResourceLoader::LoadDirectory(const std::filesystem::path& directory)
     {
+        std::vector<std::filesystem::path> files;
+
         for (const auto& entry : std::filesystem::recursive_directory_iterator(directory))
         {
-            // This two if statements are duplicated in LoadFile but are necessary to suppress errors
-
-            if (!entry.is_regular_file())
+            if (!entry.is_regular_file() || GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
             {
                 continue;
             }
 
-            if(GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
-            {
-                continue;
-            }
+            files.push_back(entry.path());
+        }
 
-            LoadFile(entry.path());
+        std::sort(files.begin(), files.end(), [](const std::filesystem::path& a, const std::filesystem::path& b) {
+            if (a.extension() == ".import" && b.extension() != ".import") return true;
+            if (a.extension() != ".import" && b.extension() == ".import") return false;
+            if (GetResourceTypeFromExtension(a) == ResourceType::Model && GetResourceTypeFromExtension(b) != ResourceType::Model) return true;
+            if (GetResourceTypeFromExtension(a) != ResourceType::Model && GetResourceTypeFromExtension(b) == ResourceType::Model) return false;
+            return a < b;
+        });
+
+        for (const auto& path : files)
+        {
+            LoadFile(path);
         }
     }
 
-    Ref<Texture2D> ResourceLoader::LoadTexture2D(const std::filesystem::path& path, bool srgb, bool cache)
-    {
-        if(GetResourceTypeFromExtension(path) != ResourceType::Texture2D)
+    void ResourceLoader::RemoveResource(const Ref<Resource>& resource)
+    {   
+        std::filesystem::path importFilePath = resource->GetPath();
+        importFilePath += ".import";
+
+        Scope<ImportData> importData = ImportDataUtils::LoadImportData(importFilePath);
+
+        // Remove the cache file
+
+        if(std::filesystem::exists(importData->cachedPath))
         {
-            COFFEE_CORE_ERROR("ResourceLoader::Load<Texture2D>: Resource is not a texture!");
-            return nullptr;
+            std::filesystem::remove(importData->cachedPath);
         }
 
-        UUID uuid = GetUUIDFromImportFile(path);
+        // Remove the resource file
 
-        if(ResourceRegistry::Exists(uuid))
+        if(std::filesystem::exists(importData->originalPath))
         {
-            return ResourceRegistry::Get<Texture2D>(uuid);
+            std::filesystem::remove(importData->originalPath);
         }
 
-        const Ref<Texture2D>& texture = s_Importer.ImportTexture2D(path, uuid, srgb, cache);
-        texture->SetUUID(uuid);
-
-        ResourceRegistry::Add(uuid, texture);
-        return texture;
-    }
-
-    Ref<Texture2D> ResourceLoader::LoadTexture2D(UUID uuid)
-    {
-        if(uuid == UUID::null)
-            return nullptr;
-
-        if(ResourceRegistry::Exists(uuid))
-        {
-            return ResourceRegistry::Get<Texture2D>(uuid);
-        }
-
-        const Ref<Texture2D>& texture = s_Importer.ImportTexture2D(uuid);
-
-        ResourceRegistry::Add(uuid, texture);
-        return texture;
-    }
-
-    Ref<Cubemap> ResourceLoader::LoadCubemap(const std::filesystem::path& path)
-    {
-        if(GetResourceTypeFromExtension(path) != ResourceType::Cubemap)
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::Load<Cubemap>: Resource is not a cubemap!");
-            return nullptr;
-        }
-
-        UUID uuid = GetUUIDFromImportFile(path);
-
-        if(ResourceRegistry::Exists(uuid))
-        {
-            return ResourceRegistry::Get<Cubemap>(uuid);
-        }
-
-        const Ref<Cubemap>& cubemap = s_Importer.ImportCubemap(path, uuid);
-        cubemap->SetUUID(uuid);
-        cubemap->SetName(path.filename().string());
-
-        ResourceRegistry::Add(uuid, cubemap);
-        return cubemap;
-    }
-    Ref<Cubemap> ResourceLoader::LoadCubemap(UUID uuid)
-    {
-        return nullptr;
-    }
-
-    Ref<Model> ResourceLoader::LoadModel(const std::filesystem::path& path, bool cache)
-    {
-        if(GetResourceTypeFromExtension(path) != ResourceType::Model)
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::Load<Model>: Resource is not a model!");
-            return nullptr;
-        }
-
-        UUID uuid = GetUUIDFromImportFile(path);
-
-        if(ResourceRegistry::Exists(uuid))
-        {
-            return ResourceRegistry::Get<Model>(uuid);
-        }
-
-        const Ref<Model>& model = s_Importer.ImportModel(path, cache);
-        model->SetUUID(uuid);
-
-        ResourceRegistry::Add(uuid, model);
-        return model;
-    }
-
-    Ref<Mesh> ResourceLoader::LoadMesh(const std::string& name, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Ref<Material>& material, const AABB& aabb)
-    {
-        if(ResourceRegistry::Exists(name))
-        {
-            return ResourceRegistry::Get<Mesh>(name);
-        }
-        
-        UUID uuid = ResourceRegistry::GetUUIDByName(name);
-
-        const Ref<Mesh>& mesh = s_Importer.ImportMesh(name, uuid, vertices, indices, material, aabb);
-        mesh->SetName(name);
-
-        ResourceRegistry::Add(uuid, mesh);
-        return mesh;
-    }
-
-    Ref<Mesh> ResourceLoader::LoadMesh(UUID uuid)
-    {
-        if(ResourceRegistry::Exists(uuid))
-        {
-            return ResourceRegistry::Get<Mesh>(uuid);
-        }
-
-        const Ref<Mesh>& mesh = s_Importer.ImportMesh(uuid);
-
-        ResourceRegistry::Add(uuid, mesh);
-        return mesh;
-    }
-
-    Ref<Shader> ResourceLoader::LoadShader(const std::filesystem::path& shaderPath)
-    {
-        if(GetResourceTypeFromExtension(shaderPath) != ResourceType::Shader)
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::Load<Shader>: Resource is not a shader!");
-            return nullptr;
-        }
-
-        UUID uuid = GetUUIDFromImportFile(shaderPath);
-
-        if(ResourceRegistry::Exists(uuid))
-        {
-            return ResourceRegistry::Get<Shader>(uuid);
-        }
-
-        const Ref<Shader>& shader = CreateRef<Shader>(shaderPath);
-        shader->SetUUID(uuid);
-
-        ResourceRegistry::Add(uuid, shader);
-
-        return shader;
-    }
-
-    Ref<Material> ResourceLoader::LoadMaterial(const std::string& name)
-    {
-        std::string materialName = name;
-
-        UUID uuid;
-
-        if(materialName.empty())
-        {
-            materialName = "Material-" + std::to_string(uuid);
-        }
-
-        if(ResourceRegistry::Exists(materialName))
-        {
-            return ResourceRegistry::Get<Material>(materialName);
-        }
-
-        Ref<Material> material = s_Importer.ImportMaterial(materialName, uuid);
-        material->SetUUID(uuid);
-        ResourceRegistry::Add(uuid, material);
-        return material;
-
-    }
-
-    Ref<Material> ResourceLoader::LoadMaterial(const std::string& name, MaterialTextures& materialTextures)
-    {
-        std::string materialName = name;
-
-        UUID uuid;
-
-        if(materialName.empty())
-        {
-            materialName = "Material-" + std::to_string(uuid);
-        }
-
-        if(ResourceRegistry::Exists(materialName))
-        {
-            return ResourceRegistry::Get<Material>(materialName);
-        }
-
-        Ref<Material> material = s_Importer.ImportMaterial(materialName, uuid, materialTextures);
-        material->SetUUID(uuid);
-        ResourceRegistry::Add(uuid, material);
-        return material;
-    }
-    
-    Ref<Material> ResourceLoader::LoadMaterial(UUID uuid)
-    {
-        if(ResourceRegistry::Exists(uuid))
-        {
-            return ResourceRegistry::Get<Material>(uuid);
-        }
-
-        const Ref<Material>& material = s_Importer.ImportMaterial(uuid);
-
-        ResourceRegistry::Add(uuid, material);
-        return material;
-    }
-
-    void ResourceLoader::RemoveResource(UUID uuid) // Think if would be better to pass the Resource as parameter
-    {
-        if(!ResourceRegistry::Exists(uuid))
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::RemoveResource: Resource {0} does not exist!", (uint64_t)uuid);
-            return;
-        }
-
-        // Remove the Cache file and all dependencies(TODO)
-        std::filesystem::path cacheFilePath = CacheManager::GetCachePath() / (std::to_string(uuid) + ".res");
-        if(std::filesystem::exists(cacheFilePath))
-        {
-            std::filesystem::remove(cacheFilePath);
-        }
-
-        const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(uuid);
-
-        const std::filesystem::path& resourcePath = resource->GetPath();
-        std::filesystem::path importFilePath = resourcePath;
-        importFilePath.replace_extension(".import");
+        // Remove the resource import file
 
         if(std::filesystem::exists(importFilePath))
         {
             std::filesystem::remove(importFilePath);
         }
 
-        if(std::filesystem::exists(resourcePath))
-        {
-            std::filesystem::remove(resourcePath);
-        }
-
-        ResourceRegistry::Remove(uuid);
-    }
-
-    void ResourceLoader::RemoveResource(const std::filesystem::path& path)
-    {
-        UUID uuid = GetUUIDFromImportFile(path);
+        // TODO: Remove all the dependencies
         
-        // Remove the Cache file and all dependencies(TODO)
-        std::filesystem::path cacheFilePath = CacheManager::GetCachePath() / (std::to_string(uuid) + ".res");
-        if(std::filesystem::exists(cacheFilePath))
-        {
-            std::filesystem::remove(cacheFilePath);
-        }
-
-        const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(uuid);
-
-        const std::filesystem::path& resourcePath = resource->GetPath();
-        std::filesystem::path importFilePath = resourcePath;
-        importFilePath.replace_extension(".import");
-
-        if(std::filesystem::exists(importFilePath))
-        {
-            std::filesystem::remove(importFilePath);
-        }
-
-        if(std::filesystem::exists(resourcePath))
-        {
-            std::filesystem::remove(resourcePath);
-        }
-
-        if(ResourceRegistry::Exists(uuid))
-        {
-            ResourceRegistry::Remove(uuid);
-        }
+        // Remove the resource from the registry
+        
+        ResourceRegistry::Remove(resource->GetUUID());
     }
 
-    void ResourceLoader::GenerateImportFile(const std::filesystem::path& path)
+    void ResourceLoader::ReimportResource(const Ref<Resource>& resource)
     {
-        std::filesystem::path importFilePath = path;
-        importFilePath.replace_extension(".import");
+        std::filesystem::path importFilePath = resource->GetPath();
+        importFilePath += ".import";
 
-        if(!std::filesystem::exists(importFilePath))
+        Scope<ImportData> importData = ImportDataUtils::LoadImportData(importFilePath);
+
+        // Remove the cache file
+
+        if(std::filesystem::exists(importData->cachedPath))
         {
-            ImportData importData;
-            importData.uuid = UUID();
-            std::filesystem::path relativePath = std::filesystem::relative(path, s_WorkingDirectory);
-            importData.originalPath = relativePath;
+            std::filesystem::remove(importData->cachedPath);
+        }
 
-            std::ofstream importFile(importFilePath);
-            cereal::JSONOutputArchive archive(importFile);
-            archive(CEREAL_NVP(importData));
+        // Remove from the registry
+        ResourceRegistry::Remove(resource->GetUUID());
+
+        // Reimport the resource
+
+        switch (importData->type)
+        {
+            case ResourceType::Texture2D:
+            {
+                Load<Texture2D>(*importData);
+                break;
+            }
+            case ResourceType::Cubemap:
+            {
+                Load<Cubemap>(*importData);
+                break;
+            }
+            case ResourceType::Model:
+            {
+                Load<Model>(*importData);
+                break;
+            }
+            case ResourceType::Shader:
+            {
+                Load<Shader>(*importData);
+                break;
+            }
+            case ResourceType::Material:
+            {
+                Load<Material>(*importData);
+                break;
+            }
+            default:
+            {
+                COFFEE_CORE_ERROR("ResourceLoader::ReimportResource: Unsupported resource type {0}", ResourceTypeToString(importData->type));
+                break;
+            }
         }
     }
 
-    ResourceLoader::ImportData ResourceLoader::GetImportData(const std::filesystem::path& path)
-    {
-        ImportData importData;
-
-        std::filesystem::path importFilePath = path;
-        importFilePath.replace_extension(".import");
-
-        /* TODO: add the path serialization relative to the project directory.
-         * This means that when we load the path from the .import file we need to append the project directory
-         * 
-        */
-
-        if(std::filesystem::exists(importFilePath))
-        {
-            std::ifstream importFile(importFilePath);
-            cereal::JSONInputArchive archive(importFile);
-            archive(CEREAL_NVP(importData));
-
-            // Convert the relative path to an absolute path
-            importData.originalPath = s_WorkingDirectory / importData.originalPath;
-        }
-        else
-        {
-            COFFEE_CORE_ERROR("ResourceLoader::GetImportData: .import file does not exist for {0}", path.string());
-        }
-
-        return importData;
-    }
-
-    UUID ResourceLoader::GetUUIDFromImportFile(const std::filesystem::path& path)
-    {
-        ImportData importData = GetImportData(path);
-        return importData.uuid;
-    }
-
-    std::filesystem::path ResourceLoader::GetPathFromImportFile(const std::filesystem::path& path)
-    {
-        ImportData importData = GetImportData(path);
-        return importData.originalPath;
-    }
 }

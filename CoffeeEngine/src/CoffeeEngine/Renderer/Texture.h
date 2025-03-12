@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 
@@ -81,6 +82,7 @@ namespace Coffee {
         Texture2D(const TextureProperties& properties);
         Texture2D(uint32_t width, uint32_t height, ImageFormat imageFormat);
         Texture2D(const std::filesystem::path& path, bool srgb = true);
+        Texture2D(ImportData& importData);
         ~Texture2D();
 
         void Bind(uint32_t slot) override;
@@ -94,10 +96,13 @@ namespace Coffee {
         void Clear(glm::vec4 color);
         void SetData(void* data, uint32_t size);
 
-        static Ref<Texture2D> Load(const std::filesystem::path& path, bool srgb = true);
+        static Ref<Texture2D> Load(const std::filesystem::path& path);
         static Ref<Texture2D> Create(uint32_t width, uint32_t height, ImageFormat format);
 
     private:
+        void LoadFromFile(const std::filesystem::path& path);
+        void InitializeTexture2D();
+
         friend class cereal::access;
 
         template<class Archive>
@@ -138,6 +143,7 @@ namespace Coffee {
         Cubemap(const std::filesystem::path& path);
         // This way of loading a cubemap is deprecated because is not compatible with the serialization system and the resource management.
         Cubemap(const std::vector<std::filesystem::path>& paths);
+        Cubemap(ImportData& importData);
         ~Cubemap();
 
         void Bind(uint32_t slot) override;;
@@ -150,7 +156,7 @@ namespace Coffee {
         static Ref<Cubemap> Load(const std::filesystem::path& path);
         static Ref<Cubemap> Create(const std::filesystem::path& path);
     private:
-
+        void LoadFromFile(const std::filesystem::path& path);
         void LoadStandardFromFile(const std::filesystem::path& path);
         void LoadHDRFromFile(const std::filesystem::path& path);
         void LoadStandardFromData(const std::vector<unsigned char>& data);

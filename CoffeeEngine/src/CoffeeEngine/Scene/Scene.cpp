@@ -2,10 +2,18 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
+#include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Math/Frustum.h"
+#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/CollisionCallback.h"
+#include "CoffeeEngine/Physics/CollisionSystem.h"
+#include "CoffeeEngine/Physics/PhysicsWorld.h"
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Renderer/Renderer3D.h"
@@ -14,6 +22,7 @@
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
+#include "PrimitiveMesh.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
@@ -33,20 +42,12 @@
 
 namespace Coffee {
 
+
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
         m_UIManager = CreateScope<UIManager>();
     }
-
-/*     Scene::Scene(Ref<Scene> other)
-    {
-        auto& srcRegistry = other->m_Registry;
-        auto& dstRegistry = m_Registry;
-
-        auto view = srcRegistry.view<entt::entity>();
-        dstRegistry.insert(view->data(), view->data() + view->size(), view->raw(), view->raw() + view.size());
-    } */
 
     Entity Scene::CreateEntity(const std::string& name)
     {
@@ -107,25 +108,8 @@ namespace Coffee {
     {
         ZoneScoped;
 
-       /*  Entity light = CreateEntity("Directional Light");
-        light.AddComponent<LightComponent>().Color = {1.0f, 0.9f, 0.85f};
-        light.GetComponent<TransformComponent>().Position = {0.0f, 0.8f, -2.1f};
-        
-        Entity camera = CreateEntity("Camera");
-        camera.AddComponent<CameraComponent>();
+        CollisionSystem::Initialize(this);
 
-        Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
-        missingMaterial = CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create
-
-        camera.AddComponent<ScriptComponent>("assets/scripts/CameraController.lua", ScriptingLanguage::Lua, m_Registry);
-
-        Entity scriptEntity = CreateEntity("Script");
-        //scriptEntity.AddComponent<ScriptComponent>("assets/scripts/test.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor
-        scriptEntity.AddComponent<MeshComponent>(PrimitiveMesh::CreateCube());
-        scriptEntity.AddComponent<MaterialComponent>();
-
-        //Entity scriptEntity2 = CreateEntity("Script2");
-        //scriptEntity2.AddComponent<ScriptComponent>("assets/scripts/test2.lua", ScriptingLanguage::Lua, m_Registry); // TODO move the registry to the ScriptManager constructor*/
     }
 
     void Scene::OnInitRuntime()
@@ -145,6 +129,9 @@ namespace Coffee {
 
             m_Octree.Insert(objectContainer);
         }
+
+        Audio::StopAllEvents();
+        Audio::PlayInitialAudios();
 
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
@@ -171,19 +158,32 @@ namespace Coffee {
     // TEST ------------------------------
     m_Octree.DebugDraw();
 
-    // Get all entities with ModelComponent and TransformComponent
-    auto view = m_Registry.view<MeshComponent, TransformComponent>();
+        auto animatorView = m_Registry.view<AnimatorComponent>();
 
-    // Loop through each entity with the specified components
-    for (auto& entity : view) {
-        auto& meshComponent = view.get<MeshComponent>(entity);
-        auto& transformComponent = view.get<TransformComponent>(entity);
-        auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            AnimationSystem::Update(dt, animatorComponent);
+        }
+
+        UpdateAudioComponentsPositions();
+
+        // Get all entities with ModelComponent and TransformComponent
+        auto view = m_Registry.view<MeshComponent, TransformComponent>();
+          
+        // Loop through each entity with the specified components
+
+        for (auto& entity : view) {
+          auto& meshComponent = view.get<MeshComponent>(entity);
+          auto& transformComponent = view.get<TransformComponent>(entity);
+          auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+
 
         Ref<Mesh> mesh = meshComponent.GetMesh();
         Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
-        Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
+        //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
+        Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
     }
 
     // Get all entities with LightComponent and TransformComponent
@@ -216,7 +216,7 @@ namespace Coffee {
         for(auto entity : cameraView)
         {
             auto [transform, cameraComponent] = cameraView.get<TransformComponent, CameraComponent>(entity);
-            
+
             //TODO: Multiple cameras support (for now, the last camera found will be used)
             camera = &cameraComponent.Camera;
             cameraTransform = transform.GetWorldTransform();
@@ -232,6 +232,21 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
+        m_PhysicsWorld.stepSimulation(dt);
+        m_PhysicsWorld.drawCollisionShapes();
+
+        // Update transforms from physics
+        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : viewPhysics) {
+            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.rb) {
+                transform.Position = rb.rb->GetPosition();
+                transform.Rotation = rb.rb->GetRotation();
+            }
+        }
+
+        UpdateAudioComponentsPositions();
+
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
 
@@ -244,7 +259,7 @@ namespace Coffee {
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
 
-        m_Octree.DebugDraw();
+        //m_Octree.DebugDraw();
 
         // Get all the static meshes from the Octree
 /* 
@@ -259,6 +274,14 @@ namespace Coffee {
         {
             Renderer::Submit(RenderCommand{mesh.transform, mesh.object, mesh.object->GetMaterial(), 0});
         } */
+
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            AnimationSystem::Update(dt, animatorComponent);
+        }
         
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
@@ -274,7 +297,7 @@ namespace Coffee {
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
             
-            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
+            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
         }
 
         //Get all entities with LightComponent and TransformComponent
@@ -308,17 +331,26 @@ namespace Coffee {
     void Scene::OnExitRuntime()
     {
 
+
+        // Clear collision system state
+        CollisionSystem::Shutdown();        
+        Audio::StopAllEvents();
     }
 
-    Ref<Scene> Scene::Load(const std::filesystem::path& path)
+        Ref<Scene> Scene::Load(const std::filesystem::path& path)
     {
         ZoneScoped;
-
+    
         Ref<Scene> scene = CreateRef<Scene>();
+        
+        // Initialize physics system
+        CollisionSystem::Initialize(scene.get());
 
+        AnimationSystem::ResetAnimators();
+    
         std::ifstream sceneFile(path);
         cereal::JSONInputArchive archive(sceneFile);
-
+    
         entt::snapshot_loader{scene->m_Registry}
             .get<entt::entity>(archive)
             .get<TagComponent>(archive)
@@ -330,18 +362,51 @@ namespace Coffee {
             .get<LightComponent>(archive)
             .get<UIImageComponent>(archive)
             .get<UITextComponent>(archive);
+            .get<RigidbodyComponent>(archive)
+            .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
+
+            scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
+
         
         scene->m_FilePath = path;
-
-        auto view = scene->m_Registry.view<entt::entity>();
+    
+        // Add rigidbodies back to physics world
+        auto view = scene->m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : view)
+        {
+            auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.rb && rb.rb->GetNativeBody())
+            {
+                // Set initial transform
+                rb.rb->SetPosition(transform.Position);
+                rb.rb->SetRotation(transform.Rotation);
+                
+                // Add to physics world
+                scene->m_PhysicsWorld.addRigidBody(rb.rb->GetNativeBody());
+                
+                // Set user pointer for collision callbacks
+                rb.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>(entity)));
+            }
+        }
+    
+        // Debug log
+        auto entityView = scene->m_Registry.view<entt::entity>();
+        for (auto entity : entityView)
         {
             auto& tag = scene->m_Registry.get<TagComponent>(entity);
             auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
-
             COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
         }
 
+        for (auto& audioSource : Audio::audioSources)
+        {
+            Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
+        }
+    
         return scene;
     }
 
@@ -352,7 +417,7 @@ namespace Coffee {
         std::ofstream sceneFile(path);
         cereal::JSONOutputArchive archive(sceneFile);
 
-        //archive(*scene);
+        // archive(*scene);
 
         //TEMPORAL
         entt::snapshot{scene->m_Registry}
@@ -366,6 +431,13 @@ namespace Coffee {
             .get<LightComponent>(archive)
             .get<UIImageComponent>(archive)
             .get<UITextComponent>(archive);
+            .get<RigidbodyComponent>(archive)
+            .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
+
         
         scene->m_FilePath = path;
 
@@ -380,11 +452,19 @@ namespace Coffee {
     }
 
     // Is possible that this function will be moved to the SceneTreePanel but for now it will stay here
-    void AddModelToTheSceneTree(Scene* scene, Ref<Model> model)
+    void AddModelToTheSceneTree(Scene* scene, Ref<Model> model, AnimatorComponent* animatorComponent)
     {
         static Entity parent;
 
         Entity modelEntity = scene->CreateEntity(model->GetName());
+
+        if (model->HasAnimations())
+        {
+            animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController());
+            AnimationSystem::SetCurrentAnimation(0, animatorComponent);
+            animatorComponent->modelUUID = model->GetUUID();
+            animatorComponent->animatorUUID = UUID();
+        }
 
         if((entt::entity)parent != entt::null)modelEntity.SetParent(parent);
         modelEntity.GetComponent<TransformComponent>().SetLocalTransform(model->GetTransform());
@@ -397,6 +477,12 @@ namespace Coffee {
             Entity entity = hasMultipleMeshes ? scene->CreateEntity(mesh->GetName()) : modelEntity;
 
             entity.AddComponent<MeshComponent>(mesh);
+
+            if (animatorComponent)
+            {
+                entity.GetComponent<MeshComponent>().animator = animatorComponent;
+                entity.GetComponent<MeshComponent>().animatorUUID = animatorComponent->animatorUUID;
+            }
 
             if(mesh->GetMaterial())
             {
@@ -412,7 +498,67 @@ namespace Coffee {
         for(auto& c : model->GetChildren())
         {
             parent = modelEntity;
-            AddModelToTheSceneTree(scene, c);
+            AddModelToTheSceneTree(scene, c, animatorComponent);
+        }
+
+        parent = Entity{entt::null, scene};
+    }
+
+    void Scene::AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators)
+    {
+        std::vector<Entity> entities = GetAllEntities();
+        for (auto entity : entities)
+        {
+            if (entity.HasComponent<MeshComponent>())
+            {
+                for (auto animator : animators)
+                {
+                    MeshComponent* meshComponent = &entity.GetComponent<MeshComponent>();
+                    if (meshComponent->animatorUUID == animator->animatorUUID && !meshComponent->animator)
+                        meshComponent->animator = animator;
+                }
+            }
+        }
+    }
+    void Scene::UpdateAudioComponentsPositions()
+    {
+        auto audioSourceView = m_Registry.view<AudioSourceComponent, TransformComponent>();
+
+        for (auto& entity : audioSourceView)
+        {
+            auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
+            auto& transformComponent = audioSourceView.get<TransformComponent>(entity);
+
+            if (audioSourceComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioSourceComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
+                transformComponent.GetWorldTransform()[3],
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
+            }
+        }
+
+        auto audioListenerView = m_Registry.view<AudioListenerComponent, TransformComponent>();
+
+        for (auto& entity : audioListenerView)
+        {
+            auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
+            auto& transformComponent = audioListenerView.get<TransformComponent>(entity);
+
+            if (audioListenerComponent.transform != transformComponent.GetWorldTransform())
+            {
+                audioListenerComponent.transform = transformComponent.GetWorldTransform();
+
+                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
+                    transformComponent.GetWorldTransform()[3],
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
+                    glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
+                );
+            }
         }
     }
 

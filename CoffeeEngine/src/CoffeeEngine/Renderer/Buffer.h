@@ -16,7 +16,7 @@ namespace Coffee {
      */
     enum class ShaderDataType
     {
-        None = 0, Bool, Int, Float, Vec2, Vec3, Vec4, Mat2, Mat3, Mat4
+        None = 0, Bool, Int, Float, Vec2, Vec3, Vec4, IVec4, Mat2, Mat3, Mat4
     };
 
     /**
@@ -34,6 +34,7 @@ namespace Coffee {
             case ShaderDataType::Vec2:     return 4 * 2;
             case ShaderDataType::Vec3:     return 4 * 3;
             case ShaderDataType::Vec4:     return 4 * 4;
+            case ShaderDataType::IVec4:    return 4 * 4;
             case ShaderDataType::Mat2:     return 4 * 2 * 2;
             case ShaderDataType::Mat3:     return 4 * 3 * 3;
             case ShaderDataType::Mat4:     return 4 * 4 * 4;
@@ -84,6 +85,7 @@ namespace Coffee {
                 case ShaderDataType::Vec2:    return 2;
                 case ShaderDataType::Vec3:    return 3;
                 case ShaderDataType::Vec4:    return 4;
+                case ShaderDataType::IVec4:   return 4;
                 case ShaderDataType::Mat2:    return 2;
                 case ShaderDataType::Mat3:    return 3; // 3* float3
                 case ShaderDataType::Mat4:    return 4; // 4* float4

@@ -7,18 +7,13 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceUtils.h"
+#include "CoffeeEngine/IO/CacheManager.h"
+#include <cereal/archives/json.hpp>
+#include <fstream>
 
 namespace Coffee
 {
-
-    /*
-        [x] Create a Save function for saving a resource on disk
-        [x] Create a SaveToCache function that saves resource to the project cache
-        [ ] Create a way to detect the Resource type and save it in the correct type (Binary or Json)
-        [ ] Create private functions to manage the different types of serialization
-        [ ] Use this class in the other Resource Management classes
-    */
 
     /**
      * @class ResourceSaver
@@ -32,27 +27,62 @@ namespace Coffee
          * @param path The file path where the resource will be saved.
          * @param resource A reference to the resource to save.
          */
-        static void Save(const std::filesystem::path& path, const Ref<Resource>& resource);
+        template<typename T>
+        static void Save(const std::filesystem::path& path, const Ref<T>& resource)
+        {
+            std::filesystem::create_directories(path.parent_path());
+            ResourceFormat format = GetResourceSaveFormatFromType(GetResourceType<T>());
+            switch (format)
+            {
+                using enum ResourceFormat;
+            case Binary:
+                BinarySerialization(path, resource);
+                break;
+            case JSON:
+                JSONSerialization(path, resource);
+                break;
+            default:
+                break;
+            }
+        }
 
         /**
          * @brief Saves a resource to the project cache.
          * @param resource A reference to the resource to save to cache.
          */
-        static void SaveToCache(const std::string& filename, const Ref<Resource>& resource);
+        template<typename T>
+        static void SaveToCache(const std::string& filename, const Ref<T>& resource)
+        {
+            std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(filename);
+
+            Save<T>(cacheFilePath, resource);
+        }
       private:
         /**
          * @brief Serializes a resource to a binary file.
          * @param path The file path where the resource will be saved.
          * @param resource A reference to the resource to serialize.
          */
-        static void BinarySerialization(const std::filesystem::path& path, const Ref<Resource>& resource);
+        template<typename T>
+        static void BinarySerialization(const std::filesystem::path& path, const Ref<T>& resource)
+        {
+            std::ofstream file{path, std::ios::binary};
+            cereal::BinaryOutputArchive oArchive(file);
+            oArchive(resource);
+        }
 
         /**
          * @brief Serializes a resource to a JSON file.
          * @param path The file path where the resource will be saved.
          * @param resource A reference to the resource to serialize.
          */
-        static void JSONSerialization(const std::filesystem::path& path, const Ref<Resource>& resource);
+        template<typename T>
+        static void JSONSerialization(const std::filesystem::path& path, const Ref<T>& resource)
+        {
+            std::ofstream file{path};
+            cereal::JSONOutputArchive oArchive(file);
+            oArchive(resource);
+        }
 	};
 
 }

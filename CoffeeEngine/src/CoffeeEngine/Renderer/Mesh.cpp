@@ -1,5 +1,6 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/MeshImportData.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
 #include <tracy/Tracy.hpp>
 
@@ -21,7 +22,9 @@ namespace Coffee {
             {ShaderDataType::Vec2, "a_TexCoords"},
             {ShaderDataType::Vec3, "a_Normals"},
             {ShaderDataType::Vec3, "a_Tangent"},
-            {ShaderDataType::Vec3, "a_Bitangent"}
+            {ShaderDataType::Vec3, "a_Bitangent"},
+            {ShaderDataType::IVec4, "a_BoneIDs"},
+            {ShaderDataType::Vec4, "a_BoneWeights"}
         };
 
         m_VertexBuffer->SetLayout(layout);
@@ -29,6 +32,19 @@ namespace Coffee {
         m_VertexArray = VertexArray::Create();
         m_VertexArray->AddVertexBuffer(m_VertexBuffer);
         m_VertexArray->SetIndexBuffer(m_IndexBuffer);
+    }
+
+    Mesh::Mesh(const ImportData& importData)
+        : Resource(ResourceType::Mesh)
+    {
+        const MeshImportData& meshImportData = dynamic_cast<const MeshImportData&>(importData);
+
+        *this = Mesh(meshImportData.vertices, meshImportData.indices);
+        m_Name = meshImportData.name;
+        m_UUID = meshImportData.uuid;
+        m_Material = meshImportData.material;
+        m_AABB = meshImportData.aabb;
+        m_FilePath = meshImportData.cachedPath;
     }
 
 }

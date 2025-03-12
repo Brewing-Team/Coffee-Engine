@@ -13,7 +13,10 @@ if (MSVC)
     add_compile_options(/bigobj) # Check if we can remove this [LuaBackend.obj is too big]
 endif()
 
+add_definitions(-DUNICODE -D_UNICODE)
+
 add_subdirectory(CoffeeEngine)
 add_subdirectory(CoffeeEditor)
 add_subdirectory(Sandbox)
+add_subdirectory(Runtime)
 add_subdirectory(docs)

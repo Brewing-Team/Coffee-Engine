@@ -21,6 +21,8 @@
 
 namespace Coffee {
 
+    struct MeshImportData;
+
     /**
      * @defgroup renderer Renderer
      * @brief Renderer components of the CoffeeEngine.
@@ -36,6 +38,8 @@ namespace Coffee {
         glm::vec3 Normals = glm::vec3(0.0f); ///< The normal vector of the vertex.
         glm::vec3 Tangent = glm::vec3(0.0f); ///< The tangent vector of the vertex.
         glm::vec3 Bitangent = glm::vec3(0.0f); ///< The bitangent vector of the vertex.
+        glm::ivec4 BoneIDs = glm::ivec4(-1); ///< The bone IDs of the vertex.
+        glm::vec4 BoneWeights = glm::vec4(0.0f); ///< The bone weights of the vertex.
 
         private:
             friend class cereal::access;
@@ -43,7 +47,7 @@ namespace Coffee {
             template<class Archive>
             void serialize(Archive& archive)
             {
-                archive(Position, TexCoords, Normals, Tangent, Bitangent);
+                archive(Position, TexCoords, Normals, Tangent, Bitangent, BoneIDs, BoneWeights);
             }
     };
 
@@ -59,6 +63,7 @@ namespace Coffee {
          * @param vertices The vertices of the mesh.
          */
         Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices);
+        Mesh(const ImportData& importData);
 
         /**
          * @brief Gets the vertex array of the mesh.
@@ -137,7 +142,7 @@ namespace Coffee {
             UUID materialUUID;
             archive(m_Vertices, m_Indices, m_AABB, materialUUID, cereal::base_class<Resource>(this));
 
-            m_Material = ResourceLoader::LoadMaterial(materialUUID);
+            m_Material = ResourceLoader::GetResource<Material>(materialUUID);
         }
 
         template<class Archive>
@@ -154,7 +159,7 @@ namespace Coffee {
             data(construct->m_AABB, materialUUID, cereal::base_class<Resource>(construct.ptr()));
             construct->m_Vertices = vertices;
             construct->m_Indices = indices;
-            construct->m_Material = ResourceLoader::LoadMaterial(materialUUID);
+            construct->m_Material = ResourceLoader::GetResource<Material>(materialUUID);
         }
       private:
         Ref<VertexArray> m_VertexArray; ///< The vertex array of the mesh.

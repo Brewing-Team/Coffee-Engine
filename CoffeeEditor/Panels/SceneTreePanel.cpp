@@ -6,6 +6,7 @@
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Camera.h"
 #include "CoffeeEngine/Renderer/Material.h"
+#include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
@@ -716,79 +717,667 @@ namespace Coffee {
 
             auto& materialComponent = entity.GetComponent<MaterialComponent>();
             bool isCollapsingHeaderOpen = true;
-            if(ImGui::CollapsingHeader("Material", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if(!materialComponent.material)
             {
-                MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
-                MaterialProperties& materialProperties = materialComponent.material->GetMaterialProperties();
-
-                if(ImGui::TreeNode("Albedo"))
+                if(ImGui::CollapsingHeader("Material (Missing)", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
                 {
-                    ImGui::BeginChild("##Albedo Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                    ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "Material is missing or invalid!");
+
+                    if(!isCollapsingHeaderOpen)
+                    {
+                        entity.RemoveComponent<MaterialComponent>();
+                    }
+                }
+            }
+            else
+            {
+                if(ImGui::CollapsingHeader("Material", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+                {
+                    MaterialTextures& materialTextures = materialComponent.material->GetMaterialTextures();
+                    MaterialProperties& materialProperties = materialComponent.material->GetMaterialProperties();
+
+                    if(ImGui::TreeNode("Albedo"))
+                    {
+                        ImGui::BeginChild("##Albedo Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+
+                        ImGui::Text("Color");
+                        DrawCustomColorEdit4("##Albedo Color", materialProperties.color);
+
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Albedo", materialTextures.albedo);
+
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Metallic"))
+                    {
+                        ImGui::BeginChild("##Metallic Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        ImGui::Text("Metallic");
+                        ImGui::SliderFloat("##Metallic Slider", &materialProperties.metallic, 0.0f, 1.0f);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Metallic", materialTextures.metallic);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Roughness"))
+                    {
+                        ImGui::BeginChild("##Roughness Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        ImGui::Text("Roughness");
+                        ImGui::SliderFloat("##Roughness Slider", &materialProperties.roughness, 0.1f, 1.0f);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Roughness", materialTextures.roughness);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Emission"))
+                    {
+                        ImGui::BeginChild("##Emission Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        //FIXME: Emissive color variable is local and do not affect the materialProperties.emissive!!
+                        glm::vec4& emissiveColor = reinterpret_cast<glm::vec4&>(materialProperties.emissive);
+                        emissiveColor.a = 1.0f;
+                        DrawCustomColorEdit4("Color", emissiveColor);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Emissive", materialTextures.emissive);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Normal Map"))
+                    {
+                        ImGui::BeginChild("##Normal Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##Normal", materialTextures.normal);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+                    if(ImGui::TreeNode("Ambient Occlusion"))
+                    {
+                        ImGui::BeginChild("##AO Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
+                        ImGui::Text("AO");
+                        ImGui::SliderFloat("##AO Slider", &materialProperties.ao, 0.0f, 1.0f);
+                        ImGui::Text("Texture");
+                        DrawTextureWidget("##AO", materialTextures.ao);
+                        ImGui::EndChild();
+                        ImGui::TreePop();
+                    }
+
+                    if(!isCollapsingHeaderOpen)
+                    {
+                        entity.RemoveComponent<MaterialComponent>();
+                    }
+                }
+            }
+        }
+
+        if (entity.HasComponent<AudioSourceComponent>())
+        {
+            auto& audioSourceComponent = entity.GetComponent<AudioSourceComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Audio Source", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (!Audio::audioBanks.empty() && ImGui::BeginCombo("Audio Bank", audioSourceComponent.audioBankName.c_str()))
+                {
+                    for (auto& bank : Audio::audioBanks)
+                    {
+                        const bool isSelected = (audioSourceComponent.audioBankName == bank->name);
+
+                        if (bank->name != "Init" && ImGui::Selectable(bank->name.c_str()))
+                        {
+                            if (audioSourceComponent.audioBank != bank)
+                            {
+                                audioSourceComponent.audioBank = bank;
+                                audioSourceComponent.audioBankName = bank->name;
+
+                                if (!audioSourceComponent.eventName.empty())
+                                {
+                                    audioSourceComponent.eventName.clear();
+                                    Audio::StopEvent(audioSourceComponent);
+                                }
+                            }
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                if (audioSourceComponent.audioBank && ImGui::BeginCombo("Audio Clip", audioSourceComponent.eventName.c_str()))
+                {
+                    for (const auto& event : audioSourceComponent.audioBank->events)
+                    {
+                        const bool isSelected = audioSourceComponent.eventName == event;
+
+                        if (ImGui::Selectable(event.c_str()))
+                        {
+                            if (!audioSourceComponent.eventName.empty())
+                                Audio::StopEvent(audioSourceComponent);
+
+                            audioSourceComponent.eventName = event;
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+
+                ImGui::Checkbox("Play On Awake", &audioSourceComponent.playOnAwake);
+
+                if (ImGui::Checkbox("Mute", &audioSourceComponent.mute))
+                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.mute ? 0.f : audioSourceComponent.volume);
+
+                if (ImGui::SliderFloat("Volume", &audioSourceComponent.volume, 0.f, 1.f))
+                {
+                    if (audioSourceComponent.mute)
+                        audioSourceComponent.mute = false;
+
+                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
+                }
+
+                if (audioSourceComponent.audioBank && !audioSourceComponent.eventName.empty())
+                {
+                    if (!audioSourceComponent.isPlaying)
+                    {
+                        if (ImGui::SmallButton("Play"))
+                        {
+                            Audio::PlayEvent(audioSourceComponent);
+                        }
+                    }
+                    else
+                    {
+                        if (!audioSourceComponent.isPaused)
+                        {
+                            if (ImGui::SmallButton("Pause"))
+                            {
+                                Audio::PauseEvent(audioSourceComponent);
+                            }
+                        }
+                        else if (ImGui::SmallButton("Resume"))
+                        {
+                            Audio::ResumeEvent(audioSourceComponent);
+                        }
+
+                        ImGui::SameLine();
+
+                        if (ImGui::SmallButton("Stop"))
+                        {
+                            Audio::StopEvent(audioSourceComponent);
+                        }
+                    }
+                }
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
+                Audio::UnregisterAudioSourceComponent(audioSourceComponent);
+                entity.RemoveComponent<AudioSourceComponent>();
+            }
+        }
+
+        if (entity.HasComponent<AudioListenerComponent>())
+        {
+            auto& audioListenerComponent = entity.GetComponent<AudioListenerComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Audio Listener", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                Audio::UnregisterAudioListenerComponent(audioListenerComponent);
+                entity.RemoveComponent<AudioListenerComponent>();
+            }
+        }
+
+        if (entity.HasComponent<AudioZoneComponent>())
+        {
+            auto& audioZoneComponent = entity.GetComponent<AudioZoneComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Audio Zone", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::BeginCombo("Bus Channels", audioZoneComponent.audioBusName.c_str()))
+                {
+                    for (auto& busName : AudioZone::busNames)
+                    {
+                        const bool isSelected = (audioZoneComponent.audioBusName == busName);
+
+                        if (ImGui::Selectable(busName.c_str()))
+                        {
+                            if (audioZoneComponent.audioBusName != busName)
+                            {
+                                audioZoneComponent.audioBusName = busName;
+                                AudioZone::UpdateReverbZone(audioZoneComponent);
+                            }
+                        }
+
+                        if (isSelected)
+                            ImGui::SetItemDefaultFocus();
+                    }
+
+                    ImGui::EndCombo();
+                }
+
+                ImGui::Text("Position");
+                if (ImGui::DragFloat3("##ZonePosition", glm::value_ptr(audioZoneComponent.position), 0.1f)==true)
+                    AudioZone::UpdateReverbZone(audioZoneComponent);
+
+                ImGui::Text("Radius");
+                if (ImGui::SliderFloat("##ZoneRadius", &audioZoneComponent.radius, 1.f, 100.f))
+                    AudioZone::UpdateReverbZone(audioZoneComponent);
+            }
+
+            if(!isCollapsingHeaderOpen)
+            {
+                AudioZone::RemoveReverbZone(audioZoneComponent);
+                entity.RemoveComponent<AudioZoneComponent>();
+            }
+        }
+
+        // Add RigidBody component editor UI
+        if (entity.HasComponent<RigidbodyComponent>())
+        {
+            auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Rigidbody", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (rbComponent.rb)
+                {
+                    // Rigidbody type
+                    static const char* typeStrings[] = { "Static", "Dynamic", "Kinematic" };
+                    int currentType = static_cast<int>(rbComponent.rb->GetBodyType());
                     
-                    ImGui::Text("Color");
-                    DrawCustomColorEdit4("##Albedo Color", materialProperties.color);
+                    ImGui::Text("Type");
+                    if (ImGui::Combo("##Type", &currentType, typeStrings, IM_ARRAYSIZE(typeStrings)))
+                    {
+                        rbComponent.rb->SetBodyType(static_cast<RigidBody::Type>(currentType));
+                    }
+                    
+                    // Mass (only for dynamic bodies)
+                    if (rbComponent.rb->GetBodyType() != RigidBody::Type::Static)
+                    {
+                        ImGui::Text("Mass");
+                        float mass = rbComponent.rb->GetMass();
+                        if (ImGui::DragFloat("##Mass", &mass, 0.1f, 0.001f, 1000.0f))
+                        {
+                            rbComponent.rb->SetMass(mass);
+                        }
+                        
+                        // Use gravity
+                        ImGui::Text("Use Gravity");
+                        bool useGravity = rbComponent.rb->GetUseGravity();
+                        if (ImGui::Checkbox("##UseGravity", &useGravity))
+                        {
+                            rbComponent.rb->SetUseGravity(useGravity);
+                        }
+                    }
+                    
+                    // Freeze axes
+                    ImGui::Text("Freeze Position");
+                    ImGui::Columns(3, "FreezePositionColumns", false);
+                    
+                    // X Axis
+                    bool freezeX = rbComponent.rb->GetFreezeX();
+                    if (ImGui::Checkbox("X##FreezeX", &freezeX))
+                    {
+                        rbComponent.rb->SetFreezeX(freezeX);
+                    }
+                    ImGui::NextColumn();
+                    
+                    // Y Axis
+                    bool freezeY = rbComponent.rb->GetFreezeY();
+                    if (ImGui::Checkbox("Y##FreezeY", &freezeY))
+                    {
+                        rbComponent.rb->SetFreezeY(freezeY);
+                    }
+                    ImGui::NextColumn();
+                    
+                    // Z Axis
+                    bool freezeZ = rbComponent.rb->GetFreezeZ();
+                    if (ImGui::Checkbox("Z##FreezeZ", &freezeZ))
+                    {
+                        rbComponent.rb->SetFreezeZ(freezeZ);
+                    }
+                    
+                    ImGui::Columns(1);
+                    
+                    // Freeze rotation axes
+                    ImGui::Text("Freeze Rotation");
+                    ImGui::Columns(3, "FreezeRotationColumns", false);
+                    
+                    // X Rotation Axis
+                    bool freezeRotX = rbComponent.rb->GetFreezeRotX();
+                    if (ImGui::Checkbox("X##FreezeRotX", &freezeRotX))
+                    {
+                        rbComponent.rb->SetFreezeRotX(freezeRotX);
+                    }
+                    ImGui::NextColumn();
+                    
+                    // Y Rotation Axis
+                    bool freezeRotY = rbComponent.rb->GetFreezeRotY();
+                    if (ImGui::Checkbox("Y##FreezeRotY", &freezeRotY))
+                    {
+                        rbComponent.rb->SetFreezeRotY(freezeRotY);
+                    }
+                    ImGui::NextColumn();
+                    
+                    // Z Rotation Axis
+                    bool freezeRotZ = rbComponent.rb->GetFreezeRotZ();
+                    if (ImGui::Checkbox("Z##FreezeRotZ", &freezeRotZ))
+                    {
+                        rbComponent.rb->SetFreezeRotZ(freezeRotZ);
+                    }
+                    
+                    ImGui::Columns(1);
+                    
+                    // Add collider type selection and configuration
+                    ImGui::Separator();
+                    ImGui::Text("Collider");
+                    
+                    Ref<Collider> currentCollider = rbComponent.rb->GetCollider();
+                    int colliderType = -1; // -1: Unknown, 0: Box, 1: Sphere, 2: Capsule
+                    
+                    if (currentCollider) {
+                        if (std::dynamic_pointer_cast<BoxCollider>(currentCollider)) {
+                            colliderType = 0;
+                        } else if (std::dynamic_pointer_cast<SphereCollider>(currentCollider)) {
+                            colliderType = 1;
+                        } else if (std::dynamic_pointer_cast<CapsuleCollider>(currentCollider)) {
+                            colliderType = 2;
+                        }
+                    }
+                    
+                    static const char* colliderTypeNames[] = { "Box", "Sphere", "Capsule" };
+                    int newColliderType = colliderType;
+                    
+                    if (ImGui::Combo("Type##ColliderType", &newColliderType, colliderTypeNames, 3)) {
+                        // User selected a new collider type
+                        Ref<Collider> newCollider;
+                        
+                        // Create new collider based on selection
+                        switch (newColliderType) {
+                            case 0: { // Box
+                                glm::vec3 size(1.0f, 1.0f, 1.0f);
+                                if (auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(currentCollider)) {
+                                    size = boxCollider->GetSize();
+                                }
+                                newCollider = CreateRef<BoxCollider>(size);
+                                break;
+                            }
+                            case 1: { // Sphere
+                                float radius = 0.5f;
+                                if (auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(currentCollider)) {
+                                    radius = sphereCollider->GetRadius();
+                                }
+                                newCollider = CreateRef<SphereCollider>(radius);
+                                break;
+                            }
+                            case 2: { // Capsule
+                                float radius = 0.5f;
+                                float height = 2.0f;
+                                if (auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(currentCollider)) {
+                                    radius = capsuleCollider->GetRadius();
+                                    height = capsuleCollider->GetHeight();
+                                }
+                                newCollider = CreateRef<CapsuleCollider>(radius, height);
+                                break;
+                            }
+                        }
+                        
+                        if (newCollider) {
+                            // Store current rigidbody properties
+                            RigidBody::Properties props = rbComponent.rb->GetProperties();
+                            glm::vec3 position = rbComponent.rb->GetPosition();
+                            glm::vec3 rotation = rbComponent.rb->GetRotation();
+                            
+                            // Remove from physics world
+                            m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                            
+                            // Create new rigidbody with new collider
+                            rbComponent.rb = RigidBody::Create(props, newCollider);
+                            rbComponent.rb->SetPosition(position);
+                            rbComponent.rb->SetRotation(rotation);
+                            
+                            // Add back to physics world
+                            m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                            
+                            // Set user pointer for collision detection
+                            rbComponent.rb->GetNativeBody()->setUserPointer(
+                                reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                        }
+                    }
+                    
+                    // Show collider-specific properties
+                    if (currentCollider) {
+                        switch (colliderType) {
+                            case 0: { // Box collider properties
+                                auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(currentCollider);
+                                if (boxCollider) {
+                                    glm::vec3 size = boxCollider->GetSize();
+                                    
+                                    ImGui::Text("Size");
+                                    if (ImGui::DragFloat3("##BoxSize", glm::value_ptr(size), 0.1f, 0.01f, 100.0f)) {
+                                        // Create new box collider with updated size
+                                        Ref<BoxCollider> newCollider = CreateRef<BoxCollider>(size);
+                                        
+                                        // Store current rigidbody properties
+                                        RigidBody::Properties props = rbComponent.rb->GetProperties();
+                                        glm::vec3 position = rbComponent.rb->GetPosition();
+                                        glm::vec3 rotation = rbComponent.rb->GetRotation();
+                                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                                        
+                                        // Remove from physics world
+                                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                                        
+                                        // Create new rigidbody with new collider
+                                        rbComponent.rb = RigidBody::Create(props, newCollider);
+                                        rbComponent.rb->SetPosition(position);
+                                        rbComponent.rb->SetRotation(rotation);
+                                        rbComponent.rb->SetVelocity(velocity);
+                                        
+                                        // Add back to physics world
+                                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                                        rbComponent.rb->GetNativeBody()->setUserPointer(
+                                            reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                                    }
+                                }
+                                break;
+                            }
+                            case 1: { // Sphere collider properties
+                                auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(currentCollider);
+                                if (sphereCollider) {
+                                    float radius = sphereCollider->GetRadius();
+                                    
+                                    ImGui::Text("Radius");
+                                    if (ImGui::DragFloat("##SphereRadius", &radius, 0.1f, 0.01f, 100.0f)) {
+                                        // Create new sphere collider with updated radius
+                                        Ref<Collider> newCollider = CreateRef<SphereCollider>(radius);
+                                        
+                                        // Store current rigidbody properties
+                                        RigidBody::Properties props = rbComponent.rb->GetProperties();
+                                        glm::vec3 position = rbComponent.rb->GetPosition();
+                                        glm::vec3 rotation = rbComponent.rb->GetRotation();
+                                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                                        
+                                        // Remove from physics world
+                                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                                        
+                                        // Create new rigidbody with new collider
+                                        rbComponent.rb = RigidBody::Create(props, newCollider);
+                                        rbComponent.rb->SetPosition(position);
+                                        rbComponent.rb->SetRotation(rotation);
+                                        rbComponent.rb->SetVelocity(velocity);
+                                        
+                                        // Add back to physics world
+                                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                                        rbComponent.rb->GetNativeBody()->setUserPointer(
+                                            reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                                    }
+                                }
+                                break;
+                            }
+                            case 2: { // Capsule collider properties
+                                auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(currentCollider);
+                                if (capsuleCollider) {
+                                    float radius = capsuleCollider->GetRadius();
+                                    float height = capsuleCollider->GetHeight();
+                                    
+                                    float totalHeight = height + 2.0f * radius; // Total height including spherical caps
+                                    
+                                    ImGui::Text("Radius");
+                                    bool radiusChanged = ImGui::DragFloat("##CapsuleRadius", &radius, 0.1f, 0.01f, 100.0f);
+                                    
+                                    ImGui::Text("Total Height");
+                                    bool heightChanged = ImGui::DragFloat("##CapsuleHeight", &totalHeight, 0.1f, 0.01f, 100.0f);
+                                    
+                                    if (radiusChanged || heightChanged) {
+                                        if (totalHeight < radius * 2.0f) {
+                                            totalHeight = radius * 2.0f;
+                                        }
+                                        
+                                        float cylinderHeight = totalHeight - 2.0f * radius;
+                                        
+                                        // Create new capsule collider with updated parameters
+                                        Ref<Collider> newCollider = CreateRef<CapsuleCollider>(radius, cylinderHeight);
+                                        
+                                        // Store current rigidbody properties
+                                        RigidBody::Properties props = rbComponent.rb->GetProperties();
+                                        glm::vec3 position = rbComponent.rb->GetPosition();
+                                        glm::vec3 rotation = rbComponent.rb->GetRotation();
+                                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                                        
+                                        // Remove from physics world
+                                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                                        
+                                        // Create new rigidbody with new collider
+                                        rbComponent.rb = RigidBody::Create(props, newCollider);
+                                        rbComponent.rb->SetPosition(position);
+                                        rbComponent.rb->SetRotation(rotation);
+                                        rbComponent.rb->SetVelocity(velocity);
+                                        
+                                        // Add back to physics world
+                                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                                        rbComponent.rb->GetNativeBody()->setUserPointer(
+                                            reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Add friction and drag controls
+                    ImGui::Separator();
+                    
+                    ImGui::Text("Friction");
+                    float friction = rbComponent.rb->GetFriction();
+                    if (ImGui::SliderFloat("##Friction", &friction, 0.0f, 1.0f))
+                    {
+                        rbComponent.rb->SetFriction(friction);
+                    }
+                    
+                    ImGui::Text("Linear Drag");
+                    float linearDrag = rbComponent.rb->GetLinearDrag();
+                    if (ImGui::SliderFloat("##LinearDrag", &linearDrag, 0.0f, 1.0f))
+                    {
+                        rbComponent.rb->SetLinearDrag(linearDrag);
+                    }
+                    
+                    ImGui::Text("Angular Drag");
+                    float angularDrag = rbComponent.rb->GetAngularDrag();
+                    if (ImGui::SliderFloat("##AngularDrag", &angularDrag, 0.0f, 1.0f))
+                    {
+                        rbComponent.rb->SetAngularDrag(angularDrag);
+                    }
+                    
+                    // Show current velocity
+                    glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                    ImGui::Text("Current Velocity: X: %.2f, Y: %.2f, Z: %.2f", 
+                                velocity.x, velocity.y, velocity.z);
 
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Albedo", materialTextures.albedo);
+                    // ---------------------Physics Debug Controls---------------------
+                    /*
+                    // Add force/impulse controls
+                    static glm::vec3 forceToApply = {0.0f, 0.0f, 0.0f};
+                    ImGui::Separator();
+                    ImGui::Text("Physics Controls");
+                    ImGui::DragFloat3("Vector", glm::value_ptr(forceToApply), 0.1f);
+                    
+                    // Force & Impulse buttons
+                    if (ImGui::Button("Apply Force"))
+                    {
+                        rbComponent.rb->ApplyForce(forceToApply);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Apply Impulse"))
+                    {
+                        rbComponent.rb->ApplyImpulse(forceToApply);
+                    }
+                    
+                    // Velocity buttons
+                    if (ImGui::Button("Set Velocity"))
+                    {
+                        rbComponent.rb->SetVelocity(forceToApply);
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("Add Velocity"))
+                    {
+                        rbComponent.rb->AddVelocity(forceToApply);
+                    }
+                    
+                    // Reset velocity
+                    if (ImGui::Button("Reset Velocity"))
+                    {
+                        rbComponent.rb->ResetVelocity();
+                    }
+                    */
+                }
+                else
+                {
+                    ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "RigidBody instance is null!");
+                }
+            }
 
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-                if(ImGui::TreeNode("Metallic"))
+            if (!isCollapsingHeaderOpen)
+            {
+                // Remove from physics world before removing component
+                if (rbComponent.rb && rbComponent.rb->GetNativeBody())
                 {
-                    ImGui::BeginChild("##Metallic Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    ImGui::Text("Metallic");
-                    ImGui::SliderFloat("##Metallic Slider", &materialProperties.metallic, 0.0f, 1.0f);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Metallic", materialTextures.metallic);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
+                    m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
                 }
-                if(ImGui::TreeNode("Roughness"))
+                entity.RemoveComponent<RigidbodyComponent>();
+            }
+        }
+
+        if (entity.HasComponent<AnimatorComponent>())
+        {
+            auto& animatorComponent = entity.GetComponent<AnimatorComponent>();
+
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                const char* animationName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.CurrentAnimation)->GetAnimationName().c_str();
+
+                if (ImGui::BeginCombo("Animation", animationName))
                 {
-                    ImGui::BeginChild("##Roughness Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    ImGui::Text("Roughness");
-                    ImGui::SliderFloat("##Roughness Slider", &materialProperties.roughness, 0.1f, 1.0f);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Roughness", materialTextures.roughness);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    {
+                        if (ImGui::Selectable(name.c_str()) && name != animationName)
+                        {
+                            AnimationSystem::SetCurrentAnimation(name, &animatorComponent);
+                        }
+                    }
+                    ImGui::EndCombo();
                 }
-                if(ImGui::TreeNode("Emission"))
-                {
-                    ImGui::BeginChild("##Emission Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    //FIXME: Emissive color variable is local and do not affect the materialProperties.emissive!!
-                    glm::vec4& emissiveColor = reinterpret_cast<glm::vec4&>(materialProperties.emissive);
-                    emissiveColor.a = 1.0f;
-                    DrawCustomColorEdit4("Color", emissiveColor);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Emissive", materialTextures.emissive);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-                if(ImGui::TreeNode("Normal Map"))
-                {
-                    ImGui::BeginChild("##Normal Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##Normal", materialTextures.normal);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-                if(ImGui::TreeNode("Ambient Occlusion"))
-                {
-                    ImGui::BeginChild("##AO Child", {0, 0}, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_Borders);
-                    ImGui::Text("AO");
-                    ImGui::SliderFloat("##AO Slider", &materialProperties.ao, 0.0f, 1.0f);
-                    ImGui::Text("Texture");
-                    DrawTextureWidget("##AO", materialTextures.ao);
-                    ImGui::EndChild();
-                    ImGui::TreePop();
-                }
-            
-                if(!isCollapsingHeaderOpen)
-                {
-                    entity.RemoveComponent<MaterialComponent>();
-                }
+
+                ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
+
+                ImGui::DragFloat("Blend Threshold", &animatorComponent.BlendThreshold, 0.01f, 0.01f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
+
             }
         }
 
@@ -818,20 +1407,15 @@ namespace Coffee {
             }
         }
     }
-
-        if (entity.HasComponent<ScriptComponent>())
+        
+        if(entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                
-                //ImGui::Text("Script Name: ");
-                //ImGui::Text(scriptComponent.script.GetLanguage() == ScriptingLanguage::Lua ? "Lua" : "CSharp");
-
                 //ImGui::Text("Script Path: ");
-                //ImGui::Text(scriptComponent.script.GetPath().string().c_str());
-                
+                //ImGui::Text(scriptComponent.script->GetPath().c_str());
 
                 // Get the exposed variables
                 auto& exposedVariables = scriptComponent.script->GetExportedVariables();
@@ -841,8 +1425,7 @@ namespace Coffee {
                 {
                     switch (variable.type)
                     {
-                    case ExportedVariableType::Bool:
-                    {
+                    case ExportedVariableType::Bool: {
                         bool value = variable.value.has_value() ? std::any_cast<bool>(variable.value) : false;
                         if (ImGui::Checkbox(name.c_str(), &value))
                         {
@@ -851,8 +1434,7 @@ namespace Coffee {
                         }
                         break;
                     }
-                    case ExportedVariableType::Int:
-                    {
+                    case ExportedVariableType::Int: {
                         int value = variable.value.has_value() ? std::any_cast<int>(variable.value) : 0;
                         if (ImGui::InputInt(name.c_str(), &value))
                         {
@@ -861,8 +1443,7 @@ namespace Coffee {
                         }
                         break;
                     }
-                    case ExportedVariableType::Float:
-                    {
+                    case ExportedVariableType::Float: {
                         float value = variable.value.has_value() ? std::any_cast<float>(variable.value) : 0.0f;
                         if (ImGui::InputFloat(name.c_str(), &value))
                         {
@@ -871,21 +1452,21 @@ namespace Coffee {
                         }
                         break;
                     }
-                    case ExportedVariableType::String:
-                    {
-                        std::string value = variable.value.has_value() ? std::any_cast<std::string>(variable.value) : "";
+                    case ExportedVariableType::String: {
+                        std::string value =
+                            variable.value.has_value() ? std::any_cast<std::string>(variable.value) : "";
                         char buffer[256];
                         memset(buffer, 0, sizeof(buffer));
                         strcpy(buffer, value.c_str());
                         if (ImGui::InputText(name.c_str(), buffer, sizeof(buffer)))
                         {
-                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, std::string(buffer));
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)
+                                ->SetVariable(name, std::string(buffer));
                             variable.value = std::string(buffer);
                         }
                         break;
                     }
-                    case ExportedVariableType::Entity:
-                    {
+                    case ExportedVariableType::Entity: {
                         Entity value = variable.value.has_value() ? std::any_cast<Entity>(variable.value) : Entity{};
                         if (ImGui::Button(name.c_str()))
                         {
@@ -896,18 +1477,50 @@ namespace Coffee {
                             auto view = m_Context->m_Registry.view<TagComponent>();
                             for (auto entityID : view)
                             {
-                                Entity e{ entityID, m_Context.get() };
+                                Entity e{entityID, m_Context.get()};
                                 auto& tag = e.GetComponent<TagComponent>().Tag;
                                 if (ImGui::Selectable(tag.c_str()))
                                 {
                                     value = e;
-                                    std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                                    std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)
+                                        ->SetVariable(name, value);
                                     variable.value = value;
                                 }
                             }
                             ImGui::EndPopup();
                         }
                         break;
+                    }
+                    case ExportedVariableType::Vector2: {
+                        glm::vec2 value =
+                            variable.value.has_value() ? std::any_cast<glm::vec2>(variable.value) : glm::vec2{};
+                        if (ImGui::DragFloat2(name.c_str(), glm::value_ptr(value)))
+                        {
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
+                        }
+                        break;
+                    }
+                    case ExportedVariableType::Vector3: {
+                        glm::vec3 value =
+                            variable.value.has_value() ? std::any_cast<glm::vec3>(variable.value) : glm::vec3{};
+                        if (ImGui::DragFloat3(name.c_str(), glm::value_ptr(value)))
+                        {
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
+                        }
+                        break;
+                    }
+                    case ExportedVariableType::Vector4: {
+                        glm::vec4 value =
+                            variable.value.has_value() ? std::any_cast<glm::vec4>(variable.value) : glm::vec4{};
+                        if (ImGui::DragFloat4(name.c_str(), glm::value_ptr(value)))
+                        {
+                            std::dynamic_pointer_cast<LuaScript>(scriptComponent.script)->SetVariable(name, value);
+                            variable.value = value;
+                        }
+                        break;
+                    }
                     }
                 }
             }
@@ -917,9 +1530,202 @@ namespace Coffee {
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
+        float buttonWidth = 200.0f;
+        float buttonHeight = 32.0f;
+        float availableWidth = ImGui::GetContentRegionAvail().x;
+        float cursorPosX = (availableWidth - buttonWidth) * 0.5f;
+        ImGui::SetCursorPosX(cursorPosX);
+
+        if(ImGui::Button("Add Component", {buttonWidth, buttonHeight}))
+        {
+            ImGui::OpenPopup("Add Component...");
+        }
+
+        if(ImGui::BeginPopupModal("Add Component..."))
+        {
+            static char buffer[256] = "";
+            ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
+
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component" };
+            static int item_current = 1;
+
+            if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
+            {
+                for (int n = 0; n < IM_ARRAYSIZE(items); n++)
+                {
+                    const bool is_selected = (item_current == n);
+                    if (ImGui::Selectable(items[n].c_str(), is_selected))
+                        item_current = n;
+
+                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+                    if (is_selected)
+                        ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndListBox();
+            }
+
+
+            ImGui::Text("Description");
+            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur.");
+
+            if (ImGui::Button("Cancel"))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Add Component"))
+            {
+                if(items[item_current] == "Tag Component")
+                {
+                    if(!entity.HasComponent<TagComponent>())
+                        entity.AddComponent<TagComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Transform Component")
+                {
+                    if(!entity.HasComponent<TransformComponent>())
+                        entity.AddComponent<TransformComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Mesh Component")
+                {
+                    if(!entity.HasComponent<MeshComponent>())
+                        entity.AddComponent<MeshComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Material Component")
+                {
+                    if(!entity.HasComponent<MaterialComponent>())
+                        entity.AddComponent<MaterialComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Light Component")
+                {
+                    if(!entity.HasComponent<LightComponent>())
+                        entity.AddComponent<LightComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Camera Component")
+                {
+                    if(!entity.HasComponent<CameraComponent>())
+                        entity.AddComponent<CameraComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Source Component")
+                {
+                    if(!entity.HasComponent<AudioSourceComponent>())
+                    {
+                        entity.AddComponent<AudioSourceComponent>();
+                        Audio::RegisterAudioSourceComponent(entity.GetComponent<AudioSourceComponent>());
+                        AudioZone::RegisterObject(entity.GetComponent<AudioSourceComponent>().gameObjectID, entity.GetComponent<AudioSourceComponent>().transform[3]);
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Listener Component")
+                {
+                    if(!entity.HasComponent<AudioListenerComponent>())
+                    {
+                        entity.AddComponent<AudioListenerComponent>();
+                        Audio::RegisterAudioListenerComponent(entity.GetComponent<AudioListenerComponent>());
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Audio Zone Component")
+                {
+                    if(!entity.HasComponent<AudioZoneComponent>())
+                    {
+                        entity.AddComponent<AudioZoneComponent>();
+                        AudioZone::CreateZone(entity.GetComponent<AudioZoneComponent>());
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Lua Script Component")
+                {
+                    if(!entity.HasComponent<ScriptComponent>())
+                    {
+                        // Pop up a file dialog to select the save location for the new script
+                        FileDialogArgs args;
+                        args.Filters = {{"Lua Script", "lua"}};
+                        args.DefaultName = "NewScript.lua";
+                        const std::filesystem::path& path = FileDialog::SaveFile(args);
+
+                        if (!path.empty())
+                        {
+                            std::ofstream scriptFile(path);
+                            if (scriptFile.is_open())
+                            {
+                                scriptFile << "function on_ready()\n";
+                                scriptFile << "    -- Add initialization code here\n";
+                                scriptFile << "end\n\n";
+                                scriptFile << "function on_update(dt)\n";
+                                scriptFile << "    -- Add update code here\n";
+                                scriptFile << "end\n\n";
+                                scriptFile << "function on_exit()\n";
+                                scriptFile << "    -- Add cleanup code here\n";
+                                scriptFile.close();
+
+                                // Add the script component to the entity
+                                entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
+                            }
+                            else
+                            {
+                                COFFEE_CORE_ERROR("Failed to create Lua script file at: {0}", path.string());
+                            }
+                        }
+                        else
+                        {
+                            COFFEE_CORE_WARN("Create Lua Script: No file selected");
+                        }
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                else if(items[item_current] == "Rigidbody Component")
+                {
+                    if(!entity.HasComponent<RigidbodyComponent>())
+                    {
+                        try {
+                            Ref<BoxCollider> collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+                            
+                            RigidBody::Properties props;
+                            props.type = RigidBody::Type::Dynamic;
+                            props.mass = 1.0f;
+                            props.useGravity = true;
+                            
+                            auto& rbComponent = entity.AddComponent<RigidbodyComponent>(props, collider);
+                            
+                            // Set initial transform from the entity
+                            if (entity.HasComponent<TransformComponent>()) {
+                                auto& transform = entity.GetComponent<TransformComponent>();
+                                rbComponent.rb->SetPosition(transform.Position);
+                                rbComponent.rb->SetRotation(transform.Rotation);
+                            }
+                            
+                            // Add the rigidbody to the physics world
+                            m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                            
+                            // Set user pointer for collision detection
+                            rbComponent.rb->GetNativeBody()->setUserPointer(
+                                reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                        }
+                        catch (const std::exception& e) {
+                            COFFEE_CORE_ERROR("Exception creating rigidbody: {0}", e.what());
+                            if (entity.HasComponent<RigidbodyComponent>()) {
+                                entity.RemoveComponent<RigidbodyComponent>();
+                            }
+                        }
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else
+                {
+                    ImGui::CloseCurrentPopup();
+                }
+            }
 
     }
-}
 
 
     // UI functions for scenetree menus
@@ -950,8 +1756,8 @@ namespace Coffee {
 
             ImGui::Text("Description");
             ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer "
-                               "scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi "
-                               "lacinia elit ornare, eu semper risus consectetur.");
+                            "scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi "
+                            "lacinia elit ornare, eu semper risus consectetur.");
 
             if (ImGui::Button("Cancel"))
             {
@@ -1011,5 +1817,4 @@ namespace Coffee {
             ImGui::EndPopup();
         }
     }
-
 }

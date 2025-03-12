@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -129,6 +130,12 @@ namespace Coffee {
             const Ref<Shader>& shader = material->GetShader();
 
             shader->Bind();
+
+            if (command.animator)
+                AnimationSystem::SetBoneTransformations(shader, command.animator);
+            else
+                shader->setBool("animated", false);
+
             shader->setMat4("model", command.transform);
             shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(command.transform))));
 

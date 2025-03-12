@@ -22,11 +22,11 @@ namespace Coffee
          */
         enum : MouseCode
         {
-            BUTTON_LEFT =    1, ///< Left mouse button
-            BUTTON_MIDDLE =  2, ///< Middle mouse button
-            BUTTON_RIGHT =   3, ///< Right mouse button
-            BUTTON_X1  =     4, ///< Extra mouse button 1
-            BUTTON_X2  =     5  ///< Extra mouse button 2
+            ButtonLeft =    1, ///< Left mouse button
+            ButtonMiddle =  2, ///< Middle mouse button
+            ButtonRight =   3, ///< Right mouse button
+            ButtonX1  =     4, ///< Extra mouse button 1
+            ButtonX2  =     5  ///< Extra mouse button 2
         };
     }
 }

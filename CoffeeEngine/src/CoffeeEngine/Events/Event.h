@@ -21,7 +21,9 @@ namespace Coffee {
         WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved, FileDrop,
         AppTick, AppUpdate, AppRender,
         KeyPressed, KeyReleased, KeyTyped,
-        MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+        MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled,
+        ButtonPressed, ButtonReleased, AxisMoved,
+        ControllerConnected, ControllerDisconnected,
     };
 
     /**
@@ -34,7 +36,9 @@ namespace Coffee {
         EventCategoryInput          = BIT(1),
         EventCategoryKeyboard       = BIT(2),
         EventCategoryMouse          = BIT(3),
-        EventCategoryMouseButton    = BIT(4)
+        EventCategoryMouseButton    = BIT(4),
+        EventCategoryControllerAxis = BIT(5),
+        EventCategoryControllerButton = BIT(6),
     };
 
     /**

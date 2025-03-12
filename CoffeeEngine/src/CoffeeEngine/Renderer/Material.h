@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
@@ -92,12 +93,12 @@ namespace Coffee {
                 UUID albedoUUID, normalUUID, metallicUUID, roughnessUUID, aoUUID, emissiveUUID;
                 archive(albedoUUID, normalUUID, metallicUUID, roughnessUUID, aoUUID, emissiveUUID);
 
-                albedo = ResourceLoader::LoadTexture2D(albedoUUID);
-                normal = ResourceLoader::LoadTexture2D(normalUUID);
-                metallic = ResourceLoader::LoadTexture2D(metallicUUID);
-                roughness = ResourceLoader::LoadTexture2D(roughnessUUID);
-                ao = ResourceLoader::LoadTexture2D(aoUUID);
-                emissive = ResourceLoader::LoadTexture2D(emissiveUUID);
+                albedo = ResourceLoader::GetResource<Texture2D>(albedoUUID);
+                normal = ResourceLoader::GetResource<Texture2D>(normalUUID);
+                metallic = ResourceLoader::GetResource<Texture2D>(metallicUUID);
+                roughness = ResourceLoader::GetResource<Texture2D>(roughnessUUID);
+                ao = ResourceLoader::GetResource<Texture2D>(aoUUID);
+                emissive = ResourceLoader::GetResource<Texture2D>(emissiveUUID);
             }
     };
 
@@ -151,6 +152,8 @@ namespace Coffee {
          * @param materialTextures The textures to be used with the material.
          */
         Material(const std::string& name, MaterialTextures& materialTextures);
+
+        Material(ImportData& importData);
 
         /**
          * @brief Default destructor for the Material class.
