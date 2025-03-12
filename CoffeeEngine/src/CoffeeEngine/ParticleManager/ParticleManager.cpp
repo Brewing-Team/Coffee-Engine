@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <glm/gtc/random.hpp>
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
 
 namespace Coffee
 {
@@ -202,6 +203,7 @@ namespace Coffee
             particle->SetRotation(newRotation + particle->startRotation);
         }
 
+
         if (simulationSpace == SimulationSpace::Local)
         {
             particle->SetPosition(particle->GetPosition() +
@@ -234,6 +236,16 @@ namespace Coffee
         billboardTransform = billboardTransform * inverseView;
 
         return billboardTransform;
+    }
+
+
+    void ParticleEmitter::DrawDebug()
+    {
+
+        glm::vec3 auxTransformPosition = glm::vec3(transformComponentMatrix[3]);
+        DebugRenderer::DrawBox(minSpread + auxTransformPosition, maxSpread + auxTransformPosition, glm::vec4(1.0f),
+                               1.0f);
+
     }
 
 } // namespace Coffee

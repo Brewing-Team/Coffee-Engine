@@ -88,8 +88,8 @@ namespace Coffee
         };
 
         ShapeType shape = ShapeType::Box;
-        glm::vec3 minSpread = {0.0f, 0.0f, 0.0f};
-        glm::vec3 maxSpread = {0.0f, 0.0f, 0.0f};
+        glm::vec3 minSpread = {-0.1f, -0.1f, -0.1f};
+        glm::vec3 maxSpread = {0.1f, 0.1f, 0.1f};
         bool useShape = true;
         float shapeAngle = 45.0f;
         float shapeRadius = 1.0f;
@@ -148,6 +148,7 @@ namespace Coffee
         void InitParticle(Ref<Particle> particle);
         void Update(float deltaTime);
         void UpdateParticle(Ref<Particle> particle, float deltaTime);
+        void DrawDebug();
 
         glm::mat4 CalculateBillboardTransform(const glm::mat4& particleTransform, const glm::mat4& viewMatrix);
 
