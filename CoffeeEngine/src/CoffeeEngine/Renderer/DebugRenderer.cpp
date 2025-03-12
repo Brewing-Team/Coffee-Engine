@@ -307,4 +307,56 @@ namespace Coffee {
         DrawLine(frustumCorners[2], frustumCorners[6], color, lineWidth);
         DrawLine(frustumCorners[3], frustumCorners[7], color, lineWidth);
     }
+
+    void DebugRenderer::DrawCylinder(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color)
+    {
+        const int segments = 24;
+        const float angleStep = 2.0f * glm::pi<float>() / segments;
+        
+        glm::vec3 topPoints[25]; 
+        glm::vec3 bottomPoints[25];
+        
+        float halfHeight = height * 0.5f;
+        
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = i * angleStep;
+            float x = radius * cos(angle);
+            float z = radius * sin(angle);
+            
+            glm::vec3 localTop(x, halfHeight, z);
+            glm::vec3 localBottom(x, -halfHeight, z);
+            
+            glm::vec3 worldTop = position + rotation * localTop;
+            glm::vec3 worldBottom = position + rotation * localBottom;
+            
+            topPoints[i] = worldTop;
+            bottomPoints[i] = worldBottom;
+        }
+        
+        for (int i = 0; i < segments; i++)
+        {
+            DrawLine(topPoints[i], topPoints[i + 1], color);
+            
+            DrawLine(bottomPoints[i], bottomPoints[i + 1], color);
+            
+            if (i % 4 == 0) {
+                DrawLine(topPoints[i], bottomPoints[i], color);
+            }
+        }
+    }
+
+    void DebugRenderer::DrawCapsule(const glm::vec3& position, const glm::quat& rotation, float radius, float cylinderHeight, const glm::vec4& color)
+    {
+        float halfCylinderHeight = cylinderHeight * 0.5f;
+        
+        glm::vec3 upVector = rotation * glm::vec3(0, 1, 0);
+        glm::vec3 topSpherePos = position + upVector * halfCylinderHeight;
+        glm::vec3 bottomSpherePos = position - upVector * halfCylinderHeight;
+        
+        DrawSphere(topSpherePos, radius, color);
+        DrawSphere(bottomSpherePos, radius, color);
+        
+        DrawCylinder(position, rotation, radius, cylinderHeight, color);
+    }
 }

@@ -15,7 +15,10 @@
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
+#include "CoffeeEngine/Renderer/Framebuffer.h"
+#include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer3D.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
@@ -33,15 +36,16 @@
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <imgui.h>
+#include <initializer_list>
 #include <string>
 #include <sys/types.h>
 #include <tracy/Tracy.hpp>
 
 #include <IconsLucide.h>
+#include <utility>
+#include <vector>
 
 namespace Coffee {
-
-    static RendererStats s_RendererData;
 
     EditorLayer::EditorLayer() : Layer("Example")
     {
@@ -51,6 +55,25 @@ namespace Coffee {
     void EditorLayer::OnAttach()
     {
         ZoneScoped;
+
+        std::initializer_list<Attachment> ForwardFramebufferAttachments = {
+            {ImageFormat::RGBA32F, "Color"},
+            {ImageFormat::RGB8, "EntityID"},
+            {ImageFormat::DEPTH24STENCIL8, "Depth"}
+        };
+
+        std::initializer_list<Attachment> PostProcessingFramebufferAttachments = {
+            {ImageFormat::RGBA8, "Color"}
+        };
+
+        std::vector<std::pair<std::string, std::initializer_list<Attachment>>> EditorViewportRenderTargetFramebufferAttachments = {
+            {"Forward", ForwardFramebufferAttachments},
+            {"PostProcessing", PostProcessingFramebufferAttachments}
+        };
+
+        m_ViewportRenderTarget = &Renderer::AddRenderTarget("EditorViewport",
+                                                            {1280, 720}, 
+                                        EditorViewportRenderTargetFramebufferAttachments);
 
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
@@ -68,6 +91,9 @@ namespace Coffee {
     void EditorLayer::OnUpdate(float dt)
     {
         ZoneScoped;
+        
+        // Idk if this is the best place or is better in each switch case for flexibility
+        Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget);
 
         switch (m_SceneState)
         {
@@ -81,6 +107,8 @@ namespace Coffee {
             break;
 
         }
+        
+        Renderer::SetCurrentRenderTarget(nullptr);
     }
 
     void EditorLayer::OnEvent(Coffee::Event& event)
@@ -143,7 +171,7 @@ namespace Coffee {
 
                 if (mouseX >= 0 && mouseY >= 0 && mouseX < (int)viewportSize.x && mouseY < (int)viewportSize.y)
                 {
-                    const glm::vec4& pixelData = Renderer::GetEntityIDAtPixel(mouseX, mouseY);
+                    const glm::vec4& pixelData = m_ViewportRenderTarget->GetFramebuffer("Forward")->GetPixelColor(mouseX, mouseY, 1);
 
                     /// Convert the vec3 back to uint32_t
                     uint32_t r = static_cast<uint32_t>(pixelData.r * 255.0f);
@@ -193,6 +221,9 @@ namespace Coffee {
         ZoneScoped;
 
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
+
+        static bool show = true;
+        ImGui::ShowDemoWindow(&show);
 
         struct MainMenuWindows
         {
@@ -343,7 +374,7 @@ namespace Coffee {
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
         ResizeViewport(viewportPanelSize.x, viewportPanelSize.y);
 
-        uint32_t textureID = Renderer::GetRenderTexture()->GetID();
+        uint32_t textureID = m_ViewportRenderTarget->GetFramebuffer("Forward")->GetColorTexture("Color")->GetID();
         ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, {0, 1}, {1, 0});
 
         //Guizmo
@@ -423,9 +454,9 @@ namespace Coffee {
 
         ImGui::Begin("Renderer Stats", NULL, window_flags);
         ImGui::Text("Size: %.0f x %.0f (%0.1fMP)", m_ViewportSize.x, m_ViewportSize.y, m_ViewportSize.x * m_ViewportSize.y / 1000000.0f);
-        ImGui::Text("Draw Calls: %d", Renderer::GetStats().DrawCalls);
-        ImGui::Text("Vertex Count: %d", Renderer::GetStats().VertexCount);
-        ImGui::Text("Index Count: %d", Renderer::GetStats().IndexCount);
+        ImGui::Text("Draw Calls: %d", Renderer3D::GetStats().DrawCalls);
+        ImGui::Text("Vertex Count: %d", Renderer3D::GetStats().VertexCount);
+        ImGui::Text("Index Count: %d", Renderer3D::GetStats().IndexCount);
         ImGui::End();
 
         // Display EditorCamera speed vertical slider & zoom vertical slider at the center left
@@ -486,7 +517,7 @@ namespace Coffee {
             ImGui::EndDisabled();
             static bool normals = false;
             ImGui::Checkbox("Normals", &normals);
-            Renderer::GetRenderSettings().showNormals = normals;
+            Renderer3D::GetRenderSettings().showNormals = normals;
             Renderer::GetRenderSettings().PostProcessing = !normals;
             ImGui::EndPopup();
         }
@@ -500,7 +531,7 @@ namespace Coffee {
 
         ImGui::Checkbox("Post Processing", &Renderer::GetRenderSettings().PostProcessing);
 
-        ImGui::DragFloat("Exposure", &Renderer::GetRenderSettings().Exposure, 0.001f, 100.0f);
+        ImGui::DragFloat("Exposure", &Renderer3D::GetRenderSettings().Exposure, 0.001f, 100.0f);
 
         ImGui::End();
 
@@ -564,7 +595,7 @@ namespace Coffee {
 
     void EditorLayer::OnOverlayRender()
     {
-        Renderer::BeginOverlay(m_EditorCamera);
+        Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget);
 
         Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
         static Entity lastSelectedEntity;  
@@ -643,10 +674,8 @@ namespace Coffee {
         static Ref<Mesh> gridPlaneUp = PrimitiveMesh::CreatePlane({1000.0f, -1000.0f}); // FIXME this is a hack to avoid the grid not beeing rendered due to backface culling
         static Ref<Shader> gridShader = Shader::Create("assets/shaders/SimpleGridShader.glsl");
 
-        Renderer::Submit(gridShader, gridPlaneUp->GetVertexArray());
-        Renderer::Submit(gridShader, gridPlaneDown->GetVertexArray());
-
-        Renderer::EndOverlay();
+        Renderer3D::Submit(gridShader, gridPlaneUp->GetVertexArray());
+        Renderer3D::Submit(gridShader, gridPlaneDown->GetVertexArray());
     }
 
     void EditorLayer::ResizeViewport(float width, float height)
@@ -655,7 +684,7 @@ namespace Coffee {
            (width != m_ViewportSize.x || height != m_ViewportSize.y))
         {
             m_EditorCamera.SetViewportSize(width, height);
-            Renderer::OnResize((uint32_t)width, (uint32_t)height);
+            m_ViewportRenderTarget->Resize((uint32_t)width, (uint32_t)height);
         }
 
         m_ViewportSize = { width, height };

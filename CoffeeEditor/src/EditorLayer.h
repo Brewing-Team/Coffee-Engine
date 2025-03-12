@@ -5,6 +5,7 @@
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
+#include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "Panels/ContentBrowserPanel.h"
 #include "Panels/MonitorPanel.h"
@@ -54,6 +55,8 @@ namespace Coffee {
         void SaveScene();
         void SaveSceneAs();
     private:
+        RenderTarget* m_ViewportRenderTarget;
+
         Ref<Scene> m_EditorScene;
         Ref<Scene> m_ActiveScene;
 
