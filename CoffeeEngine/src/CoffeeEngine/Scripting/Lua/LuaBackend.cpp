@@ -464,6 +464,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
+                } else if (componentName == "NavigationAgentComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
                 }
                 return sol::nil;
             },
@@ -482,6 +484,8 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
+                } else if (componentName == "NavigationAgentComponent") {
+                    return self->HasComponent<NavigationAgentComponent>();
                 }
                 return false;
             },
@@ -556,6 +560,12 @@ namespace Coffee {
             "intensity", &LightComponent::Intensity,
             "angle", &LightComponent::Angle,
             "type", &LightComponent::type
+        );
+
+        luaState.new_usertype<NavigationAgentComponent>("NavigationAgentComponent",
+            sol::constructors<NavigationAgentComponent()>(),
+            "path", &NavigationAgentComponent::m_Path,
+            "find_path", &NavigationAgentComponent::FindPath
         );
 
         luaState.new_usertype<ScriptComponent>("ScriptComponent",
