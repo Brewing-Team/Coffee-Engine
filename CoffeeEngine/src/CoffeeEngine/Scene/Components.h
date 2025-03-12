@@ -550,24 +550,43 @@ namespace Coffee {
     struct NavMeshComponent
     {
         Ref<NavMesh> m_NavMesh = nullptr;
-        Ref<NavMeshPathfinding> m_PathFinder = nullptr;
-        std::vector<glm::vec3> m_CurrentPath;
-        glm::vec3 m_PathStart = glm::vec3(0.0f);
-        glm::vec3 m_PathEnd = glm::vec3(0.0f);
+        UUID m_NavMeshUUID;
 
         template<class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("NavMesh", m_NavMesh));
+            archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            archive(cereal::make_nvp("NavMesh", m_NavMesh));
-
-            m_PathFinder = CreateRef<NavMeshPathfinding>(m_NavMesh);
+            archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
         }
+    };
+
+    struct NavigationAgentComponent
+    {
+        Ref<NavMeshPathfinding> m_PathFinder = nullptr;
+        Ref<NavMeshComponent> m_NavMeshComponent = nullptr;
+
+        std::vector<glm::vec3> m_Path;
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
+
+            m_PathFinder = CreateRef<NavMeshPathfinding>(m_NavMeshComponent->m_NavMesh);
+        }
+
+        std::vector<glm::vec3> FindPath(const glm::vec3 start, const glm::vec3 end) const { return m_PathFinder->FindPath(start, end); }
     };
 }
 

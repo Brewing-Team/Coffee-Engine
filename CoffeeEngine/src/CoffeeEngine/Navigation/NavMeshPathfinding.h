@@ -43,6 +43,8 @@ namespace Coffee
          */
         void RenderPath(const std::vector<glm::vec3>& path) const;
 
+        void SetNavMesh(const Ref<NavMesh>& navMesh) { m_NavMesh = navMesh; }
+
     private:
         /**
          * @brief Finds the triangle containing the given point.

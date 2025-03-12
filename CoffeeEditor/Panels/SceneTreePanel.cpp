@@ -855,19 +855,41 @@ namespace Coffee {
         {
             auto& navMeshComponent = entity.GetComponent<NavMeshComponent>();
             bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            if (ImGui::CollapsingHeader("NavMesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 if (ImGui::SmallButton("Generate NavMesh"))
                 {
                     navMeshComponent.m_NavMesh->CalculateWalkableAreas(entity.GetComponent<MeshComponent>().GetMesh(), entity.GetComponent<TransformComponent>().GetWorldTransform());
                 }
+            }
+        }
 
-                ImGui::DragFloat3("Start", glm::value_ptr(navMeshComponent.m_PathStart));
-                ImGui::DragFloat3("End", glm::value_ptr(navMeshComponent.m_PathEnd));
+        if (entity.HasComponent<NavigationAgentComponent>())
+        {
+            auto& navigationAgentComponent = entity.GetComponent<NavigationAgentComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Navigation Agent", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                auto view = m_Context->m_Registry.view<NavMeshComponent>();
 
-                if (ImGui::SmallButton("Find Path"))
+                if (ImGui::BeginCombo("NavMesh", navigationAgentComponent.m_NavMeshComponent ? std::to_string(navigationAgentComponent.m_NavMeshComponent->m_NavMeshUUID).c_str() : "Select NavMesh"))
                 {
-                    navMeshComponent.m_CurrentPath = navMeshComponent.m_PathFinder->FindPath(navMeshComponent.m_PathStart, navMeshComponent.m_PathEnd);
+                    for (auto entityID : view)
+                    {
+                        Entity e{entityID, m_Context.get()};
+                        auto& navMeshComponent = e.GetComponent<NavMeshComponent>();
+                        bool isSelected = (navigationAgentComponent.m_NavMeshComponent && navigationAgentComponent.m_NavMeshComponent->m_NavMeshUUID == navMeshComponent.m_NavMeshUUID);
+                        if (ImGui::Selectable(std::to_string(navMeshComponent.m_NavMeshUUID).c_str(), isSelected))
+                        {
+                            navigationAgentComponent.m_NavMeshComponent = CreateRef<NavMeshComponent>(navMeshComponent);
+                            navigationAgentComponent.m_PathFinder->SetNavMesh(navMeshComponent.m_NavMesh);
+                        }
+                        if (isSelected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
                 }
             }
         }
@@ -892,7 +914,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "NavMesh Component"};
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "NavMesh Component", "Navigation Agent Component" };;
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1035,7 +1057,17 @@ namespace Coffee {
                     {
                         auto& navMeshComponent = entity.AddComponent<NavMeshComponent>();
                         navMeshComponent.m_NavMesh = CreateRef<NavMesh>();
-                        navMeshComponent.m_PathFinder = CreateRef<NavMeshPathfinding>(navMeshComponent.m_NavMesh);
+                        navMeshComponent.m_NavMeshUUID = UUID();
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Navigation Agent Component")
+                {
+                    if(!entity.HasComponent<NavigationAgentComponent>())
+                    {
+                        auto& navigationAgentComponent = entity.AddComponent<NavigationAgentComponent>();
+                        navigationAgentComponent.m_PathFinder = CreateRef<NavMeshPathfinding>(nullptr);
                     }
 
                     ImGui::CloseCurrentPopup();

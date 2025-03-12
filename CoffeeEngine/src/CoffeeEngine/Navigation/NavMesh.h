@@ -71,7 +71,13 @@ namespace Coffee
         bool IsCalculated() const { return m_Calculated; }
 
         template <class Archive>
-        void serialize(Archive& archive)
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("Triangles", m_Triangles), cereal::make_nvp("Calculated", m_Calculated));
+        }
+
+        template <class Archive>
+        void load(Archive& archive)
         {
             archive(cereal::make_nvp("Triangles", m_Triangles), cereal::make_nvp("Calculated", m_Calculated));
         }
