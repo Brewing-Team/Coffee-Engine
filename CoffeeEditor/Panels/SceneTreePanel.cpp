@@ -56,6 +56,11 @@ namespace Coffee {
             m_SelectionContext = {};
         }
 
+        if(ImGui::IsKeyPressed(ImGuiKey_D) && m_SelectionContext)
+        {
+            m_Context->Duplicate(m_SelectionContext);
+        }
+
         //Button for adding entities to the scene tree
         if(ImGui::Button(ICON_LC_PLUS, {24,24}))
         {
