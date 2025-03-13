@@ -56,7 +56,7 @@ namespace Coffee {
             m_SelectionContext = {};
         }
 
-        if(ImGui::IsKeyPressed(ImGuiKey_D) && m_SelectionContext)
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_D) && m_SelectionContext)
         {
             m_Context->Duplicate(m_SelectionContext);
         }
