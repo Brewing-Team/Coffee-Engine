@@ -1,47 +1,101 @@
 ﻿#pragma once
 
+#include "CoffeeEngine/Core/Base.h"
 #include <imgui.h>
 #include <imgui_internal.h>
-#include "CoffeeEngine/Core/Base.h"
 #include <vector>
 
-
-// Estructura de puntos del gradiente
+/**
+ * @brief Structure representing a point in a gradient.
+ */
 struct GradientPoint
 {
-    float position; // Rango 0.0 - 1.0 (posición en la barra de gradiente)
-    ImVec4 color;   // Color en RGBA
+    float position; // Range 0.0 - 1.0 (position in the gradient bar)
+    ImVec4 color;   // Color in RGBA
 
-   template <class Archive> void serialize(Archive& archive) { archive(position, color); }
+    /**
+     * @brief Serializes a GradientPoint object.
+     * @tparam Archive The type of the archive.
+     * @param archive The archive to serialize to.
+     */
+    template <class Archive> void serialize(Archive& archive) { archive(position, color); }
 };
 
+/**
+ * @brief Structure representing a point in a curve.
+ */
 struct CurvePoint
 {
-    float time;  // Rango 0.0 - 1.0
-    float value; // Escala de tamaño
+    float time;  // Range 0.0 - 1.0
+    float value; // Size scale
 
+    /**
+     * @brief Serializes a CurvePoint object.
+     * @tparam Archive The type of the archive.
+     * @param archive The archive to serialize to.
+     */
     template <class Archive> void serialize(Archive& archive) { archive(time, value); }
-
 };
 
-// 🟢 Clase estática GradientEditor
+/**
+ * @brief Static class for gradient editing.
+ */
 class GradientEditor
 {
   public:
-    // Dibuja la vista previa del gradiente
+    /**
+     * @brief Draws the gradient preview.
+     * @param points Gradient points.
+     * @param canvas_pos Canvas position.
+     * @param canvas_size Canvas size.
+     */
     static void DrawGradientBar(const std::vector<GradientPoint>& points, ImVec2 canvas_pos, ImVec2 canvas_size);
 
-    // Maneja los puntos de control del gradiente
+    /**
+     * @brief Handles gradient control points.
+     * @param points Gradient points.
+     * @param canvas_pos Canvas position.
+     * @param canvas_size Canvas size.
+     */
     static void EditGradientPoints(std::vector<GradientPoint>& points, ImVec2 canvas_pos, ImVec2 canvas_size);
 
-    // Muestra el editor de gradiente en ImGui
+    /**
+     * @brief Displays the gradient editor in ImGui.
+     * @param points Gradient points.
+     */
     static void ShowGradientEditor(std::vector<GradientPoint>& points);
 };
 
+/**
+ * @brief Class for curve editing.
+ */
 class CurveEditor
 {
   public:
-    // Dibuja la curva en una ventana de ImGui
+    /**
+     * @brief Draws the curve in an ImGui window.
+     * @param label Curve label.
+     * @param points Curve points.
+     * @param graph_size Graph size.
+     */
     static void DrawCurve(const char* label, std::vector<CurvePoint>& points, ImVec2 graph_size = ImVec2(200, 50));
+
+    /**
+     * @brief Gets the curve value at a specific time.
+     * @param time Time at which to evaluate the curve.
+     * @param points Curve points.
+     * @return Curve value at the specified time.
+     */
     static float GetCurveValue(float time, const std::vector<CurvePoint>& points);
 };
+
+/**
+ * @brief Serializes an ImVec4 object.
+ * @tparam Archive The type of the archive.
+ * @param archive The archive to serialize to.
+ * @param vec The ImVec4 object to serialize.
+ */
+template <class Archive> void serialize(Archive& archive, ImVec4& vec)
+{
+    archive(vec.x, vec.y, vec.z, vec.w); // Serializes the x, y, z, w components of ImVec4
+}

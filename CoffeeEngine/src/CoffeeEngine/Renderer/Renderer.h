@@ -50,8 +50,6 @@ namespace Coffee {
 
         static RendererSettings& GetRenderSettings() { return s_RenderSettings; }
 
-        static CameraData& GetCameraData() { return s_RendererData.cameraData; }
-
     private:
         static RendererData s_RendererData; ///< Renderer data.
         static RendererSettings s_RenderSettings; ///< Render settings.

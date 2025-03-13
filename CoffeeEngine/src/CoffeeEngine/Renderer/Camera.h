@@ -181,7 +181,6 @@ namespace Coffee
         float m_FarClip = 1000.0f; ///< The far clipping plane distance.
 
         glm::mat4 m_Projection = glm::mat4(1.0f); ///< The projection matrix.
-        glm::mat4 m_view = glm::mat4(1.0f);
 
         ProjectionType m_ProjectionType = ProjectionType::PERSPECTIVE; ///< The type of projection.
 

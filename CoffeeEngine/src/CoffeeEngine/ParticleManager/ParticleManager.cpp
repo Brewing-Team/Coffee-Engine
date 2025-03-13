@@ -1,8 +1,9 @@
 #include "ParticleManager.h"
+#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include <cstdlib>
 #include <ctime>
 #include <glm/gtc/random.hpp>
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
+#include <CoffeeEngine/Renderer/Renderer3D.h>
 
 namespace Coffee
 {
@@ -83,7 +84,8 @@ namespace Coffee
 
         particle->direction = useDirectionRandom ? glm::linearRand(direction, directionRandom) : direction;
         particle->color = useColorRandom ? glm::linearRand(colorNormal, colorRandom) : colorNormal;
-        if (particleMaterial)particleMaterial->GetMaterialProperties().color = particle->color;
+        if (particleMaterial)
+            particleMaterial->GetMaterialProperties().color = particle->color;
 
         particle->lifetime = useRandomLifeTime ? glm::linearRand(startLifeTimeMin, startLifeTimeMax) : startLifeTime;
         particle->startLifetime = particle->lifetime;
@@ -141,23 +143,16 @@ namespace Coffee
     {
         float normalizedLife = 1.0f - (particle->lifetime / particle->startLifetime);
 
-
-
-
-
-         if (renderAlignment == RenderAligment::Billboard) // Supongamos que 0 es billboarding
+        if (renderAlignment == RenderAligment::Billboard) // Assume 0 is billboarding
         {
-            glm::mat4 viewMatrix = cameraViewMatrix; // Obtén la matriz de vista de la cámara
+            glm::mat4 viewMatrix = cameraViewMatrix; // Get the camera's view matrix
             glm::mat4 billboardTransform = CalculateBillboardTransform(particle->transformMatrix, viewMatrix);
             particle->transformMatrix = billboardTransform;
         }
         else
         {
-        
-        
+            // Handle other alignment modes if needed
         }
-
-
 
         glm::vec3 newVelocity = glm::vec3(1, 1, 1);
 
@@ -203,7 +198,6 @@ namespace Coffee
             particle->SetRotation(newRotation + particle->startRotation);
         }
 
-
         if (simulationSpace == SimulationSpace::Local)
         {
             particle->SetPosition(particle->GetPosition() +
@@ -222,16 +216,16 @@ namespace Coffee
     glm::mat4 ParticleEmitter::CalculateBillboardTransform(const glm::mat4& particleTransform,
                                                            const glm::mat4& viewMatrix)
     {
-        // Extrae la posición de la partícula
+        // Extract the particle's position
         glm::vec3 position = glm::vec3(particleTransform[3]);
 
-        // Elimina la rotación de la partícula (solo mantenemos la escala y la posición)
+        // Remove the particle's rotation (keep only scale and position)
         glm::mat4 billboardTransform = glm::mat4(1.0f);
         billboardTransform[3] = glm::vec4(position, 1.0f);
 
-        // Aplica la inversa de la rotación de la cámara para que la partícula mire hacia la cámara
+        // Apply the inverse of the camera's rotation to make the particle face the camera
         glm::mat4 inverseView = glm::inverse(viewMatrix);
-        inverseView[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ignorar la traslación de la cámara
+        inverseView[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f); // Ignore the camera's translation
 
         billboardTransform = billboardTransform * inverseView;
 
@@ -239,18 +233,23 @@ namespace Coffee
     }
 
 
+    void ParticleEmitter::DrawParticles() {
+        for (size_t i = 0; i < activeParticles.size(); i++)
+        {
+            Ref<Particle> p = activeParticles.at(i);
+            Renderer3D::Submit(RenderCommand{p->GetWorldTransform(), ParticleEmitter::particleMesh, particleMaterial});
+        }
+    }
+
     void ParticleEmitter::DrawDebug()
     {
-
         glm::vec3 auxTransformPosition = glm::vec3(transformComponentMatrix[3]);
         DebugRenderer::DrawBox(minSpread + auxTransformPosition, maxSpread + auxTransformPosition, glm::vec4(1.0f),
                                1.0f);
-
     }
 
-
-
-    void ParticleEmitter::Emit(int quantity) {
+    void ParticleEmitter::Emit(int quantity)
+    {
         for (int i = 0; i < quantity; i++)
         {
             GenerateParticle();
@@ -260,6 +259,5 @@ namespace Coffee
             }
         }
     }
-
 
 } // namespace Coffee

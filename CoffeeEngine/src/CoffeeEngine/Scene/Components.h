@@ -780,7 +780,7 @@
         public:
         // Constructor por defecto
         ParticlesSystemComponent() { 
-            m_Particles = std::make_shared<ParticleEmitter>();
+            m_Particles = CreateRef<ParticleEmitter>();
             
         }
         
@@ -798,17 +798,15 @@
         public:
         template <class Archive> void save(Archive& archive) const
         {
-            //archive(cereal::make_nvp("ParticleEmitter", m_Particles));
+            archive(cereal::make_nvp("ParticleEmitter", m_Particles));
         }
 
         template <class Archive> void load(Archive& archive)
         {
-            //archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
+            archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
         }
 
 
     };
  
  }
- 
- /** @} */

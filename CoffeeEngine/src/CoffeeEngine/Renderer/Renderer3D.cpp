@@ -99,17 +99,6 @@ namespace Coffee {
         s_Stats.DrawCalls++;
     }
 
-
-    void Renderer3D::Submit(Ref<ParticleEmitter> emitter, Ref<Material> material, uint32_t entity)
-    {
-
-        for (size_t i = 0; i < emitter->activeParticles.size(); i++)
-        {
-            Ref<Particle> p = emitter->activeParticles.at(i);
-            Renderer3D::Submit(RenderCommand{p->GetWorldTransform(), ParticleEmitter::particleMesh, material, entity});
-        }
-    }
-
     void Renderer3D::ForwardPass(const RenderTarget& target)
     {
         ZoneScoped;

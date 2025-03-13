@@ -1,10 +1,9 @@
 ﻿#include "ImGuiExtras.h"
-#include <algorithm> 
-#include <unordered_map>
+#include <algorithm>
 #include <string>
+#include <unordered_map>
 
 
-// 🟢 Dibuja la vista previa del gradiente
 void GradientEditor::DrawGradientBar(const std::vector<GradientPoint>& points, ImVec2 canvas_pos, ImVec2 canvas_size)
 {
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -22,7 +21,7 @@ void GradientEditor::DrawGradientBar(const std::vector<GradientPoint>& points, I
     }
 }
 
-// 🟢 Maneja los puntos de control del gradiente
+
 void GradientEditor::EditGradientPoints(std::vector<GradientPoint>& points, ImVec2 canvas_pos, ImVec2 canvas_size)
 {
     int pointToDelete = -1;
@@ -40,31 +39,31 @@ void GradientEditor::EditGradientPoints(std::vector<GradientPoint>& points, ImVe
 
         if (ImGui::ColorEdit4("", (float*)&p.color, ImGuiColorEditFlags_NoInputs))
         {
-            // Color actualizado
+            // Color updated
         }
 
         ImGui::PopID();
 
-        // 🟢 Arrastrar puntos del gradiente
+        // Drag gradient points
         ImGui::SetCursorScreenPos(handle_pos);
         ImGui::InvisibleButton("DragHandle", ImVec2(10, 10),
                                ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
 
-        // Si el usuario está moviendo el punto
+        // If the user is moving the point
         if (ImGui::IsItemActive() && ImGui::IsMouseDragging(0))
         {
             float new_pos = (ImGui::GetMousePos().x - canvas_pos.x) / canvas_size.x;
             p.position = ImClamp(new_pos, 0.0f, 1.0f);
         }
 
-        // Si el usuario hace clic derecho sobre un punto, marcarlo para eliminar
+        // If the user right-clicks a point, mark it for deletion
         if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(ImGuiMouseButton_Right))
         {
             pointToDelete = static_cast<int>(i);
         }
     }
 
-    // 🟢 Añadir un nuevo punto al hacer clic en la barra del gradiente
+    // Add a new point by clicking on the gradient bar
     if (ImGui::InvisibleButton("AddGradientPoint", canvas_size, ImGuiButtonFlags_MouseButtonLeft) &&
         ImGui::IsMouseClicked(0))
     {
@@ -72,35 +71,35 @@ void GradientEditor::EditGradientPoints(std::vector<GradientPoint>& points, ImVe
         addNewPoint = true;
     }
 
-    // Agregar el nuevo punto si se detectó un clic en la barra
+    // Add the new point if a click on the bar was detected
     if (addNewPoint)
     {
         points.push_back({ImClamp(newPointPos, 0.0f, 1.0f), ImVec4(1, 1, 1, 1)});
 
-        // Ordenar los puntos por posición para mantener el gradiente limpio
+        // Sort points by position to keep the gradient clean
         std::sort(points.begin(), points.end(),
                   [](const GradientPoint& a, const GradientPoint& b) { return a.position < b.position; });
     }
 
-    // Eliminar el punto si se marcó para borrado
+    // Delete the point if it was marked for deletion
     if (pointToDelete >= 0 && points.size() > 2)
-    { // Siempre mantener al menos 2 puntos
+    { // Always keep at least 2 points
         points.erase(points.begin() + pointToDelete);
     }
 }
 
-// 🟢 Muestra el editor de gradiente en ImGui
+
 void GradientEditor::ShowGradientEditor(std::vector<GradientPoint>& points)
 {
     if (ImGui::TreeNodeEx("Gradient Editor", ImGuiTreeNodeFlags_None))
     {
-        // 🟢 Dibujar gradiente
+        // Draw gradient
         ImVec2 canvas_pos = ImGui::GetCursorScreenPos();
-        ImVec2 canvas_size = ImVec2(ImGui::GetContentRegionAvail().x-10, 30);
+        ImVec2 canvas_size = ImVec2(ImGui::GetContentRegionAvail().x - 10, 30);
         DrawGradientBar(points, canvas_pos, canvas_size);
         ImGui::InvisibleButton("GradientCanvas", canvas_size);
 
-        // 🟢 Editar puntos del gradiente
+        // Edit gradient points
         EditGradientPoints(points, canvas_pos, canvas_size);
 
         ImGui::TreePop();
@@ -108,49 +107,47 @@ void GradientEditor::ShowGradientEditor(std::vector<GradientPoint>& points)
 }
 
 
-
-
 void CurveEditor::DrawCurve(const char* label, std::vector<CurvePoint>& points, ImVec2 graph_size)
 {
     ImVec2 graph_pos = ImGui::GetCursorScreenPos();
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
-    ImU32 lineColor = IM_COL32(255, 165, 0, 255);     // Naranja
-    ImU32 pointColor = IM_COL32(0, 200, 255, 255);    // Azul brillante
-    ImU32 borderColor = IM_COL32(255, 255, 255, 255); // Blanco para el borde
-    ImU32 gridColor = IM_COL32(100, 100, 100, 100);   // Gris claro para las líneas de la cuadrícula
-    float radius = 5.0f;                              // Tamaño de los puntos
+    ImU32 lineColor = IM_COL32(255, 165, 0, 255);     // Orange
+    ImU32 pointColor = IM_COL32(0, 200, 255, 255);    // Bright blue
+    ImU32 borderColor = IM_COL32(255, 255, 255, 255); // White for the border
+    ImU32 gridColor = IM_COL32(100, 100, 100, 100);   // Light gray for grid lines
+    float radius = 5.0f;                              // Point size
 
-    // 🟢 Mapa de selección único por curva
+    // Unique selection map per curve
     static std::unordered_map<std::string, int> selectedPoints;
-    int& selectedPoint = selectedPoints[label]; // Cada curva tiene su propia selección
+    int& selectedPoint = selectedPoints[label]; // Each curve has its own selection
 
-    // 🟢 Ordenar los puntos por tiempo antes de dibujar
+    // Sort points by time before drawing
     std::sort(points.begin(), points.end(), [](const CurvePoint& a, const CurvePoint& b) { return a.time < b.time; });
 
-    // Convertir los puntos al espacio de la gráfica
+    // Convert points to graph space
     auto ToGraphSpace = [&](const CurvePoint& p) -> ImVec2 {
         return ImVec2(graph_pos.x + p.time * graph_size.x, graph_pos.y + (1.0f - p.value) * graph_size.y);
     };
 
-    // 🟢 Dibujar el borde del gráfico
+    // Draw the graph border
     draw_list->AddRect(graph_pos, ImVec2(graph_pos.x + graph_size.x, graph_pos.y + graph_size.y), borderColor, 0.0f,
                        ImDrawFlags_None, 2.0f);
 
-    // 🟢 Dibujar las líneas de referencia horizontales (0.0, 0.5, 1.0)
+    // Draw horizontal reference lines (0.0, 0.5, 1.0)
     for (float i = 0.0f; i <= 1.0f; i += 0.5f)
     {
         float y_pos = graph_pos.y + (1.0f - i) * graph_size.y;
         draw_list->AddLine(ImVec2(graph_pos.x, y_pos), ImVec2(graph_pos.x + graph_size.x, y_pos), gridColor);
     }
 
-    // 🟢 Dibujar las líneas de referencia verticales (0.0, 0.5, 1.0)
+    // Draw vertical reference lines (0.0, 0.5, 1.0)
     for (float i = 0.0f; i <= 1.0f; i += 0.5f)
     {
         float x_pos = graph_pos.x + i * graph_size.x;
         draw_list->AddLine(ImVec2(x_pos, graph_pos.y), ImVec2(x_pos, graph_pos.y + graph_size.y), gridColor);
     }
 
-    // 🟢 Dibujar la línea de la curva
+    // Draw the curve line
     for (size_t i = 1; i < points.size(); i++)
     {
         ImVec2 p1 = ToGraphSpace(points[i - 1]);
@@ -158,7 +155,7 @@ void CurveEditor::DrawCurve(const char* label, std::vector<CurvePoint>& points, 
         draw_list->AddLine(p1, p2, lineColor, 2.0f);
     }
 
-    // 🟢 Manejo de interacción: detección de clics y arrastre
+    // Interaction handling: detect clicks and drag
     ImVec2 mouse_pos = ImGui::GetIO().MousePos;
     bool mouse_clicked = ImGui::IsMouseClicked(0);
     bool mouse_held = ImGui::IsMouseDown(0);
@@ -168,14 +165,14 @@ void CurveEditor::DrawCurve(const char* label, std::vector<CurvePoint>& points, 
     {
         ImVec2 point_screen = ToGraphSpace(points[i]);
 
-        // Verificar si el usuario hace clic en un punto
+        // Check if the user clicks on a point
         if (mouse_clicked &&
             ImLengthSqr(ImVec2(mouse_pos.x - point_screen.x, mouse_pos.y - point_screen.y)) < (radius * radius * 4))
         {
             selectedPoint = (int)i;
         }
 
-        // Si el usuario hace clic derecho, eliminar el punto
+        // If the user right-clicks, delete the point
         if (mouse_remove &&
             ImLengthSqr(ImVec2(mouse_pos.x - point_screen.x, mouse_pos.y - point_screen.y)) < (radius * radius * 4))
         {
@@ -183,45 +180,46 @@ void CurveEditor::DrawCurve(const char* label, std::vector<CurvePoint>& points, 
             --i;
         }
 
-        // Si un punto está seleccionado y el mouse está presionado, mover el punto
+        // If a point is selected and the mouse is held, move the point
         if (selectedPoint == (int)i && mouse_held)
         {
             float newTime = (mouse_pos.x - graph_pos.x) / graph_size.x;
             float newValue = 1.0f - (mouse_pos.y - graph_pos.y) / graph_size.y;
             points[i].time = std::clamp(newTime, 0.0f, 1.0f);
-            points[i].value = std::clamp(newValue, 0.0f, 1.5f); // Limite superior configurable
+            points[i].value = std::clamp(newValue, 0.0f, 1.5f); // Configurable upper limit
         }
 
-        // Dibujar los puntos de control
+        // Draw control points
         draw_list->AddCircleFilled(point_screen, radius, pointColor);
     }
 
-    // Liberar selección cuando se suelta el mouse
+    // Release selection when the mouse is released
     if (!mouse_held)
     {
         selectedPoint = -1;
     }
 
-    // 🟢 Espacio en la UI para el gráfico
+    // UI space for the graph
     ImGui::Dummy(graph_size);
 
-    // 🟢 Botón para agregar nuevos puntos
-    if (ImGui::Button(std::string("Add Point##").append(label).c_str())) // Etiqueta única para cada botón
+    // Button to add new points
+    if (ImGui::Button(std::string("Add Point##").append(label).c_str())) // Unique label for each button
     {
-        points.push_back({0.5f, 1.0f}); // Nuevo punto en el medio
+        points.push_back({0.5f, 1.0f}); // New point in the middle
     }
 }
+
 
 float CurveEditor::GetCurveValue(float time, const std::vector<CurvePoint>& points)
 {
     if (points.empty())
-        return 0.0f; // Si no hay puntos, devolver 0
+        return 0.0f; 
     if (time <= points.front().time)
-        return points.front().value; // Si está antes del primer punto
+        return points.front().value; 
     if (time >= points.back().time)
-        return points.back().value; // Si está después del último punto
+        return points.back().value; 
 
-    // 🟢 Buscar los dos puntos entre los que se encuentra `time`
+   
     for (size_t i = 1; i < points.size(); i++)
     {
         if (time <= points[i].time)
@@ -229,16 +227,11 @@ float CurveEditor::GetCurveValue(float time, const std::vector<CurvePoint>& poin
             const CurvePoint& p1 = points[i - 1];
             const CurvePoint& p2 = points[i];
 
-            // Interpolación lineal
+            // Linear interpolation
             float t = (time - p1.time) / (p2.time - p1.time);
             return p1.value * (1.0f - t) + p2.value * t; // LERP
         }
     }
 
-    return 0.0f; // No debería llegar aquí
+    return 0.0f; // Should not reach here
 }
-
-
-
-
-
