@@ -4,7 +4,6 @@
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
-#include "CoffeeEngine/UI/UIManager.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "entt/entity/fwd.hpp"
@@ -99,6 +98,9 @@ namespace Coffee {
         void OnExitEditor();
         void OnExitRuntime();
 
+        void OnEditorUpdateUI(float dt, entt::registry& registry);
+        void OnRuntimeUpdateUI(float dt, entt::registry& registry);
+
         /**
          * @brief Load a scene from a file.
          * @param path The path to the file.
@@ -130,7 +132,6 @@ namespace Coffee {
     private:
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
-        Scope<UIManager> m_UIManager;
         Octree<Ref<Mesh>> m_Octree;
         PhysicsWorld m_PhysicsWorld;
 
@@ -142,7 +143,6 @@ namespace Coffee {
         friend class Entity;
         friend class SceneTree;
         friend class SceneTreePanel;
-        friend class UIManager;
         friend class CollisionSystem;
 
         // TODO REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!

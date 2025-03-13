@@ -44,7 +44,7 @@ namespace Coffee {
 			float LineSpacing = 0.0f;
 		};
 
-        static void DrawText(const std::string& text, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, uint32_t entityID = 4294967295);
+        static void DrawTextW(const std::string& text, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, uint32_t entityID = 4294967295);
     };
 
 }

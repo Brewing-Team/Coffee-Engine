@@ -16,6 +16,7 @@
  #include "CoffeeEngine/Scene/SceneCamera.h"
  #include "CoffeeEngine/Scripting/Script.h"
  #include "CoffeeEngine/Scripting/ScriptManager.h"
+ #include "CoffeeEngine/Renderer/Font.h"
  #include <cereal/cereal.hpp>
  #include <cereal/access.hpp>
  #include <cereal/cereal.hpp>
@@ -773,49 +774,19 @@
   
     struct UICanvasComponent
     {
-        struct UIElement
-        {
-            std::string Name; // UI Name element
-            glm::vec2 Position = {0.0f, 0.0f}; // Position
-            glm::vec2 Size = {100.0f, 50.0f}; // Size
-            bool Visible = true;
-
-            UIElement() = default;
-            UIElement(const std::string& name, const glm::vec2& position, const glm::vec2& size, bool visible)
-                : Name(name), Position(position), Size(size), Visible(visible) {}
-
-            template<class Archive>
-            void serialize(Archive& archive)
-            {
-                archive(cereal::make_nvp("Name", Name),
-                        cereal::make_nvp("Position", Position),
-                        cereal::make_nvp("Size", Size),
-                        cereal::make_nvp("Visible", Visible));
-            }
-        };
-
-        std::vector<UIElement> Elements; // UI Element list
-
         UICanvasComponent() = default;
         UICanvasComponent(const UICanvasComponent&) = default;
         Ref<Texture2D> CanvasTexture;
         bool Visible = true;
 
-        void AddElement(const UIElement& element)
-        {
-            Elements.push_back(element);
-        }
-
         template<class Archive>
         void save(Archive& archive) const {
-            archive(cereal::make_nvp("Elements", Elements),
-                    cereal::make_nvp("Visible", Visible));
+                    cereal::make_nvp("Visible", Visible);
         }
 
         template<class Archive>
         void load(Archive& archive) {
-            archive(cereal::make_nvp("Elements", Elements),
-                    cereal::make_nvp("Visible", Visible));
+                    cereal::make_nvp("Visible", Visible);
         }
     };
 
@@ -899,7 +870,7 @@
         {
             if (!fontPath.empty())
             {
-                font = Font::GetDefault();
+               font = Font::GetDefault();
             }
         }
 

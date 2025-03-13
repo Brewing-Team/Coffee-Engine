@@ -14,7 +14,6 @@
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
@@ -83,7 +82,7 @@ namespace Coffee {
         }
 
         ImGui::EndChild();
-        
+
         // Entity Tree Drag and Drop functionality
         if(ImGui::BeginDragDropTarget())
         {
@@ -219,122 +218,6 @@ namespace Coffee {
 
             ImGui::Separator();
         }
-        float buttonWidth = 200.0f;
-        float buttonHeight = 32.0f;
-        float availableWidth = ImGui::GetContentRegionAvail().x;
-        float cursorPosX = (availableWidth - buttonWidth) * 0.5f;
-        ImGui::SetCursorPosX(cursorPosX);
-
-        if(ImGui::Button("Add Component", {buttonWidth, buttonHeight}))
-        {
-            ImGui::OpenPopup("Add Component...");
-        }
-
-        if(ImGui::BeginPopupModal("Add Component..."))
-        {
-            static char buffer[256] = "";
-            ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
-
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Lua Script Component", "UI Canvas Component", "Image Component", "Text Component" };
-            static int item_current = 1;
-
-            if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
-            {
-                for (int n = 0; n < IM_ARRAYSIZE(items); n++)
-                {
-                    const bool is_selected = (item_current == n);
-                    if (ImGui::Selectable(items[n].c_str(), is_selected))
-                        item_current = n;
-
-                    // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-                    if (is_selected)
-                        ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndListBox();
-            }
-
-            ImGui::Text("Description");
-            ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras vel odio lectus. Integer scelerisque lacus a elit consequat, at imperdiet felis feugiat. Nunc rhoncus nisi lacinia elit ornare, eu semper risus consectetur.");
-
-            if (ImGui::Button("Cancel"))
-            {
-                ImGui::CloseCurrentPopup();
-            }
-            ImGui::SameLine();
-            if(ImGui::Button("Add Component"))
-            {
-                if(items[item_current] == "Tag Component")
-                {
-                    if(!entity.HasComponent<TagComponent>())
-                        entity.AddComponent<TagComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Transform Component")
-                {
-                    if(!entity.HasComponent<TransformComponent>())
-                        entity.AddComponent<TransformComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Mesh Component")
-                {
-                    if(!entity.HasComponent<MeshComponent>())
-                        entity.AddComponent<MeshComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Material Component")
-                {
-                    if(!entity.HasComponent<MaterialComponent>())
-                        entity.AddComponent<MaterialComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Light Component")
-                {
-                    if(!entity.HasComponent<LightComponent>())
-                        entity.AddComponent<LightComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Camera Component")
-                {
-                    if(!entity.HasComponent<CameraComponent>())
-                        entity.AddComponent<CameraComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Canvas Component")
-                {
-                    if (!entity.HasComponent<UICanvasComponent>())
-                        entity.AddComponent<UICanvasComponent>();
-                        auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "Image Component")
-                {
-                    if (!entity.HasComponent<UIImageComponent>())
-                        entity.AddComponent<UIImageComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "Text Component")
-                {
-                    if (!entity.HasComponent<UITextComponent>())
-                        entity.AddComponent<UITextComponent>();
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Script Component")
-                {
-                    //if(!entity.HasComponent<ScriptComponent>())
-                        //entity.AddComponent<ScriptComponent>();
-                        // TODO add script component
-                    ImGui::CloseCurrentPopup();
-                }
-
-                else
-                {
-                    ImGui::CloseCurrentPopup();
-                }
-            }
-
-            ImGui::EndPopup();
-        }
-
 
         if(entity.HasComponent<TransformComponent>())
         {
@@ -350,117 +233,6 @@ namespace Coffee {
 
                 ImGui::Text("Scale");
                 ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale),  0.1f);
-            }
-        }
-
-        if (entity.HasComponent<UIImageComponent>())
-        {
-            auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
-            bool isCollapsingHeaderOpen = true;
-
-            if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                if (uiImageComponent.material)
-                {
-                    ImGui::Text("Material");
-                    ImGui::SameLine();
-                    ImGui::Text("%s", uiImageComponent.material->GetName().c_str());
-
-                    ImGui::Text("Albedo Texture");
-                    Ref<Texture2D>& albedoTexture = uiImageComponent.material->GetMaterialTextures().albedo;
-                    if (albedoTexture)
-                    {
-                        ImGui::Image((ImTextureID)albedoTexture->GetID(), {64, 64});
-                        ImGui::SameLine();
-                        ImGui::Text("%s", albedoTexture->GetPath().c_str());
-                    }
-                    else
-                    {
-                        ImGui::Text("No texture selected");
-                    }
-
-                    if (ImGui::Button("Select Albedo Texture"))
-                    {
-                        std::string path = FileDialog::OpenFile({}).string();
-                        if (!path.empty())
-                        {
-                            Ref<Texture2D> texture = Texture2D::Load(path);
-                            if (texture)
-                            {
-                                uiImageComponent.material->GetMaterialTextures().albedo = texture;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    ImGui::Text("No material assigned");
-
-                    if (ImGui::Button("Assign Material"))
-                    {
-                        uiImageComponent.material = Material::Create("UIImageMaterial");
-                    }
-                }
-
-                ImGui::Text("Size");
-                ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
-
-                ImGui::Checkbox("Visible", &uiImageComponent.Visible);
-
-                if (!isCollapsingHeaderOpen)
-                {
-                    entity.RemoveComponent<UIImageComponent>();
-                }
-            }
-        }
-        if (entity.HasComponent<UITextComponent>())
-        {
-            auto& uiTextComponent = entity.GetComponent<UITextComponent>();
-            bool isCollapsingHeaderOpen = true;
-
-            if (ImGui::CollapsingHeader("UI Text", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                // Show text content
-                ImGui::Text("Text Content");
-                char buffer[256];
-                memset(buffer, 0, sizeof(buffer));
-                strncpy(buffer, uiTextComponent.Text.c_str(), sizeof(buffer) - 1);
-
-                if (ImGui::InputTextMultiline("##Text", buffer, sizeof(buffer)))
-                {
-                    uiTextComponent.Text = std::string(buffer);
-                }
-
-                // Select font with a button
-                ImGui::Text("Font Path");
-                ImGui::SameLine();
-                ImGui::Text("%s", uiTextComponent.FontPath.c_str());
-
-                if (ImGui::Button("Select Font"))
-                {
-                    std::string path = FileDialog::OpenFile({}).string();
-                    if (!path.empty())
-                    {
-                        uiTextComponent.FontPath = path;
-                        uiTextComponent.font = std::make_shared<Font>(path);
-                    }
-                }
-                // If there is no font, use default
-                if (!uiTextComponent.font)
-                {
-                    uiTextComponent.font = Font::GetDefault();
-                }
-
-                // size
-                ImGui::Text("Font Size");
-                ImGui::DragFloat("##FontSize", &uiTextComponent.FontSize, 0.1f, 5.0f, 100.0f);
-
-                // color
-                ImGui::Text("Text Color");
-                ImGui::ColorEdit4("##TextColor", glm::value_ptr(uiTextComponent.Color));
-
-                // visibility
-                ImGui::Checkbox("Visible", &uiTextComponent.Visible);
             }
         }
 
@@ -681,7 +453,7 @@ namespace Coffee {
                     }
                     ImGui::EndDragDropTarget();
                 }
-                
+
                 ImGui::SameLine();
                 if(ImGui::BeginCombo((label + "texture").c_str(), "", ImGuiComboFlags_NoPreview))
                 {
@@ -977,7 +749,7 @@ namespace Coffee {
         }
 
         // Add RigidBody component editor UI
-        if (entity.HasComponent<RigidbodyComponent>())
+       if (entity.HasComponent<RigidbodyComponent>())
         {
             auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
             bool isCollapsingHeaderOpen = true;
@@ -988,13 +760,13 @@ namespace Coffee {
                     // Rigidbody type
                     static const char* typeStrings[] = { "Static", "Dynamic", "Kinematic" };
                     int currentType = static_cast<int>(rbComponent.rb->GetBodyType());
-                    
+
                     ImGui::Text("Type");
                     if (ImGui::Combo("##Type", &currentType, typeStrings, IM_ARRAYSIZE(typeStrings)))
                     {
                         rbComponent.rb->SetBodyType(static_cast<RigidBody::Type>(currentType));
                     }
-                    
+
                     // Mass (only for dynamic bodies)
                     if (rbComponent.rb->GetBodyType() != RigidBody::Type::Static)
                     {
@@ -1004,7 +776,7 @@ namespace Coffee {
                         {
                             rbComponent.rb->SetMass(mass);
                         }
-                        
+
                         // Use gravity
                         ImGui::Text("Use Gravity");
                         bool useGravity = rbComponent.rb->GetUseGravity();
@@ -1013,11 +785,11 @@ namespace Coffee {
                             rbComponent.rb->SetUseGravity(useGravity);
                         }
                     }
-                    
+
                     // Freeze axes
                     ImGui::Text("Freeze Position");
                     ImGui::Columns(3, "FreezePositionColumns", false);
-                    
+
                     // X Axis
                     bool freezeX = rbComponent.rb->GetFreezeX();
                     if (ImGui::Checkbox("X##FreezeX", &freezeX))
@@ -1025,7 +797,7 @@ namespace Coffee {
                         rbComponent.rb->SetFreezeX(freezeX);
                     }
                     ImGui::NextColumn();
-                    
+
                     // Y Axis
                     bool freezeY = rbComponent.rb->GetFreezeY();
                     if (ImGui::Checkbox("Y##FreezeY", &freezeY))
@@ -1033,20 +805,20 @@ namespace Coffee {
                         rbComponent.rb->SetFreezeY(freezeY);
                     }
                     ImGui::NextColumn();
-                    
+
                     // Z Axis
                     bool freezeZ = rbComponent.rb->GetFreezeZ();
                     if (ImGui::Checkbox("Z##FreezeZ", &freezeZ))
                     {
                         rbComponent.rb->SetFreezeZ(freezeZ);
                     }
-                    
+
                     ImGui::Columns(1);
-                    
+
                     // Freeze rotation axes
                     ImGui::Text("Freeze Rotation");
                     ImGui::Columns(3, "FreezeRotationColumns", false);
-                    
+
                     // X Rotation Axis
                     bool freezeRotX = rbComponent.rb->GetFreezeRotX();
                     if (ImGui::Checkbox("X##FreezeRotX", &freezeRotX))
@@ -1054,7 +826,7 @@ namespace Coffee {
                         rbComponent.rb->SetFreezeRotX(freezeRotX);
                     }
                     ImGui::NextColumn();
-                    
+
                     // Y Rotation Axis
                     bool freezeRotY = rbComponent.rb->GetFreezeRotY();
                     if (ImGui::Checkbox("Y##FreezeRotY", &freezeRotY))
@@ -1062,23 +834,23 @@ namespace Coffee {
                         rbComponent.rb->SetFreezeRotY(freezeRotY);
                     }
                     ImGui::NextColumn();
-                    
+
                     // Z Rotation Axis
                     bool freezeRotZ = rbComponent.rb->GetFreezeRotZ();
                     if (ImGui::Checkbox("Z##FreezeRotZ", &freezeRotZ))
                     {
                         rbComponent.rb->SetFreezeRotZ(freezeRotZ);
                     }
-                    
+
                     ImGui::Columns(1);
-                    
+
                     // Add collider type selection and configuration
                     ImGui::Separator();
                     ImGui::Text("Collider");
-                    
+
                     Ref<Collider> currentCollider = rbComponent.rb->GetCollider();
                     int colliderType = -1; // -1: Unknown, 0: Box, 1: Sphere, 2: Capsule
-                    
+
                     if (currentCollider) {
                         if (std::dynamic_pointer_cast<BoxCollider>(currentCollider)) {
                             colliderType = 0;
@@ -1088,14 +860,14 @@ namespace Coffee {
                             colliderType = 2;
                         }
                     }
-                    
+
                     static const char* colliderTypeNames[] = { "Box", "Sphere", "Capsule" };
                     int newColliderType = colliderType;
-                    
+
                     if (ImGui::Combo("Type##ColliderType", &newColliderType, colliderTypeNames, 3)) {
                         // User selected a new collider type
                         Ref<Collider> newCollider;
-                        
+
                         // Create new collider based on selection
                         switch (newColliderType) {
                             case 0: { // Box
@@ -1125,30 +897,30 @@ namespace Coffee {
                                 break;
                             }
                         }
-                        
+
                         if (newCollider) {
                             // Store current rigidbody properties
                             RigidBody::Properties props = rbComponent.rb->GetProperties();
                             glm::vec3 position = rbComponent.rb->GetPosition();
                             glm::vec3 rotation = rbComponent.rb->GetRotation();
-                            
+
                             // Remove from physics world
                             m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                            
+
                             // Create new rigidbody with new collider
                             rbComponent.rb = RigidBody::Create(props, newCollider);
                             rbComponent.rb->SetPosition(position);
                             rbComponent.rb->SetRotation(rotation);
-                            
+
                             // Add back to physics world
                             m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
-                            
+
                             // Set user pointer for collision detection
                             rbComponent.rb->GetNativeBody()->setUserPointer(
                                 reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
                         }
                     }
-                    
+
                     // Show collider-specific properties
                     if (currentCollider) {
                         switch (colliderType) {
@@ -1156,27 +928,27 @@ namespace Coffee {
                                 auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(currentCollider);
                                 if (boxCollider) {
                                     glm::vec3 size = boxCollider->GetSize();
-                                    
+
                                     ImGui::Text("Size");
                                     if (ImGui::DragFloat3("##BoxSize", glm::value_ptr(size), 0.1f, 0.01f, 100.0f)) {
                                         // Create new box collider with updated size
                                         Ref<BoxCollider> newCollider = CreateRef<BoxCollider>(size);
-                                        
+
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
                                         glm::vec3 position = rbComponent.rb->GetPosition();
                                         glm::vec3 rotation = rbComponent.rb->GetRotation();
                                         glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                        
+
                                         // Remove from physics world
                                         m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                                        
+
                                         // Create new rigidbody with new collider
                                         rbComponent.rb = RigidBody::Create(props, newCollider);
                                         rbComponent.rb->SetPosition(position);
                                         rbComponent.rb->SetRotation(rotation);
                                         rbComponent.rb->SetVelocity(velocity);
-                                        
+
                                         // Add back to physics world
                                         m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                                         rbComponent.rb->GetNativeBody()->setUserPointer(
@@ -1189,27 +961,27 @@ namespace Coffee {
                                 auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(currentCollider);
                                 if (sphereCollider) {
                                     float radius = sphereCollider->GetRadius();
-                                    
+
                                     ImGui::Text("Radius");
                                     if (ImGui::DragFloat("##SphereRadius", &radius, 0.1f, 0.01f, 100.0f)) {
                                         // Create new sphere collider with updated radius
                                         Ref<Collider> newCollider = CreateRef<SphereCollider>(radius);
-                                        
+
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
                                         glm::vec3 position = rbComponent.rb->GetPosition();
                                         glm::vec3 rotation = rbComponent.rb->GetRotation();
                                         glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                        
+
                                         // Remove from physics world
                                         m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                                        
+
                                         // Create new rigidbody with new collider
                                         rbComponent.rb = RigidBody::Create(props, newCollider);
                                         rbComponent.rb->SetPosition(position);
                                         rbComponent.rb->SetRotation(rotation);
                                         rbComponent.rb->SetVelocity(velocity);
-                                        
+
                                         // Add back to physics world
                                         m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                                         rbComponent.rb->GetNativeBody()->setUserPointer(
@@ -1223,40 +995,40 @@ namespace Coffee {
                                 if (capsuleCollider) {
                                     float radius = capsuleCollider->GetRadius();
                                     float height = capsuleCollider->GetHeight();
-                                    
+
                                     float totalHeight = height + 2.0f * radius; // Total height including spherical caps
-                                    
+
                                     ImGui::Text("Radius");
                                     bool radiusChanged = ImGui::DragFloat("##CapsuleRadius", &radius, 0.1f, 0.01f, 100.0f);
-                                    
+
                                     ImGui::Text("Total Height");
                                     bool heightChanged = ImGui::DragFloat("##CapsuleHeight", &totalHeight, 0.1f, 0.01f, 100.0f);
-                                    
+
                                     if (radiusChanged || heightChanged) {
                                         if (totalHeight < radius * 2.0f) {
                                             totalHeight = radius * 2.0f;
                                         }
-                                        
+
                                         float cylinderHeight = totalHeight - 2.0f * radius;
-                                        
+
                                         // Create new capsule collider with updated parameters
                                         Ref<Collider> newCollider = CreateRef<CapsuleCollider>(radius, cylinderHeight);
-                                        
+
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
                                         glm::vec3 position = rbComponent.rb->GetPosition();
                                         glm::vec3 rotation = rbComponent.rb->GetRotation();
                                         glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                        
+
                                         // Remove from physics world
                                         m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                                        
+
                                         // Create new rigidbody with new collider
                                         rbComponent.rb = RigidBody::Create(props, newCollider);
                                         rbComponent.rb->SetPosition(position);
                                         rbComponent.rb->SetRotation(rotation);
                                         rbComponent.rb->SetVelocity(velocity);
-                                        
+
                                         // Add back to physics world
                                         m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                                         rbComponent.rb->GetNativeBody()->setUserPointer(
@@ -1267,34 +1039,34 @@ namespace Coffee {
                             }
                         }
                     }
-                    
+
                     // Add friction and drag controls
                     ImGui::Separator();
-                    
+
                     ImGui::Text("Friction");
                     float friction = rbComponent.rb->GetFriction();
                     if (ImGui::SliderFloat("##Friction", &friction, 0.0f, 1.0f))
                     {
                         rbComponent.rb->SetFriction(friction);
                     }
-                    
+
                     ImGui::Text("Linear Drag");
                     float linearDrag = rbComponent.rb->GetLinearDrag();
                     if (ImGui::SliderFloat("##LinearDrag", &linearDrag, 0.0f, 1.0f))
                     {
                         rbComponent.rb->SetLinearDrag(linearDrag);
                     }
-                    
+
                     ImGui::Text("Angular Drag");
                     float angularDrag = rbComponent.rb->GetAngularDrag();
                     if (ImGui::SliderFloat("##AngularDrag", &angularDrag, 0.0f, 1.0f))
                     {
                         rbComponent.rb->SetAngularDrag(angularDrag);
                     }
-                    
+
                     // Show current velocity
                     glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                    ImGui::Text("Current Velocity: X: %.2f, Y: %.2f, Z: %.2f", 
+                    ImGui::Text("Current Velocity: X: %.2f, Y: %.2f, Z: %.2f",
                                 velocity.x, velocity.y, velocity.z);
 
                     // ---------------------Physics Debug Controls---------------------
@@ -1304,7 +1076,7 @@ namespace Coffee {
                     ImGui::Separator();
                     ImGui::Text("Physics Controls");
                     ImGui::DragFloat3("Vector", glm::value_ptr(forceToApply), 0.1f);
-                    
+
                     // Force & Impulse buttons
                     if (ImGui::Button("Apply Force"))
                     {
@@ -1315,7 +1087,7 @@ namespace Coffee {
                     {
                         rbComponent.rb->ApplyImpulse(forceToApply);
                     }
-                    
+
                     // Velocity buttons
                     if (ImGui::Button("Set Velocity"))
                     {
@@ -1326,7 +1098,7 @@ namespace Coffee {
                     {
                         rbComponent.rb->AddVelocity(forceToApply);
                     }
-                    
+
                     // Reset velocity
                     if (ImGui::Button("Reset Velocity"))
                     {
@@ -1350,6 +1122,120 @@ namespace Coffee {
                 entity.RemoveComponent<RigidbodyComponent>();
             }
         }
+
+        if (entity.HasComponent<UIImageComponent>())
+        {
+            auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (uiImageComponent.material)
+                {
+                    ImGui::Text("Material");
+                    ImGui::SameLine();
+                    ImGui::Text("%s", uiImageComponent.material->GetName().c_str());
+
+                    ImGui::Text("Albedo Texture");
+                    Ref<Texture2D>& albedoTexture = uiImageComponent.material->GetMaterialTextures().albedo;
+                    if (albedoTexture)
+                    {
+                        ImGui::Image((ImTextureID)albedoTexture->GetID(), {64, 64});
+                        ImGui::SameLine();
+                        ImGui::Text("%s", albedoTexture->GetPath().c_str());
+                    }
+                    else
+                    {
+                        ImGui::Text("No texture selected");
+                    }
+
+                    if (ImGui::Button("Select Albedo Texture"))
+                    {
+                        std::string path = FileDialog::OpenFile({}).string();
+                        if (!path.empty())
+                        {
+                            Ref<Texture2D> texture = Texture2D::Load(path);
+                            if (texture)
+                            {
+                                uiImageComponent.material->GetMaterialTextures().albedo = texture;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    ImGui::Text("No material assigned");
+
+                    if (ImGui::Button("Assign Material"))
+                    {
+                        uiImageComponent.material = Material::Create("UIImageMaterial");
+                    }
+                }
+
+                ImGui::Text("Size");
+                ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
+
+                ImGui::Checkbox("Visible", &uiImageComponent.Visible);
+
+                if (!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<UIImageComponent>();
+                }
+            }
+        }
+        if (entity.HasComponent<UITextComponent>())
+        {
+            auto& uiTextComponent = entity.GetComponent<UITextComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Text", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Show text content
+                ImGui::Text("Text Content");
+                char buffer[256];
+                memset(buffer, 0, sizeof(buffer));
+                strncpy(buffer, uiTextComponent.Text.c_str(), sizeof(buffer) - 1);
+
+                if (ImGui::InputTextMultiline("##Text", buffer, sizeof(buffer)))
+                {
+                    uiTextComponent.Text = std::string(buffer);
+                }
+
+                // Select font with a button
+                ImGui::Text("Font Path");
+                ImGui::SameLine();
+                ImGui::Text("%s", uiTextComponent.FontPath.c_str());
+
+                if (ImGui::Button("Select Font"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        uiTextComponent.FontPath = path;
+                        uiTextComponent.font = std::make_shared<Font>(path);
+                    }
+                }
+                // If there is no font, use default
+                if (!uiTextComponent.font)
+                {
+                    uiTextComponent.font = Font::GetDefault();
+                }
+
+                // size
+                ImGui::Text("Font Size");
+                ImGui::DragFloat("##FontSize", &uiTextComponent.FontSize, 0.1f, 5.0f, 100.0f);
+
+                // color
+                ImGui::Text("Text Color");
+                ImGui::ColorEdit4("##TextColor", glm::value_ptr(uiTextComponent.Color));
+
+                // visibility
+                ImGui::Checkbox("Visible", &uiTextComponent.Visible);
+            }
+        }
+
+
+
 
         if (entity.HasComponent<AnimatorComponent>())
         {
@@ -1380,34 +1266,22 @@ namespace Coffee {
 
             }
         }
-
         if (entity.HasComponent<UICanvasComponent>())
         {
             auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
             bool isCollapsingHeaderOpen = true;
 
-        // Display the UICanvas header in the inspector
-        if (ImGui::CollapsingHeader("UI Canvas", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-        {
-            // Display the UI elements of the canvas
-            ImGui::Text("UI Elements");
-            for (auto& element : uiCanvasComponent.Elements)
+            // Display the UICanvas header in the inspector
+            if (ImGui::CollapsingHeader("UI Canvas", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImGui::Text("Element: %s", element.Name.c_str());
-                ImGui::Text("Position: (%.2f, %.2f)", element.Position.x, element.Position.y);
-                ImGui::Text("Size: (%.2f, %.2f)", element.Size.x, element.Size.y);
-                ImGui::Checkbox("Visible", &element.Visible);
-                ImGui::Separator();
-            }
-
-            // Remove the component if the header is closed
-            if (!isCollapsingHeaderOpen)
-            {
-                entity.RemoveComponent<UICanvasComponent>();
+                // Remove the component if the header is closed
+                if (!isCollapsingHeaderOpen)
+                {
+                    entity.RemoveComponent<UICanvasComponent>();
+                }
             }
         }
-    }
-        
+
         if(entity.HasComponent<ScriptComponent>())
         {
             auto& scriptComponent = entity.GetComponent<ScriptComponent>();
@@ -1546,7 +1420,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "UI Canvas Component", "Image Component", "Text Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1688,24 +1562,24 @@ namespace Coffee {
                     {
                         try {
                             Ref<BoxCollider> collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
-                            
+
                             RigidBody::Properties props;
                             props.type = RigidBody::Type::Dynamic;
                             props.mass = 1.0f;
                             props.useGravity = true;
-                            
+
                             auto& rbComponent = entity.AddComponent<RigidbodyComponent>(props, collider);
-                            
+
                             // Set initial transform from the entity
                             if (entity.HasComponent<TransformComponent>()) {
                                 auto& transform = entity.GetComponent<TransformComponent>();
                                 rbComponent.rb->SetPosition(transform.Position);
                                 rbComponent.rb->SetRotation(transform.Rotation);
                             }
-                            
+
                             // Add the rigidbody to the physics world
                             m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
-                            
+
                             // Set user pointer for collision detection
                             rbComponent.rb->GetNativeBody()->setUserPointer(
                                 reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
@@ -1719,12 +1593,33 @@ namespace Coffee {
                     }
                     ImGui::CloseCurrentPopup();
                 }
+                else if (items[item_current] == "UI Canvas Component")
+                {
+                    if (!entity.HasComponent<UICanvasComponent>())
+                        entity.AddComponent<UICanvasComponent>();
+                    auto& uiCanvasComponent = entity.GetComponent<UICanvasComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Image Component")
+                {
+                    if (!entity.HasComponent<UIImageComponent>())
+                        entity.AddComponent<UIImageComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Text Component")
+                {
+                    if (!entity.HasComponent<UITextComponent>())
+                        entity.AddComponent<UITextComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
                 else
                 {
                     ImGui::CloseCurrentPopup();
                 }
             }
 
+            ImGui::EndPopup();
+        }
     }
 
 
@@ -1801,13 +1696,6 @@ namespace Coffee {
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
-                /*else if (items[item_current] == "UI Image")
-                {
-                    Entity e = m_Context->CreateEntity("UI Image");
-                    e.AddComponent<UIImageComponent>();
-                    SetSelectedEntity(e);
-                    ImGui::CloseCurrentPopup();
-                }*/
                 else
                 {
                     ImGui::CloseCurrentPopup();

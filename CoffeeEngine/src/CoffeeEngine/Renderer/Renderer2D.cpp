@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
+#include "CoffeeEngine/Scene/Scene.h"
 
 #include "CoffeeEngine/Embedded/QuadShader.inl"
 #include "CoffeeEngine/Embedded/TextShader.inl"
@@ -335,7 +336,7 @@ namespace Coffee {
         batch.QuadIndexCount += 6;
     }
 
-    void Renderer2D::DrawText(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, uint32_t entityID)
+    void Renderer2D::DrawTextW(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, uint32_t entityID)
     {
         if(s_Renderer2DData.Batches.empty())
         {
