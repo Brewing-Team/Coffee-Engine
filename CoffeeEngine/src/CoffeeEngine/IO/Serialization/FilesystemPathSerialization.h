@@ -20,7 +20,7 @@ namespace cereal {
     template <class Archive>
     void save(Archive& archive, const std::filesystem::path& path)
     {
-        archive(path.string());
+        archive(path.generic_string());
     }
 
     /**

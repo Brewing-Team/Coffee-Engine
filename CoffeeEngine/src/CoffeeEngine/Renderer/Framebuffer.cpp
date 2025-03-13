@@ -12,7 +12,7 @@ namespace Coffee {
 
     static const uint32_t s_MaxFramebufferSize = 8192;
 
-    Framebuffer::Framebuffer(uint32_t width, uint32_t height, std::initializer_list<ImageFormat> attachments)
+    Framebuffer::Framebuffer(uint32_t width, uint32_t height, std::initializer_list<Attachment> attachments)
         : m_Width(width), m_Height(height), m_Attachments(attachments)
     {
         ZoneScoped;
@@ -66,7 +66,8 @@ namespace Coffee {
 
             for (size_t i = 0; i < m_Attachments.size(); i++)
             {
-                ImageFormat imageFormat = m_Attachments[i];
+                Attachment& attachment = m_Attachments[i];
+                ImageFormat imageFormat = attachment.format;
 
                 if(imageFormat == ImageFormat::DEPTH24STENCIL8)
                 {
@@ -80,6 +81,7 @@ namespace Coffee {
                     {
                         Ref<Texture2D> depthTexture = Texture2D::Create(m_Width, m_Height, imageFormat);
                         m_DepthTexture = depthTexture;
+                        attachment.texture = depthTexture;
                         glNamedFramebufferTexture(m_fboID, GL_DEPTH_STENCIL_ATTACHMENT, depthTexture->GetID(), 0);
                     }
                 }
@@ -95,6 +97,7 @@ namespace Coffee {
                     {
                         Ref<Texture2D> colorTexture = Texture2D::Create(m_Width, m_Height, imageFormat);
                         m_ColorTextures.push_back(colorTexture);
+                        attachment.texture = colorTexture;
                         glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + m_ColorTextures.size() - 1, colorTexture->GetID(), 0);
                     }
                 }
@@ -178,24 +181,7 @@ namespace Coffee {
         glNamedFramebufferDrawBuffers(m_fboID, drawBuffers.size(), drawBuffers.data());
     }
 
-    void Framebuffer::AttachColorTexture(Ref<Texture2D>& texture)
-    {
-        ZoneScoped;
-
-        m_ColorTextures.push_back(texture);
-        m_Attachments.push_back(texture->GetImageFormat());
-        glNamedFramebufferTexture(m_fboID, GL_COLOR_ATTACHMENT0 + m_ColorTextures.size() - 1, texture->GetID(), 0);
-    }
-
-    void Framebuffer::AttachDepthTexture(Ref<Texture2D>& texture)
-    {
-        ZoneScoped;
-
-        m_DepthTexture = texture;
-        glNamedFramebufferTexture(m_fboID, GL_DEPTH_STENCIL_ATTACHMENT, texture->GetID(), 0);
-    }
-
-    Ref<Framebuffer> Framebuffer::Create(uint32_t width, uint32_t height, std::initializer_list<ImageFormat> attachments)
+    Ref<Framebuffer> Framebuffer::Create(uint32_t width, uint32_t height, std::initializer_list<Attachment> attachments)
     {
         return CreateRef<Framebuffer>(width, height, attachments);
     }

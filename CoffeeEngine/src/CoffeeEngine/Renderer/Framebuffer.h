@@ -14,6 +14,13 @@ namespace Coffee {
      * @brief Renderer components of the CoffeeEngine.
      * @{
      */
+    
+    struct Attachment 
+    {
+        ImageFormat format;
+        std::string name;
+        Ref<Texture2D> texture;
+    };
 
     /**
      * @brief Class representing a framebuffer.
@@ -27,7 +34,7 @@ namespace Coffee {
          * @param height The height of the framebuffer.
          * @param attachments The list of image formats for the attachments.
          */
-        Framebuffer(uint32_t width, uint32_t height, std::initializer_list<ImageFormat> attachments);
+        Framebuffer(uint32_t width, uint32_t height, std::initializer_list<Attachment> attachments);
 
         /**
          * @brief Destroys the Framebuffer.
@@ -84,23 +91,20 @@ namespace Coffee {
         const uint32_t GetHeight() const { return m_Height; }
 
         /**
-         * @brief Attaches a color texture to the framebuffer.
-         * @param texture The color texture to attach.
-         */
-        void AttachColorTexture(Ref<Texture2D>& texture);
-
-        /**
-         * @brief Attaches a depth texture to the framebuffer.
-         * @param texture The depth texture to attach.
-         */
-        void AttachDepthTexture(Ref<Texture2D>& texture);
-
-        /**
          * @brief Gets the color texture at the specified index.
          * @param index The index of the color texture.
          * @return A reference to the color texture.
          */
-        const Ref<Texture2D>& GetColorTexture(uint32_t index = 0) const { return m_ColorTextures[index]; }
+        const Ref<Texture2D>& GetColorTexture(const std::string& name)
+        {
+            for (const Attachment& attachment: m_Attachments)
+            {
+                if (attachment.name == name)
+                {
+                    return attachment.texture;
+                }
+            }
+        }
 
         /**
          * @brief Gets the depth texture.
@@ -115,7 +119,7 @@ namespace Coffee {
          * @param attachments The list of image formats for the attachments.
          * @return A reference to the created framebuffer.
          */
-        static Ref<Framebuffer> Create(uint32_t width, uint32_t height, std::initializer_list<ImageFormat> attachments);
+        static Ref<Framebuffer> Create(uint32_t width, uint32_t height, std::initializer_list<Attachment> attachments);
 
     private:
         uint32_t m_fboID; ///< The ID of the framebuffer object.
@@ -123,7 +127,7 @@ namespace Coffee {
         uint32_t m_Width; ///< The width of the framebuffer.
         uint32_t m_Height; ///< The height of the framebuffer.
 
-        std::vector<ImageFormat> m_Attachments; ///< The list of image formats for the attachments.
+        std::vector<Attachment> m_Attachments; ///< The list of image formats for the attachments.
 
         std::vector<Ref<Texture2D>> m_ColorTextures; ///< The list of color textures.
         Ref<Texture2D> m_DepthTexture; ///< The depth texture.
