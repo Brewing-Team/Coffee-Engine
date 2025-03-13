@@ -45,65 +45,6 @@ namespace Coffee {
         m_SceneTree = CreateScope<SceneTree>(this);
     }
 
-    template <typename T>
-    static void CopyComponentIfExists(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
-    {
-        if(registry.all_of<T>(sourceEntity))
-        {
-            auto srcComponent = registry.get<T>(sourceEntity);
-            registry.emplace_or_replace<T>(destinyEntity, srcComponent);
-        }
-    }
-
-    template <>
-    void CopyComponentIfExists<RigidbodyComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
-    {
-        if(registry.all_of<RigidbodyComponent>(sourceEntity))
-        {
-            const auto& srcComponent = registry.get<RigidbodyComponent>(sourceEntity);
-
-            try {
-                RigidBody::Properties props = srcComponent.rb->GetProperties();
-
-                Ref<Collider> collider;
-                if (auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(srcComponent.rb->GetCollider())) {
-                    collider = CreateRef<BoxCollider>(boxCollider->GetSize());
-                }
-                else if (auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(srcComponent.rb->GetCollider())) {
-                    collider = CreateRef<SphereCollider>(sphereCollider->GetRadius());
-                }
-                else if (auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(srcComponent.rb->GetCollider())) {
-                    collider = CreateRef<CapsuleCollider>(capsuleCollider->GetRadius(), capsuleCollider->GetHeight());
-                }
-                else {
-                    collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
-                }
-
-                auto& newComponent = registry.emplace<RigidbodyComponent>(destinyEntity, props, collider);
-
-                newComponent.callback = srcComponent.callback;
-
-                if (registry.all_of<TransformComponent>(destinyEntity)) {
-                    auto& transform = registry.get<TransformComponent>(destinyEntity);
-                    newComponent.rb->SetPosition(transform.Position);
-                    newComponent.rb->SetRotation(transform.Rotation);
-                }
-            }
-            catch (const std::exception& e) {
-                COFFEE_CORE_ERROR("Exception copying rigidbody component: {0}", e.what());
-                if (registry.all_of<RigidbodyComponent>(destinyEntity)) {
-                    registry.remove<RigidbodyComponent>(destinyEntity);
-                }
-            }
-        }
-    }
-
-    template <typename... Components>
-    static void CopyEntity(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
-    {
-        (CopyComponentIfExists<Components>(destinyEntity, sourceEntity, registry), ...);
-    }
-
     Entity Scene::CreateEntity(const std::string& name)
     {
         ZoneScoped;
@@ -194,7 +135,7 @@ namespace Coffee {
 
         Audio::StopAllEvents();
         Audio::PlayInitialAudios();
-      
+
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
 
@@ -232,6 +173,14 @@ namespace Coffee {
             {
                 navMeshComponent.m_NavMesh->RenderWalkableAreas();
             }
+        }
+
+        auto animatorView = m_Registry.view<AnimatorComponent>();
+
+        for (auto& entity : animatorView)
+        {
+            AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
+            AnimationSystem::Update(dt, animatorComponent);
         }
 
         UpdateAudioComponentsPositions();
@@ -317,6 +266,19 @@ namespace Coffee {
             auto& navAgentComponent = navigationAgentView.get<NavigationAgentComponent>(agent);
             if (navAgentComponent.m_PathFinder)
                 navAgentComponent.m_PathFinder->RenderPath(navAgentComponent.m_Path);
+        }
+
+        m_PhysicsWorld.stepSimulation(dt);
+        m_PhysicsWorld.drawCollisionShapes();
+
+        // Update transforms from physics
+        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : viewPhysics) {
+            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.rb) {
+                transform.Position = rb.rb->GetPosition();
+                transform.Rotation = rb.rb->GetRotation();
+            }
         }
 
         UpdateAudioComponentsPositions();
@@ -436,6 +398,7 @@ namespace Coffee {
             .get<ScriptComponent>(archive)
             .get<NavMeshComponent>(archive)
             .get<NavigationAgentComponent>(archive)
+            .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
@@ -503,6 +466,7 @@ namespace Coffee {
             .get<ScriptComponent>(archive)
             .get<NavMeshComponent>(archive)
             .get<NavigationAgentComponent>(archive)
+            .get<AnimatorComponent>(archive)
             .get<AudioSourceComponent>(archive)
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
