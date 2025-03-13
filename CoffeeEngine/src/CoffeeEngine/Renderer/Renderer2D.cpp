@@ -76,7 +76,7 @@ namespace Coffee {
 
         Ref<Texture2D> FontAtlasTexture;
 
-        float LineWidth = 1.0f;
+        float LineWidth = 1.5f;
     };
 
     struct Renderer2DData
