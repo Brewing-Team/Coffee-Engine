@@ -56,6 +56,49 @@ namespace Coffee {
         }
     }
 
+    template <>
+    void CopyComponentIfExists<RigidbodyComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        if(registry.all_of<RigidbodyComponent>(sourceEntity))
+        {
+            const auto& srcComponent = registry.get<RigidbodyComponent>(sourceEntity);
+
+            try {
+                RigidBody::Properties props = srcComponent.rb->GetProperties();
+
+                Ref<Collider> collider;
+                if (auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(srcComponent.rb->GetCollider())) {
+                    collider = CreateRef<BoxCollider>(boxCollider->GetSize());
+                }
+                else if (auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(srcComponent.rb->GetCollider())) {
+                    collider = CreateRef<SphereCollider>(sphereCollider->GetRadius());
+                }
+                else if (auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(srcComponent.rb->GetCollider())) {
+                    collider = CreateRef<CapsuleCollider>(capsuleCollider->GetRadius(), capsuleCollider->GetHeight());
+                }
+                else {
+                    collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+                }
+
+                auto& newComponent = registry.emplace<RigidbodyComponent>(destinyEntity, props, collider);
+
+                newComponent.callback = srcComponent.callback;
+
+                if (registry.all_of<TransformComponent>(destinyEntity)) {
+                    auto& transform = registry.get<TransformComponent>(destinyEntity);
+                    newComponent.rb->SetPosition(transform.Position);
+                    newComponent.rb->SetRotation(transform.Rotation);
+                }
+            }
+            catch (const std::exception& e) {
+                COFFEE_CORE_ERROR("Exception copying rigidbody component: {0}", e.what());
+                if (registry.all_of<RigidbodyComponent>(destinyEntity)) {
+                    registry.remove<RigidbodyComponent>(destinyEntity);
+                }
+            }
+        }
+    }
+
     template <typename... Components>
     static void CopyEntity(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
     {
