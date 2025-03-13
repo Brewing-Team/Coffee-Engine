@@ -4,9 +4,9 @@
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include <vector>
 #include <memory>
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 
 namespace Coffee {
 
@@ -174,7 +174,7 @@ namespace Coffee {
         glm::vec4 color(red, green, 0.0f, 1.0f);
 
         // Draw the box with the calculated color
-        DebugRenderer::DrawBox(aabb.min, aabb.max, color);
+        Renderer2D::DrawBox(aabb.min, aabb.max, color);
         if (!isLeaf)
         {
             for (auto& child : children)
@@ -189,7 +189,7 @@ namespace Coffee {
         for (auto& obj : objectList)
         {
             AABB aabb = obj.aabb.CalculateTransformedAABB(obj.transform);
-            DebugRenderer::DrawBox(aabb.min, aabb.max, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+            Renderer2D::DrawBox(aabb.min, aabb.max, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         }
     }
 

@@ -9,7 +9,6 @@
 #include "CoffeeEngine/Physics/CollisionCallback.h"
 #include "CoffeeEngine/Physics/CollisionSystem.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
@@ -329,7 +328,7 @@ namespace Coffee {
         glm::mat4 testProjection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
 
         Frustum frustum = Frustum(camera->GetProjection() * glm::inverse(cameraTransform));
-        DebugRenderer::DrawFrustum(frustum, glm::vec4(1.0f), 1.0f);
+        Renderer2D::DrawFrustum(frustum, glm::vec4(1.0f), 1.0f);
 
         auto meshes = m_Octree.Query(frustum);
 
