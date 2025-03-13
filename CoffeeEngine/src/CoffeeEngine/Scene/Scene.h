@@ -50,6 +50,8 @@ namespace Coffee {
          */
         Entity CreateEntity(const std::string& name = std::string());
 
+        Entity Duplicate(const Entity& parent);
+
         /**
          * @brief Destroy an entity in the scene.
          * @param entity The entity to destroy.
@@ -126,6 +128,9 @@ namespace Coffee {
         void AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators);
 
     private:
+        // NOTE: this macro should be modified when adding new components
+        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent //, AnimatorComponent
+
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
         Octree<Ref<Mesh>> m_Octree;

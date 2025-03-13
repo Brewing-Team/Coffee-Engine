@@ -45,6 +45,22 @@ namespace Coffee {
         m_SceneTree = CreateScope<SceneTree>(this);
     }
 
+    template <typename T>
+    static void CopyComponentIfExists(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        if(registry.all_of<T>(sourceEntity))
+        {
+            auto srcComponent = registry.get<T>(sourceEntity);
+            registry.emplace_or_replace<T>(destinyEntity, srcComponent);
+        }
+    }
+
+    template <typename... Components>
+    static void CopyEntity(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        (CopyComponentIfExists<Components>(destinyEntity, sourceEntity, registry), ...);
+    }
+
     Entity Scene::CreateEntity(const std::string& name)
     {
         ZoneScoped;
@@ -55,6 +71,13 @@ namespace Coffee {
         nameTag.Tag = name.empty() ? "Entity" : name;
         entity.AddComponent<HierarchyComponent>();
         return entity;
+    }
+
+    Entity Scene::Duplicate(const Entity& parent)
+    {
+        Entity newEntity = CreateEntity();
+        CopyEntity<ALL_COMPONENTS>(newEntity, parent, m_Registry);
+        return newEntity;
     }
 
     void Scene::DestroyEntity(Entity entity)
