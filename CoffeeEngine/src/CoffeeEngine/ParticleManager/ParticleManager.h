@@ -232,7 +232,16 @@ namespace Coffee
          */
         void UpdateParticle(Ref<Particle> particle, float deltaTime);
 
+
+        /**
+         * @brief Draw all particles.
+         */
         void DrawParticles();
+
+        /**
+         * @brief Draw a single particle.
+         */
+        void DrawParticles(Ref<Particle> particle);
 
 
         /**
@@ -272,7 +281,7 @@ namespace Coffee
                     sizeOverLifetimeY, sizeOverLifetimeZ, sizeOverLifetimeGeneral, useRotationOverLifetime,
                     rotationOverLifetimeX, rotationOverLifetimeY, rotationOverLifetimeZ, useColorOverLifetime,
                     overLifetimecolor, colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment,
-                    elapsedTime);
+                    elapsedTime, particleMaterial);
         }
     };
 } // namespace Coffee

@@ -1801,11 +1801,104 @@ namespace Coffee
 
                     // Material selection
                     ImGui::Text("Material");
-                    ImGui::SameLine();
-                    if (ImGui::Button("Select Material"))
-                    {
-                        // Open Material selection logic here
-                    }
+                    auto DrawTextureWidget = [&](const std::string& label, Ref<Texture2D>& texture) {
+                        auto& materialComponent = entity.GetComponent<MaterialComponent>();
+                        uint32_t textureID = texture ? texture->GetID() : 0;
+                        ImGui::ImageButton(label.c_str(), (ImTextureID)textureID, {64, 64});
+
+                        auto textureImageFormat = [](ImageFormat format) -> std::string {
+                            switch (format)
+                            {
+                            case ImageFormat::R8:
+                                return "R8";
+                            case ImageFormat::RGB8:
+                                return "RGB8";
+                            case ImageFormat::RGBA8:
+                                return "RGBA8";
+                            case ImageFormat::SRGB8:
+                                return "SRGB8";
+                            case ImageFormat::SRGBA8:
+                                return "SRGBA8";
+                            case ImageFormat::RGBA32F:
+                                return "RGBA32F";
+                            case ImageFormat::DEPTH24STENCIL8:
+                                return "DEPTH24STENCIL8";
+                            }
+                        };
+
+                        if (ImGui::IsItemHovered() and texture)
+                        {
+                            ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s", texture->GetName().c_str(),
+                                              texture->GetWidth(), texture->GetHeight(),
+                                              textureImageFormat(texture->GetImageFormat()).c_str(),
+                                              texture->GetPath().c_str());
+                        }
+
+                        if (ImGui::BeginDragDropTarget())
+                        {
+                            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
+                            {
+                                const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
+                                if (resource->GetType() == ResourceType::Texture2D)
+                                {
+                                    const Ref<Texture2D>& t = std::static_pointer_cast<Texture2D>(resource);
+                                    texture = t;
+                                }
+                            }
+                            ImGui::EndDragDropTarget();
+                        }
+
+                        ImGui::SameLine();
+                        if (ImGui::BeginCombo((label + "texture").c_str(), "", ImGuiComboFlags_NoPreview))
+                        {
+                            if (ImGui::Selectable("Clear"))
+                            {
+                                texture = nullptr;
+                            }
+                            if (ImGui::Selectable("Open"))
+                            {
+                                std::string path = FileDialog::OpenFile({}).string();
+                                if (!path.empty())
+                                {
+                                    Ref<Texture2D> t = Texture2D::Load(path);
+                                    texture = t;
+                                }
+                            }
+                            ImGui::EndCombo();
+                        }
+                    };
+                    auto DrawCustomColorEdit4 = [&](const std::string& label, glm::vec4& color,
+                                                    const glm::vec2& size = {100, 32}) {
+                        // ImGui::ColorEdit4("##Albedo Color", glm::value_ptr(materialProperties.color),
+                        // ImGuiColorEditFlags_NoInputs);
+                        if (ImGui::ColorButton(label.c_str(), ImVec4(color.r, color.g, color.b, color.a), NULL,
+                                               {size.x, size.y}))
+                        {
+                            ImGui::OpenPopup("AlbedoColorPopup");
+                        }
+                        if (ImGui::BeginPopup("AlbedoColorPopup"))
+                        {
+                            ImGui::ColorPicker4((label + "Picker").c_str(), glm::value_ptr(color),
+                                                ImGuiColorEditFlags_NoInputs);
+                            ImGui::EndPopup();
+                        }
+                    };
+
+                    ImGui::Text("Color");
+                    DrawCustomColorEdit4("##Albedo Color",
+                                         emitter->particleMaterial->GetMaterialProperties().color);
+
+                    ImGui::Text("Texture");
+                    DrawTextureWidget("##Albedo", emitter->particleMaterial->GetMaterialTextures().albedo);
+
+
+
+
+                    //ImGui::SameLine();
+                    //if (ImGui::Button("Select Material"))
+                    //{
+                    //    // Open Material selection logic here
+                    //}
 
                     //// Texture Selector
                     // ImGui::Text("Texture");
@@ -2129,7 +2222,7 @@ namespace Coffee
                 {
                     Entity e = m_Context->CreateEntity("ParticleSystem");
                     e.AddComponent<ParticlesSystemComponent>();
-                    e.AddComponent<MaterialComponent>();
+                    //e.AddComponent<MaterialComponent>();
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }

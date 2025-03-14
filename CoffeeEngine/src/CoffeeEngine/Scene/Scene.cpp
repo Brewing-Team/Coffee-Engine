@@ -210,18 +210,21 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+
+           //[Temporary Comment] If we make the particle component require the material component, uncomment this.
+
+           /* auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
             if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
             {
                 particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }
+            }*/
 
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
-            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(Renderer::GetCurrentRenderTarget()->GetCameraTransform());
+            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
-            particlesSystemComponent.GetParticleEmitter()->DrawParticles();
+            //particlesSystemComponent.GetParticleEmitter()->DrawParticles();
         }
 
 
@@ -346,18 +349,20 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+           //[Temporary Comment] If we make the particle component require the material component, uncomment this.
+
+           /* auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
             if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
             {
                 particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }
+            }*/
 
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
-            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(Renderer::GetCurrentRenderTarget()->GetCameraTransform());
+            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(cameraTransform);
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
-            particlesSystemComponent.GetParticleEmitter()->DrawParticles();
+
         }
     }
 

@@ -70,6 +70,10 @@ namespace Coffee
         {
             particleMesh = Coffee::PrimitiveMesh::CreateQuad();
         }
+
+        //[Temporary Comment] If we make the particle component require the material component, delete the next line.
+        particleMaterial = CreateRef<Material>("Default Particle Material");
+
     }
 
     void ParticleEmitter::InitParticle(Ref<Particle> particle)
@@ -210,6 +214,11 @@ namespace Coffee
         }
 
         particle->lifetime -= deltaTime;
+
+
+
+        DrawParticles(particle);
+
     }
 
 
@@ -239,6 +248,11 @@ namespace Coffee
             Ref<Particle> p = activeParticles.at(i);
             Renderer3D::Submit(RenderCommand{p->GetWorldTransform(), ParticleEmitter::particleMesh, particleMaterial});
         }
+    }
+
+    void ParticleEmitter::DrawParticles(Ref<Particle> p)
+    {  
+       Renderer3D::Submit(RenderCommand{p->GetWorldTransform(), ParticleEmitter::particleMesh, particleMaterial}); 
     }
 
     void ParticleEmitter::DrawDebug()
