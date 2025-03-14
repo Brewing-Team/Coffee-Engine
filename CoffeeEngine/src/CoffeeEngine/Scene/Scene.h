@@ -23,7 +23,7 @@ namespace Coffee {
     struct AnimatorComponent;
     class Entity;
     class Model;
-    class UIManager;
+    class Renderer2D;
 
     /**
      * @brief Class representing a scene.

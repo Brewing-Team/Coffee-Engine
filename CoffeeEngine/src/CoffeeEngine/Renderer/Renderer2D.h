@@ -2,6 +2,8 @@
 
 #include "CoffeeEngine/Renderer/Font.h"
 #include "CoffeeEngine/Renderer/RenderTarget.h"
+#include "CoffeeEngine/Scene/Scene.h"
+#include "CoffeeEngine/Core/DataStructures/Octree.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -14,7 +16,7 @@ namespace Coffee {
     struct OBB;
 
     class Frustum;
-    
+
     class Renderer2D
     {
     public:
@@ -68,7 +70,7 @@ namespace Coffee {
         static void DrawBox(const glm::vec3& min, const glm::vec3& max, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
         static void DrawBox(const AABB& aabb, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
         static void DrawBox(const OBB& obb, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
-        
+
         static void DrawArrow(const glm::vec3& start, const glm::vec3& end, bool fixedLength, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
         static void DrawArrow(const glm::vec3& origin, const glm::vec3& direction, float length, glm::vec4 color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
@@ -76,9 +78,9 @@ namespace Coffee {
         static void DrawFrustum(const glm::mat4& viewProjection, const glm::vec4& color = glm::vec4(1.0f), float lineWidth = 1.0f);
 
         static void DrawCapsule(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color = glm::vec4(1.0f));
-        
+
         static void DrawCylinder(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color = glm::vec4(1.0f));
-        
+
         struct TextParams
 		{
 			glm::vec4 Color{ 1.0f };
@@ -86,7 +88,7 @@ namespace Coffee {
 			float LineSpacing = 0.0f;
 		};
 
-        static void DrawText(const std::string& text, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, RenderMode mode, uint32_t entityID = 4294967295);
+        static void DrawText2D(const std::string& text, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, RenderMode mode, uint32_t entityID = 4294967295);
     private:
         static Batch& GetBatch(RenderMode mode);
         static void NextBatch(RenderMode mode);

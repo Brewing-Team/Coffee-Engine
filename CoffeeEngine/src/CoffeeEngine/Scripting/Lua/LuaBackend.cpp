@@ -678,7 +678,7 @@ namespace Coffee {
             "get_size", &UIImageComponent::Size,
             "set_size", [](UIImageComponent& self, const glm::vec2& size) { self.Size = size; },
             "is_visible", &UIImageComponent::Visible,
-            "set_visible", [](UIImageComponent& self, bool visible) { self.Visible = visible; },
+            "set_visible", [](UIImageComponent& self, bool visible) { self.Visible = visible; }
         );
 
         luaState.new_usertype<UITextComponent>("UITextComponent",
