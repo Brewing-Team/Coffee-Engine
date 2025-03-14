@@ -127,10 +127,10 @@ namespace Coffee
 
         constexpr glm::vec3 upVector(0.0f, 1.0f, 0.0f);
 
-        float dotProduct = glm::dot(normal, upVector);
-        float angleRadians = std::acos(dotProduct);
-        float angleDegrees = glm::degrees(angleRadians);
+        const float dotProduct = glm::dot(normal, upVector);
+        const float angleRadians = std::acos(dotProduct);
+        const float angleDegrees = glm::degrees(angleRadians);
 
-        return angleDegrees <= m_WalkableSlopeAngle;
+        return angleDegrees <= WalkableSlopeAngle;
     }
 }
