@@ -223,7 +223,7 @@ namespace Coffee {
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
-            //particlesSystemComponent.GetParticleEmitter()->DrawParticles();
+            particlesSystemComponent.GetParticleEmitter()->DrawDebug();
         }
 
 

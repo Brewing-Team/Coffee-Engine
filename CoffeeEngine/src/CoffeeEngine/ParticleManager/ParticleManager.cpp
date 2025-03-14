@@ -1,9 +1,9 @@
 #include "ParticleManager.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include <cstdlib>
 #include <ctime>
 #include <glm/gtc/random.hpp>
 #include <CoffeeEngine/Renderer/Renderer3D.h>
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 
 namespace Coffee
 {
@@ -258,8 +258,7 @@ namespace Coffee
     void ParticleEmitter::DrawDebug()
     {
         glm::vec3 auxTransformPosition = glm::vec3(transformComponentMatrix[3]);
-        DebugRenderer::DrawBox(minSpread + auxTransformPosition, maxSpread + auxTransformPosition, glm::vec4(1.0f),
-                               1.0f);
+        Renderer2D::DrawBox(minSpread + auxTransformPosition, maxSpread + auxTransformPosition, glm::vec4(1.0f), 1.0f);
     }
 
     void ParticleEmitter::Emit(int quantity)
