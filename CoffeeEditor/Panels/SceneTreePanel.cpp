@@ -1283,6 +1283,7 @@ namespace Coffee {
             if (ImGui::CollapsingHeader("NavMesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Checkbox("Show NavMesh", &navMeshComponent.ShowDebug);
+                ImGui::DragFloat("Walkable Slope Angle", &navMeshComponent.GetNavMesh()->WalkableSlopeAngle, 0.1f, 0.1f, 60.0f);
 
                 if (ImGui::SmallButton("Generate NavMesh"))
                 {

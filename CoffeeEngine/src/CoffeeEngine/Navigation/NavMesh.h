@@ -33,7 +33,7 @@ namespace Coffee
         /**
          * @brief Constructor.
          */
-        NavMesh() : m_WalkableSlopeAngle(45.0f) {}
+        NavMesh() : WalkableSlopeAngle(45.0f) {}
 
         /**
          * @brief Destructor.
@@ -75,7 +75,7 @@ namespace Coffee
         {
             std::ostringstream ss;
             cereal::BinaryOutputArchive outputArchive(ss);
-            outputArchive(m_Triangles, m_Calculated);
+            outputArchive(m_Triangles, m_Calculated, WalkableSlopeAngle);
 
             std::string binData = ss.str();
             archive(cereal::make_nvp("NavMesh", cereal::base64::encode(reinterpret_cast<const unsigned char*>(binData.data()), binData.size())));
@@ -90,8 +90,10 @@ namespace Coffee
             std::string decoded = cereal::base64::decode(serializedData);
             std::istringstream ss(decoded);
             cereal::BinaryInputArchive inputArchive(ss);
-            inputArchive(m_Triangles, m_Calculated);
+            inputArchive(m_Triangles, m_Calculated, WalkableSlopeAngle);
         }
+    public:
+        float WalkableSlopeAngle; ///< Maximum walkable slope angle
 
     private:
         /**
@@ -124,7 +126,6 @@ namespace Coffee
 
     private:
         std::vector<NavMeshTriangle> m_Triangles; ///< Triangles in the navigation mesh
-        float m_WalkableSlopeAngle; ///< Maximum walkable slope angle
         bool m_Calculated = false; ///< Flag indicating if the navigation mesh has been calculated
     };
 }
