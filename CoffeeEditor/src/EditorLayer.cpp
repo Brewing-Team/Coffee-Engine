@@ -579,18 +579,6 @@ namespace Coffee {
         }
         
         ImGui::End();
-
-        //Debug Scene Octree
-        ImGui::Begin("Octree Debug");
-        if(ImGui::Button("Clear Octree"))
-        {
-            m_ActiveScene->m_Octree.Clear();
-        }
-        if(ImGui::Button("Add Point"))
-        {
-            //m_ActiveScene->m_Octree.Insert({{rand() % 20 - 10, rand() % 20 - 10, rand() % 20 - 10}});
-        }
-        ImGui::End();
     }
 
     void EditorLayer::OnOverlayRender()
@@ -692,7 +680,7 @@ namespace Coffee {
 
     void EditorLayer::OnScenePlay()
     {
-        if(m_ActiveScene->m_FilePath.empty())
+        if(m_ActiveScene->GetFilePath().empty())
         {
             COFFEE_ERROR("Scene is not saved! Please save the scene before playing.");
             return;
@@ -700,9 +688,9 @@ namespace Coffee {
 
         m_SceneState = SceneState::Play;
 
-        Scene::Save(m_EditorScene->m_FilePath, m_EditorScene);
+        Scene::Save(m_EditorScene->GetFilePath(), m_EditorScene);
 
-        m_ActiveScene = Scene::Load(m_ActiveScene->m_FilePath);
+        m_ActiveScene = Scene::Load(m_ActiveScene->GetFilePath());
         m_ActiveScene->OnInitRuntime();
 
         m_SceneTreePanel.SetContext(m_ActiveScene);
