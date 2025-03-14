@@ -143,6 +143,21 @@ namespace Coffee {
          template <class Archive>
          void save(Archive& archive) const
          {
+            entt::snapshot{m_Registry}
+            .get<entt::entity>(archive)
+            .template get<TagComponent>(archive)
+            .template get<TransformComponent>(archive)
+            .template get<HierarchyComponent>(archive)
+            .template get<CameraComponent>(archive)
+            .template get<MeshComponent>(archive)
+            .template get<MaterialComponent>(archive)
+            .template get<LightComponent>(archive)
+            .template get<RigidbodyComponent>(archive)
+            .template get<ScriptComponent>(archive)
+            .template get<AnimatorComponent>(archive)
+            .template get<AudioSourceComponent>(archive)
+            .template get<AudioListenerComponent>(archive)
+            .template get<AudioZoneComponent>(archive);
          }
 
         /**
@@ -152,7 +167,22 @@ namespace Coffee {
          */
         template <class Archive>
         void load(Archive& archive)
-        {   
+        {
+            entt::snapshot_loader{m_Registry}
+            .get<entt::entity>(archive)
+            .template get<TagComponent>(archive)
+            .template get<TransformComponent>(archive)
+            .template get<HierarchyComponent>(archive)
+            .template get<CameraComponent>(archive)
+            .template get<MeshComponent>(archive)
+            .template get<MaterialComponent>(archive)
+            .template get<LightComponent>(archive)
+            .template get<RigidbodyComponent>(archive)
+            .template get<ScriptComponent>(archive)
+            .template get<AnimatorComponent>(archive)
+            .template get<AudioSourceComponent>(archive)
+            .template get<AudioListenerComponent>(archive)
+            .template get<AudioZoneComponent>(archive);
         }
 
     private:
