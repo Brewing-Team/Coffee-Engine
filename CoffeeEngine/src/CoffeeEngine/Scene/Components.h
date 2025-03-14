@@ -776,8 +776,13 @@
  
     struct NavMeshComponent
     {
-        Ref<NavMesh> m_NavMesh = nullptr;
-        UUID m_NavMeshUUID;
+        bool ShowDebug = false; ///< Flag to show the navigation mesh debug.
+
+        Ref<NavMesh> GetNavMesh() const { return m_NavMesh; }
+        void SetNavMesh(const Ref<NavMesh>& navMesh) { m_NavMesh = navMesh; }
+
+        UUID GetNavMeshUUID() const { return m_NavMeshUUID; }
+        void SetNavMeshUUID(const UUID& navMeshUUID) { m_NavMeshUUID = navMeshUUID; }
 
         template<class Archive>
         void save(Archive& archive) const
@@ -790,14 +795,24 @@
         {
             archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
         }
+
+    private:
+        Ref<NavMesh> m_NavMesh = nullptr; ///< The navigation mesh.
+        UUID m_NavMeshUUID; ///< The UUID of the navigation mesh.
     };
 
     struct NavigationAgentComponent
     {
-        Ref<NavMeshPathfinding> m_PathFinder = nullptr;
-        Ref<NavMeshComponent> m_NavMeshComponent = nullptr;
+        std::vector<glm::vec3> Path; ///< The path to follow.
+        bool ShowDebug = false; ///< Flag to show the navigation agent debug.
 
-        std::vector<glm::vec3> m_Path;
+        std::vector<glm::vec3> FindPath(const glm::vec3 start, const glm::vec3 end) const { return m_PathFinder->FindPath(start, end); }
+
+        Ref<NavMeshPathfinding> GetPathFinder() const { return m_PathFinder; }
+        void SetPathFinder(const Ref<NavMeshPathfinding>& pathFinder) { m_PathFinder = pathFinder; }
+
+        Ref<NavMeshComponent> GetNavMeshComponent() const { return m_NavMeshComponent; }
+        void SetNavMeshComponent(const Ref<NavMeshComponent>& navMeshComponent) { m_NavMeshComponent = navMeshComponent; }
 
         template<class Archive>
         void save(Archive& archive) const
@@ -810,10 +825,12 @@
         {
             archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
 
-            m_PathFinder = CreateRef<NavMeshPathfinding>(m_NavMeshComponent->m_NavMesh);
+            m_PathFinder = CreateRef<NavMeshPathfinding>(m_NavMeshComponent->GetNavMesh());
         }
 
-        std::vector<glm::vec3> FindPath(const glm::vec3 start, const glm::vec3 end) const { return m_PathFinder->FindPath(start, end); }
+    private:
+        Ref<NavMeshPathfinding> m_PathFinder = nullptr; ///< The pathfinder.
+        Ref<NavMeshComponent> m_NavMeshComponent = nullptr; ///< The navigation mesh component.
     };
  }
  

@@ -647,7 +647,7 @@ namespace Coffee {
 
         luaState.new_usertype<NavigationAgentComponent>("NavigationAgentComponent",
             sol::constructors<NavigationAgentComponent()>(),
-            "path", &NavigationAgentComponent::m_Path,
+            "path", &NavigationAgentComponent::Path,
             "find_path", &NavigationAgentComponent::FindPath
         );
 
