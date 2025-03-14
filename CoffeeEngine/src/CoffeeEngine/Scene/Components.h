@@ -778,10 +778,28 @@
     {
         bool ShowDebug = false; ///< Flag to show the navigation mesh debug.
 
+        /**
+         * @brief Gets the navigation mesh.
+         * @return The navigation mesh.
+         */
         Ref<NavMesh> GetNavMesh() const { return m_NavMesh; }
+
+        /**
+         * @brief Sets the navigation mesh.
+         * @param navMesh The navigation mesh to set.
+         */
         void SetNavMesh(const Ref<NavMesh>& navMesh) { m_NavMesh = navMesh; }
 
+        /**
+         * @brief Gets the UUID of the navigation mesh.
+         * @return The UUID of the navigation mesh.
+         */
         UUID GetNavMeshUUID() const { return m_NavMeshUUID; }
+
+        /**
+         * @brief Sets the UUID of the navigation mesh.
+         * @param navMeshUUID The UUID of the navigation mesh to set.
+         */
         void SetNavMeshUUID(const UUID& navMeshUUID) { m_NavMeshUUID = navMeshUUID; }
 
         template<class Archive>
@@ -806,12 +824,36 @@
         std::vector<glm::vec3> Path; ///< The path to follow.
         bool ShowDebug = false; ///< Flag to show the navigation agent debug.
 
+        /**
+         * @brief Finds a path from the start to the end.
+         * @param start The start position.
+         * @param end The end position.
+         * @return The path.
+         */
         std::vector<glm::vec3> FindPath(const glm::vec3 start, const glm::vec3 end) const { return m_PathFinder->FindPath(start, end); }
 
+        /**
+         * @brief Gets the pathfinder.
+         * @return The pathfinder.
+         */
         Ref<NavMeshPathfinding> GetPathFinder() const { return m_PathFinder; }
+
+        /**
+         * @brief Sets the pathfinder.
+         * @param pathFinder The pathfinder to set.
+         */
         void SetPathFinder(const Ref<NavMeshPathfinding>& pathFinder) { m_PathFinder = pathFinder; }
 
+        /**
+         * @brief Gets the navigation mesh component.
+         * @return The navigation mesh component.
+         */
         Ref<NavMeshComponent> GetNavMeshComponent() const { return m_NavMeshComponent; }
+
+        /**
+         * @brief Sets the navigation mesh component.
+         * @param navMeshComponent The navigation mesh component to set.
+         */
         void SetNavMeshComponent(const Ref<NavMeshComponent>& navMeshComponent) { m_NavMeshComponent = navMeshComponent; }
 
         template<class Archive>
