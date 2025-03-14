@@ -183,6 +183,8 @@ namespace Coffee {
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
             .template get<AudioZoneComponent>(archive);
+
+            AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         }
 
     private:
