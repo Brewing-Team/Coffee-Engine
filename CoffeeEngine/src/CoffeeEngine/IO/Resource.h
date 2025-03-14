@@ -30,6 +30,10 @@ namespace Coffee {
         Mesh,   ///< Mesh resource type
         Shader,   ///< Shader resource type
         Material, ///< Material resource type
+        AnimationSystem, ///< AnimationSystem resource type
+        Skeleton, ///< Skeleton resource type
+        Animation, ///< Animation resource type
+        AnimationController, ///< AnimationController resource type
     };
 
     /**

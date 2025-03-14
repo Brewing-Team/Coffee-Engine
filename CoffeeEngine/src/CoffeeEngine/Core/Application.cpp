@@ -5,6 +5,7 @@
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Events/ControllerEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
+#include "CoffeeEngine/Events/MouseEvent.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Audio/Audio.h"
 
@@ -115,6 +116,8 @@ namespace Coffee
                 for(Layer* layer : m_LayerStack)
                     layer->OnUpdate(deltaTime);
             }
+
+            Renderer::Render();
 
             //Render ImGui
             m_ImGuiLayer->Begin();

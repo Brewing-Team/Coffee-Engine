@@ -87,7 +87,39 @@ namespace Coffee {
 
         m_Name = m_FilePath.filename().string();
 
-        processNode(scene->mRootNode, scene);
+        std::vector<Joint> joints;
+        std::map<std::string, int> boneMap;
+
+
+        if (scene->HasAnimations())
+        {
+            m_hasAnimations = true;
+
+            if(!ExtractSkeleton(scene, joints, boneMap))
+                std::cerr << "Error extracting skeleton" << std::endl;
+
+            if(!ExtractAnimations(scene, boneMap))
+                std::cerr << "Error extracting animations" << std::endl;
+
+            if (m_Skeleton && m_AnimationController && m_AnimationController->GetAnimationCount() > 0)
+            {
+                std::cout << "AnimationsCount: " << m_AnimationController->GetAnimationCount() << ", BonesCount: " << m_Skeleton->GetNumJoints() << std::endl;
+
+                for (const auto& [name, index] : m_AnimationController->GetAnimationMap())
+                {
+                    std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationController->GetAnimation(index)->GetDuration() << std::endl;
+                }
+            }
+        }
+
+        processNode(scene->mRootNode, scene, joints, boneMap);
+
+        m_Joints = joints;
+
+        if (m_Skeleton)
+        {
+            m_Skeleton->SetJoints(joints);
+        }
     }
 
     Ref<Model> Model::Load(const std::filesystem::path& path)
@@ -95,7 +127,7 @@ namespace Coffee {
         return ResourceLoader::Load<Model>(path);
     }
 
-    Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene)
+    Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
     {
         ZoneScoped;
 
@@ -151,6 +183,42 @@ namespace Coffee {
             }
             vertices.push_back(vertex);
         }
+
+        if (mesh->mNumBones > 0)
+        {
+            for (unsigned int i = 0; i < mesh->mNumBones; ++i)
+            {
+                aiBone* bone = mesh->mBones[i];
+
+                int boneID = 0;
+                std::string boneName(bone->mName.data);
+                if (boneMap.find(boneName) != boneMap.end())
+                    boneID = boneMap[boneName];
+                else
+                {
+                    std::cerr << "Found missing joint \"" << boneName << std::endl;
+                }
+
+                joints[boneID].invBindPose = AiToGlmMat4(bone->mOffsetMatrix);
+
+                for (unsigned int j = 0; j < bone->mNumWeights; ++j)
+                {
+                    unsigned int vertexID = bone->mWeights[j].mVertexId;
+                    float weight = bone->mWeights[j].mWeight;
+
+                    for (unsigned int g = 0; g < MAX_BONE_INFLUENCE; ++g)
+                    {
+                        if (vertices[vertexID].BoneWeights[g] == 0.0f)
+                        {
+                            vertices[vertexID].BoneIDs[g] = boneID;
+                            vertices[vertexID].BoneWeights[g] = weight;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
 
         for(uint32_t i = 0; i < mesh->mNumFaces; i++)
@@ -232,7 +300,7 @@ namespace Coffee {
     }
 
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
-    void Model::processNode(aiNode* node, const aiScene* scene)
+    void Model::processNode(aiNode* node, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
     {
         ZoneScoped;
 
@@ -243,7 +311,7 @@ namespace Coffee {
         for(uint32_t i = 0; i < node->mNumMeshes; i++)
         {
             aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-            this->AddMesh(processMesh(mesh, scene));
+            this->AddMesh(processMesh(mesh, scene, joints, boneMap));
         }
 
         for(uint32_t i = 0; i < node->mNumChildren; i++)
@@ -254,7 +322,7 @@ namespace Coffee {
             child->m_Parent = weak_from_this();
             m_Children.push_back(child);
 
-            child->processNode(node->mChildren[i], scene);
+            child->processNode(node->mChildren[i], scene, joints, boneMap);
         }
     }
 
@@ -304,5 +372,216 @@ namespace Coffee {
 
         return matTextures;
     }
+
+    bool Model::ExtractSkeleton(const aiScene* pScene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
+    {
+        ExtractJoints(pScene->mRootNode, -1, joints, boneMap);
+
+        if(joints.empty())
+        {
+            std::cerr << "Failed to extract joints" << std::endl;
+            return false;
+        }
+
+        ozz::animation::offline::RawSkeleton rawSkeleton;
+        rawSkeleton.roots.resize(1);
+
+        std::function<void(int, ozz::animation::offline::RawSkeleton::Joint&)> buildHierarchy =
+            [&](int jointIndex, ozz::animation::offline::RawSkeleton::Joint& outJoint)
+            {
+                const Joint& joint = joints[jointIndex];
+                outJoint.name = joint.name;
+                outJoint.transform = joint.localTransform;
+
+                for (size_t i = 0; i < joints.size(); ++i)
+                {
+                    if (joints[i].parentIndex == jointIndex)
+                    {
+                        outJoint.children.emplace_back();
+                        buildHierarchy(i, outJoint.children.back());
+                    }
+                }
+            };
+
+        for (size_t i = 0; i < joints.size(); ++i)
+        {
+            if (joints[i].parentIndex == -1)
+                buildHierarchy(i, rawSkeleton.roots.back());
+        }
+
+        if (!rawSkeleton.Validate())
+        {
+            std::cerr <<  "Failed to validate Ozz Skeleton" << std::endl;
+            return false;
+        }
+
+        ozz::animation::offline::SkeletonBuilder skelBuilder;
+        auto skeleton = CreateRef<Skeleton>();
+        skeleton->SetSkeleton(std::move(skelBuilder(rawSkeleton)));
+        skeleton->SetJoints(joints);
+        m_Skeleton = skeleton;
+
+        return true;
+    }
+
+    bool Model::ExtractAnimations(const aiScene* scene, const std::map<std::string, int>& boneMap)
+    {
+        auto animController = CreateRef<AnimationController>();
+
+        for (unsigned int animIndex = 0; animIndex < scene->mNumAnimations; ++animIndex)
+        {
+            aiAnimation* aiAnim = scene->mAnimations[animIndex];
+            ozz::animation::offline::RawAnimation rawAnimation;
+            rawAnimation.duration = static_cast<float>(aiAnim->mDuration / aiAnim->mTicksPerSecond);
+            rawAnimation.tracks.resize(boneMap.size());
+            rawAnimation.name = aiAnim->mName.C_Str();
+
+            for (unsigned int channelIndex = 0; channelIndex < aiAnim->mNumChannels; ++channelIndex)
+            {
+                aiNodeAnim* channel = aiAnim->mChannels[channelIndex];
+                auto it = boneMap.find(channel->mNodeName.C_Str());
+
+                if (it == boneMap.end())
+                    continue;
+
+                int jointIndex = it->second;
+                ProcessAnimationChannel(channel, rawAnimation.tracks[jointIndex], static_cast<float>(aiAnim->mTicksPerSecond));
+            }
+
+            if (!rawAnimation.Validate())
+            {
+                std::cerr << "Failed to validate Ozz Animation: " << aiAnim->mName.C_Str() << std::endl;
+                continue;
+            }
+
+            ozz::animation::offline::AnimationBuilder animBuilder;
+            animController->AddAnimation(aiAnim->mName.C_Str(), std::move(animBuilder(rawAnimation)));
+            m_AnimationsNames.push_back(aiAnim->mName.C_Str());
+        }
+
+        m_AnimationController = animController;
+
+        return true;
+    }
+
+    void Model::ProcessAnimationChannel(aiNodeAnim* channel, ozz::animation::offline::RawAnimation::JointTrack& track, float ticksPerSecond)
+    {
+        // Translation
+        for (unsigned int i = 0; i < channel->mNumPositionKeys; ++i)
+        {
+            const aiVectorKey& key = channel->mPositionKeys[i];
+            track.translations.push_back({
+                static_cast<float>(key.mTime / ticksPerSecond),
+                ozz::math::Float3(key.mValue.x, key.mValue.y, key.mValue.z)
+            });
+        }
+
+        // Rotation
+        for (unsigned int i = 0; i < channel->mNumRotationKeys; ++i)
+        {
+            const aiQuatKey& key = channel->mRotationKeys[i];
+            track.rotations.push_back({
+                static_cast<float>(key.mTime / ticksPerSecond),
+                ozz::math::Quaternion(key.mValue.x, key.mValue.y, key.mValue.z, key.mValue.w)
+            });
+        }
+
+        // Scale
+        for (unsigned int i = 0; i < channel->mNumScalingKeys; ++i)
+        {
+            const aiVectorKey& key = channel->mScalingKeys[i];
+            track.scales.push_back({
+                static_cast<float>(key.mTime / ticksPerSecond),
+                ozz::math::Float3(key.mValue.x, key.mValue.y, key.mValue.z)
+            });
+        }
+    }
+
+    void Model::ExtractJoints(const aiNode* node, int parentIndex, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
+    {
+        int jointIndex = 0;
+        std::string boneName(node->mName.data);
+
+        if (boneMap.find(boneName) == boneMap.end())
+        {
+            jointIndex = static_cast<int>(boneMap.size());
+            boneMap[boneName] = jointIndex;
+        }
+        else
+        {
+            jointIndex = boneMap[boneName];
+        }
+
+        joints.push_back({
+            .name           = boneName,
+            .parentIndex    = parentIndex,
+            .localTransform = AiToOzzTransform(node->mTransformation),
+            .invBindPose    = glm::mat4(1.0f)
+        });
+
+        for (unsigned int i = 0; i < node->mNumChildren; ++i)
+            ExtractJoints(node->mChildren[i], jointIndex, joints, boneMap);
+    }
+
+    void Model::SaveAnimations(const UUID uuid) const
+    {
+        if (HasAnimations() && m_Skeleton && m_AnimationController)
+        {
+            std::filesystem::path cachedPath = CacheManager::GetCachedFilePath(uuid, ResourceType::Model);
+            cachedPath.replace_extension(".ozz");
+
+            ozz::io::File skeletonFile(cachedPath.string().c_str(), "wb");
+            if (skeletonFile.opened())
+            {
+                ozz::io::OArchive oArchive(&skeletonFile);
+                m_Skeleton->Save(oArchive);
+            }
+
+            for (const auto& anim : m_AnimationController->GetAnimations())
+            {
+                ozz::io::File animationFile((CacheManager::GetCachePath().string() + anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
+                if (animationFile.opened())
+                {
+                    ozz::io::OArchive archive(&animationFile);
+                    anim.Save(archive);
+                }
+            }
+        }
+    }
+
+    void Model::ImportAnimations(const UUID uuid)
+    {
+        if (HasAnimations() && !m_Skeleton && !m_AnimationController)
+        {
+            auto skeleton = ozz::make_unique<ozz::animation::Skeleton>();
+            m_Skeleton = CreateRef<Skeleton>();
+            m_Skeleton->SetSkeleton(std::move(skeleton));
+
+            std::filesystem::path cachedPath = CacheManager::GetCachedFilePath(uuid, ResourceType::Model);
+            cachedPath.replace_extension(".ozz");
+            ozz::io::File skeletonFile(cachedPath.string().c_str(), "rb");
+            if (skeletonFile.opened())
+            {
+                ozz::io::IArchive iArchive(&skeletonFile);
+                GetSkeleton()->Load(iArchive, m_Joints);
+            }
+
+            m_AnimationController = CreateRef<AnimationController>();
+
+            for (const auto& animName : m_AnimationsNames)
+            {
+                ozz::io::File animationsFile((CacheManager::GetCachePath().string() + animName + std::to_string(uuid) + ".ozz").c_str(), "rb");
+                if (animationsFile.opened())
+                {
+                    ozz::io::IArchive iArchive(&animationsFile);
+
+                    auto animation = ozz::make_unique<ozz::animation::Animation>();
+                    m_AnimationController->AddAnimation(animName, std::move(animation));
+                    m_AnimationController->GetAnimation(animName)->Load(iArchive);
+                }
+            }
+        }
+    }
+
 
 }

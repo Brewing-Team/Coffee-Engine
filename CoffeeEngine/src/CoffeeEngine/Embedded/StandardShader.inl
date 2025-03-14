@@ -10,6 +10,8 @@ layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in vec3 aNormals;
 layout (location = 3) in vec3 aTangent;
 layout (location = 4) in vec3 aBitangent;
+layout (location = 5) in ivec4 aBoneIDs;
+layout (location = 6) in vec4 aBoneWeights;
 
 layout (std140, binding = 0) uniform camera
 {
@@ -32,10 +34,46 @@ layout (location = 2) out VertexData Output;
 uniform mat4 model;
 uniform mat3 normalMatrix;
 
+uniform bool animated;
+const int MAX_BONES = 100;
+const int MAX_BONE_INFLUENCE = 4;
+uniform mat4 finalBonesMatrices[MAX_BONES];
+
+vec4 applyBoneTransform(vec4 pos)
+{
+    vec4 result = vec4(0.0f);
+    for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+    {
+        if (aBoneIDs[i] == -1)
+            continue;
+        if (aBoneIDs[i] >= MAX_BONES)
+        {
+            result = pos;
+            break;
+        }
+        result += aBoneWeights[i] * (finalBonesMatrices[aBoneIDs[i]] * pos);
+    }
+    return result;
+}
+
 void main()
 {
-    Output.WorldPos = vec3(model * vec4(aPosition, 1.0));
-    Output.Normal = normalMatrix * aNormals;
+    vec4 totalPosition = vec4(0.0);
+    vec3 totalNormal = vec3(0.0);
+
+    if (animated)
+    {
+        totalPosition = applyBoneTransform(vec4(aPosition, 1.0f));
+        totalNormal = normalize(applyBoneTransform(vec4(aNormals, 0.0))).xyz;
+    }
+    else
+    {
+        totalPosition = vec4(aPosition, 1.0f);
+        totalNormal = aNormals;
+    }
+
+    Output.WorldPos = vec3(model * totalPosition);
+    Output.Normal = normalMatrix * totalNormal;
     Output.camPos = cameraPos;
     Output.TexCoords = aTexCoord;
 
@@ -49,7 +87,7 @@ void main()
 
     vec3 T = normalize(vec3(model * vec4(aTangent, 0.0)));
     vec3 B = normalize(vec3(model * vec4(aBitangent, 0.0)));
-    vec3 N = normalize(vec3(model * vec4(aNormals, 0.0)));
+    vec3 N = normalize(vec3(model * vec4(totalNormal, 0.0)));
 
     Output.TBN = mat3(T, B, N);
 }

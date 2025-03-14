@@ -48,6 +48,18 @@ namespace cereal {
     }
 
     /**
+     * @brief Serializes a glm::ivec4 object.
+     * @tparam Archive The type of the archive.
+     * @param archive The archive to serialize to.
+     * @param vec The glm::ivec4 object to serialize.
+     */
+    template<class Archive>
+    void serialize(Archive& archive, glm::ivec4& vec)
+    {
+        archive(cereal::make_nvp("x", vec.x), cereal::make_nvp("y", vec.y), cereal::make_nvp("z", vec.z), cereal::make_nvp("w", vec.w));
+    }
+
+    /**
      * @brief Serializes a glm::quat object.
      * @tparam Archive The type of the archive.
      * @param archive The archive to serialize to.
