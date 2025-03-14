@@ -167,18 +167,6 @@ namespace Coffee {
         // TEST ------------------------------
         m_Octree.DebugDraw();
 
-        // TEMPORAL - Navigation
-        auto navMeshView = m_Registry.view<NavMeshComponent>();
-
-        for (auto& entity : navMeshView)
-        {
-            auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
-            if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated())
-            {
-                navMeshComponent.GetNavMesh()->RenderWalkableAreas();
-            }
-        }
-
         auto animatorView = m_Registry.view<AnimatorComponent>();
 
         for (auto& entity : animatorView)
@@ -249,26 +237,6 @@ namespace Coffee {
             camera = &sceneCamera;
 
             cameraTransform = glm::mat4(1.0f);
-        }
-
-        auto navMeshView = m_Registry.view<NavMeshComponent>();
-
-        for (auto& entity : navMeshView)
-        {
-            auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
-            if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated())
-            {
-                navMeshComponent.GetNavMesh()->RenderWalkableAreas();
-            }
-        }
-
-        auto navigationAgentView = m_Registry.view<NavigationAgentComponent>();
-
-        for (auto& agent : navigationAgentView)
-        {
-            auto& navAgentComponent = navigationAgentView.get<NavigationAgentComponent>(agent);
-            if (navAgentComponent.ShowDebug && navAgentComponent.GetPathFinder())
-                navAgentComponent.GetPathFinder()->RenderPath(navAgentComponent.Path);
         }
 
         m_PhysicsWorld.stepSimulation(dt);
@@ -374,21 +342,40 @@ namespace Coffee {
         Audio::StopAllEvents();
     }
 
-    Ref<Scene> Scene::Load(const std::filesystem::path& path)
+        Ref<Scene> Scene::Load(const std::filesystem::path& path)
     {
         ZoneScoped;
     
         Ref<Scene> scene = CreateRef<Scene>();
+        
+        // Initialize physics system
+        CollisionSystem::Initialize(scene.get());
+
+        AnimationSystem::ResetAnimators();
     
         std::ifstream sceneFile(path);
         cereal::JSONInputArchive archive(sceneFile);
+    
+        entt::snapshot_loader{scene->m_Registry}
+            .get<entt::entity>(archive)
+            .get<TagComponent>(archive)
+            .get<TransformComponent>(archive)
+            .get<HierarchyComponent>(archive)
+            .get<CameraComponent>(archive)
+            .get<MeshComponent>(archive)
+            .get<MaterialComponent>(archive)
+            .get<LightComponent>(archive)
+            .get<RigidbodyComponent>(archive)
+            .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
 
-        archive(*scene);
+            scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         
         scene->m_FilePath = path;
-        
-        // TODO: Think where this could be done instead of the Load function
-
+    
         // Add rigidbodies back to physics world
         auto view = scene->m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : view)
@@ -407,6 +394,15 @@ namespace Coffee {
                 rb.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>(entity)));
             }
         }
+    
+        // Debug log
+        auto entityView = scene->m_Registry.view<entt::entity>();
+        for (auto entity : entityView)
+        {
+            auto& tag = scene->m_Registry.get<TagComponent>(entity);
+            auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
+            COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
+        }
         
         // TODO: Think where this could be done instead of the Load function
         for (auto& audioSource : Audio::audioSources)
@@ -424,7 +420,24 @@ namespace Coffee {
         std::ofstream sceneFile(path);
         cereal::JSONOutputArchive archive(sceneFile);
 
-        archive(*scene);
+        // archive(*scene);
+
+        //TEMPORAL
+        entt::snapshot{scene->m_Registry}
+            .get<entt::entity>(archive)
+            .get<TagComponent>(archive)
+            .get<TransformComponent>(archive)
+            .get<HierarchyComponent>(archive)
+            .get<CameraComponent>(archive)
+            .get<MeshComponent>(archive)
+            .get<MaterialComponent>(archive)
+            .get<LightComponent>(archive)
+            .get<RigidbodyComponent>(archive)
+            .get<ScriptComponent>(archive)
+            .get<AnimatorComponent>(archive)
+            .get<AudioSourceComponent>(archive)
+            .get<AudioListenerComponent>(archive)
+            .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
     }

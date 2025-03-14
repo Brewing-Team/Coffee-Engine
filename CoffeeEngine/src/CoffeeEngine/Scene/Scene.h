@@ -2,8 +2,6 @@
 
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Events/Event.h"
-#include "CoffeeEngine/Navigation/NavMesh.h"
-#include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
@@ -131,7 +129,7 @@ namespace Coffee {
          * @param animators The vector of animator components.
          */
         void AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators);
-    
+
     private:
         friend class cereal::access;
 
@@ -204,6 +202,9 @@ namespace Coffee {
         friend class SceneTree;
         friend class SceneTreePanel;
         friend class CollisionSystem;
+
+        // TODO REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!
+        friend class EditorLayer;
     };
 
     /**

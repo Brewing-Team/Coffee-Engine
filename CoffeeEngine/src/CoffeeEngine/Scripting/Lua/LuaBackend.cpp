@@ -354,6 +354,63 @@ namespace Coffee {
     }
 
 
+    void BindInputActionsToLua(sol::state& lua, sol::table& inputTable)
+    {
+        std::vector<std::pair<std::string, ControllerCode>> controllerCodes = {
+            {"Invalid", Button::Invalid},
+            {"South", Button::South},
+            {"East", Button::East},
+            {"West", Button::West},
+            {"North", Button::North},
+            {"Back", Button::Back},
+            {"Guide", Button::Guide},
+            {"Start", Button::Start},
+            {"LeftStick", Button::LeftStick},
+            {"RightStick", Button::RightStick},
+            {"LeftShoulder", Button::LeftShoulder},
+            {"RightShoulder", Button::RightShoulder},
+            {"DpadUp", Button::DpadUp},
+            {"DpadDown", Button::DpadDown},
+            {"DpadLeft", Button::DpadLeft},
+            {"DpadRight", Button::DpadRight},
+            {"Misc1", Button::Misc1},
+            {"RightPaddle1", Button::RightPaddle1},
+            {"LeftPaddle1", Button::LeftPaddle1},
+            {"RightPaddle2", Button::RightPaddle2},
+            {"Leftpaddle2", Button::Leftpaddle2},
+            {"Touchpad", Button::Touchpad},
+            {"Misc2", Button::Misc2},
+            {"Misc3", Button::Misc3},
+            {"Misc4", Button::Misc4},
+            {"Misc5", Button::Misc5},
+            {"Misc6", Button::Misc6}
+        };
+        sol::table controllerCodeTable = lua.create_table();
+        for (const auto& controllerCode : controllerCodes) {
+            controllerCodeTable[controllerCode.first] = controllerCode.second;
+        }
+        inputTable["controllercode"] = controllerCodeTable;
+    }
+
+    void BindAxisCodesToLua(sol::state& lua, sol::table& inputTable)
+    {
+        std::vector<std::pair<std::string, AxisCode>> axisCodes = {
+            {"Invalid", Axis::Invalid},
+            {"LeftX", Axis::LeftX},
+            {"LeftY", Axis::LeftY},
+            {"RightX", Axis::RightX},
+            {"RightY", Axis::RightY},
+            {"LeftTrigger", Axis::LeftTrigger},
+            {"RightTrigger", Axis::RightTrigger}
+        };
+        sol::table axisCodeTable = lua.create_table();
+        for (const auto& axisCode : axisCodes) {
+            axisCodeTable[axisCode.first] = axisCode.second;
+        }
+        inputTable["axiscode"] = axisCodeTable;
+    }
+
+
     void LuaBackend::Initialize() {
         luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 
@@ -381,6 +438,7 @@ namespace Coffee {
         BindMouseCodesToLua(luaState, inputTable);
         BindControllerCodesToLua(luaState, inputTable);
         BindAxisCodesToLua(luaState, inputTable);
+        BindInputActionsToLua(luaState, inputTable);
 
         inputTable.set_function("is_key_pressed", [](KeyCode key) {
             return Input::IsKeyPressed(key);
@@ -544,16 +602,12 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
-                } else if (componentName == "NavigationAgentComponent") {
-                    return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
                 } else if (componentName == "RigidbodyComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
                 } else if (componentName == "AudioSourceComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
-                } else if (componentName == "AnimatorComponent") {
-                    return sol::make_object(luaState, std::ref(self->GetComponent<AnimatorComponent>()));
                 }
-                
+
                 return sol::nil;
             },
             "has_component", [](Entity* self, const std::string& componentName) -> bool {
@@ -571,8 +625,6 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
-                } else if (componentName == "NavigationAgentComponent") {
-                    return self->HasComponent<NavigationAgentComponent>();
                 } else if (componentName == "RigidbodyComponent") {
                     return self->HasComponent<RigidbodyComponent>();
                 } else if (componentName == "AnimatorComponent") {
@@ -758,7 +810,7 @@ namespace Coffee {
             "get_position", &RigidBody::GetPosition,
             "set_rotation", &RigidBody::SetRotation,
             "get_rotation", &RigidBody::GetRotation,
-            
+
             // Velocity and forces
             "set_velocity", &RigidBody::SetVelocity,
             "get_velocity", &RigidBody::GetVelocity,
@@ -767,28 +819,28 @@ namespace Coffee {
             "apply_impulse", &RigidBody::ApplyImpulse,
             "reset_velocity", &RigidBody::ResetVelocity,
             "clear_forces", &RigidBody::ClearForces,
-            
+
             // Torque and angular velocity methods
             "apply_torque", &RigidBody::ApplyTorque,
             "apply_torque_impulse", &RigidBody::ApplyTorqueImpulse,
             "set_angular_velocity", &RigidBody::SetAngularVelocity,
             "get_angular_velocity", &RigidBody::GetAngularVelocity,
-            
+
             // Collisions and triggers
             "set_trigger", &RigidBody::SetTrigger,
-            
+
             // Body type
             "get_body_type", &RigidBody::GetBodyType,
             "set_body_type", &RigidBody::SetBodyType,
-            
+
             // Mass
             "get_mass", &RigidBody::GetMass,
             "set_mass", &RigidBody::SetMass,
-            
+
             // Gravity
             "get_use_gravity", &RigidBody::GetUseGravity,
             "set_use_gravity", &RigidBody::SetUseGravity,
-            
+
             // Constraints
             "get_freeze_x", &RigidBody::GetFreezeX,
             "set_freeze_x", &RigidBody::SetFreezeX,
@@ -802,7 +854,7 @@ namespace Coffee {
             "set_freeze_rot_y", &RigidBody::SetFreezeRotY,
             "get_freeze_rot_z", &RigidBody::GetFreezeRotZ,
             "set_freeze_rot_z", &RigidBody::SetFreezeRotZ,
-            
+
             // Physical properties
             "get_friction", &RigidBody::GetFriction,
             "set_friction", &RigidBody::SetFriction,
@@ -810,42 +862,42 @@ namespace Coffee {
             "set_linear_drag", &RigidBody::SetLinearDrag,
             "get_angular_drag", &RigidBody::GetAngularDrag,
             "set_angular_drag", &RigidBody::SetAngularDrag,
-            
+
             // Utility
             "get_is_trigger", &RigidBody::GetIsTrigger
         );
 
         // Add Collider usertype bindings
         luaState.new_usertype<Collider>("Collider");
-        
+
         luaState.new_usertype<BoxCollider>("BoxCollider",
             sol::constructors<BoxCollider(), BoxCollider(const glm::vec3&)>(),
             sol::base_classes, sol::bases<Collider>()
         );
-        
+
         luaState.new_usertype<SphereCollider>("SphereCollider",
             sol::constructors<SphereCollider(), SphereCollider(float)>(),
             sol::base_classes, sol::bases<Collider>()
         );
-        
+
         luaState.new_usertype<CapsuleCollider>("CapsuleCollider",
             sol::constructors<CapsuleCollider(), CapsuleCollider(float, float)>(),
             sol::base_classes, sol::bases<Collider>()
         );
-        
+
         // Helper functions for creating colliders and rigidbodies
         luaState.set_function("create_box_collider", [](const glm::vec3& size) {
             return CreateRef<BoxCollider>(size);
         });
-        
+
         luaState.set_function("create_sphere_collider", [](float radius) {
             return CreateRef<SphereCollider>(radius);
         });
-        
+
         luaState.set_function("create_capsule_collider", [](float radius, float height) {
             return CreateRef<CapsuleCollider>(radius, height);
         });
-        
+
         luaState.set_function("create_rigidbody", [](const RigidBody::Properties& props, const Ref<Collider>& collider) {
             return RigidBody::Create(props, collider);
         });

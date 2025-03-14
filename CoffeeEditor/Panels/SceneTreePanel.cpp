@@ -1343,8 +1343,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "NavMesh Component", "Navigation Agent Component" };
-
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component" };
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1515,28 +1514,6 @@ namespace Coffee {
                             }
                         }
                     }
-
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "NavMesh Component")
-                {
-                    if(!entity.HasComponent<NavMeshComponent>() && entity.HasComponent<MeshComponent>() && entity.HasComponent<TransformComponent>())
-                    {
-                        auto& navMeshComponent = entity.AddComponent<NavMeshComponent>();
-                        navMeshComponent.SetNavMesh(CreateRef<NavMesh>());
-                        navMeshComponent.SetNavMeshUUID(UUID());
-                    }
-
-                    ImGui::CloseCurrentPopup();
-                }
-                else if(items[item_current] == "Navigation Agent Component")
-                {
-                    if(!entity.HasComponent<NavigationAgentComponent>())
-                    {
-                        auto& navigationAgentComponent = entity.AddComponent<NavigationAgentComponent>();
-                        navigationAgentComponent.SetPathFinder(CreateRef<NavMeshPathfinding>(nullptr));
-                    }
-
                     ImGui::CloseCurrentPopup();
                 }
                 else
