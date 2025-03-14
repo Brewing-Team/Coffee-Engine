@@ -2,7 +2,6 @@
 
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
-#include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
 #include <fstream>
@@ -356,60 +355,53 @@ namespace Coffee {
 
     void BindInputActionsToLua(sol::state& lua, sol::table& inputTable)
     {
-        std::vector<std::pair<std::string, ControllerCode>> controllerCodes = {
-            {"Invalid", Button::Invalid},
-            {"South", Button::South},
-            {"East", Button::East},
-            {"West", Button::West},
-            {"North", Button::North},
-            {"Back", Button::Back},
-            {"Guide", Button::Guide},
-            {"Start", Button::Start},
-            {"LeftStick", Button::LeftStick},
-            {"RightStick", Button::RightStick},
-            {"LeftShoulder", Button::LeftShoulder},
-            {"RightShoulder", Button::RightShoulder},
-            {"DpadUp", Button::DpadUp},
-            {"DpadDown", Button::DpadDown},
-            {"DpadLeft", Button::DpadLeft},
-            {"DpadRight", Button::DpadRight},
-            {"Misc1", Button::Misc1},
-            {"RightPaddle1", Button::RightPaddle1},
-            {"LeftPaddle1", Button::LeftPaddle1},
-            {"RightPaddle2", Button::RightPaddle2},
-            {"Leftpaddle2", Button::Leftpaddle2},
-            {"Touchpad", Button::Touchpad},
-            {"Misc2", Button::Misc2},
-            {"Misc3", Button::Misc3},
-            {"Misc4", Button::Misc4},
-            {"Misc5", Button::Misc5},
-            {"Misc6", Button::Misc6}
+        // Actions
+        std::vector<std::pair<std::string, InputAction>> actionCodes = {
+            {"UiMoveHorizontal", ActionsEnum::UiMoveHorizontal},
+            {"UiMoveVertical", ActionsEnum::UiMoveVertical},
+            {"Confirm", ActionsEnum::Confirm},
+            {"Cancel",  ActionsEnum::Cancel},
+            {"MoveHorizontal", ActionsEnum::MoveHorizontal},
+            {"MoveVertical", ActionsEnum::MoveVertical},
+            {"AimHorizontal", ActionsEnum::AimHorizontal},
+            {"AimVertical", ActionsEnum::AimVertical},
+            {"Shoot", ActionsEnum::Shoot},
+            {"Melee", ActionsEnum::Melee},
+            {"Interact",  ActionsEnum::Interact},
+            {"Dash", ActionsEnum::Dash},
+            {"Cover", ActionsEnum::Cover},
+            {"Skill1", ActionsEnum::Skill1},
+            {"Skill2", ActionsEnum::Skill2},
+            {"Skill3", ActionsEnum::Skill3},
+            {"Injector",ActionsEnum::Injector},
+            {"Grenade", ActionsEnum::Grenade},
+            {"Map", ActionsEnum::Map},
+            {"Pause", ActionsEnum::Pause}
         };
-        sol::table controllerCodeTable = lua.create_table();
-        for (const auto& controllerCode : controllerCodes) {
-            controllerCodeTable[controllerCode.first] = controllerCode.second;
-        }
-        inputTable["controllercode"] = controllerCodeTable;
-    }
 
-    void BindAxisCodesToLua(sol::state& lua, sol::table& inputTable)
-    {
-        std::vector<std::pair<std::string, AxisCode>> axisCodes = {
-            {"Invalid", Axis::Invalid},
-            {"LeftX", Axis::LeftX},
-            {"LeftY", Axis::LeftY},
-            {"RightX", Axis::RightX},
-            {"RightY", Axis::RightY},
-            {"LeftTrigger", Axis::LeftTrigger},
-            {"RightTrigger", Axis::RightTrigger}
+        sol::table actionCodeTable = lua.create_table();
+        for (const auto& actionCode : actionCodes) {
+            actionCodeTable[actionCode.first] = actionCode.second;
+        }
+        inputTable["action"] = actionCodeTable;
+
+        // Button states
+        std::vector<std::pair<std::string, ButtonState>> buttonStates = {
+            {"Idle", ButtonStates::IDLE},
+            {"Up", ButtonStates::UP},
+            {"Down", ButtonStates::DOWN},
+            {"Repeat", ButtonStates::REPEAT}
         };
-        sol::table axisCodeTable = lua.create_table();
-        for (const auto& axisCode : axisCodes) {
-            axisCodeTable[axisCode.first] = axisCode.second;
-        }
-        inputTable["axiscode"] = axisCodeTable;
-    }
 
+        sol::table buttonStatesTable = lua.create_table();
+        for (const auto& buttonState : buttonStates)
+        {
+            buttonStatesTable[buttonState.first] = buttonState.second;
+        }
+
+        inputTable["state"] = buttonStatesTable;
+
+    }
 
     void LuaBackend::Initialize() {
         luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
