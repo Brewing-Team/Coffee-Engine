@@ -174,9 +174,9 @@ namespace Coffee {
         for (auto& entity : navMeshView)
         {
             auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
-            if (navMeshComponent.m_NavMesh && navMeshComponent.m_NavMesh->IsCalculated())
+            if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated())
             {
-                navMeshComponent.m_NavMesh->RenderWalkableAreas();
+                navMeshComponent.GetNavMesh()->RenderWalkableAreas();
             }
         }
 
@@ -252,15 +252,14 @@ namespace Coffee {
             cameraTransform = glm::mat4(1.0f);
         }
 
-        // TEMPORAL - Navigation
         auto navMeshView = m_Registry.view<NavMeshComponent>();
 
         for (auto& entity : navMeshView)
         {
             auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
-            if (navMeshComponent.m_NavMesh && navMeshComponent.m_NavMesh->IsCalculated())
+            if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated())
             {
-                navMeshComponent.m_NavMesh->RenderWalkableAreas();
+                navMeshComponent.GetNavMesh()->RenderWalkableAreas();
             }
         }
 
@@ -269,8 +268,8 @@ namespace Coffee {
         for (auto& agent : navigationAgentView)
         {
             auto& navAgentComponent = navigationAgentView.get<NavigationAgentComponent>(agent);
-            if (navAgentComponent.m_PathFinder)
-                navAgentComponent.m_PathFinder->RenderPath(navAgentComponent.m_Path);
+            if (navAgentComponent.ShowDebug && navAgentComponent.GetPathFinder())
+                navAgentComponent.GetPathFinder()->RenderPath(navAgentComponent.Path);
         }
 
         m_PhysicsWorld.stepSimulation(dt);
