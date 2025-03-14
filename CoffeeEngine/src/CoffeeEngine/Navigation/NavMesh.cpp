@@ -1,6 +1,6 @@
 #include "NavMesh.h"
 
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 
 #include <algorithm>
 #include <cmath>
@@ -71,7 +71,7 @@ namespace Coffee
             for (int i = 0; i < 3; i++)
             {
                 const int next = (i + 1) % 3;
-                DebugRenderer::DrawLine(tri.vertices[i], tri.vertices[next], edgeColor, 20.0f);
+                Renderer2D::DrawLine(tri.vertices[i], tri.vertices[next], edgeColor, 20.0f);
             }
         }
     }

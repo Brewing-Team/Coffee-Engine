@@ -1,7 +1,6 @@
 #pragma once
 
 #include "NavMesh.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
 
 #include <vector>
 
