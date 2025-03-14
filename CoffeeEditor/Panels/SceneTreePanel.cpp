@@ -1287,54 +1287,6 @@ namespace Coffee {
             }
         }
 
-        if (entity.HasComponent<NavMeshComponent>())
-        {
-            auto& navMeshComponent = entity.GetComponent<NavMeshComponent>();
-            bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("NavMesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                ImGui::Checkbox("Show NavMesh", &navMeshComponent.ShowDebug);
-                ImGui::DragFloat("Walkable Slope Angle", &navMeshComponent.GetNavMesh()->WalkableSlopeAngle, 0.1f, 0.1f, 60.0f);
-
-                if (ImGui::SmallButton("Generate NavMesh"))
-                {
-                    navMeshComponent.GetNavMesh()->CalculateWalkableAreas(entity.GetComponent<MeshComponent>().GetMesh(), entity.GetComponent<TransformComponent>().GetWorldTransform());
-                }
-            }
-        }
-
-        if (entity.HasComponent<NavigationAgentComponent>())
-        {
-            auto& navigationAgentComponent = entity.GetComponent<NavigationAgentComponent>();
-            bool isCollapsingHeaderOpen = true;
-            if (ImGui::CollapsingHeader("Navigation Agent", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
-            {
-                auto view = m_Context->m_Registry.view<NavMeshComponent>();
-
-                ImGui::Checkbox("Show Path", &navigationAgentComponent.ShowDebug);
-
-                if (ImGui::BeginCombo("NavMesh", navigationAgentComponent.GetNavMeshComponent() ? std::to_string(navigationAgentComponent.GetNavMeshComponent()->GetNavMeshUUID()).c_str() : "Select NavMesh"))
-                {
-                    for (auto entityID : view)
-                    {
-                        Entity e{entityID, m_Context.get()};
-                        auto& navMeshComponent = e.GetComponent<NavMeshComponent>();
-                        bool isSelected = (navigationAgentComponent.GetNavMeshComponent() && navigationAgentComponent.GetNavMeshComponent()->GetNavMeshUUID() == navMeshComponent.GetNavMeshUUID());
-                        if (ImGui::Selectable(std::to_string(navMeshComponent.GetNavMeshUUID()).c_str(), isSelected))
-                        {
-                            navigationAgentComponent.SetNavMeshComponent(CreateRef<NavMeshComponent>(navMeshComponent));
-                            navigationAgentComponent.GetPathFinder()->SetNavMesh(navMeshComponent.GetNavMesh());
-                        }
-                        if (isSelected)
-                        {
-                            ImGui::SetItemDefaultFocus();
-                        }
-                    }
-                    ImGui::EndCombo();
-                }
-            }
-        }
-
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
