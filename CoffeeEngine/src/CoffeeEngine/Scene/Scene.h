@@ -9,6 +9,7 @@
 #include "entt/entity/fwd.hpp"
 
 #include <entt/entt.hpp>
+#include "entt/entity/snapshot.hpp"
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -113,6 +114,8 @@ namespace Coffee {
          */
         static void Save(const std::filesystem::path& path, Ref<Scene> scene);
 
+        const std::filesystem::path& GetFilePath() const { return m_FilePath; }
+
         /**
          * @brief Update the positions of the audio components.
          */
@@ -126,6 +129,29 @@ namespace Coffee {
          * @param animators The vector of animator components.
          */
         void AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators);
+    
+    private:
+        friend class cereal::access;
+
+        /**
+         * @brief Serializes the scene to an archive.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to save the scene to.
+         */
+         template <class Archive>
+         void save(Archive& archive) const
+         {
+         }
+
+        /**
+         * @brief Deserializes the scene from an archive.
+         * @tparam Archive The type of the archive.
+         * @param archive The archive to load the scene from.
+         */
+        template <class Archive>
+        void load(Archive& archive)
+        {   
+        }
 
     private:
         // NOTE: this macro should be modified when adding new components
@@ -144,9 +170,6 @@ namespace Coffee {
         friend class SceneTree;
         friend class SceneTreePanel;
         friend class CollisionSystem;
-
-        // TODO REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!
-        friend class EditorLayer;
     };
 
     /**

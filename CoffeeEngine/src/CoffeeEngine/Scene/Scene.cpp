@@ -43,6 +43,11 @@ namespace Coffee {
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
+
+        // Initialize physics system
+        CollisionSystem::Initialize(this);
+
+        AnimationSystem::ResetAnimators();
     }
 
     template <typename T>
@@ -397,16 +402,11 @@ namespace Coffee {
         Audio::StopAllEvents();
     }
 
-        Ref<Scene> Scene::Load(const std::filesystem::path& path)
+    Ref<Scene> Scene::Load(const std::filesystem::path& path)
     {
         ZoneScoped;
     
         Ref<Scene> scene = CreateRef<Scene>();
-        
-        // Initialize physics system
-        CollisionSystem::Initialize(scene.get());
-
-        AnimationSystem::ResetAnimators();
     
         std::ifstream sceneFile(path);
         cereal::JSONInputArchive archive(sceneFile);
@@ -427,7 +427,7 @@ namespace Coffee {
             .get<AudioListenerComponent>(archive)
             .get<AudioZoneComponent>(archive);
 
-            scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
+        scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         
         scene->m_FilePath = path;
     
@@ -450,15 +450,6 @@ namespace Coffee {
             }
         }
     
-        // Debug log
-        auto entityView = scene->m_Registry.view<entt::entity>();
-        for (auto entity : entityView)
-        {
-            auto& tag = scene->m_Registry.get<TagComponent>(entity);
-            auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
-            COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
-        }
-
         for (auto& audioSource : Audio::audioSources)
         {
             Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
@@ -474,9 +465,6 @@ namespace Coffee {
         std::ofstream sceneFile(path);
         cereal::JSONOutputArchive archive(sceneFile);
 
-        // archive(*scene);
-
-        //TEMPORAL
         entt::snapshot{scene->m_Registry}
             .get<entt::entity>(archive)
             .get<TagComponent>(archive)
@@ -494,15 +482,6 @@ namespace Coffee {
             .get<AudioZoneComponent>(archive);
         
         scene->m_FilePath = path;
-
-        auto view = scene->m_Registry.view<entt::entity>();
-        for (auto entity : view)
-        {
-            auto& tag = scene->m_Registry.get<TagComponent>(entity);
-            auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
-
-            COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
-        }
     }
 
     // Is possible that this function will be moved to the SceneTreePanel but for now it will stay here
