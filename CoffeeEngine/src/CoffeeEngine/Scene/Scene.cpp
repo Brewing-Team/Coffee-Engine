@@ -18,6 +18,7 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
+#include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "PrimitiveMesh.h"
@@ -321,6 +322,9 @@ namespace Coffee {
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
             scriptComponent.script->OnUpdate(dt);
         }
+
+        if(SceneManager::GetActiveScene().get() != this)
+            return;
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
