@@ -13,11 +13,11 @@
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceUtils.h"
 #include "CoffeeEngine/Project/Project.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Renderer/Renderer3D.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
@@ -611,13 +611,13 @@ namespace Coffee {
                 if(meshComponent.drawAABB)
                 {
                     const AABB& aabb = meshComponent.mesh ? meshComponent.mesh->GetAABB().CalculateTransformedAABB(transform) : AABB();
-                    DebugRenderer::DrawBox(aabb, {0.27f, 0.52f, 0.53f, 1.0f});
+                    Renderer2D::DrawBox(aabb, {0.27f, 0.52f, 0.53f, 1.0f});
                 }
 
                 // ----------------------------------
 
                 OBB obb = meshComponent.mesh ? meshComponent.mesh->GetOBB(transform) : OBB();
-                DebugRenderer::DrawBox(obb, {0.99f, 0.50f, 0.09f, 1.0f});
+                Renderer2D::DrawBox(obb, {0.99f, 0.50f, 0.09f, 1.0f});
 
 
             }
@@ -639,14 +639,14 @@ namespace Coffee {
 
             switch (lightComponent.type) {
                 case LightComponent::Type::DirectionalLight:
-                    //DebugRenderer::DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, lightComponent.Intensity);
-                    DebugRenderer::DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, 1.5f);
+                    //Renderer2D::DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, lightComponent.Intensity);
+                    Renderer2D::DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, 1.5f);
                 break;
 
                 case LightComponent::Type::PointLight:
                     glm::vec3 worldPosition = transformComponent.GetWorldTransform()[3];
                     float radius = lightComponent.Range;
-                    DebugRenderer::DrawSphere(worldPosition, radius);
+                    Renderer2D::DrawSphere(worldPosition, radius);
                 break;
 
                 /* case LightComponent::Type::SpotLight:
@@ -663,12 +663,12 @@ namespace Coffee {
 
             glm::mat4 viewProjection = cameraComponent.Camera.GetProjection() * glm::inverse(transformComponent.GetWorldTransform());
 
-            DebugRenderer::DrawFrustum(viewProjection, {0.99f, 0.50f, 0.09f, 1.0f});
+            Renderer2D::DrawFrustum(viewProjection, {0.99f, 0.50f, 0.09f, 1.0f});
         }
 
-        DebugRenderer::DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);
-        DebugRenderer::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);
-        DebugRenderer::DrawLine({0.0f, 0.0f, -1000.0f}, {0.0f, 0.0f, 1000.0f}, {0.153f, 0.525f, 0.918f, 1.0f}, 2);
+        Renderer2D::DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);
+        Renderer2D::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);
+        Renderer2D::DrawLine({0.0f, 0.0f, -1000.0f}, {0.0f, 0.0f, 1000.0f}, {0.153f, 0.525f, 0.918f, 1.0f}, 2);
 
         static Ref<Mesh> gridPlaneDown = PrimitiveMesh::CreatePlane({1000.0f, 1000.0f});
         static Ref<Mesh> gridPlaneUp = PrimitiveMesh::CreatePlane({1000.0f, -1000.0f}); // FIXME this is a hack to avoid the grid not beeing rendered due to backface culling

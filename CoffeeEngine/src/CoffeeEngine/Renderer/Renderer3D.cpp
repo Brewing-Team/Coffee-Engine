@@ -1,7 +1,6 @@
 #include "Renderer3D.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -43,8 +42,6 @@ namespace Coffee {
         s_SkyboxMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
 
         s_SkyboxShader = CreateRef<Shader>("assets/shaders/SkyboxShader.glsl");
-
-        DebugRenderer::Init(); // TODO: REMOVE!!!
 
         s_RendererData.SceneRenderDataUniformBuffer = UniformBuffer::Create(sizeof(Renderer3DData::RenderData), 1);
 

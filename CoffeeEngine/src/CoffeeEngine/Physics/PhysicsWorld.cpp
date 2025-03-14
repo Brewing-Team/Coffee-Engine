@@ -1,6 +1,6 @@
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Physics/CollisionSystem.h"
-#include "CoffeeEngine/Renderer/DebugRenderer.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 
 #include <glm/fwd.hpp>
 
@@ -84,7 +84,7 @@ namespace Coffee {
     
                     btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
                     glm::vec3 size((halfExtents.x() + margin) * 2.0f, (halfExtents.y() + margin) * 2.0f, (halfExtents.z() + margin) * 2.0f);
-                    DebugRenderer::DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    Renderer2D::DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                     break;
                 }
                 case SPHERE_SHAPE_PROXYTYPE: {
@@ -92,7 +92,7 @@ namespace Coffee {
                     if (!sphereShape) continue;
                     
                     const float radius = sphereShape->getRadius() + margin;
-                    DebugRenderer::DrawSphere(position, radius, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    Renderer2D::DrawSphere(position, radius, orientation, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                     break;
                 }
                 case CAPSULE_SHAPE_PROXYTYPE: {
@@ -102,7 +102,7 @@ namespace Coffee {
                     const float radius = capsuleShape->getRadius() + margin;
                     const float cylinderHeight = capsuleShape->getHalfHeight() * 2.0f + margin;
                     
-                    DebugRenderer::DrawCapsule(position, orientation, radius, cylinderHeight, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                    Renderer2D::DrawCapsule(position, orientation, radius, cylinderHeight, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                     break;
                 }
                 default:

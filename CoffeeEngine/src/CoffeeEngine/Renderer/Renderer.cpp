@@ -49,16 +49,19 @@ namespace Coffee {
             {
                 Renderer3D::PostProcessingPass(target);
             }
+
+            // Think if this should be done before or after post processing
+            Renderer2D::WorldPass(target);
             
             // TODO: Think if this should be done here or in the Renderer2D
             cameraData.projection = glm::ortho(0.0f, target.GetSize().x, target.GetSize().y, 0.0f, -1.0f, 1.0f);
             cameraData.view = glm::mat4(1.0f);
             s_RendererData.CameraUniformBuffer->SetData(&cameraData, sizeof(CameraData));
             
-            RendererAPI::SetFaceCulling(false);
+            //RendererAPI::SetFaceCulling(false);
             RendererAPI::SetDepthMask(false);
 
-            Renderer2D::Render(target);
+            Renderer2D::ScreenPass(target);
 
             RendererAPI::SetDepthMask(true);
             RendererAPI::SetFaceCulling(true);
