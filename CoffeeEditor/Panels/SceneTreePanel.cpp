@@ -1156,6 +1156,12 @@ namespace Coffee {
                 ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
 
             }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                // entity.RemoveComponent<AnimatorComponent>();
+                // TODO remove animator component from entity and all the animation data
+            }
         }
         
         if(entity.HasComponent<ScriptComponent>())
@@ -1273,6 +1279,11 @@ namespace Coffee {
                     }
                     }
                 }
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<ScriptComponent>();
             }
         }
 
