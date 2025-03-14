@@ -410,27 +410,16 @@ namespace Coffee {
     
         std::ifstream sceneFile(path);
         cereal::JSONInputArchive archive(sceneFile);
-    
-        entt::snapshot_loader{scene->m_Registry}
-            .get<entt::entity>(archive)
-            .get<TagComponent>(archive)
-            .get<TransformComponent>(archive)
-            .get<HierarchyComponent>(archive)
-            .get<CameraComponent>(archive)
-            .get<MeshComponent>(archive)
-            .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive)
-            .get<ScriptComponent>(archive)
-            .get<AnimatorComponent>(archive)
-            .get<AudioSourceComponent>(archive)
-            .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
 
+        archive(*scene);
+
+        // TODO: Think where this could be done instead of the Load function
         scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         
         scene->m_FilePath = path;
-    
+        
+        // TODO: Think where this could be done instead of the Load function
+
         // Add rigidbodies back to physics world
         auto view = scene->m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : view)
@@ -449,7 +438,8 @@ namespace Coffee {
                 rb.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>(entity)));
             }
         }
-    
+        
+        // TODO: Think where this could be done instead of the Load function
         for (auto& audioSource : Audio::audioSources)
         {
             Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
@@ -465,21 +455,7 @@ namespace Coffee {
         std::ofstream sceneFile(path);
         cereal::JSONOutputArchive archive(sceneFile);
 
-        entt::snapshot{scene->m_Registry}
-            .get<entt::entity>(archive)
-            .get<TagComponent>(archive)
-            .get<TransformComponent>(archive)
-            .get<HierarchyComponent>(archive)
-            .get<CameraComponent>(archive)
-            .get<MeshComponent>(archive)
-            .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive)
-            .get<ScriptComponent>(archive)
-            .get<AnimatorComponent>(archive)
-            .get<AudioSourceComponent>(archive)
-            .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+        archive(*scene);
         
         scene->m_FilePath = path;
     }
