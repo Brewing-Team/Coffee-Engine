@@ -16,6 +16,7 @@
  #include "CoffeeEngine/Scene/SceneCamera.h"
  #include "CoffeeEngine/Scripting/Script.h"
  #include "CoffeeEngine/Scripting/ScriptManager.h"
+ #include "CoffeeEngine/Renderer/Texture.h"
  #include "CoffeeEngine/Renderer/Font.h"
  #include <cereal/cereal.hpp>
  #include <cereal/access.hpp>
@@ -790,55 +791,53 @@
         }
     };
 
-    struct UIImageComponent
-    {
-        Ref<Material> material; // Material reference
-        glm::vec2 Size = {100.0f, 100.0f};
-        bool Visible = true;
+     struct UIImageComponent
+     {
+         Ref<Texture2D> texture;
+         glm::vec2 Size = {100.0f, 100.0f};
+         bool Visible = true;
 
-        UIImageComponent() = default;
-        UIImageComponent(const std::string& texturePath, const glm::vec2& size, bool visible)
-            : Size(size), Visible(visible)
-            {
-            if (!texturePath.empty())
-            {
-                Ref<Texture2D> texture = Texture2D::Load(texturePath);
-                if (texture)
-                {
-                    material = Material::Create("UIImageMaterial");
-                    material->GetMaterialTextures().albedo = texture;
-                }
-            }
-                else
-                {
-                material = Material::Create("UIImageMaterial");
-                }
-            }
-     
-        template<class Archive>
-        void save(Archive& archive) const {
-            UUID uuid = material->GetUUID();
-            archive(cereal::make_nvp("Material", uuid),
-                    cereal::make_nvp("Size", Size),
-                    cereal::make_nvp("Visible", Visible));
-        }
+         UIImageComponent() = default;
+         UIImageComponent(const std::string& texturePath, const glm::vec2& size, bool visible)
+            : Size(size), Visible(visible) {
+             if (!texturePath.empty())
+             {
+                 texture = Texture2D::Load(texturePath);
+             }
+         }
 
-        template<class Archive>
-        void load(Archive& archive) {
-            UUID materialUUID;
-            archive(cereal::make_nvp("Material", materialUUID),
-                    cereal::make_nvp("Size", Size),
-                    cereal::make_nvp("Visible", Visible));
+         void SetTexture(const Ref<Texture2D>& newTexture) {
+             texture = newTexture;
+         }
 
-            if (materialUUID != UUID::null) {
-                material = ResourceRegistry::Get<Material>(materialUUID);
-                if (!material) {
-                    std::cerr << "Material with UUID " << materialUUID << " not found in ResourceRegistry!" << std::endl;
-                    material = Material::Create("DefaultMaterial");
-                }
-            }
-        }
-    };
+         void SetTexture(const std::string& texturePath) {
+             if (!texturePath.empty())
+             {
+                 texture = Texture2D::Load(texturePath);
+             }
+         }
+
+         template<class Archive>
+         void save(Archive& archive) const
+         {
+             archive(cereal::make_nvp("TexturePath", texture ? texture->GetPath() : ""),
+                     cereal::make_nvp("Size", Size),
+                     cereal::make_nvp("Visible", Visible));
+         }
+
+         template<class Archive>
+         void load(Archive& archive) {
+             std::string texturePath;
+             archive(cereal::make_nvp("TexturePath", texturePath),
+                     cereal::make_nvp("Size", Size),
+                     cereal::make_nvp("Visible", Visible));
+
+             if (!texturePath.empty())
+             {
+                 texture = Texture2D::Load(texturePath);
+             }
+         }
+     };
 
     struct UITextComponent
     {

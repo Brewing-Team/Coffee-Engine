@@ -97,6 +97,7 @@ namespace Coffee {
                         AddModelToTheSceneTree(m_Context.get(), model);
                         break;
                     }
+
                     default:
                         break;
                 }
@@ -1130,52 +1131,35 @@ namespace Coffee {
 
             if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                if (uiImageComponent.material)
-                {
-                    ImGui::Text("Material");
-                    ImGui::SameLine();
-                    ImGui::Text("%s", uiImageComponent.material->GetName().c_str());
-
-                    ImGui::Text("Albedo Texture");
-                    Ref<Texture2D>& albedoTexture = uiImageComponent.material->GetMaterialTextures().albedo;
-                    if (albedoTexture)
-                    {
-                        ImGui::Image((ImTextureID)albedoTexture->GetID(), {64, 64});
-                        ImGui::SameLine();
-                        ImGui::Text("%s", albedoTexture->GetPath().c_str());
-                    }
-                    else
-                    {
-                        ImGui::Text("No texture selected");
-                    }
-
-                    if (ImGui::Button("Select Albedo Texture"))
-                    {
-                        std::string path = FileDialog::OpenFile({}).string();
-                        if (!path.empty())
-                        {
-                            Ref<Texture2D> texture = Texture2D::Load(path);
-                            if (texture)
-                            {
-                                uiImageComponent.material->GetMaterialTextures().albedo = texture;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    ImGui::Text("No material assigned");
-
-                    if (ImGui::Button("Assign Material"))
-                    {
-                        uiImageComponent.material = Material::Create("UIImageMaterial");
-                    }
-                }
-
                 ImGui::Text("Size");
                 ImGui::DragFloat2("##Size", glm::value_ptr(uiImageComponent.Size), 0.1f);
 
                 ImGui::Checkbox("Visible", &uiImageComponent.Visible);
+
+                // Mostrar la textura actual
+                if (uiImageComponent.texture)
+                {
+                    ImGui::Text("Current Texture: %s", uiImageComponent.texture->GetPath().c_str());
+                    ImGui::Image((void*)(intptr_t)uiImageComponent.texture->GetID(), ImVec2(64, 64));
+                }
+                else
+                {
+                    ImGui::Text("No Texture Selected");
+                }
+
+                // Botón para seleccionar una nueva textura
+                if (ImGui::Button("Select Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        if (texture)
+                        {
+                            uiImageComponent.SetTexture(texture);
+                        }
+                    }
+                }
 
                 if (!isCollapsingHeaderOpen)
                 {

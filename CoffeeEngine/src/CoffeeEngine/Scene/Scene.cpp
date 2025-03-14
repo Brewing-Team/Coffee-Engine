@@ -560,34 +560,34 @@ namespace Coffee {
         }
     }
     void Scene::OnEditorUpdateUI(float dt, entt::registry& registry) {
-    auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
-    glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
 
-    auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
-    for (auto& entity : uiImageView) {
-        auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
-        auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+        // Renderizar componentes UIImageComponent
+        auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
+        for (auto& entity : uiImageView) {
+            auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
+            auto& transformComponent = uiImageView.get<TransformComponent>(entity);
 
-        if (!uiImageComponent.Visible || !uiImageComponent.material)
-            continue;
+            if (!uiImageComponent.Visible || !uiImageComponent.texture)
+                continue;
 
-        Ref<Texture2D> texture = uiImageComponent.material->GetMaterialTextures().albedo;
-        if (!texture)
-            continue;
 
-        glm::mat4 transform = transformComponent.GetWorldTransform();
-        transform = glm::translate(transform, glm::vec3(center, 0.0f));
-        transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
+            glm::mat4 transform = transformComponent.GetWorldTransform();
+            transform = glm::translate(transform, glm::vec3(center, 0.0f));
+            transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
 
-        Renderer2D::DrawQuad(
-            transform,
-            texture,
-            1.0f,                // Tiling factor
-            glm::vec4(1.0f),     // Tint color
-            Renderer2D::RenderMode::Screen,  // Rendering Mode
-            (uint32_t)entity     // Entity ID
-        );
-    }
+
+            Renderer2D::DrawQuad(
+                transform,
+                uiImageComponent.texture,
+                1.0f,                // Tiling factor
+                glm::vec4(1.0f),     // Tint color
+                Renderer2D::RenderMode::Screen,  // Rendering Mode
+                (uint32_t)entity     // Entity ID
+            );
+        }
+
 
     auto uiTextView = registry.view<UITextComponent, TransformComponent>();
     for (auto& entity : uiTextView) {
@@ -626,11 +626,7 @@ void Scene::OnRuntimeUpdateUI(float dt, entt::registry& registry)
             auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
             auto& transformComponent = uiImageView.get<TransformComponent>(entity);
 
-            if (!uiImageComponent.Visible || !uiImageComponent.material)
-                continue;
-
-            Ref<Texture2D> texture = uiImageComponent.material->GetMaterialTextures().albedo;
-            if (!texture)
+            if (!uiImageComponent.Visible || !uiImageComponent.texture)
                 continue;
 
             glm::mat4 transform = transformComponent.GetWorldTransform();
@@ -639,13 +635,14 @@ void Scene::OnRuntimeUpdateUI(float dt, entt::registry& registry)
 
             Renderer2D::DrawQuad(
                 transform,
-                texture,
+                uiImageComponent.texture,
                 1.0f,                // Tiling factor
                 glm::vec4(1.0f),     // Tint color
                 Renderer2D::RenderMode::Screen,  // Rendering Mode
                 (uint32_t)entity     // Entity ID
             );
         }
+
 
         auto uiTextView = registry.view<UITextComponent, TransformComponent>();
         for (auto& entity : uiTextView) {

@@ -673,8 +673,6 @@ namespace Coffee {
 
         luaState.new_usertype<UIImageComponent>("UIImageComponent",
             sol::constructors<UIImageComponent(), UIImageComponent(const std::string&, const glm::vec2&, bool)>(),
-            "get_material", [](UIImageComponent& self) { return self.material; },
-            "set_material", [](UIImageComponent& self, Ref<Material> material) { self.material = material; },
             "get_size", &UIImageComponent::Size,
             "set_size", [](UIImageComponent& self, const glm::vec2& size) { self.Size = size; },
             "is_visible", &UIImageComponent::Visible,
