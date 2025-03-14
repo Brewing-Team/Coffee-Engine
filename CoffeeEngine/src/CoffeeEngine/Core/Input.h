@@ -9,7 +9,6 @@
 #include "CoffeeEngine/Events/MouseEvent.h"
 #include "CoffeeEngine/Input/InputBinding.h"
 
-
 #include "CoffeeEngine/Events/Event.h"
 
 #include <SDL3/SDL_gamepad.h>
@@ -17,40 +16,43 @@
 #include <unordered_map>
 
 namespace Coffee {
-	// TODO Change for better action map layers method?
-	/**
-	 * @brief Current action context. Each key/button can only be in one InputAction per context layer
-	 */
-	enum class InputLayer : int
-	{
-		None = 0,
-		Gameplay = BIT(1),
-		Menu = BIT(2)
-	};
 
+    using InputAction = uint16_t;
     /**
      * @brief List of possible actions in ActionMap v0.1
      */
-    enum class InputAction
+    namespace ActionsEnum
     {
-        // UI
-    	Up,
-    	Down,
-    	Left,
-    	Right,
-        Confirm,
-        Cancel,
+        enum : InputAction
+        {
+            // UI
+            UiMoveHorizontal,
+            UiMoveVertical,
+            Confirm,
+            Cancel,
 
-        // Gameplay
-    	MoveHorizontal,
-		MoveVertical,
-        Attack,
-        Ability,
-        Pause,
+            // Gameplay
+            MoveHorizontal,
+            MoveVertical,
+            AimHorizontal,
+            AimVertical,
+            Shoot,
+            Melee,
+            Interact,
+            Dash,
+            Cover,
+            Skill1,
+            Skill2,
+            Skill3,
+            Injector,
+            Grenade,
+            Map,
+            Pause,
 
-        // Action count for array creation and iteration
-        ActionCount
-    };
+            // Action count for array creation and iteration
+            ActionCount
+        };
+    }
 
     /**
      * @defgroup core Core
@@ -66,6 +68,10 @@ namespace Coffee {
          * Initializes the module
          */
         static void Init();
+
+        static void Save();
+
+        static void Load();
 
         /**
          * Checks if a specific key is currently being pressed.
@@ -87,20 +93,20 @@ namespace Coffee {
          *
          * @return The current position of the mouse as a 2D vector.
          */
-        static glm::vec2 GetMousePosition();
+        static const glm::vec2& GetMousePosition();
         /**
          * @brief Retrieves the current x-coordinate of the mouse cursor.
          *
          * @return The x-coordinate of the mouse cursor.
          */
-        static float GetMouseX();
+        static const float GetMouseX();
         /**
          * @brief Retrieves the current y-coordinate of the mouse cursor.
          *
          * @return The y-coordinate of the mouse cursor.
          */
 
-        static float GetMouseY();
+        static const float GetMouseY();
         /**
          * @brief Checks if a specific button is currently pressed on a given controller.
          *
@@ -116,11 +122,19 @@ namespace Coffee {
          */
         static float GetAxisRaw(AxisCode axis);
 
-		static InputLayer CurrentInputContext;
+        /**
+         * Gets the InputBinding object for the given action
+         * @param action The action to retrieve an InputBinding for
+         * @return The InputBinding containing the bounds keys, buttons and axis for the provided action
+         */
+        static InputBinding& GetBinding(InputAction action);
 
         static void OnEvent(Event& e);
 
-	private:
+      private:
+
+        static void GenerateDefaultMappingFile();
+
         /**
 	     * @brief Handles controller connection events
 	     * @param cEvent The event data to process
@@ -180,13 +194,16 @@ namespace Coffee {
          */
 	    static void OnMouseMoved(const MouseMovedEvent& event);
 
-        static std::vector<InputBinding> m_bindings;
+        static std::vector<InputBinding> m_Bindings;
 
-	    static std::vector<Ref<Gamepad>> m_gamepads;
-	    static std::unordered_map<ButtonCode, char> m_buttonStates;
-	    static std::unordered_map<AxisCode, float> m_axisStates;
-	    static std::unordered_map<KeyCode, bool> m_keyStates;
+	    static std::vector<Ref<Gamepad>> m_Gamepads;
+	    static std::unordered_map<ButtonCode, uint8_t> m_ButtonStates;
+	    static std::unordered_map<AxisCode, float> m_AxisStates;
+	    static std::unordered_map<KeyCode, bool> m_KeyStates;
+        static std::unordered_map<MouseCode, bool> m_MouseStates;
+        static std::unordered_map<AxisCode, float> m_AxisDeadzones;
+        static glm::vec2 m_MousePosition; // Position relative to window
 
-	};
+    };
     /** @} */
 }
