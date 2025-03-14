@@ -679,17 +679,6 @@ namespace Coffee {
             "set_size", [](UIImageComponent& self, const glm::vec2& size) { self.Size = size; },
             "is_visible", &UIImageComponent::Visible,
             "set_visible", [](UIImageComponent& self, bool visible) { self.Visible = visible; },
-            "set_texture", [](UIImageComponent& self, const std::string& texturePath) {
-                if (!texturePath.empty()) {
-                    Ref<Texture2D> texture = Texture2D::Load(texturePath);
-                    if (texture) {
-                        if (!self.material) {
-                            self.material = Material::Create("UIImageMaterial");
-                        }
-                        self.material->GetMaterialTextures().albedo = texture;
-                    }
-                }
-            }
         );
 
         luaState.new_usertype<UITextComponent>("UITextComponent",
