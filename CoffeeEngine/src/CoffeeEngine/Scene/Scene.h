@@ -115,6 +115,7 @@ namespace Coffee {
         static void Save(const std::filesystem::path& path, Ref<Scene> scene);
 
         const std::filesystem::path& GetFilePath() const { return m_FilePath; }
+        void SetFilePath(const std::filesystem::path& path) { m_FilePath = path; }
 
         /**
          * @brief Update the positions of the audio components.
