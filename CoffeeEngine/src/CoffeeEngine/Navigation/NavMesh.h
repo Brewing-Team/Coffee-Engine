@@ -73,13 +73,24 @@ namespace Coffee
         template <class Archive>
         void save(Archive& archive) const
         {
-            archive(cereal::make_nvp("Triangles", m_Triangles), cereal::make_nvp("Calculated", m_Calculated));
+            std::ostringstream ss;
+            cereal::BinaryOutputArchive outputArchive(ss);
+            outputArchive(m_Triangles, m_Calculated);
+
+            std::string binData = ss.str();
+            archive(cereal::make_nvp("NavMesh", cereal::base64::encode(reinterpret_cast<const unsigned char*>(binData.data()), binData.size())));
         }
 
         template <class Archive>
         void load(Archive& archive)
         {
-            archive(cereal::make_nvp("Triangles", m_Triangles), cereal::make_nvp("Calculated", m_Calculated));
+            std::string serializedData;
+            archive(cereal::make_nvp("NavMesh", serializedData));
+
+            std::string decoded = cereal::base64::decode(serializedData);
+            std::istringstream ss(decoded);
+            cereal::BinaryInputArchive inputArchive(ss);
+            inputArchive(m_Triangles, m_Calculated);
         }
 
     private:
