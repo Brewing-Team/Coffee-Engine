@@ -1,5 +1,7 @@
 #include "NavMeshPathfinding.h"
 
+#include "CoffeeEngine/Renderer/Renderer2D.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
 
@@ -123,12 +125,12 @@ namespace Coffee
 
         for (size_t i = 0; i < path.size() - 1; i++)
         {
-            DebugRenderer::DrawLine(path[i], path[i + 1], pathColor, 30.0f);
+            Renderer2D::DrawLine(path[i], path[i + 1], pathColor, 30.0f);
 
-            DebugRenderer::DrawSphere(path[i], 0.1f, pathColor);
+            Renderer2D::DrawSphere(path[i], 0.1f, glm::identity<glm::quat>(), pathColor);
         }
 
-        DebugRenderer::DrawSphere(path.back(), 0.1f, pathColor);
+        Renderer2D::DrawSphere(path.back(), 0.1f, glm::identity<glm::quat>(), pathColor);
     }
 
     int NavMeshPathfinding::FindTriangleContaining(const glm::vec3& point) const
