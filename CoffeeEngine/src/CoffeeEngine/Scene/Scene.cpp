@@ -44,9 +44,6 @@ namespace Coffee {
     {
         m_SceneTree = CreateScope<SceneTree>(this);
 
-        // Initialize physics system
-        CollisionSystem::Initialize(this);
-
         AnimationSystem::ResetAnimators();
     }
 
@@ -184,6 +181,8 @@ namespace Coffee {
         ZoneScoped;
 
         m_SceneTree->Update();
+
+        CollisionSystem::Initialize(this);
 
         auto view = m_Registry.view<MeshComponent>();
 
@@ -412,9 +411,6 @@ namespace Coffee {
         cereal::JSONInputArchive archive(sceneFile);
 
         archive(*scene);
-
-        // TODO: Think where this could be done instead of the Load function
-        scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         
         scene->m_FilePath = path;
         
