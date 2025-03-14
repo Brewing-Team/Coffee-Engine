@@ -538,6 +538,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
                 } else if (componentName == "AudioSourceComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
+                } else if (componentName == "AnimatorComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<AnimatorComponent>()));
                 }
                 
                 return sol::nil;
