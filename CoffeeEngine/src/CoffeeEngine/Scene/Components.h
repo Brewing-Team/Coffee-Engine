@@ -814,22 +814,7 @@
                 material = Material::Create("UIImageMaterial");
                 }
             }
-        void SetTexture(const std::string& texturePath)
-        {
-            Ref<Texture2D> texture = Texture2D::Load(texturePath);
-            if (texture)
-            {
-                if (!material)
-                {
-                    material = Material::Create("UIImageMaterial");
-                }
-
-                MaterialTextures textures = material->GetMaterialTextures();
-                textures.albedo = texture;
-                material->GetMaterialTextures() = textures;
-            }
-        }
-
+     
         template<class Archive>
         void save(Archive& archive) const {
             UUID uuid = material->GetUUID();
