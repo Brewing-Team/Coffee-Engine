@@ -311,6 +311,14 @@ input = {
         -- Implementation here
         return false
     end,
+    is_button_pressed = function(action)
+        -- Implementation here
+        return 0
+    end,
+    get_axis_position = function(action)
+        -- Implementation here
+        return 0.0
+    end,
     get_mouse_position = function()
         -- Implementation here
         return 0, 0
