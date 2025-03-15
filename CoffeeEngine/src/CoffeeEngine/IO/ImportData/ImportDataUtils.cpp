@@ -74,11 +74,13 @@ namespace Coffee {
             COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Failed to parse import file {0}: {1}", importFilePath.string(), e.what());
             throw;
         }
+
+        std::filesystem::path fileDirectory = path.parent_path();
     
         // Convert the relative path to an absolute path
-        importData->originalPath = ResourceLoader::GetWorkingDirectory() / importData->originalPath;
+        importData->originalPath = fileDirectory / importData->originalPath.filename();
         if (importData->cache)
-            importData->cachedPath = ResourceLoader::GetWorkingDirectory() / importData->cachedPath;
+            importData->cachedPath = fileDirectory / importData->cachedPath.filename();
         return importData;
     }
 
