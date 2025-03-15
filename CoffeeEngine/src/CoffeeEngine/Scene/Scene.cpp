@@ -605,7 +605,7 @@ namespace Coffee {
         transform = glm::translate(transform, glm::vec3(center, 0.0f));
         transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
 
-        Renderer2D::DrawText2D(
+        Renderer2D::DrawString(
             uiTextComponent.Text,
             uiTextComponent.font,
             transform,
@@ -660,7 +660,7 @@ void Scene::OnRuntimeUpdateUI(float dt, entt::registry& registry)
             transform = glm::translate(transform, glm::vec3(center, 0.0f));
             transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
 
-            Renderer2D::DrawText2D(
+            Renderer2D::DrawString(
                 uiTextComponent.Text,
                 uiTextComponent.font,
                 transform,

@@ -88,7 +88,7 @@ namespace Coffee {
 			float LineSpacing = 0.0f;
 		};
 
-        static void DrawText2D(const std::string& text, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, RenderMode mode, uint32_t entityID = 4294967295);
+        static void DrawString(const std::string& text, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, RenderMode mode, uint32_t entityID = 4294967295);
     private:
         static Batch& GetBatch(RenderMode mode);
         static void NextBatch(RenderMode mode);
