@@ -1288,9 +1288,51 @@ namespace Coffee {
             }
         }
 
-            if (!isCollapsingHeaderOpen)
+        if (entity.HasComponent<NavMeshComponent>())
+        {
+            auto& navMeshComponent = entity.GetComponent<NavMeshComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("NavMesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                entity.RemoveComponent<ScriptComponent>();
+                ImGui::Checkbox("Show NavMesh", &navMeshComponent.ShowDebug);
+                ImGui::DragFloat("Walkable Slope Angle", &navMeshComponent.GetNavMesh()->WalkableSlopeAngle, 0.1f, 0.1f, 60.0f);
+
+                if (ImGui::SmallButton("Generate NavMesh"))
+                {
+                    navMeshComponent.GetNavMesh()->CalculateWalkableAreas(entity.GetComponent<MeshComponent>().GetMesh(), entity.GetComponent<TransformComponent>().GetWorldTransform());
+                }
+            }
+        }
+
+        if (entity.HasComponent<NavigationAgentComponent>())
+        {
+            auto& navigationAgentComponent = entity.GetComponent<NavigationAgentComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Navigation Agent", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                auto view = m_Context->m_Registry.view<NavMeshComponent>();
+
+                ImGui::Checkbox("Show Path", &navigationAgentComponent.ShowDebug);
+
+                if (ImGui::BeginCombo("NavMesh", navigationAgentComponent.GetNavMeshComponent() ? std::to_string(navigationAgentComponent.GetNavMeshComponent()->GetNavMeshUUID()).c_str() : "Select NavMesh"))
+                {
+                    for (auto entityID : view)
+                    {
+                        Entity e{entityID, m_Context.get()};
+                        auto& navMeshComponent = e.GetComponent<NavMeshComponent>();
+                        bool isSelected = (navigationAgentComponent.GetNavMeshComponent() && navigationAgentComponent.GetNavMeshComponent()->GetNavMeshUUID() == navMeshComponent.GetNavMeshUUID());
+                        if (ImGui::Selectable(std::to_string(navMeshComponent.GetNavMeshUUID()).c_str(), isSelected))
+                        {
+                            navigationAgentComponent.SetNavMeshComponent(CreateRef<NavMeshComponent>(navMeshComponent));
+                            navigationAgentComponent.GetPathFinder()->SetNavMesh(navMeshComponent.GetNavMesh());
+                        }
+                        if (isSelected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
             }
         }
 
@@ -1314,7 +1356,8 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "NavMesh Component", "Navigation Agent Component" };
+
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1459,6 +1502,28 @@ namespace Coffee {
                             }
                         }
                     }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "NavMesh Component")
+                {
+                    if(!entity.HasComponent<NavMeshComponent>() && entity.HasComponent<MeshComponent>() && entity.HasComponent<TransformComponent>())
+                    {
+                        auto& navMeshComponent = entity.AddComponent<NavMeshComponent>();
+                        navMeshComponent.SetNavMesh(CreateRef<NavMesh>());
+                        navMeshComponent.SetNavMeshUUID(UUID());
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Navigation Agent Component")
+                {
+                    if(!entity.HasComponent<NavigationAgentComponent>())
+                    {
+                        auto& navigationAgentComponent = entity.AddComponent<NavigationAgentComponent>();
+                        navigationAgentComponent.SetPathFinder(CreateRef<NavMeshPathfinding>(nullptr));
+                    }
+
                     ImGui::CloseCurrentPopup();
                 }
                 else
