@@ -68,12 +68,8 @@ namespace Coffee
     {
         if (!particleMesh)
         {
-            particleMesh = Coffee::PrimitiveMesh::CreateQuad();
+            particleMesh = Coffee::PrimitiveMesh::CreatePlane(glm::vec2(1,1));
         }
-
-        //[Temporary Comment] If we make the particle component require the material component, delete the next line.
-        particleMaterial = CreateRef<Material>("Default Particle Material");
-
     }
 
     void ParticleEmitter::InitParticle(Ref<Particle> particle)
@@ -151,12 +147,20 @@ namespace Coffee
         {
             glm::mat4 viewMatrix = cameraViewMatrix; // Get the camera's view matrix
             glm::mat4 billboardTransform = CalculateBillboardTransform(particle->transformMatrix, viewMatrix);
+
+            //Fix for the rotation primitive plane
+            glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            billboardTransform = billboardTransform * rotationMatrix;
+            //End fix
+
             particle->transformMatrix = billboardTransform;
+           
         }
         else
         {
             // Handle other alignment modes if needed
         }
+        particle->SetSize(particle->startSize);
 
         glm::vec3 newVelocity = glm::vec3(1, 1, 1);
 

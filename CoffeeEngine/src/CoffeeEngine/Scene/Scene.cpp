@@ -209,16 +209,13 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-
-           //[Temporary Comment] If we make the particle component require the material component, uncomment this.
-
-           /* auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
             if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
             {
                 particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }*/
+            }
 
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
@@ -348,15 +345,14 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-           //[Temporary Comment] If we make the particle component require the material component, uncomment this.
 
-           /* auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
             if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
             {
                 particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }*/
+            }
 
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(cameraTransform);
