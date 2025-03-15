@@ -1357,7 +1357,9 @@ namespace Coffee {
                 else if(items[item_current] == "Material Component")
                 {
                     if(!entity.HasComponent<MaterialComponent>())
-                        entity.AddComponent<MaterialComponent>();
+                    {
+                        entity.AddComponent<MaterialComponent>(Material::Create("Default Material"));
+                    }
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "Light Component")
@@ -1592,7 +1594,7 @@ namespace Coffee {
                 {
                     Entity e = m_Context->CreateEntity("Primitive");
                     e.AddComponent<MeshComponent>();
-                    e.AddComponent<MaterialComponent>();
+                    e.AddComponent<MaterialComponent>(Material::Create("Default Material"));
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
