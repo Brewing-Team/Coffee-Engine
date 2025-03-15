@@ -1336,6 +1336,594 @@ namespace Coffee {
             }
         }
 
+        if (entity.HasComponent<ParticlesSystemComponent>())
+        {
+            auto& particles = entity.GetComponent<ParticlesSystemComponent>();
+            Ref<ParticleEmitter> emitter = particles.GetParticleEmitter();
+            bool isCollapsingHeaderOpen = true;
+
+            ImGui::PushID("ParticlesSystem");
+            if (ImGui::CollapsingHeader("Particle System", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                // Position
+                // ImGui::Text("Position");
+                // ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
+
+                // Rate over time
+
+                // Direction
+                ImGui::Checkbox("##ParticleDirectionUseRandom", &emitter->useDirectionRandom);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
+                ImGui::SameLine();
+                ImGui::Text("Direction");
+                ImGui::DragFloat3("##ParticleDirectionNormal", glm::value_ptr(emitter->direction), 0.1f, -1.0f, 1.0f);
+                if (emitter->useDirectionRandom)
+                {
+                    ImGui::DragFloat3("##ParticleDirectionRandom", glm::value_ptr(emitter->directionRandom), 0.1f,
+                                      -1.0f, 1.0f);
+                }
+
+                // Colour
+                ImGui::Checkbox("##ParticleColorUseRandom", &emitter->useColorRandom);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
+                ImGui::SameLine();
+                ImGui::Text("Colour");
+                ImGui::ColorEdit4("##ParticleColourNormal", glm::value_ptr(emitter->colorNormal));
+                if (emitter->useColorRandom)
+                {
+                    ImGui::ColorEdit4("##ParticleColorRandom", glm::value_ptr(emitter->colorRandom));
+                }
+
+                //// Life Time
+                // ImGui::Text("Life Time");
+                // ImGui::DragFloat("##ParticleLife", &emitter->lifeTime, 0.1f, 0.0f, 100.0f);
+
+                //// Size
+                // ImGui::Text("Size");
+                // ImGui::DragFloat("##ParticleSize", &emitter->size, 0.1f, 0.0f, 10.0f);
+
+                // Looping
+                ImGui::Checkbox("##ParticleLooping", &emitter->looping);
+                ImGui::SameLine();
+                ImGui::Text("Looping");
+
+                // Start Life Time
+                // Use Random Start Life Time
+                ImGui::Checkbox("##UseRandomStartLifeTime", &emitter->useRandomLifeTime);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
+                ImGui::SameLine();
+                ImGui::Text("Start Life Time");
+                if (emitter->useRandomLifeTime)
+                {
+                    ImGui::Text("Min");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartLifeTimeMin", &emitter->startLifeTimeMin, 0.1f, 0.0f, 100.0f);
+                    ImGui::Text("Max");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartLifeTimeMax", &emitter->startLifeTimeMax, 0.1f, 0.0f, 100.0f);
+                }
+                else
+                {
+                    ImGui::DragFloat("##ParticleStartLifeTime", &emitter->startLifeTime, 0.1f, 0.0f, 100.0f);
+                }
+                ImGui::Separator();
+
+                // Start speed
+                // Use Random Start sppeed
+                ImGui::Checkbox("##UseRandomStartSpeed", &emitter->useRandomSpeed);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
+                ImGui::SameLine();
+                ImGui::Text("Start Speed");
+
+                if (emitter->useRandomSpeed)
+                {
+                    ImGui::Text("Min");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartSpeedMin", &emitter->startSpeedMin, 0.1f, 0.0f, 100.0f);
+                    ImGui::Text("Max");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleStartSpeedMax", &emitter->startSpeedMax, 0.1f, 0.0f, 100.0f);
+                }
+                else
+                {
+                    ImGui::DragFloat("##ParticleStartSpeed", &emitter->startSpeed, 0.1f, 0.0f, 100.0f);
+                }
+
+                // Start Size
+                // Use Random Start Size
+                ImGui::Checkbox("##UseRandomStartSize", &emitter->useRandomSize);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
+                ImGui::SameLine();
+                ImGui::Text("Start Size");
+                ImGui::SameLine();
+                ImGui::Checkbox("##UseSplitAxesStartSize", &emitter->useSplitAxesSize);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to split the startSize value in to three axes");
+                }
+
+                if (emitter->useSplitAxesSize)
+                {
+
+                    if (emitter->useRandomSize)
+                    {
+
+                        ImGui::Text("Min");
+                        ImGui::SameLine();
+                        ImGui::DragFloat3("##UseAxesParticleStartSizeMin", glm::value_ptr(emitter->startSizeMin), 0.1f);
+                        ImGui::Text("Max");
+                        ImGui::SameLine();
+                        ImGui::DragFloat3("##UseAxesParticleStartSizeMax", glm::value_ptr(emitter->startSizeMax), 0.1f);
+                    }
+                    else
+                    {
+                        ImGui::DragFloat3("##UseAxesParticleStartSize", glm::value_ptr(emitter->startSize), 0.1f);
+                    }
+                }
+                else
+                {
+
+                    if (emitter->useRandomSize)
+                    {
+                        float unirformValueSizeMin = emitter->startSizeMin.x;
+                        float unirformValueSizeMax = emitter->startSizeMax.x;
+
+                        ImGui::Text("Min");
+                        ImGui::SameLine();
+                        if (ImGui::DragFloat("##NoAxesParticleStartSizeMin", &unirformValueSizeMin, 0.1f))
+                        {
+                            emitter->startSizeMin = glm::vec3(unirformValueSizeMin);
+                        }
+                        ImGui::Text("Max");
+                        ImGui::SameLine();
+                        if (ImGui::DragFloat("##NoAxesParticleStartSizeMax", &unirformValueSizeMax, 0.1f))
+                        {
+                            emitter->startSizeMax = glm::vec3(unirformValueSizeMax);
+                        }
+                    }
+                    else
+                    {
+                        float unirformValueSize = emitter->startSize.x;
+                        if (ImGui::DragFloat("##NoAxesParticleStartSize", &unirformValueSize, 0.1f))
+                        {
+                             emitter->startSize = glm::vec3(unirformValueSize);
+                         }
+                    }
+                }
+
+                // Start Rotation
+                // Use Random Start Rotation
+                ImGui::Checkbox("##UseRandomStartRotation", &emitter->useRandomRotation);
+                if (ImGui::IsItemHovered())
+                {
+                    ImGui::SetTooltip("Check this button to use the random system.\nThe value above is the min, and "
+                                      "the value below is the max.");
+                }
+                ImGui::SameLine();
+                ImGui::Text("Start Rotation");
+
+                if (emitter->useRandomRotation)
+                {
+                    ImGui::Text("Min");
+                    ImGui::SameLine();
+                    ImGui::DragFloat3("##ParticleStartRotationMin", glm::value_ptr(emitter->startRotationMin), 0.1f);
+                    ImGui::Text("Max");
+                    ImGui::SameLine();
+                    ImGui::DragFloat3("##ParticleStartRotationMax", glm::value_ptr(emitter->startRotationMax), 0.1f);
+                }
+                else
+                {
+                    ImGui::DragFloat3("##ParticleStartRotation", glm::value_ptr(emitter->startRotation), 0.1f);
+                }
+
+                // Simulation Space
+                // ImGui::Text("Simulation Space");
+                // ImGui::SameLine();
+
+                //// Show Combo Menu
+                // const char* simulationSpaceOptions[] = {"Local", "World", "Custom"};
+                // int currentSimulationSpace = static_cast<int>(emitter->simulationSpace);
+
+                // if (ImGui::Combo("##SimulationSpace", &currentSimulationSpace, simulationSpaceOptions,
+                //                  IM_ARRAYSIZE(simulationSpaceOptions)))
+                //{
+                //     emitter->simulationSpace = static_cast<ParticleEmitter::SimulationSpace>(currentSimulationSpace);
+                // }
+
+                ImGui::Checkbox("##UseEmission", &emitter->useEmission);
+                ImGui::SameLine();
+                ImGui::PushID("Emission");
+
+                if (ImGui::TreeNodeEx("Emission Settings", ImGuiTreeNodeFlags_None))
+                {
+                    // If not enabled, set the text to gray and disable the controls
+                    if (!emitter->useEmission)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    }
+
+                    // Select emitter shape
+                    ImGui::Text("Rate over Time");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticleRateOverTime", &emitter->rateOverTime, 0.1, 0);
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+
+                // Shape section: Select shape and control other properties (Angle, Radius, Radius Thickness)
+                ImGui::Checkbox("##UseShape", &emitter->useShape); // Shape toggle checkbox
+                ImGui::SameLine();
+                ImGui::PushID("Shape");
+
+                if (ImGui::TreeNodeEx("Shape Settings", ImGuiTreeNodeFlags_None))
+                {
+                    // If not enabled, set the text to gray and disable the controls
+                    if (!emitter->useShape)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    }
+
+                    // Select emitter shape
+                    const char* shapeNames[] = {"Sphere", "Cone", "Box"};
+                    ImGui::Text("Shape");
+                    ImGui::SameLine();
+                    ImGui::Combo("##ShapeType", reinterpret_cast<int*>(&emitter->shape), shapeNames,
+                                 IM_ARRAYSIZE(shapeNames));
+
+                    // Spread
+                    ImGui::Text("Spread");
+                    /*ImGui::SameLine();*/
+                    ImGui::DragFloat3("##ParticleSpreadMin", glm::value_ptr(emitter->minSpread), 0.1f);
+                    ImGui::DragFloat3("##ParticleSpreadMax", glm::value_ptr(emitter->maxSpread), 0.1f);
+
+                    // Control the angle (only applies to Cone)
+                    if (emitter->shape == ParticleEmitter::ShapeType::Cone)
+                    {
+                        ImGui::Text("Angle");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##Angle", &emitter->shapeAngle, 1.0f, 0.0f,
+                                         180.0f); // Control angle, range: 0 to 180
+                    }
+
+                    if (emitter->shape != ParticleEmitter::ShapeType::Box)
+                    {
+
+                        // Control the radius
+                        ImGui::Text("Radius");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##Radius", &emitter->shapeRadius, 0.1f, 0.0f,
+                                         100.0f); // Control radius, range: 0 to 100
+
+                        // Control radius thickness (for ring-shaped emitter)
+                        ImGui::Text("Radius Thickness");
+                        ImGui::SameLine();
+                        ImGui::DragFloat("##RadiusThickness", &emitter->shapeRadiusThickness, 0.01f, 0.0f,
+                                         10.0f); // Range: 0 to 10
+                    }
+
+                    // Restore the default state
+                    if (!emitter->useShape)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+
+                // Velocity Over Lifetime - Checkbox and Collapsing Header
+                ImGui::Checkbox("##UseVelocityOverLifetime", &emitter->useVelocityOverLifetime);
+
+                // SameLine to make checkbox and header appear on the same line
+                ImGui::SameLine();
+                ImGui::PushID("VelocityOverLifetime");
+
+                // Use TreeNodeEx to create a collapsible panel without a close button
+                if (ImGui::TreeNodeEx("Velocity Over Lifetime Settings", ImGuiTreeNodeFlags_None))
+                {
+                    // If the checkbox is not selected, set controls to gray and disable them
+                    if (!emitter->useVelocityOverLifetime)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out text
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    }
+
+                    ImGui::Checkbox("Separate Axes", &emitter->velocityOverLifeTimeSeparateAxes);
+
+                    if (emitter->velocityOverLifeTimeSeparateAxes)
+                    {
+
+                        ImGui::Text("Velocity X");
+                        CurveEditor::DrawCurve("Velocity X", emitter->speedOverLifeTimeX);
+
+                        ImGui::Text("Velocity Y ");
+                        CurveEditor::DrawCurve("Velocity Y", emitter->speedOverLifeTimeY);
+
+                        ImGui::Text("Velocity Z");
+                        CurveEditor::DrawCurve("Velocity Z", emitter->speedOverLifeTimeZ);
+                    }
+                    else
+                    {
+
+                        ImGui::Text("Velocity");
+                        CurveEditor::DrawCurve("Velocity", emitter->speedOverLifeTimeGeneral);
+                    }
+
+                    // Restore default state
+                    if (!emitter->useVelocityOverLifetime)
+                    {
+                        ImGui::PopItemFlag();   // Restore control state
+                        ImGui::PopStyleColor(); // Restore color
+                    }
+
+                    // Close tree node
+                    ImGui::TreePop();
+                }
+
+                ImGui::PopID();
+
+                // Color Over Lifetime - Checkbox and Collapsing Header
+                ImGui::Checkbox("##UseColorOverLifetime", &emitter->useColorOverLifetime);
+
+                // SameLine to make checkbox and header appear on the same line
+                ImGui::SameLine();
+                ImGui::PushID("ColorOverLifetime");
+
+                // Use TreeNodeEx to create a collapsible panel without a close button
+                if (ImGui::TreeNodeEx("Color Over Lifetime Settings", ImGuiTreeNodeFlags_None))
+                {
+                    // If the checkbox is not selected, set controls to gray and disable them
+                    if (!emitter->useColorOverLifetime)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out text
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    }
+
+                    // Gradient option (Placeholder: Need to implement gradient system)
+                    ImGui::Text("Gradient");
+                    ImGui::SameLine();
+                    // if (ImGui::Button("Edit Gradient"))
+                    //{
+                    //     // Open a gradient editor (Needs implementation)
+                    // }
+
+                    GradientEditor::ShowGradientEditor(emitter->colorOverLifetime_gradientPoints);
+
+                    // Restore default state
+                    if (!emitter->useColorOverLifetime)
+                    {
+                        ImGui::PopItemFlag();   // Restore control state
+                        ImGui::PopStyleColor(); // Restore color
+                    }
+
+                    // Close tree node
+                    ImGui::TreePop();
+                }
+
+                ImGui::PopID();
+
+                // Size Over Lifetime - Checkbox and Collapsing Header
+                ImGui::Checkbox("##UseSizeOverLifetime", &emitter->useSizeOverLifetime);
+
+                ImGui::SameLine();
+                ImGui::PushID("SizeOverLifetime");
+
+                if (ImGui::TreeNodeEx("Size Over Lifetime Settings", ImGuiTreeNodeFlags_None))
+                {
+                    // If not enabled, set text to gray and disable controls
+                    if (!emitter->useSizeOverLifetime)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    }
+
+                    // Enable or disable separate XYZ axes
+                    ImGui::Checkbox("Separate Axes", &emitter->sizeOverLifeTimeSeparateAxes);
+
+                    if (emitter->sizeOverLifeTimeSeparateAxes)
+                    {
+                        ImGui::Text("Size X");
+                        CurveEditor::DrawCurve("Size X", emitter->sizeOverLifetimeX);
+
+                        ImGui::Text("Size Y");
+                        CurveEditor::DrawCurve("Size Y", emitter->sizeOverLifetimeY);
+
+                        ImGui::Text("Size Z");
+                        CurveEditor::DrawCurve("Size Z", emitter->sizeOverLifetimeZ);
+                    }
+                    else
+                    {
+                        ImGui::Text("Size");
+                        CurveEditor::DrawCurve("Size", emitter->sizeOverLifetimeGeneral);
+                    }
+
+                    // Restore default state
+                    if (!emitter->useSizeOverLifetime)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+
+                // Rotation Over Lifetime - Checkbox and Collapsing Header
+                ImGui::Checkbox("##UseRotationOverLifetime", &emitter->useRotationOverLifetime);
+
+                ImGui::SameLine();
+                ImGui::PushID("RotationOverLifetime");
+
+                if (ImGui::TreeNodeEx("Rotation Over Lifetime Settings", ImGuiTreeNodeFlags_None))
+                {
+                    // If not enabled, set text to gray and disable controls
+                    if (!emitter->useRotationOverLifetime)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    }
+
+                    // Rotation on X axis
+                    ImGui::Text("Rotation X");
+                    CurveEditor::DrawCurve("##RotationX", emitter->rotationOverLifetimeX);
+
+                    // Rotation on Y axis
+                    ImGui::Text("Rotation Y");
+                    CurveEditor::DrawCurve("##RotationY", emitter->rotationOverLifetimeZ);
+
+                    // Rotation on Z axis
+                    ImGui::Text("Rotation Z");
+                    CurveEditor::DrawCurve("##RotationZ", emitter->rotationOverLifetimeY);
+
+                    // Restore default state
+                    if (!emitter->useRotationOverLifetime)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+
+                // Renderer - Checkbox and Collapsing Header
+                ImGui::Checkbox("##UseRenderer", &emitter->useRenderer);
+
+                ImGui::SameLine();
+                ImGui::PushID("Renderer");
+
+                if (ImGui::TreeNodeEx("Renderer Settings", ImGuiTreeNodeFlags_None))
+                {
+                    // If not enabled, set text to gray and disable controls
+                    if (!emitter->useRenderer)
+                    {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray out
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    }
+
+                    // Particle Amount
+                    ImGui::Text("Max Particles");
+                    ImGui::SameLine();
+                    ImGui::DragInt("##ParticleAmount", &emitter->amount, 1, 1, 10000);
+
+                    // Render Mode selection
+                    const char* renderModes[] = {"Billboard", "Custom"};
+                    ImGui::Text("Render Alignment");
+                    ImGui::SameLine();
+                    ImGui::Combo("##RenderAlignment", reinterpret_cast<int*>(&emitter->renderAlignment), renderModes,
+                                 IM_ARRAYSIZE(renderModes));
+
+                    //ImGui::SameLine();
+                    //if (ImGui::Button("Select Material"))
+                    //{
+                    //    // Open Material selection logic here
+                    //}
+
+                    //// Texture Selector
+                    // ImGui::Text("Texture");
+                    // ImGui::SameLine();
+                    // if (ImGui::Button("Select Texture"))
+                    //{
+                    //     // Open texture selection logic here
+                    // }
+
+                    // Render Alignment selection
+                    /*const char* renderAlignments[] = {"View", "Local", "World"};
+                    ImGui::Text("Render Alignment");
+                    ImGui::SameLine();
+                    ImGui::Combo("##RenderAlignment", reinterpret_cast<int*>(&emitter->renderAlignment),
+                                 renderAlignments, IM_ARRAYSIZE(renderAlignments));*/
+
+                    // Restore default state
+                    if (!emitter->useRenderer)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleColor();
+                    }
+
+                    ImGui::TreePop();
+                }
+                ImGui::PopID();
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<ScriptComponent>();
+            }
+        }
+
+        if (entity.HasComponent<NavMeshComponent>())
+        {
+            auto& navMeshComponent = entity.GetComponent<NavMeshComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("NavMesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Checkbox("Show NavMesh", &navMeshComponent.ShowDebug);
+                ImGui::DragFloat("Walkable Slope Angle", &navMeshComponent.GetNavMesh()->WalkableSlopeAngle, 0.1f, 0.1f, 60.0f);
+
+                if (ImGui::SmallButton("Generate NavMesh"))
+                {
+                    navMeshComponent.GetNavMesh()->CalculateWalkableAreas(entity.GetComponent<MeshComponent>().GetMesh(), entity.GetComponent<TransformComponent>().GetWorldTransform());
+                }
+            }
+        }
+
+        if (entity.HasComponent<NavigationAgentComponent>())
+        {
+            auto& navigationAgentComponent = entity.GetComponent<NavigationAgentComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Navigation Agent", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                auto view = m_Context->m_Registry.view<NavMeshComponent>();
+
+                ImGui::Checkbox("Show Path", &navigationAgentComponent.ShowDebug);
+
+                if (ImGui::BeginCombo("NavMesh", navigationAgentComponent.GetNavMeshComponent() ? std::to_string(navigationAgentComponent.GetNavMeshComponent()->GetNavMeshUUID()).c_str() : "Select NavMesh"))
+                {
+                    for (auto entityID : view)
+                    {
+                        Entity e{entityID, m_Context.get()};
+                        auto& navMeshComponent = e.GetComponent<NavMeshComponent>();
+                        bool isSelected = (navigationAgentComponent.GetNavMeshComponent() && navigationAgentComponent.GetNavMeshComponent()->GetNavMeshUUID() == navMeshComponent.GetNavMeshUUID());
+                        if (ImGui::Selectable(std::to_string(navMeshComponent.GetNavMeshUUID()).c_str(), isSelected))
+                        {
+                            navigationAgentComponent.SetNavMeshComponent(CreateRef<NavMeshComponent>(navMeshComponent));
+                            navigationAgentComponent.GetPathFinder()->SetNavMesh(navMeshComponent.GetNavMesh());
+                        }
+                        if (isSelected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            }
+        }
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -1357,6 +1945,8 @@ namespace Coffee {
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
             std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "NavMesh Component", "Navigation Agent Component" };
+
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" };
 
             static int item_current = 1;
 
@@ -1458,6 +2048,11 @@ namespace Coffee {
                 else if(items[item_current] == "Lua Script Component")
                 {
                     if(!entity.HasComponent<ScriptComponent>())
+                    {
+                        m_ShowLuaScriptOptions = true;
+                        ImGui::CloseCurrentPopup();
+                    }
+                    else
                     {
                         m_ShowLuaScriptOptions = true;
                         ImGui::CloseCurrentPopup();

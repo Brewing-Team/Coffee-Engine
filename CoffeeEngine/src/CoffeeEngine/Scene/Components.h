@@ -16,6 +16,7 @@
  #include "CoffeeEngine/Scene/SceneCamera.h"
  #include "CoffeeEngine/Scripting/Script.h"
  #include "CoffeeEngine/Scripting/ScriptManager.h"
+ #include "CoffeeEngine/ParticleManager/ParticleManager.h"
  #include "CoffeeEngine/Navigation/NavMesh.h"
  #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
 
