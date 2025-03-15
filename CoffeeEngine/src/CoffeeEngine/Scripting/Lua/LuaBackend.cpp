@@ -645,10 +645,14 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
+                } else if (componentName == "NavigationAgentComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
                 } else if (componentName == "RigidbodyComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
                 } else if (componentName == "AudioSourceComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
+                } else if (componentName == "AnimatorComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<AnimatorComponent>()));
                 }
 
                 return sol::nil;
@@ -668,6 +672,8 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
+                } else if (componentName == "NavigationAgentComponent") {
+                    return self->HasComponent<NavigationAgentComponent>();
                 } else if (componentName == "RigidbodyComponent") {
                     return self->HasComponent<RigidbodyComponent>();
                 } else if (componentName == "AnimatorComponent") {
@@ -752,6 +758,12 @@ namespace Coffee {
             "intensity", &LightComponent::Intensity,
             "angle", &LightComponent::Angle,
             "type", &LightComponent::type
+        );
+
+        luaState.new_usertype<NavigationAgentComponent>("NavigationAgentComponent",
+            sol::constructors<NavigationAgentComponent()>(),
+            "path", &NavigationAgentComponent::Path,
+            "find_path", &NavigationAgentComponent::FindPath
         );
 
         luaState.new_usertype<ScriptComponent>("ScriptComponent",

@@ -2,6 +2,8 @@
 
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Events/Event.h"
+#include "CoffeeEngine/Navigation/NavMesh.h"
+#include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
@@ -153,6 +155,8 @@ namespace Coffee {
             .template get<LightComponent>(archive)
             .template get<RigidbodyComponent>(archive)
             .template get<ScriptComponent>(archive)
+            .template get<NavMeshComponent>(archive)
+            .template get<NavigationAgentComponent>(archive)
             .template get<AnimatorComponent>(archive)
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
@@ -178,6 +182,8 @@ namespace Coffee {
             .template get<LightComponent>(archive)
             .template get<RigidbodyComponent>(archive)
             .template get<ScriptComponent>(archive)
+            .template get<NavMeshComponent>(archive)
+            .template get<NavigationAgentComponent>(archive)
             .template get<AnimatorComponent>(archive)
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)

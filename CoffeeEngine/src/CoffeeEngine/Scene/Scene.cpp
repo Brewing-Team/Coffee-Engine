@@ -227,6 +227,18 @@ namespace Coffee {
         // TEST ------------------------------
         m_Octree.DebugDraw();
 
+        // TEMPORAL - Navigation
+        auto navMeshView = m_Registry.view<NavMeshComponent>();
+
+        for (auto& entity : navMeshView)
+        {
+            auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
+            if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated())
+            {
+                navMeshComponent.GetNavMesh()->RenderWalkableAreas();
+            }
+        }
+
         auto animatorView = m_Registry.view<AnimatorComponent>();
 
         for (auto& entity : animatorView)
@@ -297,6 +309,26 @@ namespace Coffee {
             camera = &sceneCamera;
 
             cameraTransform = glm::mat4(1.0f);
+        }
+
+        auto navMeshView = m_Registry.view<NavMeshComponent>();
+
+        for (auto& entity : navMeshView)
+        {
+            auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
+            if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated())
+            {
+                navMeshComponent.GetNavMesh()->RenderWalkableAreas();
+            }
+        }
+
+        auto navigationAgentView = m_Registry.view<NavigationAgentComponent>();
+
+        for (auto& agent : navigationAgentView)
+        {
+            auto& navAgentComponent = navigationAgentView.get<NavigationAgentComponent>(agent);
+            if (navAgentComponent.ShowDebug && navAgentComponent.GetPathFinder())
+                navAgentComponent.GetPathFinder()->RenderPath(navAgentComponent.Path);
         }
 
         m_PhysicsWorld.stepSimulation(dt);
