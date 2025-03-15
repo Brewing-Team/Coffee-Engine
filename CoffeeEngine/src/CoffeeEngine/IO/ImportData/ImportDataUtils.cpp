@@ -1,5 +1,3 @@
-#pragma once
-
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
 #include "CoffeeEngine/IO/ImportData/CubemapImportData.h"
