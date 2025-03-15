@@ -630,7 +630,10 @@ namespace Coffee {
                     self->AddComponent<UIImageComponent>();
                 } else if (componentName == "UITextComponent") {
                     self->AddComponent<UITextComponent>();
-                } else if (componentName == "AudioSourceComponent") {
+                } else if (componentName == "UISliderComponent")
+                {
+                    self->AddComponent<UISliderComponent>();
+                }else if (componentName == "AudioSourceComponent") {
                     self->AddComponent<AudioSourceComponent>();
                 }
             },
@@ -653,7 +656,12 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
                 } else if (componentName == "UITextComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UITextComponent>()));
-                } else if (componentName == "NavigationAgentComponent") {
+                }
+                else if (componentName == "UISliderComponent")
+                {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UISliderComponent>()));
+                }
+                else if (componentName == "NavigationAgentComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
                 } else if (componentName == "RigidbodyComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
@@ -684,7 +692,12 @@ namespace Coffee {
                     return self->HasComponent<UIImageComponent>();
                 } else if (componentName == "UITextComponent") {
                     return self->HasComponent<UITextComponent>();
-                } else if (componentName == "NavigationAgentComponent") {
+                }
+                else if (componentName == "UISliderComponent")
+                {
+                    return self->HasComponent<UISliderComponent>();
+                }
+                else if (componentName == "NavigationAgentComponent") {
                     return self->HasComponent<NavigationAgentComponent>();
                 } else if (componentName == "RigidbodyComponent") {
                     return self->HasComponent<RigidbodyComponent>();
@@ -714,7 +727,11 @@ namespace Coffee {
                     self->RemoveComponent<UIImageComponent>();
                 } else if (componentName == "UITextComponent") {
                     self->RemoveComponent<UITextComponent>();
-                } else if (componentName == "RigidbodyComponent") {
+                }
+                else if (componentName == "UISliderComponent") {
+                            self->RemoveComponent<UISliderComponent>();
+                }
+                else if (componentName == "RigidbodyComponent") {
                     self->RemoveComponent<RigidbodyComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     self->RemoveComponent<AudioSourceComponent>();

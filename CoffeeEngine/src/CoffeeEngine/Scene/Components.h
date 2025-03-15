@@ -888,7 +888,98 @@
         }
 
     };
- 
+
+  struct UISliderComponent
+    {
+        Ref<Texture2D> barTexture;
+        Ref<Texture2D> handleTexture;
+        glm::vec2 Size = {300.0f, 50.0f};
+        glm::vec2 HandleSize = {75.0f, 75.0f};
+        float Value = 0.5f;
+        bool Visible = true;
+
+        UISliderComponent() = default;
+
+
+        UISliderComponent(const std::string& barTexturePath, const std::string& handleTexturePath, const glm::vec2& size, const glm::vec2& handleSize, bool visible)
+            : Size(size), HandleSize(handleSize), Visible(visible)
+        {
+            if (!barTexturePath.empty())
+            {
+                barTexture = Texture2D::Load(barTexturePath);
+            }
+            if (!handleTexturePath.empty())
+            {
+                handleTexture = Texture2D::Load(handleTexturePath);
+            }
+        }
+
+
+        void SetBarTexture(const Ref<Texture2D>& newTexture) { barTexture = newTexture; }
+        void SetHandleTexture(const Ref<Texture2D>& newTexture) { handleTexture = newTexture; }
+
+        void SetBarTexture(const std::string& texturePath)
+        {
+            if (!texturePath.empty())
+            {
+                barTexture = Texture2D::Load(texturePath);
+            }
+        }
+
+        void SetHandleTexture(const std::string& texturePath)
+        {
+            if (!texturePath.empty())
+            {
+                handleTexture = Texture2D::Load(texturePath);
+            }
+        }
+
+
+        void SetValue(float newValue)
+        {
+            Value = glm::clamp(newValue, 0.0f, 1.0f);
+        }
+
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(
+                cereal::make_nvp("BarTextureUUID", barTexture->GetUUID()),
+                cereal::make_nvp("HandleTextureUUID", handleTexture->GetUUID()),
+                cereal::make_nvp("Size", Size),
+                cereal::make_nvp("HandleSize", HandleSize),
+                cereal::make_nvp("Value", Value),
+                cereal::make_nvp("Visible", Visible)
+            );
+        }
+
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            UUID barTextureUUID, handleTextureUUID;
+
+            archive(
+                cereal::make_nvp("BarTextureUUID", barTextureUUID),
+                cereal::make_nvp("HandleTextureUUID", handleTextureUUID),
+                cereal::make_nvp("Size", Size),
+                cereal::make_nvp("HandleSize", HandleSize),
+                cereal::make_nvp("Value", Value),
+                cereal::make_nvp("Visible", Visible)
+            );
+
+            if (barTextureUUID)
+            {
+                barTexture = ResourceLoader::GetResource<Texture2D>(barTextureUUID);
+            }
+            if (handleTextureUUID)
+            {
+                handleTexture = ResourceLoader::GetResource<Texture2D>(handleTextureUUID);
+            }
+        }
+    };
+
     struct NavMeshComponent
     {
         bool ShowDebug = false; ///< Flag to show the navigation mesh debug.

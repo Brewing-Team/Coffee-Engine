@@ -1223,8 +1223,83 @@ namespace Coffee {
             }
         }
 
+       if (entity.HasComponent<UISliderComponent>())
+        {
+            auto& uiSliderComponent = entity.GetComponent<UISliderComponent>();
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Slider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+
+                ImGui::Text("Value");
+                ImGui::SliderFloat("##SliderValue", &uiSliderComponent.Value, 0.0f, 1.0f);
 
 
+                ImGui::Text("Size");
+                ImGui::DragFloat2("##SliderSize", glm::value_ptr(uiSliderComponent.Size), 0.1f);
+
+
+                ImGui::Text("Handle Size");
+                ImGui::DragFloat2("##HandleSize", glm::value_ptr(uiSliderComponent.HandleSize), 0.1f);
+
+
+                ImGui::Text("Bar Texture");
+                if (uiSliderComponent.barTexture)
+                {
+                    ImGui::Text("Current Texture: %s", uiSliderComponent.barTexture->GetPath().c_str());
+                    ImGui::Image((void*)(intptr_t)uiSliderComponent.barTexture->GetID(), ImVec2(64, 64));
+                }
+                else
+                {
+                    ImGui::Text("No Bar Texture Selected");
+                }
+
+
+                if (ImGui::Button("Select Bar Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        if (texture)
+                        {
+                            uiSliderComponent.SetBarTexture(texture);
+                        }
+                    }
+                }
+
+
+                ImGui::Text("Handle Texture");
+                if (uiSliderComponent.handleTexture)
+                {
+                    ImGui::Text("Current Texture: %s", uiSliderComponent.handleTexture->GetPath().c_str());
+                    ImGui::Image((void*)(intptr_t)uiSliderComponent.handleTexture->GetID(), ImVec2(64, 64));
+                }
+                else
+                {
+                    ImGui::Text("No Handle Texture Selected");
+                }
+
+
+                if (ImGui::Button("Select Handle Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        if (texture)
+                        {
+                            uiSliderComponent.SetHandleTexture(texture);
+                        }
+                    }
+                }
+
+
+                ImGui::Checkbox("Visible", &uiSliderComponent.Visible);
+
+
+            }
+        }
 
         if (entity.HasComponent<AnimatorComponent>())
         {
@@ -1469,7 +1544,7 @@ namespace Coffee {
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:",buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "NavMesh Component", "Navigation Agent Component", "UI Canvas Component", "Image Component", "Text Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "NavMesh Component", "Navigation Agent Component", "UI Canvas Component", "Image Component", "Text Component", "Slider Component" };
 
             static int item_current = 1;
 
@@ -1656,6 +1731,12 @@ namespace Coffee {
                 {
                     if (!entity.HasComponent<UITextComponent>())
                         entity.AddComponent<UITextComponent>();
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Slider Component")
+                {
+                    if (!entity.HasComponent<UISliderComponent>())
+                        entity.AddComponent<UISliderComponent>();
                     ImGui::CloseCurrentPopup();
                 }
                 else
