@@ -52,7 +52,12 @@ namespace Coffee {
         animator->AnimationTime += deltaTime * animator->AnimationSpeed;
         float animationDuration = animator->GetAnimationController()->GetAnimation(animator->CurrentAnimation)->GetAnimation()->duration();
         if (animator->AnimationTime > animationDuration)
-            animator->AnimationTime = std::fmod(animator->AnimationTime, animationDuration);
+        {
+            if (animator->Loop)
+                animator->AnimationTime = std::fmod(animator->AnimationTime, animationDuration);
+            else
+                animator->AnimationTime = animationDuration;
+        }
 
         std::vector<ozz::math::SoaTransform> localTransforms = SampleTransforms(animator, animator->CurrentAnimation, animator->AnimationTime / animationDuration);
 

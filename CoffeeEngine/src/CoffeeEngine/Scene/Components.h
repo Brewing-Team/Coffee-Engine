@@ -179,6 +179,7 @@
           */
          AnimatorComponent(const AnimatorComponent& other)
          : IsBlending(other.IsBlending),
+           Loop(other.Loop),
            CurrentAnimation(other.CurrentAnimation),
            NextAnimation(other.NextAnimation),
            AnimationTime(other.AnimationTime),
@@ -188,10 +189,10 @@
            BlendThreshold(other.BlendThreshold),
            AnimationSpeed(other.AnimationSpeed),
            JointMatrices(other.JointMatrices),
-           m_Skeleton(other.m_Skeleton),
-           m_AnimationController(other.m_AnimationController),
            modelUUID(other.modelUUID),
-           animatorUUID(other.animatorUUID)
+           animatorUUID(other.animatorUUID),
+           m_Skeleton(other.m_Skeleton),
+           m_AnimationController(other.m_AnimationController)
          {
              m_BlendJob.layers = ozz::make_span(m_BlendLayers);
              AnimationSystem::SetCurrentAnimation(CurrentAnimation, this);
@@ -267,6 +268,7 @@
                      cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("BlendThreshold", BlendThreshold),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
+                     cereal::make_nvp("Loop", Loop),
                      cereal::make_nvp("ModelUUID", modelUUID),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
          }
@@ -283,6 +285,7 @@
                      cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("BlendThreshold", BlendThreshold),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
+                     cereal::make_nvp("Loop", Loop),
                      cereal::make_nvp("ModelUUID", modelUUID),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
 
@@ -291,6 +294,7 @@
  
      public:
          bool IsBlending = false; ///< Indicates if the animation is blending.
+         bool Loop = true; ///< Indicates if the animation should loop.
          unsigned int CurrentAnimation = 0; ///< The current animation index.
          unsigned int NextAnimation = 0; ///< The next animation index.
          float AnimationTime = 0.f; ///< The current animation time.
