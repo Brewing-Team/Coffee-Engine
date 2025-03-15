@@ -58,8 +58,13 @@ namespace Coffee
             m_SelectionContext = {};
         }
 
-        // Button for adding entities to the scene tree
-        if (ImGui::Button(ICON_LC_PLUS, {24, 24}))
+        if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl) && ImGui::IsKeyPressed(ImGuiKey_D) && m_SelectionContext)
+        {
+            m_Context->Duplicate(m_SelectionContext);
+        }
+
+        //Button for adding entities to the scene tree
+        if(ImGui::Button(ICON_LC_PLUS, {24,24}))
         {
             ImGui::OpenPopup("Add Entity...");
         }
@@ -1177,6 +1182,13 @@ namespace Coffee
 
                 ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
 
+                ImGui::Checkbox("Loop", &animatorComponent.Loop);
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                // entity.RemoveComponent<AnimatorComponent>();
+                // TODO remove animator component from entity and all the animation data
             }
         }
         
@@ -1294,6 +1306,59 @@ namespace Coffee
                         break;
                     }
                     }
+                }
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<ScriptComponent>();
+            }
+        }
+
+        if (entity.HasComponent<NavMeshComponent>())
+        {
+            auto& navMeshComponent = entity.GetComponent<NavMeshComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("NavMesh", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Checkbox("Show NavMesh", &navMeshComponent.ShowDebug);
+                ImGui::DragFloat("Walkable Slope Angle", &navMeshComponent.GetNavMesh()->WalkableSlopeAngle, 0.1f, 0.1f, 60.0f);
+
+                if (ImGui::SmallButton("Generate NavMesh"))
+                {
+                    navMeshComponent.GetNavMesh()->CalculateWalkableAreas(entity.GetComponent<MeshComponent>().GetMesh(), entity.GetComponent<TransformComponent>().GetWorldTransform());
+                }
+            }
+        }
+
+        if (entity.HasComponent<NavigationAgentComponent>())
+        {
+            auto& navigationAgentComponent = entity.GetComponent<NavigationAgentComponent>();
+            bool isCollapsingHeaderOpen = true;
+            if (ImGui::CollapsingHeader("Navigation Agent", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                auto view = m_Context->m_Registry.view<NavMeshComponent>();
+
+                ImGui::Checkbox("Show Path", &navigationAgentComponent.ShowDebug);
+
+                if (ImGui::BeginCombo("NavMesh", navigationAgentComponent.GetNavMeshComponent() ? std::to_string(navigationAgentComponent.GetNavMeshComponent()->GetNavMeshUUID()).c_str() : "Select NavMesh"))
+                {
+                    for (auto entityID : view)
+                    {
+                        Entity e{entityID, m_Context.get()};
+                        auto& navMeshComponent = e.GetComponent<NavMeshComponent>();
+                        bool isSelected = (navigationAgentComponent.GetNavMeshComponent() && navigationAgentComponent.GetNavMeshComponent()->GetNavMeshUUID() == navMeshComponent.GetNavMeshUUID());
+                        if (ImGui::Selectable(std::to_string(navMeshComponent.GetNavMeshUUID()).c_str(), isSelected))
+                        {
+                            navigationAgentComponent.SetNavMeshComponent(CreateRef<NavMeshComponent>(navMeshComponent));
+                            navigationAgentComponent.GetPathFinder()->SetNavMesh(navMeshComponent.GetNavMesh());
+                        }
+                        if (isSelected)
+                        {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
                 }
             }
         }
@@ -1859,7 +1924,8 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" };
+
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -1909,8 +1975,10 @@ namespace Coffee
                 }
                 else if (items[item_current] == "Material Component")
                 {
-                    if (!entity.HasComponent<MaterialComponent>())
-                        entity.AddComponent<MaterialComponent>();
+                    if(!entity.HasComponent<MaterialComponent>())
+                    {
+                        entity.AddComponent<MaterialComponent>(Material::Create("Default Material"));
+                    }
                     ImGui::CloseCurrentPopup();
                 }
                 else if (items[item_current] == "Light Component")
@@ -1961,39 +2029,11 @@ namespace Coffee
                 {
                     if (!entity.HasComponent<ScriptComponent>())
                     {
-                        // Pop up a file dialog to select the save location for the new script
-                        FileDialogArgs args;
-                        args.Filters = {{"Lua Script", "lua"}};
-                        args.DefaultName = "NewScript.lua";
-                        const std::filesystem::path& path = FileDialog::SaveFile(args);
-
-                        if (!path.empty())
-                        {
-                            std::ofstream scriptFile(path);
-                            if (scriptFile.is_open())
-                            {
-                                scriptFile << "function on_ready()\n";
-                                scriptFile << "    -- Add initialization code here\n";
-                                scriptFile << "end\n\n";
-                                scriptFile << "function on_update(dt)\n";
-                                scriptFile << "    -- Add update code here\n";
-                                scriptFile << "end\n\n";
-                                scriptFile << "function on_exit()\n";
-                                scriptFile << "    -- Add cleanup code here\n";
-                                scriptFile.close();
-
-                                // Add the script component to the entity
-                                entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
-                            }
-                            else
-                            {
-                                COFFEE_CORE_ERROR("Failed to create Lua script file at: {0}", path.string());
-                            }
-                        }
-                        else
-                        {
-                            COFFEE_CORE_WARN("Create Lua Script: No file selected");
-                        }
+                        m_ShowLuaScriptOptions = true;
+                        ImGui::CloseCurrentPopup();
+                    }
+                    else
+                    {
                         ImGui::CloseCurrentPopup();
                     }
                 }
@@ -2045,12 +2085,108 @@ namespace Coffee
                             }
                         }
                     }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "NavMesh Component")
+                {
+                    if(!entity.HasComponent<NavMeshComponent>() && entity.HasComponent<MeshComponent>() && entity.HasComponent<TransformComponent>())
+                    {
+                        auto& navMeshComponent = entity.AddComponent<NavMeshComponent>();
+                        navMeshComponent.SetNavMesh(CreateRef<NavMesh>());
+                        navMeshComponent.SetNavMeshUUID(UUID());
+                    }
+
+                    ImGui::CloseCurrentPopup();
+                }
+                else if(items[item_current] == "Navigation Agent Component")
+                {
+                    if(!entity.HasComponent<NavigationAgentComponent>())
+                    {
+                        auto& navigationAgentComponent = entity.AddComponent<NavigationAgentComponent>();
+                        navigationAgentComponent.SetPathFinder(CreateRef<NavMeshPathfinding>(nullptr));
+                    }
+
                     ImGui::CloseCurrentPopup();
                 }
                 else
                 {
                     ImGui::CloseCurrentPopup();
                 }
+            }
+
+            ImGui::EndPopup();
+        }
+
+        // Add Lua script component options
+        if (m_ShowLuaScriptOptions)
+        {
+            ImGui::OpenPopup("Lua Script Source");
+            m_ShowLuaScriptOptions = false;
+        }
+
+        // Make sure your Lua Script Source popup is handled outside any other popup context
+        if (ImGui::BeginPopupModal("Lua Script Source", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Select script source:");
+            ImGui::Separator();
+
+            if (ImGui::Button("Create New Script", ImVec2(200, 0)))
+            {
+                // Pop up a file dialog to select the save location for the new script
+                FileDialogArgs args;
+                args.Filters = {{"Lua Script", "lua"}};
+                args.DefaultName = "NewScript.lua";
+                const std::filesystem::path& path = FileDialog::SaveFile(args);
+
+                if (!path.empty())
+                {
+                    std::ofstream scriptFile(path);
+                    if (scriptFile.is_open())
+                    {
+                        scriptFile << "function on_ready()\n";
+                        scriptFile << "    -- Add initialization code here\n";
+                        scriptFile << "end\n\n";
+                        scriptFile << "function on_update(dt)\n";
+                        scriptFile << "    -- Add update code here\n";
+                        scriptFile << "end\n\n";
+                        scriptFile << "function on_exit()\n";
+                        scriptFile << "    -- Add cleanup code here\n";
+                        scriptFile << "end\n";
+                        scriptFile.close();
+
+                        // Add the script component to the entity
+                        entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
+                    }
+                    else
+                    {
+                        COFFEE_CORE_ERROR("Failed to create Lua script file at: {0}", path.string());
+                    }
+                }
+
+                ImGui::CloseCurrentPopup();
+            }
+
+            if (ImGui::Button("Open Existing Script", ImVec2(200, 0)))
+            {
+                FileDialogArgs args;
+                args.Filters = {{"Lua Script", "lua"}};
+                const std::filesystem::path& path = FileDialog::OpenFile(args);
+
+                if (!path.empty())
+                {
+                    // Add the script component to the entity with the selected script
+                    entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
+                }
+
+                ImGui::CloseCurrentPopup();
+            }
+
+            ImGui::Separator();
+
+            if (ImGui::Button("Cancel", ImVec2(200, 0)))
+            {
+                ImGui::CloseCurrentPopup();
             }
 
             ImGui::EndPopup();
@@ -2112,7 +2248,7 @@ namespace Coffee
                 {
                     Entity e = m_Context->CreateEntity("Primitive");
                     e.AddComponent<MeshComponent>();
-                    e.AddComponent<MaterialComponent>();
+                    e.AddComponent<MaterialComponent>(Material::Create("Default Material"));
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }

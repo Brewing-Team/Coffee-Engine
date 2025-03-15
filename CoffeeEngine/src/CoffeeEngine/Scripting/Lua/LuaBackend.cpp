@@ -1,16 +1,20 @@
 #include "LuaBackend.h"
 
+#include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
-#include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
+#include "CoffeeEngine/Core/Timer.h"
+#include "CoffeeEngine/Core/Stopwatch.h"
+
+#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/SceneManager.h"
+#include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include <fstream>
 #include <lua.h>
 #include <regex>
-#include "CoffeeEngine/Scene/Components.h"
-#include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -354,6 +358,56 @@ namespace Coffee {
     }
 
 
+    void BindInputActionsToLua(sol::state& lua, sol::table& inputTable)
+    {
+        // Actions
+        std::vector<std::pair<std::string, InputAction>> actionCodes = {
+            {"UiMoveHorizontal", ActionsEnum::UiMoveHorizontal},
+            {"UiMoveVertical", ActionsEnum::UiMoveVertical},
+            {"Confirm", ActionsEnum::Confirm},
+            {"Cancel",  ActionsEnum::Cancel},
+            {"MoveHorizontal", ActionsEnum::MoveHorizontal},
+            {"MoveVertical", ActionsEnum::MoveVertical},
+            {"AimHorizontal", ActionsEnum::AimHorizontal},
+            {"AimVertical", ActionsEnum::AimVertical},
+            {"Shoot", ActionsEnum::Shoot},
+            {"Melee", ActionsEnum::Melee},
+            {"Interact",  ActionsEnum::Interact},
+            {"Dash", ActionsEnum::Dash},
+            {"Cover", ActionsEnum::Cover},
+            {"Skill1", ActionsEnum::Skill1},
+            {"Skill2", ActionsEnum::Skill2},
+            {"Skill3", ActionsEnum::Skill3},
+            {"Injector",ActionsEnum::Injector},
+            {"Grenade", ActionsEnum::Grenade},
+            {"Map", ActionsEnum::Map},
+            {"Pause", ActionsEnum::Pause}
+        };
+
+        sol::table actionCodeTable = lua.create_table();
+        for (const auto& actionCode : actionCodes) {
+            actionCodeTable[actionCode.first] = actionCode.second;
+        }
+        inputTable["action"] = actionCodeTable;
+
+        // Button states
+        std::vector<std::pair<std::string, ButtonState>> buttonStates = {
+            {"Idle", ButtonStates::IDLE},
+            {"Up", ButtonStates::UP},
+            {"Down", ButtonStates::DOWN},
+            {"Repeat", ButtonStates::REPEAT}
+        };
+
+        sol::table buttonStatesTable = lua.create_table();
+        for (const auto& buttonState : buttonStates)
+        {
+            buttonStatesTable[buttonState.first] = buttonState.second;
+        }
+
+        inputTable["state"] = buttonStatesTable;
+
+    }
+
     void LuaBackend::Initialize() {
         luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
 
@@ -381,6 +435,7 @@ namespace Coffee {
         BindMouseCodesToLua(luaState, inputTable);
         BindControllerCodesToLua(luaState, inputTable);
         BindAxisCodesToLua(luaState, inputTable);
+        BindInputActionsToLua(luaState, inputTable);
 
         inputTable.set_function("is_key_pressed", [](KeyCode key) {
             return Input::IsKeyPressed(key);
@@ -403,10 +458,68 @@ namespace Coffee {
             return std::make_tuple(mousePosition.x, mousePosition.y);
         });
 
+        inputTable.set_function("get_axis", [](InputAction action) {
+            return Input::GetBinding(action).AsAxis(false);
+        });
+
+        inputTable.set_function("get_direction",[](InputAction action) {
+            return Input::GetBinding(action).AsAxis(true);
+        });
+
+        inputTable.set_function("get_button", [](InputAction action) {
+            return Input::GetBinding(action).AsButton();
+        });
+
         luaState["Input"] = inputTable;
         # pragma endregion
 
-        # pragma region Bind Timer Functions
+        # pragma region Bind Timer and Stopwatch Functions
+
+        // Bind Stopwatch class
+        luaState.new_usertype<Stopwatch>("Stopwatch",
+            sol::constructors<Stopwatch()>(),
+            "start", &Stopwatch::Start,
+            "stop", &Stopwatch::Stop,
+            "reset", &Stopwatch::Reset,
+            "get_elapsed_time", &Stopwatch::GetElapsedTime,
+            "get_precise_elapsed_time", &Stopwatch::GetPreciseElapsedTime
+        );
+
+        // Bind Timer class
+        luaState.new_usertype<Timer>("Timer",
+            sol::constructors<Timer(), Timer(double, bool, bool, Timer::TimerCallback)>(),
+            "start", &Timer::Start,
+            "stop", &Timer::Stop,
+            "set_wait_time", &Timer::setWaitTime,
+            "get_wait_time", &Timer::getWaitTime,
+            "set_one_shot", &Timer::setOneShot,
+            "is_one_shot", &Timer::isOneShot,
+            "set_auto_start", &Timer::setAutoStart,
+            "is_auto_start", &Timer::isAutoStart,
+            "set_paused", &Timer::setPaused,
+            "is_paused", &Timer::isPaused,
+            "get_time_left", &Timer::GetTimeLeft,
+            "set_callback", [](Timer& timer, const sol::protected_function& callback) {
+                timer.SetCallback([callback] {
+                    if (const auto result = callback(); !result.valid()) {
+                        const sol::error err = result;
+                        COFFEE_CORE_ERROR("Timer callback error: {0}", err.what());
+                    }
+                });
+            }
+        );
+
+        // Helper function to create a timer
+        luaState.set_function("create_timer", [](double waitTime, bool autoStart, bool oneShot, sol::protected_function callback) {
+            return Timer(waitTime, autoStart, oneShot, [callback]() {
+                auto result = callback();
+                if (!result.valid()) {
+                    sol::error err = result;
+                    COFFEE_CORE_ERROR("Timer callback error: {0}", err.what());
+                }
+            });
+        });
+
         # pragma endregion
 
         # pragma region Bind GLM Functions
@@ -536,12 +649,16 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
                 } else if (componentName == "ParticlesSystemComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ParticlesSystemComponent>()));
+                } else if (componentName == "NavigationAgentComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
                 } else if (componentName == "RigidbodyComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
                 } else if (componentName == "AudioSourceComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
+                } else if (componentName == "AnimatorComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<AnimatorComponent>()));
                 }
-                
+
                 return sol::nil;
             },
             "has_component", [](Entity* self, const std::string& componentName) -> bool {
@@ -561,6 +678,8 @@ namespace Coffee {
                     return self->HasComponent<ScriptComponent>();
                 } else if (componentName == "ParticlesSystemComponent") {
                     return self->HasComponent<ParticlesSystemComponent>();
+                } else if (componentName == "NavigationAgentComponent") {
+                    return self->HasComponent<NavigationAgentComponent>();
                 } else if (componentName == "RigidbodyComponent") {
                     return self->HasComponent<RigidbodyComponent>();
                 } else if (componentName == "AnimatorComponent") {
@@ -649,6 +768,12 @@ namespace Coffee {
             "type", &LightComponent::type
         );
 
+        luaState.new_usertype<NavigationAgentComponent>("NavigationAgentComponent",
+            sol::constructors<NavigationAgentComponent()>(),
+            "path", &NavigationAgentComponent::Path,
+            "find_path", &NavigationAgentComponent::FindPath
+        );
+
         luaState.new_usertype<ScriptComponent>("ScriptComponent",
             sol::constructors<ScriptComponent(), ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)>(),
             sol::meta_function::index, [](ScriptComponent& self, const std::string& key) {
@@ -713,6 +838,27 @@ namespace Coffee {
             "get_all_entities", &Scene::GetAllEntities
         );
 
+        luaState.new_usertype<SceneManager>("SceneManager",
+            "preload_scene", [](const std::string& scenePath) {
+                return SceneManager::PreloadScene(scenePath);
+            },
+            "preload_scene_async", [](const std::string& scenePath) {
+                return SceneManager::PreloadSceneAsync(scenePath);
+            },
+            "change_scene", sol::overload(
+                [](const std::string& scenePath) {
+                    SceneManager::ChangeScene(scenePath);
+                },
+                [](const Ref<Scene>& scene) {
+                    SceneManager::ChangeScene(scene);
+                }
+            ),
+            "change_scene_async", [](const std::string& scenePath) {
+                SceneManager::ChangeSceneAsync(scenePath);
+            }
+        );
+        
+
         # pragma endregion
 
         # pragma region Bind Physics Functions
@@ -751,7 +897,7 @@ namespace Coffee {
             "get_position", &RigidBody::GetPosition,
             "set_rotation", &RigidBody::SetRotation,
             "get_rotation", &RigidBody::GetRotation,
-            
+
             // Velocity and forces
             "set_velocity", &RigidBody::SetVelocity,
             "get_velocity", &RigidBody::GetVelocity,
@@ -760,28 +906,28 @@ namespace Coffee {
             "apply_impulse", &RigidBody::ApplyImpulse,
             "reset_velocity", &RigidBody::ResetVelocity,
             "clear_forces", &RigidBody::ClearForces,
-            
+
             // Torque and angular velocity methods
             "apply_torque", &RigidBody::ApplyTorque,
             "apply_torque_impulse", &RigidBody::ApplyTorqueImpulse,
             "set_angular_velocity", &RigidBody::SetAngularVelocity,
             "get_angular_velocity", &RigidBody::GetAngularVelocity,
-            
+
             // Collisions and triggers
             "set_trigger", &RigidBody::SetTrigger,
-            
+
             // Body type
             "get_body_type", &RigidBody::GetBodyType,
             "set_body_type", &RigidBody::SetBodyType,
-            
+
             // Mass
             "get_mass", &RigidBody::GetMass,
             "set_mass", &RigidBody::SetMass,
-            
+
             // Gravity
             "get_use_gravity", &RigidBody::GetUseGravity,
             "set_use_gravity", &RigidBody::SetUseGravity,
-            
+
             // Constraints
             "get_freeze_x", &RigidBody::GetFreezeX,
             "set_freeze_x", &RigidBody::SetFreezeX,
@@ -795,7 +941,7 @@ namespace Coffee {
             "set_freeze_rot_y", &RigidBody::SetFreezeRotY,
             "get_freeze_rot_z", &RigidBody::GetFreezeRotZ,
             "set_freeze_rot_z", &RigidBody::SetFreezeRotZ,
-            
+
             // Physical properties
             "get_friction", &RigidBody::GetFriction,
             "set_friction", &RigidBody::SetFriction,
@@ -803,42 +949,42 @@ namespace Coffee {
             "set_linear_drag", &RigidBody::SetLinearDrag,
             "get_angular_drag", &RigidBody::GetAngularDrag,
             "set_angular_drag", &RigidBody::SetAngularDrag,
-            
+
             // Utility
             "get_is_trigger", &RigidBody::GetIsTrigger
         );
 
         // Add Collider usertype bindings
         luaState.new_usertype<Collider>("Collider");
-        
+
         luaState.new_usertype<BoxCollider>("BoxCollider",
             sol::constructors<BoxCollider(), BoxCollider(const glm::vec3&)>(),
             sol::base_classes, sol::bases<Collider>()
         );
-        
+
         luaState.new_usertype<SphereCollider>("SphereCollider",
             sol::constructors<SphereCollider(), SphereCollider(float)>(),
             sol::base_classes, sol::bases<Collider>()
         );
-        
+
         luaState.new_usertype<CapsuleCollider>("CapsuleCollider",
             sol::constructors<CapsuleCollider(), CapsuleCollider(float, float)>(),
             sol::base_classes, sol::bases<Collider>()
         );
-        
+
         // Helper functions for creating colliders and rigidbodies
         luaState.set_function("create_box_collider", [](const glm::vec3& size) {
             return CreateRef<BoxCollider>(size);
         });
-        
+
         luaState.set_function("create_sphere_collider", [](float radius) {
             return CreateRef<SphereCollider>(radius);
         });
-        
+
         luaState.set_function("create_capsule_collider", [](float radius, float height) {
             return CreateRef<CapsuleCollider>(radius, height);
         });
-        
+
         luaState.set_function("create_rigidbody", [](const RigidBody::Properties& props, const Ref<Collider>& collider) {
             return RigidBody::Create(props, collider);
         });

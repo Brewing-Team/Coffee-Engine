@@ -18,6 +18,21 @@
 
 namespace Coffee {
 
+    std::filesystem::path ResourceLoader::s_EngineAssetsDirectory = std::filesystem::current_path() / "assets";
+/* 
+    bool ResourceLoader::isInternalResource(const std::filesystem::path& path) {
+            return std::filesystem::equivalent(path.parent_path(), s_EngineAssetsDirectory);
+        } */
+    
+    bool ResourceLoader::isInternalResource(const std::filesystem::path& path)
+    {
+        if (path.is_absolute()) {
+            return std::filesystem::equivalent(path.parent_path(), s_EngineAssetsDirectory);
+        } else {
+            return path.string().find("assets/") == 0; // Think if this is the best way...
+        }
+    }
+
     std::filesystem::path ResourceLoader::s_WorkingDirectory = std::filesystem::current_path();
     ResourceImporter ResourceLoader::s_Importer = ResourceImporter();
 
