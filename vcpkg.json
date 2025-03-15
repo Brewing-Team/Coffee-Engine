@@ -1,7 +1,7 @@
 {
   "name" : "coffee-engine",
   "version-string" : "1.0.0",
-  "builtin-baseline" : "6046e48163a26252f7a8f4aa036cbdd9eb793c20",
+  "builtin-baseline" : "782ccc18d8b819cdef6794a6c03eb3d9f7cd04aa",
   "dependencies" : [ {
     "name" : "cereal",
     "version>=" : "1.3.2#1"
@@ -25,7 +25,7 @@
     "version>=" : "2024-05-29#1"
   }, {
     "name" : "tracy",
-    "version>=" : "0.11.1#1",
+    "version>=" : "0.11.1#2",
     "features" : [ "gui-tools" ]
   }, {
     "name" : "nativefiledialog-extended",
