@@ -181,7 +181,10 @@ namespace Coffee {
     }
 
     void Input::OnEvent(Event& e)
-    {
+    {   
+        if(e.Handled)
+            return;
+
         // TODO change this code for an event dispatcher
         if (e.IsInCategory(EventCategoryInput))
         {

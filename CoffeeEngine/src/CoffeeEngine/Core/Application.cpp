@@ -77,14 +77,14 @@ namespace Coffee
         EventDispatcher dispacher(e);
         dispacher.Dispatch<WindowCloseEvent>(COFFEE_BIND_EVENT_FN(OnWindowClose));
 
-        Input::OnEvent(e);
-
         for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
         {
             (*--it)->OnEvent(e);
             if(e.Handled)
                 break;
         }
+
+        Input::OnEvent(e);
     }
 
     void Application::Run()
