@@ -31,7 +31,7 @@ find_package(glm REQUIRED)
 find_package(assimp CONFIG REQUIRED)
 find_package(cereal REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
-#find_package(Tracy CONFIG REQUIRED)
+find_package(Tracy CONFIG REQUIRED)
 #find_package(imgui REQUIRED)
 #find_package(ImGuizmo REQUIRED)
 find_package(nfd REQUIRED)
@@ -59,7 +59,7 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     stb_image
     assimp::assimp
     EnTT::EnTT
-    #Tracy::TracyClient
+    Tracy::TracyClient
     nfd::nfd
     icon_font_cpp_headers
     Wwise
@@ -91,9 +91,9 @@ option(ozz_build_howtos "Build howtos" OFF)
 option(ozz_build_tests "Build unit tests" OFF)
 
 # Set this in a profile like (Release + Profile)
-#option(TRACY_ENABLE "Enable Tracy Profiler" ON)
-#option(TRACY_ON_DEMAND "Enable Tracy on-demand mode" OFF)
-#option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on first call)" OFF)
+option(TRACY_ENABLE "Enable Tracy Profiler" ON)
+option(TRACY_ON_DEMAND "Enable Tracy on-demand mode" OFF)
+option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on first call)" OFF)
 
 option(NFD_PORTAL "Use xdg-desktop-portal instead of GTK" ON)
 
