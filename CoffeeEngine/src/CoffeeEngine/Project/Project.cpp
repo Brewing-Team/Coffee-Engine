@@ -1,5 +1,6 @@
 #include "Project.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
@@ -50,6 +51,7 @@ namespace Coffee {
         ResourceLoader::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
         ResourceLoader::LoadDirectory(project->m_ProjectDirectory);
         SceneManager::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
+        Input::Load();
 
         return project;
     }
