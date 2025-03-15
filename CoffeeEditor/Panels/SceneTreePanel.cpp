@@ -1163,6 +1163,12 @@ namespace Coffee {
                 // entity.RemoveComponent<AnimatorComponent>();
                 // TODO remove animator component from entity and all the animation data
             }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                // entity.RemoveComponent<AnimatorComponent>();
+                // TODO remove animator component from entity and all the animation data
+            }
         }
         
         if(entity.HasComponent<ScriptComponent>())

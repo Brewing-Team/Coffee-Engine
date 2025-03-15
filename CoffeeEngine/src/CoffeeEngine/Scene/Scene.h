@@ -130,7 +130,7 @@ namespace Coffee {
          * @param animators The vector of animator components.
          */
         void AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators);
-
+    
     private:
         friend class cereal::access;
 
@@ -203,9 +203,6 @@ namespace Coffee {
         friend class SceneTree;
         friend class SceneTreePanel;
         friend class CollisionSystem;
-
-        // TODO REMOVE PLEASE, THIS IS ONLY TO TEST THE OCTREE!!!!
-        friend class EditorLayer;
     };
 
     /**
