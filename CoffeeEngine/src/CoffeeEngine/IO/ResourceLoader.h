@@ -61,6 +61,11 @@ namespace Coffee {
                 Scope<ImportData> newImportData = ImportDataUtils::CreateImportData<T>();
                 newImportData->originalPath = path;
 
+                if(isInternalResource(path))
+                {
+                    newImportData->internal = true;
+                }
+
                 const Ref<T>& resource = s_Importer.Import<T>(*newImportData);
 
                 ImportDataUtils::SaveImportData(newImportData);
@@ -125,8 +130,11 @@ namespace Coffee {
 
         static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
         static const std::filesystem::path& GetWorkingDirectory() { return s_WorkingDirectory; }
-
+    
     private:
+        static bool isInternalResource(const std::filesystem::path& path);
+    private:
+        static std::filesystem::path s_EngineAssetsDirectory; ///< The directory where the engine Resources are stored.
         static std::filesystem::path s_WorkingDirectory; ///< The working directory of the resource loader.
         static ResourceImporter s_Importer; ///< The importer used to load resources.
     };
