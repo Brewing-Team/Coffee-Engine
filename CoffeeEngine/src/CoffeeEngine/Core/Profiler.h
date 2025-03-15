@@ -15,3 +15,9 @@ void operator delete(void* ptr) noexcept
 	TracyFree(ptr);
 	free(ptr);
 } */
+
+// Temporal hotfix for Tracy not compiling on Windows using vcpkg
+
+#define FrameMark
+#define ZoneScoped
+#define ZoneScopedN( name )
