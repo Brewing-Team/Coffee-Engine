@@ -18,6 +18,7 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
+#include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "PrimitiveMesh.h"
@@ -43,6 +44,67 @@ namespace Coffee {
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
+
+        AnimationSystem::ResetAnimators();
+    }
+
+    template <typename T>
+    static void CopyComponentIfExists(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        if(registry.all_of<T>(sourceEntity))
+        {
+            auto srcComponent = registry.get<T>(sourceEntity);
+            registry.emplace_or_replace<T>(destinyEntity, srcComponent);
+        }
+    }
+
+    template <>
+    void CopyComponentIfExists<RigidbodyComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        if(registry.all_of<RigidbodyComponent>(sourceEntity))
+        {
+            const auto& srcComponent = registry.get<RigidbodyComponent>(sourceEntity);
+
+            try {
+                RigidBody::Properties props = srcComponent.rb->GetProperties();
+
+                Ref<Collider> collider;
+                if (auto boxCollider = std::dynamic_pointer_cast<BoxCollider>(srcComponent.rb->GetCollider())) {
+                    collider = CreateRef<BoxCollider>(boxCollider->GetSize());
+                }
+                else if (auto sphereCollider = std::dynamic_pointer_cast<SphereCollider>(srcComponent.rb->GetCollider())) {
+                    collider = CreateRef<SphereCollider>(sphereCollider->GetRadius());
+                }
+                else if (auto capsuleCollider = std::dynamic_pointer_cast<CapsuleCollider>(srcComponent.rb->GetCollider())) {
+                    collider = CreateRef<CapsuleCollider>(capsuleCollider->GetRadius(), capsuleCollider->GetHeight());
+                }
+                else {
+                    collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+                }
+
+                auto& newComponent = registry.emplace<RigidbodyComponent>(destinyEntity, props, collider);
+
+                newComponent.callback = srcComponent.callback;
+
+                if (registry.all_of<TransformComponent>(destinyEntity)) {
+                    auto& transform = registry.get<TransformComponent>(destinyEntity);
+                    newComponent.rb->SetPosition(transform.Position);
+                    newComponent.rb->SetRotation(transform.Rotation);
+                }
+            }
+            catch (const std::exception& e) {
+                COFFEE_CORE_ERROR("Exception copying rigidbody component: {0}", e.what());
+                if (registry.all_of<RigidbodyComponent>(destinyEntity)) {
+                    registry.remove<RigidbodyComponent>(destinyEntity);
+                }
+            }
+        }
+    }
+
+    template <typename... Components>
+    static void CopyEntity(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        (CopyComponentIfExists<Components>(destinyEntity, sourceEntity, registry), ...);
     }
 
     Entity Scene::CreateEntity(const std::string& name)
@@ -55,6 +117,13 @@ namespace Coffee {
         nameTag.Tag = name.empty() ? "Entity" : name;
         entity.AddComponent<HierarchyComponent>();
         return entity;
+    }
+
+    Entity Scene::Duplicate(const Entity& parent)
+    {
+        Entity newEntity = CreateEntity();
+        CopyEntity<ALL_COMPONENTS>(newEntity, parent, m_Registry);
+        return newEntity;
     }
 
     void Scene::DestroyEntity(Entity entity)
@@ -113,6 +182,8 @@ namespace Coffee {
         ZoneScoped;
 
         m_SceneTree->Update();
+
+        CollisionSystem::Initialize(this);
 
         auto view = m_Registry.view<MeshComponent>();
 
@@ -284,6 +355,9 @@ namespace Coffee {
             scriptComponent.script->OnUpdate(dt);
         }
 
+        if(SceneManager::GetActiveScene().get() != this)
+            return;
+
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
         Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
 
@@ -363,42 +437,21 @@ namespace Coffee {
         Audio::StopAllEvents();
     }
 
-        Ref<Scene> Scene::Load(const std::filesystem::path& path)
+    Ref<Scene> Scene::Load(const std::filesystem::path& path)
     {
         ZoneScoped;
     
         Ref<Scene> scene = CreateRef<Scene>();
-        
-        // Initialize physics system
-        CollisionSystem::Initialize(scene.get());
-
-        AnimationSystem::ResetAnimators();
     
         std::ifstream sceneFile(path);
         cereal::JSONInputArchive archive(sceneFile);
-    
-        entt::snapshot_loader{scene->m_Registry}
-            .get<entt::entity>(archive)
-            .get<TagComponent>(archive)
-            .get<TransformComponent>(archive)
-            .get<HierarchyComponent>(archive)
-            .get<CameraComponent>(archive)
-            .get<MeshComponent>(archive)
-            .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive)
-            .get<ScriptComponent>(archive)
-            .get<NavMeshComponent>(archive)
-            .get<NavigationAgentComponent>(archive)
-            .get<AnimatorComponent>(archive)
-            .get<AudioSourceComponent>(archive)
-            .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
 
-            scene->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
+        archive(*scene);
         
         scene->m_FilePath = path;
-    
+        
+        // TODO: Think where this could be done instead of the Load function
+
         // Add rigidbodies back to physics world
         auto view = scene->m_Registry.view<RigidbodyComponent, TransformComponent>();
         for (auto entity : view)
@@ -417,16 +470,8 @@ namespace Coffee {
                 rb.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>(entity)));
             }
         }
-    
-        // Debug log
-        auto entityView = scene->m_Registry.view<entt::entity>();
-        for (auto entity : entityView)
-        {
-            auto& tag = scene->m_Registry.get<TagComponent>(entity);
-            auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
-            COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
-        }
-
+        
+        // TODO: Think where this could be done instead of the Load function
         for (auto& audioSource : Audio::audioSources)
         {
             Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
@@ -442,37 +487,9 @@ namespace Coffee {
         std::ofstream sceneFile(path);
         cereal::JSONOutputArchive archive(sceneFile);
 
-        // archive(*scene);
-
-        //TEMPORAL
-        entt::snapshot{scene->m_Registry}
-            .get<entt::entity>(archive)
-            .get<TagComponent>(archive)
-            .get<TransformComponent>(archive)
-            .get<HierarchyComponent>(archive)
-            .get<CameraComponent>(archive)
-            .get<MeshComponent>(archive)
-            .get<MaterialComponent>(archive)
-            .get<LightComponent>(archive)
-            .get<RigidbodyComponent>(archive)
-            .get<ScriptComponent>(archive)
-            .get<NavMeshComponent>(archive)
-            .get<NavigationAgentComponent>(archive)
-            .get<AnimatorComponent>(archive)
-            .get<AudioSourceComponent>(archive)
-            .get<AudioListenerComponent>(archive)
-            .get<AudioZoneComponent>(archive);
+        archive(*scene);
         
         scene->m_FilePath = path;
-
-        auto view = scene->m_Registry.view<entt::entity>();
-        for (auto entity : view)
-        {
-            auto& tag = scene->m_Registry.get<TagComponent>(entity);
-            auto& hierarchy = scene->m_Registry.get<HierarchyComponent>(entity);
-
-            COFFEE_INFO("Entity {0}, {1}", (uint32_t)entity, tag.Tag);
-        }
     }
 
     // Is possible that this function will be moved to the SceneTreePanel but for now it will stay here

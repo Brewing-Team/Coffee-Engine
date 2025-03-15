@@ -1,8 +1,10 @@
 #include "Project.h"
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Scene/SceneManager.h"
 
 #include <cereal/archives/json.hpp>
 
@@ -25,6 +27,7 @@ namespace Coffee {
 
         CacheManager::SetCachePath(s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_CacheDirectory);
         ResourceLoader::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
+        SceneManager::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
 
         return s_ActiveProject;
     }
@@ -47,6 +50,8 @@ namespace Coffee {
         CacheManager::SetCachePath(project->m_ProjectDirectory / project->m_CacheDirectory);
         ResourceLoader::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
         ResourceLoader::LoadDirectory(project->m_ProjectDirectory);
+        SceneManager::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
+        Input::Load();
 
         return project;
     }
