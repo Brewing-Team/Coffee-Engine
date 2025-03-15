@@ -18,6 +18,7 @@ namespace Coffee {
         std::filesystem::path cachedPath;
 
         bool cache = true;
+        bool internal = false;
 
         ImportData() = default;
         ImportData(ResourceType type) : type(type) {}
@@ -26,7 +27,7 @@ namespace Coffee {
         template<typename Archive>
         void serialize(Archive& archive)
         {
-            archive(CEREAL_NVP(uuid), CEREAL_NVP(type), CEREAL_NVP(originalPath), CEREAL_NVP(cachedPath), CEREAL_NVP(cache));
+            archive(CEREAL_NVP(uuid), CEREAL_NVP(type), CEREAL_NVP(originalPath), CEREAL_NVP(cachedPath), CEREAL_NVP(cache), CEREAL_NVP(internal));
         }
 
         bool IsValid() const

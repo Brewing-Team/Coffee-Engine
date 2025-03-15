@@ -1,15 +1,20 @@
 #include "LuaBackend.h"
 
+#include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
+#include "CoffeeEngine/Core/Timer.h"
+#include "CoffeeEngine/Core/Stopwatch.h"
+
+#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/SceneManager.h"
+#include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include <fstream>
 #include <lua.h>
 #include <regex>
-#include "CoffeeEngine/Scene/Components.h"
-#include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -468,7 +473,53 @@ namespace Coffee {
         luaState["Input"] = inputTable;
         # pragma endregion
 
-        # pragma region Bind Timer Functions
+        # pragma region Bind Timer and Stopwatch Functions
+
+        // Bind Stopwatch class
+        luaState.new_usertype<Stopwatch>("Stopwatch",
+            sol::constructors<Stopwatch()>(),
+            "start", &Stopwatch::Start,
+            "stop", &Stopwatch::Stop,
+            "reset", &Stopwatch::Reset,
+            "get_elapsed_time", &Stopwatch::GetElapsedTime,
+            "get_precise_elapsed_time", &Stopwatch::GetPreciseElapsedTime
+        );
+
+        // Bind Timer class
+        luaState.new_usertype<Timer>("Timer",
+            sol::constructors<Timer(), Timer(double, bool, bool, Timer::TimerCallback)>(),
+            "start", &Timer::Start,
+            "stop", &Timer::Stop,
+            "set_wait_time", &Timer::setWaitTime,
+            "get_wait_time", &Timer::getWaitTime,
+            "set_one_shot", &Timer::setOneShot,
+            "is_one_shot", &Timer::isOneShot,
+            "set_auto_start", &Timer::setAutoStart,
+            "is_auto_start", &Timer::isAutoStart,
+            "set_paused", &Timer::setPaused,
+            "is_paused", &Timer::isPaused,
+            "get_time_left", &Timer::GetTimeLeft,
+            "set_callback", [](Timer& timer, const sol::protected_function& callback) {
+                timer.SetCallback([callback] {
+                    if (const auto result = callback(); !result.valid()) {
+                        const sol::error err = result;
+                        COFFEE_CORE_ERROR("Timer callback error: {0}", err.what());
+                    }
+                });
+            }
+        );
+
+        // Helper function to create a timer
+        luaState.set_function("create_timer", [](double waitTime, bool autoStart, bool oneShot, sol::protected_function callback) {
+            return Timer(waitTime, autoStart, oneShot, [callback]() {
+                auto result = callback();
+                if (!result.valid()) {
+                    sol::error err = result;
+                    COFFEE_CORE_ERROR("Timer callback error: {0}", err.what());
+                }
+            });
+        });
+
         # pragma endregion
 
         # pragma region Bind GLM Functions
@@ -602,10 +653,14 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
                 } else if (componentName == "UITextComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UITextComponent>()));
+                } else if (componentName == "NavigationAgentComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
                 } else if (componentName == "RigidbodyComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
                 } else if (componentName == "AudioSourceComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
+                } else if (componentName == "AnimatorComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<AnimatorComponent>()));
                 }
 
                 return sol::nil;
@@ -629,6 +684,8 @@ namespace Coffee {
                     return self->HasComponent<UIImageComponent>();
                 } else if (componentName == "UITextComponent") {
                     return self->HasComponent<UITextComponent>();
+                } else if (componentName == "NavigationAgentComponent") {
+                    return self->HasComponent<NavigationAgentComponent>();
                 } else if (componentName == "RigidbodyComponent") {
                     return self->HasComponent<RigidbodyComponent>();
                 } else if (componentName == "AnimatorComponent") {
@@ -719,6 +776,12 @@ namespace Coffee {
             "type", &LightComponent::type
         );
 
+        luaState.new_usertype<NavigationAgentComponent>("NavigationAgentComponent",
+            sol::constructors<NavigationAgentComponent()>(),
+            "path", &NavigationAgentComponent::Path,
+            "find_path", &NavigationAgentComponent::FindPath
+        );
+
         luaState.new_usertype<ScriptComponent>("ScriptComponent",
             sol::constructors<ScriptComponent(), ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)>(),
             sol::meta_function::index, [](ScriptComponent& self, const std::string& key) {
@@ -796,6 +859,27 @@ namespace Coffee {
             "get_entity_by_name", &Scene::GetEntityByName,
             "get_all_entities", &Scene::GetAllEntities
         );
+
+        luaState.new_usertype<SceneManager>("SceneManager",
+            "preload_scene", [](const std::string& scenePath) {
+                return SceneManager::PreloadScene(scenePath);
+            },
+            "preload_scene_async", [](const std::string& scenePath) {
+                return SceneManager::PreloadSceneAsync(scenePath);
+            },
+            "change_scene", sol::overload(
+                [](const std::string& scenePath) {
+                    SceneManager::ChangeScene(scenePath);
+                },
+                [](const Ref<Scene>& scene) {
+                    SceneManager::ChangeScene(scene);
+                }
+            ),
+            "change_scene_async", [](const std::string& scenePath) {
+                SceneManager::ChangeSceneAsync(scenePath);
+            }
+        );
+        
 
         # pragma endregion
 

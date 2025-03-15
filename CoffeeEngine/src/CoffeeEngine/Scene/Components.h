@@ -18,6 +18,9 @@
  #include "CoffeeEngine/Scripting/ScriptManager.h"
  #include "CoffeeEngine/Renderer/Texture.h"
  #include "CoffeeEngine/Renderer/Font.h"
+ #include "CoffeeEngine/Navigation/NavMesh.h"
+ #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
+
  #include <cereal/cereal.hpp>
  #include <cereal/access.hpp>
  #include <cereal/cereal.hpp>
@@ -181,6 +184,7 @@
           */
          AnimatorComponent(const AnimatorComponent& other)
          : IsBlending(other.IsBlending),
+           Loop(other.Loop),
            CurrentAnimation(other.CurrentAnimation),
            NextAnimation(other.NextAnimation),
            AnimationTime(other.AnimationTime),
@@ -190,10 +194,10 @@
            BlendThreshold(other.BlendThreshold),
            AnimationSpeed(other.AnimationSpeed),
            JointMatrices(other.JointMatrices),
-           m_Skeleton(other.m_Skeleton),
-           m_AnimationController(other.m_AnimationController),
            modelUUID(other.modelUUID),
-           animatorUUID(other.animatorUUID)
+           animatorUUID(other.animatorUUID),
+           m_Skeleton(other.m_Skeleton),
+           m_AnimationController(other.m_AnimationController)
          {
              m_BlendJob.layers = ozz::make_span(m_BlendLayers);
              AnimationSystem::SetCurrentAnimation(CurrentAnimation, this);
@@ -269,6 +273,7 @@
                      cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("BlendThreshold", BlendThreshold),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
+                     cereal::make_nvp("Loop", Loop),
                      cereal::make_nvp("ModelUUID", modelUUID),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
          }
@@ -285,6 +290,7 @@
                      cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("BlendThreshold", BlendThreshold),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
+                     cereal::make_nvp("Loop", Loop),
                      cereal::make_nvp("ModelUUID", modelUUID),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
 
@@ -293,6 +299,7 @@
  
      public:
          bool IsBlending = false; ///< Indicates if the animation is blending.
+         bool Loop = true; ///< Indicates if the animation should loop.
          unsigned int CurrentAnimation = 0; ///< The current animation index.
          unsigned int NextAnimation = 0; ///< The next animation index.
          float AnimationTime = 0.f; ///< The current animation time.
@@ -379,9 +386,6 @@
  
          MaterialComponent()
          {
-             // FIXME: The first time the Default Material is created, the UUID is not saved in the cache and each time the engine is started the Default Material is created again.
-             Ref<Material> m = Material::Create("Default Material");
-             material = m;
          }
          MaterialComponent(const MaterialComponent&) = default;
          MaterialComponent(Ref<Material> material)
@@ -885,6 +889,106 @@
 
     };
  
+    struct NavMeshComponent
+    {
+        bool ShowDebug = false; ///< Flag to show the navigation mesh debug.
+
+        /**
+         * @brief Gets the navigation mesh.
+         * @return The navigation mesh.
+         */
+        Ref<NavMesh> GetNavMesh() const { return m_NavMesh; }
+
+        /**
+         * @brief Sets the navigation mesh.
+         * @param navMesh The navigation mesh to set.
+         */
+        void SetNavMesh(const Ref<NavMesh>& navMesh) { m_NavMesh = navMesh; }
+
+        /**
+         * @brief Gets the UUID of the navigation mesh.
+         * @return The UUID of the navigation mesh.
+         */
+        UUID GetNavMeshUUID() const { return m_NavMeshUUID; }
+
+        /**
+         * @brief Sets the UUID of the navigation mesh.
+         * @param navMeshUUID The UUID of the navigation mesh to set.
+         */
+        void SetNavMeshUUID(const UUID& navMeshUUID) { m_NavMeshUUID = navMeshUUID; }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
+        }
+
+    private:
+        Ref<NavMesh> m_NavMesh = nullptr; ///< The navigation mesh.
+        UUID m_NavMeshUUID; ///< The UUID of the navigation mesh.
+    };
+
+    struct NavigationAgentComponent
+    {
+        std::vector<glm::vec3> Path; ///< The path to follow.
+        bool ShowDebug = false; ///< Flag to show the navigation agent debug.
+
+        /**
+         * @brief Finds a path from the start to the end.
+         * @param start The start position.
+         * @param end The end position.
+         * @return The path.
+         */
+        std::vector<glm::vec3> FindPath(const glm::vec3 start, const glm::vec3 end) const { return m_PathFinder->FindPath(start, end); }
+
+        /**
+         * @brief Gets the pathfinder.
+         * @return The pathfinder.
+         */
+        Ref<NavMeshPathfinding> GetPathFinder() const { return m_PathFinder; }
+
+        /**
+         * @brief Sets the pathfinder.
+         * @param pathFinder The pathfinder to set.
+         */
+        void SetPathFinder(const Ref<NavMeshPathfinding>& pathFinder) { m_PathFinder = pathFinder; }
+
+        /**
+         * @brief Gets the navigation mesh component.
+         * @return The navigation mesh component.
+         */
+        Ref<NavMeshComponent> GetNavMeshComponent() const { return m_NavMeshComponent; }
+
+        /**
+         * @brief Sets the navigation mesh component.
+         * @param navMeshComponent The navigation mesh component to set.
+         */
+        void SetNavMeshComponent(const Ref<NavMeshComponent>& navMeshComponent) { m_NavMeshComponent = navMeshComponent; }
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
+        }
+
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
+
+            m_PathFinder = CreateRef<NavMeshPathfinding>(m_NavMeshComponent->GetNavMesh());
+        }
+
+    private:
+        Ref<NavMeshPathfinding> m_PathFinder = nullptr; ///< The pathfinder.
+        Ref<NavMeshComponent> m_NavMeshComponent = nullptr; ///< The navigation mesh component.
+    };
  }
  
  /** @} */

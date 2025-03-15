@@ -1,5 +1,3 @@
-#pragma once
-
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
 #include "CoffeeEngine/IO/ImportData/CubemapImportData.h"
@@ -26,8 +24,10 @@ namespace Coffee {
         std::filesystem::path originalPathCopy = importData->originalPath;
         std::filesystem::path cachedPathCopy = importData->cachedPath;
 
-        importData->originalPath = std::filesystem::relative(importData->originalPath, ResourceLoader::GetWorkingDirectory());
-        importData->cachedPath = std::filesystem::relative(importData->cachedPath, ResourceLoader::GetWorkingDirectory());
+        std::filesystem::path fileDirectory = importData->internal ? std::filesystem::current_path() : ResourceLoader::GetWorkingDirectory();
+
+        importData->originalPath = std::filesystem::relative(importData->originalPath, fileDirectory);
+        importData->cachedPath = std::filesystem::relative(importData->cachedPath, fileDirectory);
 
         std::ofstream importFile(importFilePath);
         cereal::JSONOutputArchive archive(importFile);
@@ -74,11 +74,13 @@ namespace Coffee {
             COFFEE_CORE_ERROR("ResourceLoader::LoadImportData: Failed to parse import file {0}: {1}", importFilePath.string(), e.what());
             throw;
         }
+
+        std::filesystem::path fileDirectory = importData->internal ? std::filesystem::current_path() : ResourceLoader::GetWorkingDirectory();
     
         // Convert the relative path to an absolute path
-        importData->originalPath = ResourceLoader::GetWorkingDirectory() / importData->originalPath;
+        importData->originalPath = fileDirectory / importData->originalPath;
         if (importData->cache)
-            importData->cachedPath = ResourceLoader::GetWorkingDirectory() / importData->cachedPath;
+            importData->cachedPath = fileDirectory / importData->cachedPath;
         return importData;
     }
 
