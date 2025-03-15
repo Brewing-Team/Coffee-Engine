@@ -26,8 +26,10 @@ namespace Coffee {
         std::filesystem::path originalPathCopy = importData->originalPath;
         std::filesystem::path cachedPathCopy = importData->cachedPath;
 
-        importData->originalPath = std::filesystem::relative(importData->originalPath, ResourceLoader::GetWorkingDirectory());
-        importData->cachedPath = std::filesystem::relative(importData->cachedPath, ResourceLoader::GetWorkingDirectory());
+        std::filesystem::path fileDirectory = importData->internal ? std::filesystem::current_path() : ResourceLoader::GetWorkingDirectory();
+
+        importData->originalPath = std::filesystem::relative(importData->originalPath, fileDirectory);
+        importData->cachedPath = std::filesystem::relative(importData->cachedPath, fileDirectory);
 
         std::ofstream importFile(importFilePath);
         cereal::JSONOutputArchive archive(importFile);
@@ -75,12 +77,12 @@ namespace Coffee {
             throw;
         }
 
-        std::filesystem::path fileDirectory = path.parent_path();
+        std::filesystem::path fileDirectory = importData->internal ? std::filesystem::current_path() : ResourceLoader::GetWorkingDirectory();
     
         // Convert the relative path to an absolute path
-        importData->originalPath = fileDirectory / importData->originalPath.filename();
+        importData->originalPath = fileDirectory / importData->originalPath;
         if (importData->cache)
-            importData->cachedPath = fileDirectory / importData->cachedPath.filename();
+            importData->cachedPath = fileDirectory / importData->cachedPath;
         return importData;
     }
 
