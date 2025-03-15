@@ -109,6 +109,19 @@ namespace Coffee {
 
         }
 
+        //glm::mat4 matriz = glm::mat4(1.0f);
+        //matriz[3] = glm::vec4(0);
+        //matriz = glm::scale(matriz, glm::vec3(1000,1000, 0));
+
+        //Ref<Texture2D> texture = CreateRef<Texture2D>("E:\\_GITHUB\\Proyecto3Tests\\crown.jpg");
+        //
+
+        //Renderer2D::DrawQuad(matriz, texture,
+        //                     2.0f,                           // Tiling factor
+        //                     glm::vec4(1.0f),                // Tint color
+        //                     Renderer2D::RenderMode::Screen // Rendering Mode
+        //);
+
         Renderer::SetCurrentRenderTarget(nullptr);
     }
 

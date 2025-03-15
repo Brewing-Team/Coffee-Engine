@@ -562,7 +562,7 @@ namespace Coffee {
     void Scene::OnEditorUpdateUI(float dt, entt::registry& registry) {
         auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
         glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
+        center = glm::vec2(0, 0);
         // Renderizar componentes UIImageComponent
         auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
         for (auto& entity : uiImageView) {
@@ -574,12 +574,11 @@ namespace Coffee {
 
 
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::translate(transform, glm::vec3(center, 0.0f));
+            //transform = glm::translate(transform, glm::vec3(center, 0.0f));
             transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
 
 
-            Renderer2D::DrawQuad(
-                transform,
+            Renderer2D::DrawQuad(transform,
                 uiImageComponent.texture,
                 1.0f,                // Tiling factor
                 glm::vec4(1.0f),     // Tint color
@@ -620,7 +619,7 @@ void Scene::OnRuntimeUpdateUI(float dt, entt::registry& registry)
     {
         auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
         glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
+        center = glm::vec2(0, 0);
         auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
         for (auto& entity : uiImageView) {
             auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);

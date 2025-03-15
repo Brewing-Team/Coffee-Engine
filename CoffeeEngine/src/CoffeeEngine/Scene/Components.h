@@ -794,7 +794,7 @@
      struct UIImageComponent
      {
          Ref<Texture2D> texture;
-         glm::vec2 Size = {100.0f, 100.0f};
+         glm::vec2 Size = {1.0f, 1.0f};
          bool Visible = true;
 
          UIImageComponent() = default;
@@ -820,22 +820,28 @@
          template<class Archive>
          void save(Archive& archive) const
          {
-             archive(cereal::make_nvp("TexturePath", texture ? texture->GetPath() : ""),
+            
+
+            archive(cereal::make_nvp("TextureUUID", texture->GetUUID()),
                      cereal::make_nvp("Size", Size),
                      cereal::make_nvp("Visible", Visible));
          }
 
          template<class Archive>
          void load(Archive& archive) {
-             std::string texturePath;
-             archive(cereal::make_nvp("TexturePath", texturePath),
+
+             UUID textureUUID;
+
+             archive(cereal::make_nvp("TextureUUID", textureUUID),
                      cereal::make_nvp("Size", Size),
                      cereal::make_nvp("Visible", Visible));
 
-             if (!texturePath.empty())
+             if (textureUUID)
              {
-                 texture = Texture2D::Load(texturePath);
+                 texture = ResourceLoader::GetResource<Texture2D>(textureUUID);
              }
+
+          
          }
      };
 
