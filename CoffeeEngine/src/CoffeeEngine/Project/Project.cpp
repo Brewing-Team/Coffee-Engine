@@ -50,7 +50,7 @@ namespace Coffee {
         CacheManager::SetCachePath(project->m_ProjectDirectory / project->m_CacheDirectory);
         ResourceLoader::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
         ResourceLoader::LoadDirectory(project->m_ProjectDirectory);
-        SceneManager::SetWorkingDirectory(s_ActiveProject->m_ProjectDirectory);
+        Input::Load();
 
         return project;
     }
