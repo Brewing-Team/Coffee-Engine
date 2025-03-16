@@ -87,8 +87,6 @@ namespace Coffee {
 
         m_SceneTreePanel.SetContext(SceneManager::GetActiveScene());
         m_ContentBrowserPanel.SetContext(SceneManager::GetActiveScene());
-
-        Application::Get().GetWindow().SetVSync(false);
     }
 
     void EditorLayer::OnUpdate(float dt)
