@@ -38,6 +38,8 @@
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
+
+
 namespace Coffee {
 
 
@@ -281,6 +283,30 @@ namespace Coffee {
 
             Renderer3D::Submit(lightComponent);
         }
+
+
+        // Get all entities with ParticlesSystemComponent and TransformComponent
+        auto particleSystemView = m_Registry.view<ParticlesSystemComponent, TransformComponent>();
+        for (auto& entity : particleSystemView)
+        {
+            auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
+            auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
+
+            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+
+            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
+            {
+                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
+            }
+
+            particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
+            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
+            particlesSystemComponent.GetParticleEmitter()->Update(dt);
+            particlesSystemComponent.GetParticleEmitter()->DrawDebug();
+        }
+
+
     }
 
     void Scene::OnUpdateRuntime(float dt)
@@ -415,6 +441,29 @@ namespace Coffee {
             lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
             Renderer3D::Submit(lightComponent);
+        }
+
+
+        // Get all entities with ParticlesSystemComponent and TransformComponent
+        auto particleSystemView = m_Registry.view<ParticlesSystemComponent, TransformComponent>();
+        for (auto& entity : particleSystemView)
+        {
+            auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
+            auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
+
+
+            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+
+            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
+            {
+                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
+            }
+
+            particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
+            particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(cameraTransform);
+            particlesSystemComponent.GetParticleEmitter()->Update(dt);
+
         }
     }
 

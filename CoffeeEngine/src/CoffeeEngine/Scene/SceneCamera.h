@@ -25,7 +25,7 @@ namespace Coffee {
          * @brief Default destructor.
          */
         ~SceneCamera() = default;
-    private:
+
     };
 
     /** @} */ // end of scene group

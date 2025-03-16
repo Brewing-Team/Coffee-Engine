@@ -160,7 +160,8 @@ namespace Coffee {
             .template get<AnimatorComponent>(archive)
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
-            .template get<AudioZoneComponent>(archive);
+            .template get<AudioZoneComponent>(archive)
+            .template get<ParticlesSystemComponent>(archive);
          }
 
         /**
@@ -187,14 +188,15 @@ namespace Coffee {
             .template get<AnimatorComponent>(archive)
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
-            .template get<AudioZoneComponent>(archive);
+            .template get<AudioZoneComponent>(archive)
+            .template get<ParticlesSystemComponent>(archive);
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         }
 
     private:
         // NOTE: this macro should be modified when adding new components
-        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent //, AnimatorComponent
+        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, ParticlesSystemComponent //, AnimatorComponent
 
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
