@@ -399,7 +399,8 @@
          template<class Archive>
          void save(Archive& archive) const
          {
-             archive(cereal::make_nvp("Material", material->GetUUID()));
+            ResourceSaver::SaveToCache<Material>(material->GetUUID(), material);
+            archive(cereal::make_nvp("Material", material->GetUUID()));
          }
  
          template<class Archive>
@@ -408,7 +409,7 @@
              UUID materialUUID;
              archive(cereal::make_nvp("Material", materialUUID));
  
-             Ref<Material> material = ResourceRegistry::Get<Material>(materialUUID);
+             Ref<Material> material = ResourceLoader::GetResource<Material>(materialUUID);
              this->material = material;
          }
      };
