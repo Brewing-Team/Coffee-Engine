@@ -630,13 +630,13 @@ namespace Coffee {
                     self->AddComponent<UIImageComponent>();
                 } else if (componentName == "UITextComponent") {
                     self->AddComponent<UITextComponent>();
-                } else if (componentName == "UISliderComponent")
-                {
+                } else if (componentName == "UISliderComponent"){
                     self->AddComponent<UISliderComponent>();
-                }else if (componentName == "UIButtonComponent")
-                {
+                }else if (componentName == "UIButtonComponent"){
                     self->AddComponent<UIButtonComponent>();
-                }else if (componentName == "AudioSourceComponent") {
+                }else if (componentName == "ParticlesSystemComponent"){
+                    self->AddComponent<ParticlesSystemComponent>();
+                } else if (componentName == "AudioSourceComponent") {
                     self->AddComponent<AudioSourceComponent>();
                 }
             },
@@ -659,16 +659,13 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
                 } else if (componentName == "UITextComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UITextComponent>()));
-                }
-                else if (componentName == "UISliderComponent")
-                {
+                }else if (componentName == "UISliderComponent"){
                     return sol::make_object(luaState, std::ref(self->GetComponent<UISliderComponent>()));
-                }
-                else if (componentName == "UISliderComponent")
-                {
+                }else if (componentName == "UISliderComponent"){
                     return sol::make_object(luaState, std::ref(self->GetComponent<UISliderComponent>()));
-                }
-                else if (componentName == "NavigationAgentComponent") {
+                }else if (componentName == "ParticlesSystemComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<ParticlesSystemComponent>()));
+                } else if (componentName == "NavigationAgentComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
                 } else if (componentName == "RigidbodyComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<RigidbodyComponent>()));
@@ -700,14 +697,13 @@ namespace Coffee {
                 } else if (componentName == "UITextComponent") {
                     return self->HasComponent<UITextComponent>();
                 }
-                else if (componentName == "UISliderComponent")
-                {
+                else if (componentName == "UISliderComponent"){
                     return self->HasComponent<UISliderComponent>();
-                }else if (componentName == "UIButtonComponent")
-                {
+                }else if (componentName == "UIButtonComponent"){
                     return self->HasComponent<UIButtonComponent>();
-                }
-                else if (componentName == "NavigationAgentComponent") {
+                }else if (componentName == "ParticlesSystemComponent") {
+                    return self->HasComponent<ParticlesSystemComponent>();
+                } else if (componentName == "NavigationAgentComponent") {
                     return self->HasComponent<NavigationAgentComponent>();
                 } else if (componentName == "RigidbodyComponent") {
                     return self->HasComponent<RigidbodyComponent>();
@@ -733,6 +729,7 @@ namespace Coffee {
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
+
                 } else if (componentName == "UIImageComponent") {
                     self->RemoveComponent<UIImageComponent>();
                 } else if (componentName == "UITextComponent") {
@@ -745,7 +742,10 @@ namespace Coffee {
                 else if (componentName == "UISliderComponent") {
                             self->RemoveComponent<UISliderComponent>();
                 }
-                else if (componentName == "RigidbodyComponent") {
+                else if (componentName == "ParticlesSystemComponent") {
+                    self->RemoveComponent<ParticlesSystemComponent>();
+                } else if (componentName == "RigidbodyComponent") {
+
                     self->RemoveComponent<RigidbodyComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     self->RemoveComponent<AudioSourceComponent>();
@@ -872,6 +872,13 @@ namespace Coffee {
             }
         );
 
+
+        luaState.new_usertype<ParticlesSystemComponent>("ParticlesSystemComponent", sol::constructors<ParticlesSystemComponent()>(), 
+            "emit",&ParticlesSystemComponent::Emit, 
+            "set_looping",&ParticlesSystemComponent::SetLooping, 
+            "get_emitter", &ParticlesSystemComponent::GetParticleEmitter
+            );
+
         luaState.new_usertype<RigidbodyComponent>("RigidbodyComponent",
             "rb", &RigidbodyComponent::rb,
             "on_collision_enter", [](RigidbodyComponent& self, sol::protected_function fn) {
@@ -910,6 +917,7 @@ namespace Coffee {
         luaState.new_usertype<Scene>("Scene",
             "create_entity", &Scene::CreateEntity,
             "destroy_entity", &Scene::DestroyEntity,
+            "duplicate_entity", &Scene::Duplicate,
             "get_entity_by_name", &Scene::GetEntityByName,
             "get_all_entities", &Scene::GetAllEntities
         );

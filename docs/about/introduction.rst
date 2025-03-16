@@ -6,12 +6,7 @@ Welcome to the official documentation of Coffee Engine!
 Coffee Engine is a Beautiful and Cross-platform 3D Game Engine written in C++ using OpenGL and SDL3.
 
 .. note::
-   This is a personal project for learning how to make a 3D game engine.
-
-About Coffee Engine
--------------------
-
-TOOD
+   This is a college project for learning how to brew a 3D game engine.
 
 Organization of the documentation
 ---------------------------------

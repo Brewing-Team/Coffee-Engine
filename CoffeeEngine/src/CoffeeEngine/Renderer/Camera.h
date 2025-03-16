@@ -103,6 +103,7 @@ namespace Coffee
          */
         const glm::mat4& GetProjection() const { return m_Projection; }
 
+
         /**
          * @brief Gets the projection type of the camera.
          * @return The projection type.
@@ -153,6 +154,8 @@ namespace Coffee
             m_AspectRatio = m_ViewportWidth / m_ViewportHeight;
             m_Projection = ProjectionTypeToMat4(m_ProjectionType);
         }
+
+
         
     private:
         friend class cereal::access;
