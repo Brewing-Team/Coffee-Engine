@@ -3,9 +3,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Math/Frustum.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
 #include <vector>
-#include <memory>
 #include "CoffeeEngine/Renderer/Renderer2D.h"
 
 namespace Coffee {
