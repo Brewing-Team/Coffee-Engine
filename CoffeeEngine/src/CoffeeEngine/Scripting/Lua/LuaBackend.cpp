@@ -626,6 +626,14 @@ namespace Coffee {
                     self->AddComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->AddComponent<ScriptComponent>();
+                } else if (componentName == "UIImageComponent") {
+                    self->AddComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    self->AddComponent<UITextComponent>();
+                } else if (componentName == "UISliderComponent"){
+                    self->AddComponent<UISliderComponent>();
+                }else if (componentName == "UIButtonComponent"){
+                    self->AddComponent<UIButtonComponent>();
                 }else if (componentName == "ParticlesSystemComponent"){
                     self->AddComponent<ParticlesSystemComponent>();
                 } else if (componentName == "AudioSourceComponent") {
@@ -647,7 +655,15 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
-                } else if (componentName == "ParticlesSystemComponent") {
+                } else if (componentName == "UIImageComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
+                } else if (componentName == "UITextComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UITextComponent>()));
+                }else if (componentName == "UISliderComponent"){
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UISliderComponent>()));
+                }else if (componentName == "UISliderComponent"){
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UISliderComponent>()));
+                }else if (componentName == "ParticlesSystemComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ParticlesSystemComponent>()));
                 } else if (componentName == "NavigationAgentComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
@@ -676,7 +692,16 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
-                } else if (componentName == "ParticlesSystemComponent") {
+                } else if (componentName == "UIImageComponent") {
+                    return self->HasComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    return self->HasComponent<UITextComponent>();
+                }
+                else if (componentName == "UISliderComponent"){
+                    return self->HasComponent<UISliderComponent>();
+                }else if (componentName == "UIButtonComponent"){
+                    return self->HasComponent<UIButtonComponent>();
+                }else if (componentName == "ParticlesSystemComponent") {
                     return self->HasComponent<ParticlesSystemComponent>();
                 } else if (componentName == "NavigationAgentComponent") {
                     return self->HasComponent<NavigationAgentComponent>();
@@ -704,9 +729,23 @@ namespace Coffee {
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
-                } else if (componentName == "ParticlesSystemComponent") {
+
+                } else if (componentName == "UIImageComponent") {
+                    self->RemoveComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    self->RemoveComponent<UITextComponent>();
+                }else if (componentName == "UIButtonComponent") {
+                    self->RemoveComponent<UIButtonComponent>();
+                } else if (componentName == "UITextComponent") {
+                    self->RemoveComponent<UITextComponent>();
+                }
+                else if (componentName == "UISliderComponent") {
+                            self->RemoveComponent<UISliderComponent>();
+                }
+                else if (componentName == "ParticlesSystemComponent") {
                     self->RemoveComponent<ParticlesSystemComponent>();
                 } else if (componentName == "RigidbodyComponent") {
+
                     self->RemoveComponent<RigidbodyComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     self->RemoveComponent<AudioSourceComponent>();
@@ -788,6 +827,50 @@ namespace Coffee {
         );
 
 
+        luaState.new_usertype<UIImageComponent>("UIImageComponent",
+            sol::constructors<UIImageComponent(), UIImageComponent(const std::string&, const glm::vec2&, bool)>(),
+            "get_size", &UIImageComponent::Size,
+            "set_size", [](UIImageComponent& self, const glm::vec2& size) { self.Size = size; },
+            "is_visible", &UIImageComponent::Visible,
+            "set_visible", [](UIImageComponent& self, bool visible) { self.Visible = visible; }
+        );
+
+        luaState.new_usertype<UITextComponent>("UITextComponent",
+            sol::constructors<UITextComponent(), UITextComponent(const std::string&, const std::string&, const glm::vec2&, float, float, const glm::vec4&, bool)>(),
+            "get_text", &UITextComponent::Text,
+            "set_text", [](UITextComponent& self, const std::string& text) { self.Text = text; },
+            "get_font_path", &UITextComponent::FontPath,
+            "set_font_path", [](UITextComponent& self, const std::string& fontPath) { self.FontPath = fontPath; },
+            "get_font_size", &UITextComponent::FontSize,
+            "set_font_size", [](UITextComponent& self, float fontSize) { self.FontSize = fontSize; },
+            "get_color", &UITextComponent::Color,
+            "set_color", [](UITextComponent& self, const glm::vec4& color) { self.Color = color; },
+            "is_visible", &UITextComponent::Visible,
+            "set_visible", [](UITextComponent& self, bool visible) { self.Visible = visible; }
+        );
+
+        luaState.new_usertype<UIButtonComponent>("UIButtonComponent",
+            sol::constructors<UIButtonComponent(), UIButtonComponent(const std::string&, const std::string&, const std::string&)>(),
+            "set_state", [](UIButtonComponent& self, const std::string& state) {
+                if (state == "Base") {
+                    self.SetState(UIButtonComponent::ButtonState::Base);
+                } else if (state == "Selected") {
+                    self.SetState(UIButtonComponent::ButtonState::Selected);
+                } else if (state == "Pressed") {
+                    self.SetState(UIButtonComponent::ButtonState::Pressed);
+                } else {
+                    COFFEE_CORE_WARN("Invalid button state: {0}", state);
+                }
+            },
+            "get_state", [](UIButtonComponent& self) -> std::string {
+                switch (self.currentState) {
+                    case UIButtonComponent::ButtonState::Base: return "Base";
+                    case UIButtonComponent::ButtonState::Selected: return "Selected";
+                    case UIButtonComponent::ButtonState::Pressed: return "Pressed";
+                    default: return "Unknown";
+                }
+            }
+        );
 
 
         luaState.new_usertype<ParticlesSystemComponent>("ParticlesSystemComponent", sol::constructors<ParticlesSystemComponent()>(), 
