@@ -2,8 +2,6 @@
 
 #include "CoffeeEngine/Renderer/Font.h"
 #include "CoffeeEngine/Renderer/RenderTarget.h"
-#include "CoffeeEngine/Scene/Scene.h"
-#include "CoffeeEngine/Core/DataStructures/Octree.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
