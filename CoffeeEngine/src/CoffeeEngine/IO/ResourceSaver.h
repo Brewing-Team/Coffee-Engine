@@ -57,6 +57,18 @@ namespace Coffee
 
             Save<T>(cacheFilePath, resource);
         }
+
+        /**
+         * @brief Saves a resource to the project cache.
+         * @param resource A reference to the resource to save to cache.
+         */
+         template<typename T>
+         static void SaveToCache(UUID uuid, const Ref<T>& resource)
+         {
+             std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(uuid, GetResourceType<T>());
+ 
+             Save<T>(cacheFilePath, resource);
+         }
       private:
         /**
          * @brief Serializes a resource to a binary file.
