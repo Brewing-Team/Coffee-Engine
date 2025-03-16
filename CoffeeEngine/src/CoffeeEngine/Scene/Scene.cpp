@@ -303,8 +303,25 @@ namespace Coffee {
             particlesSystemComponent.GetParticleEmitter()->DrawDebug();
         }
 
+
+        // Get all entities with LightComponent and TransformComponent
+        auto lightView = m_Registry.view<LightComponent, TransformComponent>();
+
+        // Loop through each entity with the specified components
+        for (auto& entity : lightView) {
+            auto& lightComponent = lightView.get<LightComponent>(entity);
+            auto& transformComponent = lightView.get<TransformComponent>(entity);
+
+            lightComponent.Position = transformComponent.GetWorldTransform()[3];
+            lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
+
+            Renderer3D::Submit(lightComponent);
+        }
+
         m_PhysicsWorld.drawCollisionShapes();
-    }
+
+        OnEditorUpdateUI(dt, m_Registry);
+    }  
 
     void Scene::OnUpdateRuntime(float dt)
     {
