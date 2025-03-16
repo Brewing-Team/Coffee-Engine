@@ -980,72 +980,51 @@
         }
     };
 
-      /**
- * @brief Component representing an interactive UI button with state transitions.
- * @ingroup scene
- */
-struct UIButtonComponent
-{
-    /// @enum ButtonState
-    /// @brief Represents the possible states of the button
-    enum class ButtonState
+    struct UIButtonComponent
     {
-        Base,       ///< Default inactive state
-        Selected,   ///< Highlighted state (e.g., mouse hover)
-        Pressed     ///< Active pressed state
-    };
-
-    // State textures
-    Ref<Texture2D> baseTexture = nullptr;     ///< Texture for base state
-    Ref<Texture2D> selectedTexture = nullptr; ///< Texture for selected state
-    Ref<Texture2D> pressedTexture = nullptr;  ///< Texture for pressed state
-
-    // Size configurations
-    glm::vec2 baseSize = {100.0f, 100.0f};     ///< Base state dimensions
-    glm::vec2 selectedSize = {120.0f, 120.0f}; ///< Selected state dimensions
-    glm::vec2 pressedSize = {90.0f, 90.0f};    ///< Pressed state dimensions
-
-    // Color configurations
-    glm::vec4 baseColor = {1.0f, 1.0f, 1.0f, 1.0f};     ///< Base state color (RGBA)
-    glm::vec4 selectedColor = {0.8f, 0.8f, 1.0f, 1.0f}; ///< Selected state color (RGBA)
-    glm::vec4 pressedColor = {0.6f, 0.6f, 1.0f, 1.0f};  ///< Pressed state color (RGBA)
-
-    // Transition properties
-    float transitionSpeed = 5.0f;            ///< Transition speed between states
-    ButtonState targetState = ButtonState::Base; ///< Target state to transition to
-    glm::vec2 targetSize = baseSize;         ///< Target size for current transition
-    glm::vec4 targetColor = baseColor;       ///< Target color for current transition
-
-    // Current interpolated values
-    glm::vec2 currentSize = baseSize;        ///< Current displayed size
-    glm::vec4 currentColor = baseColor;      ///< Current displayed color
-    ButtonState currentState = ButtonState::Base; ///< Current logical state
-
-    /// @brief Default constructor
-    UIButtonComponent() = default;
-
-    /// @brief Constructor with texture paths
-    /// @param baseTexturePath Path to base state texture
-    /// @param selectedTexturePath Path to selected state texture
-    /// @param pressedTexturePath Path to pressed state texture
-    UIButtonComponent(const std::string& baseTexturePath,
-                     const std::string& selectedTexturePath,
-                     const std::string& pressedTexturePath)
-    {
-        if (!baseTexturePath.empty()) baseTexture = Texture2D::Load(baseTexturePath);
-        if (!selectedTexturePath.empty()) selectedTexture = Texture2D::Load(selectedTexturePath);
-        if (!pressedTexturePath.empty()) pressedTexture = Texture2D::Load(pressedTexturePath);
-    }
-
-    /// @brief Transition to a new button state
-    /// @param newState Target state to transition to
-    void TransitionToState(ButtonState newState)
-    {
-        targetState = newState;
-
-        // Update target properties based on state
-        switch(targetState)
+        enum class ButtonState
         {
+            Base,
+            Selected,
+            Pressed
+        };
+
+        Ref<Texture2D> baseTexture = nullptr;
+        Ref<Texture2D> selectedTexture = nullptr;
+        Ref<Texture2D> pressedTexture = nullptr;
+
+        glm::vec2 baseSize = {100.0f, 100.0f};
+        glm::vec2 selectedSize = {120.0f, 120.0f};
+        glm::vec2 pressedSize = {90.0f, 90.0f};
+
+        glm::vec4 baseColor = {1.0f, 1.0f, 1.0f, 1.0f};
+        glm::vec4 selectedColor = {0.8f, 0.8f, 1.0f, 1.0f};
+        glm::vec4 pressedColor = {0.6f, 0.6f, 1.0f, 1.0f};
+
+        float transitionSpeed = 5.0f;
+        ButtonState targetState = ButtonState::Base;
+        glm::vec2 targetSize = baseSize;
+        glm::vec4 targetColor = baseColor;
+
+        glm::vec2 currentSize = baseSize;
+        glm::vec4 currentColor = baseColor;
+        ButtonState currentState = ButtonState::Base;
+
+        UIButtonComponent() = default;
+
+        UIButtonComponent(const std::string& baseTexturePath,
+                         const std::string& selectedTexturePath,
+                         const std::string& pressedTexturePath)
+        {
+            if (!baseTexturePath.empty()) baseTexture = Texture2D::Load(baseTexturePath);
+            if (!selectedTexturePath.empty()) selectedTexture = Texture2D::Load(selectedTexturePath);
+            if (!pressedTexturePath.empty()) pressedTexture = Texture2D::Load(pressedTexturePath);
+        }
+
+        void TransitionToState(ButtonState newState) {
+            targetState = newState;
+
+            switch(targetState) {
             case ButtonState::Selected:
                 targetSize = selectedSize;
                 targetColor = selectedColor;
@@ -1054,107 +1033,82 @@ struct UIButtonComponent
                 targetSize = pressedSize;
                 targetColor = pressedColor;
                 break;
-            default: // Base
+            default:
                 targetSize = baseSize;
                 targetColor = baseColor;
                 break;
+            }
         }
-    }
 
-    /// @brief Update size and color transitions
-    /// @param deltaTime Time since last frame in seconds
-    void UpdateTransition(float deltaTime)
-    {
-        // Linearly interpolate size and color
-        currentSize = glm::mix(currentSize, targetSize, deltaTime * transitionSpeed);
-        currentColor = glm::mix(currentColor, targetColor, deltaTime * transitionSpeed);
-    }
+        void UpdateTransition(float deltaTime) {
+            // Interpolate size and color towards the target state
+            float blendFactor = 1.0f - exp(-transitionSpeed * deltaTime);
+            currentSize = glm::mix(currentSize, targetSize, blendFactor);
+            currentColor = glm::mix(currentColor, targetColor, blendFactor);
 
-    /// @brief Get current texture based on state
-    /// @return Active texture reference
-    Ref<Texture2D> GetCurrentTexture() const
-    {
-        switch (currentState)
+            // Update the current state only if we are very close to the target
+            if (glm::length(currentSize - targetSize) < 0.1f &&
+                glm::length(currentColor - targetColor) < 0.01f) {
+                currentState = targetState;
+            }
+        }
+
+        Ref<Texture2D> GetCurrentTexture() const
         {
-            case ButtonState::Selected: return selectedTexture ? selectedTexture : baseTexture;
-            case ButtonState::Pressed: return pressedTexture ? pressedTexture : baseTexture;
-            default: return baseTexture;
+            switch (currentState)
+            {
+                case ButtonState::Selected: return selectedTexture ? selectedTexture : baseTexture;
+                case ButtonState::Pressed: return pressedTexture ? pressedTexture : baseTexture;
+                default: return baseTexture;
+            }
         }
-    }
 
-    /// @brief Get current interpolated size
-    /// @return Current display size
-    const glm::vec2& GetCurrentSize() const { return currentSize; }
+        const glm::vec2& GetCurrentSize() const { return currentSize; }
+        const glm::vec4& GetCurrentColor() const { return currentColor; }
 
-    /// @brief Get current interpolated color
-    /// @return Current display color
-    const glm::vec4& GetCurrentColor() const { return currentColor; }
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(
+                cereal::make_nvp("BaseTextureUUID", baseTexture ? baseTexture->GetUUID() : UUID(0)),
+                cereal::make_nvp("SelectedTextureUUID", selectedTexture ? selectedTexture->GetUUID() : UUID(0)),
+                cereal::make_nvp("PressedTextureUUID", pressedTexture ? pressedTexture->GetUUID() : UUID(0)),
 
-    /// @brief Serialization method
-    template<class Archive>
-    void save(Archive& archive) const
-    {
-        archive(
-            // Serialize texture UUIDs with null checks
-            cereal::make_nvp("BaseTextureUUID", baseTexture ? baseTexture->GetUUID() : UUID(0)),
-            cereal::make_nvp("SelectedTextureUUID", selectedTexture ? selectedTexture->GetUUID() : UUID(0)),
-            cereal::make_nvp("PressedTextureUUID", pressedTexture ? pressedTexture->GetUUID() : UUID(0)),
+                cereal::make_nvp("BaseSize", baseSize),
+                cereal::make_nvp("SelectedSize", selectedSize),
+                cereal::make_nvp("PressedSize", pressedSize),
 
-            // Size configurations
-            cereal::make_nvp("BaseSize", baseSize),
-            cereal::make_nvp("SelectedSize", selectedSize),
-            cereal::make_nvp("PressedSize", pressedSize),
+                cereal::make_nvp("BaseColor", baseColor),
+                cereal::make_nvp("SelectedColor", selectedColor),
+                cereal::make_nvp("PressedColor", pressedColor)
+            );
+        }
 
-            // Color configurations
-            cereal::make_nvp("BaseColor", baseColor),
-            cereal::make_nvp("SelectedColor", selectedColor),
-            cereal::make_nvp("PressedColor", pressedColor)
-        );
-    }
+        template<class Archive>
+        void load(Archive& archive)
+        {
+            UUID baseUUID, selectedUUID, pressedUUID;
 
-    /// @brief Deserialization method
-    template<class Archive>
-    void load(Archive& archive)
-    {
-        UUID baseUUID, selectedUUID, pressedUUID;
+            archive(
+                cereal::make_nvp("BaseTextureUUID", baseUUID),
+                cereal::make_nvp("SelectedTextureUUID", selectedUUID),
+                cereal::make_nvp("PressedTextureUUID", pressedUUID),
 
-        archive(
-            // Deserialize texture UUIDs
-            cereal::make_nvp("BaseTextureUUID", baseUUID),
-            cereal::make_nvp("SelectedTextureUUID", selectedUUID),
-            cereal::make_nvp("PressedTextureUUID", pressedUUID),
+                cereal::make_nvp("BaseSize", baseSize),
+                cereal::make_nvp("SelectedSize", selectedSize),
+                cereal::make_nvp("PressedSize", pressedSize),
 
-            // Size configurations
-            cereal::make_nvp("BaseSize", baseSize),
-            cereal::make_nvp("SelectedSize", selectedSize),
-            cereal::make_nvp("PressedSize", pressedSize),
+                cereal::make_nvp("BaseColor", baseColor),
+                cereal::make_nvp("SelectedColor", selectedColor),
+                cereal::make_nvp("PressedColor", pressedColor)
+            );
 
-            // Color configurations
-            cereal::make_nvp("BaseColor", baseColor),
-            cereal::make_nvp("SelectedColor", selectedColor),
-            cereal::make_nvp("PressedColor", pressedColor)
-        );
+            if (baseUUID) baseTexture = ResourceLoader::GetResource<Texture2D>(baseUUID);
+            if (selectedUUID) selectedTexture = ResourceLoader::GetResource<Texture2D>(selectedUUID);
+            if (pressedUUID) pressedTexture = ResourceLoader::GetResource<Texture2D>(pressedUUID);
+        }
+    };
 
-        // Load textures from resource registry
-        if (baseUUID) baseTexture = ResourceLoader::GetResource<Texture2D>(baseUUID);
-        if (selectedUUID) selectedTexture = ResourceLoader::GetResource<Texture2D>(selectedUUID);
-        if (pressedUUID) pressedTexture = ResourceLoader::GetResource<Texture2D>(pressedUUID);
-    }
-
-    /* Example usage:
-    // In input system:
-    button.TransitionToState(UIButtonComponent::ButtonState::Selected);
-
-    // In update system:
-    button.UpdateTransition(deltaTime);
-
-    // In render system:
-    Renderer2D::DrawQuad(transform,
-                       button.GetCurrentTexture(),
-                       1.0f,
-                       button.GetCurrentColor());
-    */
-};
     struct NavMeshComponent
     {
         bool ShowDebug = false; ///< Flag to show the navigation mesh debug.

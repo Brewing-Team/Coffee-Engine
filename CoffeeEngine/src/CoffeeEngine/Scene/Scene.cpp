@@ -253,7 +253,7 @@ namespace Coffee {
 
         // Get all entities with ModelComponent and TransformComponent
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
-          
+
         // Loop through each entity with the specified components
 
         for (auto& entity : view) {
@@ -368,7 +368,7 @@ namespace Coffee {
         //m_Octree.DebugDraw();
 
         // Get all the static meshes from the Octree
-/* 
+/*
         glm::mat4 testProjection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
 
         Frustum frustum = Frustum(camera->GetProjection() * glm::inverse(cameraTransform));
@@ -705,42 +705,44 @@ namespace Coffee {
             }
         }
 
-        // Separate view for transition updates
-        auto buttonTransitionView = registry.view<UIButtonComponent>();
-        for (auto& entity : buttonTransitionView) {
-            auto& buttonComponent = buttonTransitionView.get<UIButtonComponent>(entity);
-            buttonComponent.UpdateTransition(dt);
-        }
-
-        // Separate view for rendering with transform component
         auto buttonRenderView = registry.view<UIButtonComponent, TransformComponent>();
         for (auto& entity : buttonRenderView) {
             auto [buttonComponent, transformComponent] = buttonRenderView.get<UIButtonComponent, TransformComponent>(entity);
 
             Ref<Texture2D> currentTexture = buttonComponent.GetCurrentTexture();
-            if(!currentTexture) continue;
+            if (!currentTexture) continue;
 
-            // Use transform component's matrix directly
+            auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+            glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+
             glm::mat4 transform = transformComponent.GetWorldTransform();
             transform = glm::translate(transform, glm::vec3(center, 0.0f));
             transform = glm::scale(transform, glm::vec3(
-                glm::max(buttonComponent.GetCurrentSize().x, 0.1f),
+                glm::max(buttonComponent.GetCurrentSize().x, 0.1f), // Usar currentSize
                 glm::max(buttonComponent.GetCurrentSize().y, 0.1f),
                 1.0f
             ));
+
+            auto buttonTransitionView = registry.view<UIButtonComponent>();
+            for (auto& entity : buttonTransitionView)
+            {
+                auto& buttonComponent = buttonTransitionView.get<UIButtonComponent>(entity);
+                buttonComponent.UpdateTransition(dt);
+            }
 
             Renderer2D::DrawQuad(
                 transform,
                 currentTexture,
                 1.0f,
-                buttonComponent.GetCurrentColor(),
+                buttonComponent.GetCurrentColor(), // Usar currentColor
                 Renderer2D::RenderMode::Screen,
                 (uint32_t)entity
             );
         }
     }
 
-    void Scene::OnRuntimeUpdateUI(float dt, entt::registry& registry) {
+    void Scene::OnRuntimeUpdateUI(float dt, entt::registry& registry)
+    {
         auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
         glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
 
@@ -843,30 +845,41 @@ namespace Coffee {
             buttonComponent.UpdateTransition(dt);
         }
 
-        // Rendering with transform
         auto buttonRenderView = registry.view<UIButtonComponent, TransformComponent>();
-        for (auto& entity : buttonRenderView) {
+        for (auto& entity : buttonRenderView)
+        {
             auto [buttonComponent, transformComponent] = buttonRenderView.get<UIButtonComponent, TransformComponent>(entity);
 
             Ref<Texture2D> currentTexture = buttonComponent.GetCurrentTexture();
-            if(!currentTexture) continue;
+            if (!currentTexture) continue;
 
+            // Calcular el centro de la pantalla
+            auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+            glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+
+            // Construir la matriz de transformación
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::translate(transform, glm::vec3(center, 0.0f));
+            transform = glm::translate(transform, glm::vec3(center, 0.0f)); // Centrar en la pantalla
             transform = glm::scale(transform, glm::vec3(
-                glm::max(buttonComponent.GetCurrentSize().x, 0.1f),
+                glm::max(buttonComponent.GetCurrentSize().x, 0.1f), // Usar currentSize
                 glm::max(buttonComponent.GetCurrentSize().y, 0.1f),
                 1.0f
             ));
 
-            Renderer2D::DrawQuad(
-                transform,
-                currentTexture,
-                1.0f,
-                buttonComponent.GetCurrentColor(),
-                Renderer2D::RenderMode::Screen,
-                (uint32_t)entity
-            );
+            auto buttonTransitionView = registry.view<UIButtonComponent>();
+            for (auto& entity : buttonTransitionView) {
+                auto& buttonComponent = buttonTransitionView.get<UIButtonComponent>(entity);
+                buttonComponent.UpdateTransition(dt);
+
+                Renderer2D::DrawQuad(
+                     transform,
+                     currentTexture,
+                     1.0f,
+                     buttonComponent.GetCurrentColor(), // Usar currentColor
+                     Renderer2D::RenderMode::Screen,
+                     (uint32_t)entity
+                 );
+            }
         }
     }
 }

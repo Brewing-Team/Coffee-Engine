@@ -633,6 +633,9 @@ namespace Coffee {
                 } else if (componentName == "UISliderComponent")
                 {
                     self->AddComponent<UISliderComponent>();
+                }else if (componentName == "UIButtonComponent")
+                {
+                    self->AddComponent<UIButtonComponent>();
                 }else if (componentName == "AudioSourceComponent") {
                     self->AddComponent<AudioSourceComponent>();
                 }
@@ -656,6 +659,10 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
                 } else if (componentName == "UITextComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<UITextComponent>()));
+                }
+                else if (componentName == "UISliderComponent")
+                {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UISliderComponent>()));
                 }
                 else if (componentName == "UISliderComponent")
                 {
@@ -696,6 +703,9 @@ namespace Coffee {
                 else if (componentName == "UISliderComponent")
                 {
                     return self->HasComponent<UISliderComponent>();
+                }else if (componentName == "UIButtonComponent")
+                {
+                    return self->HasComponent<UIButtonComponent>();
                 }
                 else if (componentName == "NavigationAgentComponent") {
                     return self->HasComponent<NavigationAgentComponent>();
@@ -725,6 +735,10 @@ namespace Coffee {
                     self->RemoveComponent<ScriptComponent>();
                 } else if (componentName == "UIImageComponent") {
                     self->RemoveComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    self->RemoveComponent<UITextComponent>();
+                }else if (componentName == "UIButtonComponent") {
+                    self->RemoveComponent<UIButtonComponent>();
                 } else if (componentName == "UITextComponent") {
                     self->RemoveComponent<UITextComponent>();
                 }
@@ -833,6 +847,22 @@ namespace Coffee {
             "set_color", [](UITextComponent& self, const glm::vec4& color) { self.Color = color; },
             "is_visible", &UITextComponent::Visible,
             "set_visible", [](UITextComponent& self, bool visible) { self.Visible = visible; }
+        );
+
+        luaState.new_usertype<UIButtonComponent>("UIButtonComponent",
+        sol::constructors<UIButtonComponent(), UIButtonComponent(const std::string&, const std::string&, const std::string&)>(),
+        "transition_to_state", &UIButtonComponent::TransitionToState,
+        "update_transition", &UIButtonComponent::UpdateTransition,
+        "get_current_texture", &UIButtonComponent::GetCurrentTexture,
+        "get_current_size", &UIButtonComponent::GetCurrentSize,
+        "get_current_color", &UIButtonComponent::GetCurrentColor,
+        "set_base_size", [](UIButtonComponent& self, const glm::vec2& size) { self.baseSize = size; },
+        "set_selected_size", [](UIButtonComponent& self, const glm::vec2& size) { self.selectedSize = size; },
+        "set_pressed_size", [](UIButtonComponent& self, const glm::vec2& size) { self.pressedSize = size; },
+        "set_base_color", [](UIButtonComponent& self, const glm::vec4& color) { self.baseColor = color; },
+        "set_selected_color", [](UIButtonComponent& self, const glm::vec4& color) { self.selectedColor = color; },
+        "set_pressed_color", [](UIButtonComponent& self, const glm::vec4& color) { self.pressedColor = color; },
+        "set_transition_speed", [](UIButtonComponent& self, float speed) { self.transitionSpeed = speed; }
         );
 
         luaState.new_usertype<RigidbodyComponent>("RigidbodyComponent",
