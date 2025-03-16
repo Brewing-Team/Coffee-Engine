@@ -7,14 +7,16 @@ creators and maintainers of the following:
 
 -  `spdlog <https://github.com/gabime/spdlog>`__: Fast C++ logging
    library.
--  `GLFW <https://www.glfw.org/>`__: Library for handling window
-   creation, input, and events.
+-  `SDL3 <https://www.libsdl.org/>`__: Simple DirectMedia Layer for
+   cross-platform development.
 -  `GLM <https://github.com/g-truc/glm>`__: OpenGL Mathematics library
    for graphics software.
 -  `GLAD <https://github.com/Dav1dde/glad>`__: Multi-language OpenGL
    loader-generator.
 -  `ImGui <https://github.com/ocornut/imgui>`__: Immediate Mode
    Graphical User Interface for C++.
+- `ImGuizmo <https://github.com/CedricGuillemet/ImGuizmo>`__: Immediate
+  mode 3D gizmo for ImGui.
 -  `stb_image <https://github.com/nothings/stb>`__: Image loading
    library.
 -  `assimp <https://github.com/assimp/assimp>`__: Library to import
@@ -23,6 +25,9 @@ creators and maintainers of the following:
    entity-component system (ECS).
 -  `Tracy <https://github.com/wolfpld/tracy>`__: Real-time, nanosecond
    resolution, remote telemetry, hybrid frame and sampling profiler.
+- `Sol2 <https://github.com/ThePhD/sol2>`__: C++ library binding to Lua.
+- `Cereal <https://github.com/USCiLab/cereal>`__: C++11 library for
+  serialization.
 -  `LearnOpenGL <https://learnopengl.com/>`__: Comprehensive OpenGL
    tutorial and resource site.
 -  `Hazel <https://github.com/TheCherno/Hazel>`__: A small game engine

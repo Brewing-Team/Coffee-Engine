@@ -16,6 +16,7 @@
  #include "CoffeeEngine/Scene/SceneCamera.h"
  #include "CoffeeEngine/Scripting/Script.h"
  #include "CoffeeEngine/Scripting/ScriptManager.h"
+ #include "CoffeeEngine/ParticleManager/ParticleManager.h"
  #include "CoffeeEngine/Navigation/NavMesh.h"
  #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
 
@@ -42,6 +43,7 @@
  
  // FIXME : DONT MOVE THIS INCLUDE
  #include "CoffeeEngine/Audio/Audio.h"
+
  
  
  namespace Coffee {
@@ -775,6 +777,42 @@
                  }
              }
      };
+
+     
+
+     struct ParticlesSystemComponent
+    {
+        public:
+        // Constructor por defecto
+        ParticlesSystemComponent() { 
+            m_Particles = CreateRef<ParticleEmitter>();
+            
+        }
+        
+
+        Ref<ParticleEmitter> GetParticleEmitter() { return m_Particles; }
+
+        void Emit(int quantity) { m_Particles->Emit(quantity); }
+        void SetLooping(bool active) { m_Particles->looping = active; }
+
+
+        private:
+        Ref<ParticleEmitter> m_Particles = nullptr; 
+
+
+        public:
+        template <class Archive> void save(Archive& archive) const
+        {
+            archive(cereal::make_nvp("ParticleEmitter", m_Particles));
+        }
+
+        template <class Archive> void load(Archive& archive)
+        {
+            archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
+        }
+
+
+    };
  
     struct NavMeshComponent
     {

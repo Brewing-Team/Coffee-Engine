@@ -626,6 +626,8 @@ namespace Coffee {
                     self->AddComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->AddComponent<ScriptComponent>();
+                }else if (componentName == "ParticlesSystemComponent"){
+                    self->AddComponent<ParticlesSystemComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     self->AddComponent<AudioSourceComponent>();
                 }
@@ -645,6 +647,8 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<LightComponent>()));
                 } else if (componentName == "ScriptComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<ScriptComponent>()));
+                } else if (componentName == "ParticlesSystemComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<ParticlesSystemComponent>()));
                 } else if (componentName == "NavigationAgentComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<NavigationAgentComponent>()));
                 } else if (componentName == "RigidbodyComponent") {
@@ -672,6 +676,8 @@ namespace Coffee {
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
+                } else if (componentName == "ParticlesSystemComponent") {
+                    return self->HasComponent<ParticlesSystemComponent>();
                 } else if (componentName == "NavigationAgentComponent") {
                     return self->HasComponent<NavigationAgentComponent>();
                 } else if (componentName == "RigidbodyComponent") {
@@ -698,6 +704,8 @@ namespace Coffee {
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
+                } else if (componentName == "ParticlesSystemComponent") {
+                    self->RemoveComponent<ParticlesSystemComponent>();
                 } else if (componentName == "RigidbodyComponent") {
                     self->RemoveComponent<RigidbodyComponent>();
                 } else if (componentName == "AudioSourceComponent") {
@@ -778,6 +786,15 @@ namespace Coffee {
                 std::dynamic_pointer_cast<LuaScript>(self.script)->CallFunction(functionName);
             }
         );
+
+
+
+
+        luaState.new_usertype<ParticlesSystemComponent>("ParticlesSystemComponent", sol::constructors<ParticlesSystemComponent()>(), 
+            "emit",&ParticlesSystemComponent::Emit, 
+            "set_looping",&ParticlesSystemComponent::SetLooping, 
+            "get_emitter", &ParticlesSystemComponent::GetParticleEmitter
+            );
 
         luaState.new_usertype<RigidbodyComponent>("RigidbodyComponent",
             "rb", &RigidbodyComponent::rb,
