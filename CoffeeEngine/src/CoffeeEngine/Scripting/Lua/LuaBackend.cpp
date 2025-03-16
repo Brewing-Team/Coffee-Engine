@@ -834,6 +834,7 @@ namespace Coffee {
         luaState.new_usertype<Scene>("Scene",
             "create_entity", &Scene::CreateEntity,
             "destroy_entity", &Scene::DestroyEntity,
+            "duplicate_entity", &Scene::Duplicate,
             "get_entity_by_name", &Scene::GetEntityByName,
             "get_all_entities", &Scene::GetAllEntities
         );
