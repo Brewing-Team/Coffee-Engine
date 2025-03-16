@@ -2043,10 +2043,11 @@ namespace Coffee
                     {
 
                         entity.AddComponent<ParticlesSystemComponent>();
-                        /* if (!entity.HasComponent<Material>())
+                        if (!entity.HasComponent<MaterialComponent>())
                          {
-                             entity.AddComponent<Material>();
-                         }*/
+                             entity.AddComponent<MaterialComponent>(Material::Create("Default Particle Material"));
+                             
+                         }
                         ImGui::CloseCurrentPopup();
                     }
                 }  
@@ -2263,7 +2264,7 @@ namespace Coffee
                 {
                     Entity e = m_Context->CreateEntity("ParticleSystem");
                     e.AddComponent<ParticlesSystemComponent>();
-                    e.AddComponent<MaterialComponent>();
+                    e.AddComponent<MaterialComponent>(Material::Create("Default Particle Material"));
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
