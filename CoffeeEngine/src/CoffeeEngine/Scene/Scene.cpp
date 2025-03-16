@@ -705,36 +705,36 @@ namespace Coffee {
             }
         }
 
-        auto buttonRenderView = registry.view<UIButtonComponent, TransformComponent>();
-        for (auto& entity : buttonRenderView) {
-            auto [buttonComponent, transformComponent] = buttonRenderView.get<UIButtonComponent, TransformComponent>(entity);
+        auto uiButtonView = registry.view<UIButtonComponent, TransformComponent>();
+        for (auto& entity : uiButtonView) {
+            auto& uiButtonComponent = uiButtonView.get<UIButtonComponent>(entity);
+            auto& transformComponent = uiButtonView.get<TransformComponent>(entity);
 
-            Ref<Texture2D> currentTexture = buttonComponent.GetCurrentTexture();
-            if (!currentTexture) continue;
+            // Añadir comprobación de textura válida
+            Ref<Texture2D> currentTexture = uiButtonComponent.GetCurrentTexture();
+            if(!currentTexture) continue;
 
-            auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
-            glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
-            glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::translate(transform, glm::vec3(center, 0.0f));
-            transform = glm::scale(transform, glm::vec3(
-                glm::max(buttonComponent.GetCurrentSize().x, 0.1f), // Usar currentSize
-                glm::max(buttonComponent.GetCurrentSize().y, 0.1f),
-                1.0f
-            ));
-
-            auto buttonTransitionView = registry.view<UIButtonComponent>();
-            for (auto& entity : buttonTransitionView)
-            {
-                auto& buttonComponent = buttonTransitionView.get<UIButtonComponent>(entity);
-                buttonComponent.UpdateTransition(dt);
+            // Calcular transformación segura
+            glm::mat4 transform = glm::mat4(1.0f);
+            try {
+                transform = transformComponent.GetWorldTransform();
+                transform = glm::translate(transform, glm::vec3(center, 0.0f));
+                transform = glm::scale(transform, glm::vec3(
+                    glm::max(uiButtonComponent.GetCurrentSize().x, 0.1f),
+                    glm::max(uiButtonComponent.GetCurrentSize().y, 0.1f),
+                    1.0f
+                ));
+            }
+            catch(...) {
+                COFFEE_CORE_ERROR("Invalid transform for button entity {}", (uint32_t)entity);
+                continue;
             }
 
             Renderer2D::DrawQuad(
                 transform,
                 currentTexture,
                 1.0f,
-                buttonComponent.GetCurrentColor(), // Usar currentColor
+                uiButtonComponent.GetCurrentColor(),
                 Renderer2D::RenderMode::Screen,
                 (uint32_t)entity
             );
@@ -838,48 +838,39 @@ namespace Coffee {
             }
         }
 
-        // Transition updates
-        auto buttonTransitionView = registry.view<UIButtonComponent>();
-        for (auto& entity : buttonTransitionView) {
-            auto& buttonComponent = buttonTransitionView.get<UIButtonComponent>(entity);
-            buttonComponent.UpdateTransition(dt);
-        }
+        auto uiButtonView = registry.view<UIButtonComponent, TransformComponent>();
+        for (auto& entity : uiButtonView) {
+            auto& uiButtonComponent = uiButtonView.get<UIButtonComponent>(entity);
+            auto& transformComponent = uiButtonView.get<TransformComponent>(entity);
 
-        auto buttonRenderView = registry.view<UIButtonComponent, TransformComponent>();
-        for (auto& entity : buttonRenderView)
-        {
-            auto [buttonComponent, transformComponent] = buttonRenderView.get<UIButtonComponent, TransformComponent>(entity);
+            // Añadir comprobación de textura válida
+            Ref<Texture2D> currentTexture = uiButtonComponent.GetCurrentTexture();
+            if(!currentTexture) continue;
 
-            Ref<Texture2D> currentTexture = buttonComponent.GetCurrentTexture();
-            if (!currentTexture) continue;
-
-            // Calcular el centro de la pantalla
-            auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
-            glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
-            // Construir la matriz de transformación
-            glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::translate(transform, glm::vec3(center, 0.0f)); // Centrar en la pantalla
-            transform = glm::scale(transform, glm::vec3(
-                glm::max(buttonComponent.GetCurrentSize().x, 0.1f), // Usar currentSize
-                glm::max(buttonComponent.GetCurrentSize().y, 0.1f),
-                1.0f
-            ));
-
-            auto buttonTransitionView = registry.view<UIButtonComponent>();
-            for (auto& entity : buttonTransitionView) {
-                auto& buttonComponent = buttonTransitionView.get<UIButtonComponent>(entity);
-                buttonComponent.UpdateTransition(dt);
-
-                Renderer2D::DrawQuad(
-                     transform,
-                     currentTexture,
-                     1.0f,
-                     buttonComponent.GetCurrentColor(), // Usar currentColor
-                     Renderer2D::RenderMode::Screen,
-                     (uint32_t)entity
-                 );
+            // Calcular transformación segura
+            glm::mat4 transform = glm::mat4(1.0f);
+            try {
+                transform = transformComponent.GetWorldTransform();
+                transform = glm::translate(transform, glm::vec3(center, 0.0f));
+                transform = glm::scale(transform, glm::vec3(
+                    glm::max(uiButtonComponent.GetCurrentSize().x, 0.1f),
+                    glm::max(uiButtonComponent.GetCurrentSize().y, 0.1f),
+                    1.0f
+                ));
             }
+            catch(...) {
+                COFFEE_CORE_ERROR("Invalid transform for button entity {}", (uint32_t)entity);
+                continue;
+            }
+
+            Renderer2D::DrawQuad(
+                transform,
+                currentTexture,
+                1.0f,
+                uiButtonComponent.GetCurrentColor(),
+                Renderer2D::RenderMode::Screen,
+                (uint32_t)entity
+            );
         }
     }
 }

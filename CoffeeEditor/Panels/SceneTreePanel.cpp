@@ -1301,7 +1301,7 @@ namespace Coffee {
             }
         }
 
-       if (entity.HasComponent<UIButtonComponent>())
+        if (entity.HasComponent<UIButtonComponent>())
         {
             auto& uiButtonComponent = entity.GetComponent<UIButtonComponent>();
             bool isCollapsingHeaderOpen = true;
@@ -1446,7 +1446,6 @@ namespace Coffee {
 
                 ImGui::Text("Pressed Color");
                 ImGui::ColorEdit4("##PressedColor", glm::value_ptr(uiButtonComponent.pressedColor));
-
 
             }
         }

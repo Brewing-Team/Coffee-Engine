@@ -850,19 +850,26 @@ namespace Coffee {
         );
 
         luaState.new_usertype<UIButtonComponent>("UIButtonComponent",
-        sol::constructors<UIButtonComponent(), UIButtonComponent(const std::string&, const std::string&, const std::string&)>(),
-        "transition_to_state", &UIButtonComponent::TransitionToState,
-        "update_transition", &UIButtonComponent::UpdateTransition,
-        "get_current_texture", &UIButtonComponent::GetCurrentTexture,
-        "get_current_size", &UIButtonComponent::GetCurrentSize,
-        "get_current_color", &UIButtonComponent::GetCurrentColor,
-        "set_base_size", [](UIButtonComponent& self, const glm::vec2& size) { self.baseSize = size; },
-        "set_selected_size", [](UIButtonComponent& self, const glm::vec2& size) { self.selectedSize = size; },
-        "set_pressed_size", [](UIButtonComponent& self, const glm::vec2& size) { self.pressedSize = size; },
-        "set_base_color", [](UIButtonComponent& self, const glm::vec4& color) { self.baseColor = color; },
-        "set_selected_color", [](UIButtonComponent& self, const glm::vec4& color) { self.selectedColor = color; },
-        "set_pressed_color", [](UIButtonComponent& self, const glm::vec4& color) { self.pressedColor = color; },
-        "set_transition_speed", [](UIButtonComponent& self, float speed) { self.transitionSpeed = speed; }
+            sol::constructors<UIButtonComponent(), UIButtonComponent(const std::string&, const std::string&, const std::string&)>(),
+            "set_state", [](UIButtonComponent& self, const std::string& state) {
+                if (state == "Base") {
+                    self.SetState(UIButtonComponent::ButtonState::Base);
+                } else if (state == "Selected") {
+                    self.SetState(UIButtonComponent::ButtonState::Selected);
+                } else if (state == "Pressed") {
+                    self.SetState(UIButtonComponent::ButtonState::Pressed);
+                } else {
+                    COFFEE_CORE_WARN("Invalid button state: {0}", state);
+                }
+            },
+            "get_state", [](UIButtonComponent& self) -> std::string {
+                switch (self.currentState) {
+                    case UIButtonComponent::ButtonState::Base: return "Base";
+                    case UIButtonComponent::ButtonState::Selected: return "Selected";
+                    case UIButtonComponent::ButtonState::Pressed: return "Pressed";
+                    default: return "Unknown";
+                }
+            }
         );
 
         luaState.new_usertype<RigidbodyComponent>("RigidbodyComponent",

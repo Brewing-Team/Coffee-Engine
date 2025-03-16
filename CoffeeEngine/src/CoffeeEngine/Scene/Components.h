@@ -983,16 +983,11 @@
 
     struct UIButtonComponent
     {
-        enum class ButtonState
-        {
-            Base,
-            Selected,
-            Pressed
-        };
+        bool Visible = true;
 
-        Ref<Texture2D> baseTexture = nullptr;
-        Ref<Texture2D> selectedTexture = nullptr;
-        Ref<Texture2D> pressedTexture = nullptr;
+        Ref<Texture2D> baseTexture;
+        Ref<Texture2D> selectedTexture;
+        Ref<Texture2D> pressedTexture;
 
         glm::vec2 baseSize = {100.0f, 100.0f};
         glm::vec2 selectedSize = {120.0f, 120.0f};
@@ -1002,70 +997,76 @@
         glm::vec4 selectedColor = {0.8f, 0.8f, 1.0f, 1.0f};
         glm::vec4 pressedColor = {0.6f, 0.6f, 1.0f, 1.0f};
 
-        float transitionSpeed = 5.0f;
-        ButtonState targetState = ButtonState::Base;
-        glm::vec2 targetSize = baseSize;
-        glm::vec4 targetColor = baseColor;
+        enum class ButtonState
+        {
+            Base,
+            Selected,
+            Pressed
+        };
 
-        glm::vec2 currentSize = baseSize;
-        glm::vec4 currentColor = baseColor;
-        ButtonState currentState = ButtonState::Base;
+        ButtonState currentState = ButtonState::Base; // Estado actual del botón
 
         UIButtonComponent() = default;
 
-        UIButtonComponent(const std::string& baseTexturePath,
-                         const std::string& selectedTexturePath,
-                         const std::string& pressedTexturePath)
+        UIButtonComponent(const std::string& baseTexturePath, const std::string& selectedTexturePath, const std::string& pressedTexturePath)
         {
-            if (!baseTexturePath.empty()) baseTexture = Texture2D::Load(baseTexturePath);
-            if (!selectedTexturePath.empty()) selectedTexture = Texture2D::Load(selectedTexturePath);
-            if (!pressedTexturePath.empty()) pressedTexture = Texture2D::Load(pressedTexturePath);
-        }
-
-        void TransitionToState(ButtonState newState) {
-            targetState = newState;
-
-            switch(targetState) {
-            case ButtonState::Selected:
-                targetSize = selectedSize;
-                targetColor = selectedColor;
-                break;
-            case ButtonState::Pressed:
-                targetSize = pressedSize;
-                targetColor = pressedColor;
-                break;
-            default:
-                targetSize = baseSize;
-                targetColor = baseColor;
-                break;
+            if (!baseTexturePath.empty())
+            {
+                baseTexture = Texture2D::Load(baseTexturePath);
+            }
+            if (!selectedTexturePath.empty())
+            {
+                selectedTexture = Texture2D::Load(selectedTexturePath);
+            }
+            if (!pressedTexturePath.empty())
+            {
+                pressedTexture = Texture2D::Load(pressedTexturePath);
             }
         }
 
-        void UpdateTransition(float deltaTime) {
-            // Interpolate size and color towards the target state
-            float blendFactor = 1.0f - exp(-transitionSpeed * deltaTime);
-            currentSize = glm::mix(currentSize, targetSize, blendFactor);
-            currentColor = glm::mix(currentColor, targetColor, blendFactor);
-
-            // Update the current state only if we are very close to the target
-            if (glm::length(currentSize - targetSize) < 0.1f &&
-                glm::length(currentColor - targetColor) < 0.01f) {
-                currentState = targetState;
-            }
+        void SetState(ButtonState newState)
+        {
+            currentState = newState;
         }
 
         Ref<Texture2D> GetCurrentTexture() const
         {
             switch (currentState)
             {
-                case ButtonState::Selected: return selectedTexture ? selectedTexture : baseTexture;
-                case ButtonState::Pressed: return pressedTexture ? pressedTexture : baseTexture;
-                default: return baseTexture;
+            case ButtonState::Selected:
+                return selectedTexture;
+            case ButtonState::Pressed:
+                return pressedTexture;
+            default:
+                return baseTexture;
             }
         }
 
-        const glm::vec2& GetCurrentSize() const { return currentSize; }
-        const glm::vec4& GetCurrentColor() const { return currentColor; }
+        glm::vec2 GetCurrentSize() const
+        {
+            switch (currentState)
+            {
+            case ButtonState::Selected:
+                return selectedSize;
+            case ButtonState::Pressed:
+                return pressedSize;
+            default:
+                return baseSize;
+            }
+        }
+
+        glm::vec4 GetCurrentColor() const
+        {
+            switch (currentState)
+            {
+            case ButtonState::Selected:
+                return selectedColor;
+            case ButtonState::Pressed:
+                return pressedColor;
+            default:
+                return baseColor;
+            }
+        }
 
         template<class Archive>
         void save(Archive& archive) const
@@ -1074,39 +1075,48 @@
                 cereal::make_nvp("BaseTextureUUID", baseTexture ? baseTexture->GetUUID() : UUID(0)),
                 cereal::make_nvp("SelectedTextureUUID", selectedTexture ? selectedTexture->GetUUID() : UUID(0)),
                 cereal::make_nvp("PressedTextureUUID", pressedTexture ? pressedTexture->GetUUID() : UUID(0)),
-
                 cereal::make_nvp("BaseSize", baseSize),
                 cereal::make_nvp("SelectedSize", selectedSize),
                 cereal::make_nvp("PressedSize", pressedSize),
-
                 cereal::make_nvp("BaseColor", baseColor),
                 cereal::make_nvp("SelectedColor", selectedColor),
-                cereal::make_nvp("PressedColor", pressedColor)
+                cereal::make_nvp("PressedColor", pressedColor),
+                cereal::make_nvp("Visible", Visible),
+                cereal::make_nvp("CurrentState", static_cast<int>(currentState)) // Añadir estado actual
             );
         }
 
         template<class Archive>
         void load(Archive& archive)
         {
-            UUID baseUUID, selectedUUID, pressedUUID;
+            UUID baseTextureUUID, selectedTextureUUID, pressedTextureUUID;
+            int loadedState;
 
             archive(
-                cereal::make_nvp("BaseTextureUUID", baseUUID),
-                cereal::make_nvp("SelectedTextureUUID", selectedUUID),
-                cereal::make_nvp("PressedTextureUUID", pressedUUID),
-
+                cereal::make_nvp("BaseTextureUUID", baseTextureUUID),
+                cereal::make_nvp("SelectedTextureUUID", selectedTextureUUID),
+                cereal::make_nvp("PressedTextureUUID", pressedTextureUUID),
                 cereal::make_nvp("BaseSize", baseSize),
                 cereal::make_nvp("SelectedSize", selectedSize),
                 cereal::make_nvp("PressedSize", pressedSize),
-
                 cereal::make_nvp("BaseColor", baseColor),
                 cereal::make_nvp("SelectedColor", selectedColor),
-                cereal::make_nvp("PressedColor", pressedColor)
+                cereal::make_nvp("PressedColor", pressedColor),
+                cereal::make_nvp("Visible", Visible),
+                cereal::make_nvp("CurrentState", loadedState)
             );
 
-            if (baseUUID) baseTexture = ResourceLoader::GetResource<Texture2D>(baseUUID);
-            if (selectedUUID) selectedTexture = ResourceLoader::GetResource<Texture2D>(selectedUUID);
-            if (pressedUUID) pressedTexture = ResourceLoader::GetResource<Texture2D>(pressedUUID);
+            currentState = static_cast<ButtonState>(loadedState);
+
+            if (baseTextureUUID != 0) {
+                baseTexture = ResourceLoader::GetResource<Texture2D>(baseTextureUUID);
+            }
+            if (selectedTextureUUID != 0) {
+                selectedTexture = ResourceLoader::GetResource<Texture2D>(selectedTextureUUID);
+            }
+            if (pressedTextureUUID != 0) {
+                pressedTexture = ResourceLoader::GetResource<Texture2D>(pressedTextureUUID);
+            }
         }
     };
 
