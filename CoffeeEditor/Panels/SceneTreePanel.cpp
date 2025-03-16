@@ -2635,7 +2635,7 @@ namespace Coffee
                     Entity e = m_Context->CreateEntity("UI Canvas");
                     e.AddComponent<UICanvasComponent>();
                     SetSelectedEntity(e);
-                    ImGui::CloseCurrentPopup()
+                    ImGui::CloseCurrentPopup();
                 }
                 else if (items[item_current] == "Particle System")
                 {
