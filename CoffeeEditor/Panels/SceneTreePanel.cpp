@@ -362,7 +362,15 @@ namespace Coffee
                         ImGui::EndTooltip();
                     }
                 }
-                if (!isCollapsingHeaderOpen)
+                if(lightComponent.type == LightComponent::Type::SpotLight)
+                {
+                    ImGui::Text("Angle");
+                    ImGui::DragFloat("##Angle", &lightComponent.Angle, 0.1f);
+
+                    ImGui::Text("Cone Attenuation");
+                    ImGui::DragFloat("##Cone Attenuation", &lightComponent.ConeAttenuation, 0.1f);
+                }
+                if(!isCollapsingHeaderOpen)
                 {
                     entity.RemoveComponent<LightComponent>();
                 }
