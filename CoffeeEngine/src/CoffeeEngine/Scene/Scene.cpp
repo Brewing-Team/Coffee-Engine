@@ -187,7 +187,7 @@ namespace Coffee {
 
         CollisionSystem::Initialize(this);
 
-        auto view = m_Registry.view<MeshComponent>();
+/*         auto view = m_Registry.view<MeshComponent>();
 
         for (auto& entity : view)
         {
@@ -197,7 +197,7 @@ namespace Coffee {
             ObjectContainer<Ref<Mesh>> objectContainer = {transformComponent.GetWorldTransform(), meshComponent.GetMesh()->GetAABB(), meshComponent.GetMesh()};
 
             m_Octree.Insert(objectContainer);
-        }
+        } */
 
         Audio::StopAllEvents();
         Audio::PlayInitialAudios();
@@ -225,9 +225,6 @@ namespace Coffee {
         m_SceneTree->Update();
 
         Renderer::GetCurrentRenderTarget()->SetCamera(camera, glm::inverse(camera.GetViewMatrix()));
-
-        // TEST ------------------------------
-        m_Octree.DebugDraw();
 
         // TEMPORAL - Navigation
         auto navMeshView = m_Registry.view<NavMeshComponent>();
@@ -306,7 +303,7 @@ namespace Coffee {
             particlesSystemComponent.GetParticleEmitter()->DrawDebug();
         }
 
-
+        m_PhysicsWorld.drawCollisionShapes();
     }
 
     void Scene::OnUpdateRuntime(float dt)
@@ -358,7 +355,6 @@ namespace Coffee {
         }
 
         m_PhysicsWorld.stepSimulation(dt);
-        m_PhysicsWorld.drawCollisionShapes();
 
         // Update transforms from physics
         auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
