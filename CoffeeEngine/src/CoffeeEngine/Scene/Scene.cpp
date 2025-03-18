@@ -238,6 +238,15 @@ namespace Coffee {
             }
         }
 
+        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : viewPhysics) {
+            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.rb) {
+                transform.Position = rb.rb->GetPosition();
+                transform.Rotation = rb.rb->GetRotation();
+            }
+        }
+
         auto animatorView = m_Registry.view<AnimatorComponent>();
 
         for (auto& entity : animatorView)
