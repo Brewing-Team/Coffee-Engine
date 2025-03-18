@@ -2379,11 +2379,11 @@ namespace Coffee
                     {
 
                         entity.AddComponent<ParticlesSystemComponent>();
-                        if (!entity.HasComponent<MaterialComponent>())
+                        /*if (!entity.HasComponent<MaterialComponent>())
                          {
                              entity.AddComponent<MaterialComponent>(Material::Create("Default Particle Material"));
                              
-                         }
+                         }*/
                         ImGui::CloseCurrentPopup();
                     }
                 }  
