@@ -669,7 +669,7 @@ namespace Coffee {
     void Scene::OnEditorUpdateUI(float dt, entt::registry& registry) {
         auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
         glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
-
+        //center = glm::vec2(0, 0);
 
         auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
         for (auto& entity : uiImageView) {
@@ -680,9 +680,8 @@ namespace Coffee {
                 continue;
 
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
-            transform = glm::rotate(transform, glm::radians(180.0f), glm::vec3(0, 0, 1));
-            transform[3] = glm::vec4(transform[3][0], -transform[3][1], 0, 0);
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+            transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, -uiImageComponent.Size.y, 1.0f));
 
             Renderer2D::DrawQuad(transform,
                 uiImageComponent.texture,
@@ -706,7 +705,7 @@ namespace Coffee {
                 uiTextComponent.font = Font::GetDefault();
             }
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::translate(transform, glm::vec3(center, 0.0f));
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
             transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
 
             Renderer2D::DrawString(
@@ -728,7 +727,7 @@ namespace Coffee {
             if (!uiSliderComponent.Visible) continue;
 
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::translate(transform, glm::vec3(center, 0.0f));
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
 
             glm::mat4 barTransform = glm::scale(transform, glm::vec3(uiSliderComponent.Size.x, uiSliderComponent.Size.y, 1.0f));
 
@@ -775,7 +774,7 @@ namespace Coffee {
             glm::mat4 transform = glm::mat4(1.0f);
             try {
                 transform = transformComponent.GetWorldTransform();
-                transform = glm::translate(transform, glm::vec3(center, 0.0f));
+                transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
                 transform = glm::scale(transform, glm::vec3(
                     glm::max(uiButtonComponent.GetCurrentSize().x, 0.1f),
                     glm::max(uiButtonComponent.GetCurrentSize().y, 0.1f),
@@ -813,9 +812,8 @@ namespace Coffee {
                 continue;
 
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, uiImageComponent.Size.y, 1.0f));
-            transform = glm::rotate(transform, glm::radians(180.0f), glm::vec3(0, 0, 1));
-            transform[3] = glm::vec4(transform[3][0], -transform[3][1], 0, 0);
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+            transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, -uiImageComponent.Size.y, 1.0f));
 
             Renderer2D::DrawQuad(transform,
                 uiImageComponent.texture,
@@ -839,7 +837,7 @@ namespace Coffee {
                 uiTextComponent.font = Font::GetDefault();
             }
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::translate(transform, glm::vec3(center, 0.0f));
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
             transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
 
             Renderer2D::DrawString(
@@ -861,7 +859,7 @@ namespace Coffee {
             if (!uiSliderComponent.Visible) continue;
 
             glm::mat4 transform = transformComponent.GetWorldTransform();
-            transform = glm::translate(transform, glm::vec3(center, 0.0f));
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
 
             glm::mat4 barTransform = glm::scale(transform, glm::vec3(uiSliderComponent.Size.x, uiSliderComponent.Size.y, 1.0f));
 
@@ -908,7 +906,7 @@ namespace Coffee {
             glm::mat4 transform = glm::mat4(1.0f);
             try {
                 transform = transformComponent.GetWorldTransform();
-                transform = glm::translate(transform, glm::vec3(center, 0.0f));
+                transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
                 transform = glm::scale(transform, glm::vec3(
                     glm::max(uiButtonComponent.GetCurrentSize().x, 0.1f),
                     glm::max(uiButtonComponent.GetCurrentSize().y, 0.1f),
