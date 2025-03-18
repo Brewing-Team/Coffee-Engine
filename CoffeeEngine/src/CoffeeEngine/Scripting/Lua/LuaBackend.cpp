@@ -848,9 +848,13 @@ namespace Coffee {
             },
             "change_scene", sol::overload(
                 [](const std::string& scenePath) {
+                    AudioZone::RemoveAllReverbZones();
+                    Audio::UnregisterAllGameObjects();
                     SceneManager::ChangeScene(scenePath);
                 },
                 [](const Ref<Scene>& scene) {
+                    AudioZone::RemoveAllReverbZones();
+                    Audio::UnregisterAllGameObjects();
                     SceneManager::ChangeScene(scene);
                 }
             ),
