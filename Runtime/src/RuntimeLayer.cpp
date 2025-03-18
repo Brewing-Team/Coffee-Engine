@@ -9,8 +9,7 @@
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
-#include "CoffeeEngine/Scene/Scene.h"
-#include "CoffeeEngine/Scene/SceneTree.h"
+#include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "CoffeeEngine/Scripting/ScriptManager.h"
 
@@ -66,12 +65,10 @@ namespace Coffee {
         Project::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaProject");
         Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName());
 
-        // TODO: Load the default scene from the project
-        //Project::GetActive().
+        // Load the default scene from the project
+        SceneManager::ChangeScene(std::filesystem::current_path() / "gamedata" / "Default.TeaScene");
 
-        m_ActiveScene = Scene::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaScene");
-
-        m_ActiveScene->OnInitRuntime();
+        SceneManager::GetActiveScene()->OnInitRuntime();
 
         m_ViewportSize = { 1600.0f, 900.0f };
     }
@@ -82,7 +79,7 @@ namespace Coffee {
 
         Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget);
 
-        m_ActiveScene->OnUpdateRuntime(dt);
+        SceneManager::GetActiveScene()->OnUpdateRuntime(dt);
 
         Renderer::SetCurrentRenderTarget(nullptr);
 
@@ -93,7 +90,6 @@ namespace Coffee {
         s_FinalPassShader->Bind();
         s_FinalPassShader->setInt("screenTexture", 0);
 
-        //RendererAPI::SetClearColor({ 0.1f, 0.1f, 0.1f, 1.0f });
         RendererAPI::Clear();
 
         RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
@@ -105,7 +101,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        m_ActiveScene->OnEvent(event);
+        SceneManager::GetActiveScene()->OnEvent(event);
 
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<WindowResizeEvent>([this](WindowResizeEvent& event) {
@@ -118,7 +114,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        m_ActiveScene->OnExitRuntime();
+        SceneManager::GetActiveScene()->OnExitRuntime();
     }
 
     void RuntimeLayer::ResizeViewport(float width, float height)
