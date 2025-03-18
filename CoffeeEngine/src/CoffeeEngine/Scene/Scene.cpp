@@ -245,8 +245,8 @@ namespace Coffee {
         for (auto entity : viewPhysics) {
             auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
-                transform.Position = rb.rb->GetPosition();
-                transform.Rotation = rb.rb->GetRotation();
+                rb.rb->SetPosition(transform.Position);
+                rb.rb->SetRotation(transform.Rotation);
             }
         }
 
