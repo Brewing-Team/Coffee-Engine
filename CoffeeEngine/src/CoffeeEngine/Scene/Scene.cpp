@@ -676,4 +676,266 @@ namespace Coffee {
         }
     }
 
+    void Scene::OnEditorUpdateUI(float dt, entt::registry& registry) {
+        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+        //center = glm::vec2(0, 0);
+
+        auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
+        for (auto& entity : uiImageView) {
+            auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
+            auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+
+            if (!uiImageComponent.Visible || !uiImageComponent.texture)
+                continue;
+
+            glm::mat4 transform = transformComponent.GetWorldTransform();
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+            transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, -uiImageComponent.Size.y, 1.0f));
+
+            Renderer2D::DrawQuad(transform,
+                uiImageComponent.texture,
+                1.0f,                // Tiling factor
+                glm::vec4(1.0f),     // Tint color
+                Renderer2D::RenderMode::Screen,  // Rendering Mode
+                (uint32_t)entity     // Entity ID
+            );
+        }
+
+
+        auto uiTextView = registry.view<UITextComponent, TransformComponent>();
+        for (auto& entity : uiTextView) {
+            auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
+            auto& transformComponent = uiTextView.get<TransformComponent>(entity);
+
+            if (!uiTextComponent.Visible || uiTextComponent.Text.empty())
+                continue;
+
+            if (!uiTextComponent.font) {
+                uiTextComponent.font = Font::GetDefault();
+            }
+            glm::mat4 transform = transformComponent.GetWorldTransform();
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+            transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
+
+            Renderer2D::DrawString(
+                uiTextComponent.Text,
+                uiTextComponent.font,
+                transform,
+                {uiTextComponent.Color, 0.0f, 0.0f},
+                Renderer2D::RenderMode::Screen,
+                (uint32_t)entity
+            );
+        }
+
+
+        auto uiSliderView = registry.view<UISliderComponent, TransformComponent>();
+        for (auto& entity : uiSliderView) {
+            auto& uiSliderComponent = uiSliderView.get<UISliderComponent>(entity);
+            auto& transformComponent = uiSliderView.get<TransformComponent>(entity);
+
+            if (!uiSliderComponent.Visible) continue;
+
+            glm::mat4 transform = transformComponent.GetWorldTransform();
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+
+            glm::mat4 barTransform = glm::scale(transform, glm::vec3(uiSliderComponent.Size.x, uiSliderComponent.Size.y, 1.0f));
+
+            if (uiSliderComponent.barTexture) {
+                Renderer2D::DrawQuad(
+                    barTransform,
+                    uiSliderComponent.barTexture,
+                    1.0f,
+                    glm::vec4(1.0f),
+                    Renderer2D::RenderMode::Screen,
+                    (uint32_t)entity
+                );
+            }
+
+            if (uiSliderComponent.handleTexture) {
+                float normalizedValue = glm::clamp(uiSliderComponent.Value, 0.0f, 1.0f);
+                float handleOffset = normalizedValue * (uiSliderComponent.Size.x - uiSliderComponent.HandleSize.x);
+                handleOffset -= (uiSliderComponent.Size.x / 2.0f) - (uiSliderComponent.HandleSize.x / 2.0f);
+
+                glm::mat4 handleTransform = glm::translate(transform, glm::vec3(handleOffset, 0.0f, 0.0f));
+                handleTransform = glm::scale(handleTransform, glm::vec3(uiSliderComponent.HandleSize.x, uiSliderComponent.HandleSize.y, 1.0f));
+
+                Renderer2D::DrawQuad(
+                    handleTransform,
+                    uiSliderComponent.handleTexture,
+                    1.0f,
+                    glm::vec4(1.0f),
+                    Renderer2D::RenderMode::Screen,
+                    (uint32_t)entity
+                );
+            }
+        }
+
+        auto uiButtonView = registry.view<UIButtonComponent, TransformComponent>();
+        for (auto& entity : uiButtonView) {
+            auto& uiButtonComponent = uiButtonView.get<UIButtonComponent>(entity);
+            auto& transformComponent = uiButtonView.get<TransformComponent>(entity);
+
+            // Añadir comprobación de textura válida
+            Ref<Texture2D> currentTexture = uiButtonComponent.GetCurrentTexture();
+            if(!currentTexture) continue;
+
+            // Calcular transformación segura
+            glm::mat4 transform = glm::mat4(1.0f);
+            try {
+                transform = transformComponent.GetWorldTransform();
+                transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+                transform = glm::scale(transform, glm::vec3(
+                    glm::max(uiButtonComponent.GetCurrentSize().x, 0.1f),
+                    glm::max(uiButtonComponent.GetCurrentSize().y, 0.1f),
+                    1.0f
+                ));
+            }
+            catch(...) {
+                COFFEE_CORE_ERROR("Invalid transform for button entity {}", (uint32_t)entity);
+                continue;
+            }
+
+            Renderer2D::DrawQuad(
+                transform,
+                currentTexture,
+                1.0f,
+                uiButtonComponent.GetCurrentColor(),
+                Renderer2D::RenderMode::Screen,
+                (uint32_t)entity
+            );
+        }
+    }
+
+    void Scene::OnRuntimeUpdateUI(float dt, entt::registry& registry)
+    {
+        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+        glm::vec2 center = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+
+
+        auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
+        for (auto& entity : uiImageView) {
+            auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
+            auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+
+            if (!uiImageComponent.Visible || !uiImageComponent.texture)
+                continue;
+
+            glm::mat4 transform = transformComponent.GetWorldTransform();
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+            transform = glm::scale(transform, glm::vec3(uiImageComponent.Size.x, -uiImageComponent.Size.y, 1.0f));
+
+            Renderer2D::DrawQuad(transform,
+                uiImageComponent.texture,
+                1.0f,                // Tiling factor
+                glm::vec4(1.0f),     // Tint color
+                Renderer2D::RenderMode::Screen,  // Rendering Mode
+                (uint32_t)entity     // Entity ID
+            );
+        }
+
+
+        auto uiTextView = registry.view<UITextComponent, TransformComponent>();
+        for (auto& entity : uiTextView) {
+            auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
+            auto& transformComponent = uiTextView.get<TransformComponent>(entity);
+
+            if (!uiTextComponent.Visible || uiTextComponent.Text.empty())
+                continue;
+
+            if (!uiTextComponent.font) {
+                uiTextComponent.font = Font::GetDefault();
+            }
+            glm::mat4 transform = transformComponent.GetWorldTransform();
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+            transform = glm::scale(transform, glm::vec3(uiTextComponent.FontSize, -uiTextComponent.FontSize, 1.0f));
+
+            Renderer2D::DrawString(
+                uiTextComponent.Text,
+                uiTextComponent.font,
+                transform,
+                {uiTextComponent.Color, 0.0f, 0.0f},
+                Renderer2D::RenderMode::Screen,
+                (uint32_t)entity
+            );
+        }
+
+
+        auto uiSliderView = registry.view<UISliderComponent, TransformComponent>();
+        for (auto& entity : uiSliderView) {
+            auto& uiSliderComponent = uiSliderView.get<UISliderComponent>(entity);
+            auto& transformComponent = uiSliderView.get<TransformComponent>(entity);
+
+            if (!uiSliderComponent.Visible) continue;
+
+            glm::mat4 transform = transformComponent.GetWorldTransform();
+            transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+
+            glm::mat4 barTransform = glm::scale(transform, glm::vec3(uiSliderComponent.Size.x, uiSliderComponent.Size.y, 1.0f));
+
+            if (uiSliderComponent.barTexture) {
+                Renderer2D::DrawQuad(
+                    barTransform,
+                    uiSliderComponent.barTexture,
+                    1.0f,
+                    glm::vec4(1.0f),
+                    Renderer2D::RenderMode::Screen,
+                    (uint32_t)entity
+                );
+            }
+
+            if (uiSliderComponent.handleTexture) {
+                float normalizedValue = glm::clamp(uiSliderComponent.Value, 0.0f, 1.0f);
+                float handleOffset = normalizedValue * (uiSliderComponent.Size.x - uiSliderComponent.HandleSize.x);
+                handleOffset -= (uiSliderComponent.Size.x / 2.0f) - (uiSliderComponent.HandleSize.x / 2.0f);
+
+                glm::mat4 handleTransform = glm::translate(transform, glm::vec3(handleOffset, 0.0f, 0.0f));
+                handleTransform = glm::scale(handleTransform, glm::vec3(uiSliderComponent.HandleSize.x, uiSliderComponent.HandleSize.y, 1.0f));
+
+                Renderer2D::DrawQuad(
+                    handleTransform,
+                    uiSliderComponent.handleTexture,
+                    1.0f,
+                    glm::vec4(1.0f),
+                    Renderer2D::RenderMode::Screen,
+                    (uint32_t)entity
+                );
+            }
+        }
+
+        auto uiButtonView = registry.view<UIButtonComponent, TransformComponent>();
+        for (auto& entity : uiButtonView) {
+            auto& uiButtonComponent = uiButtonView.get<UIButtonComponent>(entity);
+            auto& transformComponent = uiButtonView.get<TransformComponent>(entity);
+
+            // Añadir comprobación de textura válida
+            Ref<Texture2D> currentTexture = uiButtonComponent.GetCurrentTexture();
+            if(!currentTexture) continue;
+
+            // Calcular transformación segura
+            glm::mat4 transform = glm::mat4(1.0f);
+            try {
+                transform = transformComponent.GetWorldTransform();
+                transform[3] = glm::vec4(transform[3][0] + center.x, -transform[3][1] + center.y, 0, 0);
+                transform = glm::scale(transform, glm::vec3(
+                    glm::max(uiButtonComponent.GetCurrentSize().x, 0.1f),
+                    glm::max(uiButtonComponent.GetCurrentSize().y, 0.1f),
+                    1.0f
+                ));
+            }
+            catch(...) {
+                COFFEE_CORE_ERROR("Invalid transform for button entity {}", (uint32_t)entity);
+                continue;
+            }
+
+            Renderer2D::DrawQuad(
+                transform,
+                currentTexture,
+                1.0f,
+                uiButtonComponent.GetCurrentColor(),
+                Renderer2D::RenderMode::Screen,
+                (uint32_t)entity
+            );
+        }
+    }
 }

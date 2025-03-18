@@ -1344,6 +1344,10 @@ namespace Coffee
                     navMeshComponent.GetNavMesh()->CalculateWalkableAreas(entity.GetComponent<MeshComponent>().GetMesh(), entity.GetComponent<TransformComponent>().GetWorldTransform());
                 }
             }
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<NavMeshComponent>();
+            }
         }
 
         if (entity.HasComponent<NavigationAgentComponent>())
