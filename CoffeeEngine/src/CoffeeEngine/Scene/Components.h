@@ -19,6 +19,7 @@
  #include "CoffeeEngine/ParticleManager/ParticleManager.h"
  #include "CoffeeEngine/Navigation/NavMesh.h"
  #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
+ #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 
  #include <cereal/cereal.hpp>
  #include <cereal/access.hpp>
@@ -686,7 +687,7 @@
                  relativePath = script->GetPath();
                  COFFEE_CORE_ERROR("ScriptComponent::save: Project is not active, script path is not relative to the project directory!");
              }
-             archive(cereal::make_nvp("ScriptPath", relativePath.string()), cereal::make_nvp("Language", ScriptingLanguage::Lua));
+             archive(cereal::make_nvp("ScriptPath", relativePath.generic_string()), cereal::make_nvp("Language", ScriptingLanguage::Lua));
          }
  
          template<class Archive>
