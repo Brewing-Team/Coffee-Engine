@@ -379,6 +379,8 @@ namespace Coffee {
         {
             auto& scriptComponent = scriptView.get<ScriptComponent>(entity);
             scriptComponent.script->OnUpdate(dt);
+            if(SceneManager::GetActiveScene().get() != this)
+                return;
         }
 
         if(SceneManager::GetActiveScene().get() != this)
