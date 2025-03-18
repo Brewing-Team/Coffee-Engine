@@ -55,10 +55,12 @@ target_link_libraries(${PROJECT_NAME}
     INTERFACE
         $<$<CONFIG:Debug>:${LIB_FILES_DEBUG} ${PLATFORM_LIBS}>
         $<$<CONFIG:Release>:${LIB_FILES_RELEASE} ${PLATFORM_LIBS}>
+        $<$<CONFIG:RelWithDebInfo>:${LIB_FILES_RELEASE} ${PLATFORM_LIBS}>
 )
 
 # Define AK_OPTIMIZED for release builds
 target_compile_definitions(${PROJECT_NAME}
     PUBLIC
         $<$<CONFIG:Release>:AK_OPTIMIZED>
+        $<$<CONFIG:RelWithDebInfo>:AK_OPTIMIZED>
 )
