@@ -238,9 +238,10 @@ namespace Coffee {
             }
         }
 
-        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
-        for (auto entity : viewPhysics) {
-            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
+        auto viewRigidbody = m_Registry.view<RigidbodyComponent, TransformComponent>();
+
+        for (auto entity : viewRigidbody) {
+            auto [rb, transform] = viewRigidbody.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
                 rb.rb->SetPosition(transform.Position);
                 rb.rb->SetRotation(transform.Rotation);
@@ -433,6 +434,16 @@ namespace Coffee {
         {
             AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
             AnimationSystem::Update(dt, animatorComponent);
+        }
+
+        auto viewRigidbody = m_Registry.view<RigidbodyComponent, TransformComponent>();
+
+        for (auto entity : viewRigidbody) {
+            auto [rb, transform] = viewRigidbody.get<RigidbodyComponent, TransformComponent>(entity);
+            if (rb.rb) {
+                rb.rb->SetPosition(transform.Position);
+                rb.rb->SetRotation(transform.Rotation);
+            }
         }
         
         // Get all entities with ModelComponent and TransformComponent
