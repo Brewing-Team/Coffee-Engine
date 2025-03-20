@@ -1115,39 +1115,13 @@ namespace Coffee
                     }
 
                     if (ImGui::Button("Resize Collider to Fit Mesh AABB", ImVec2(-FLT_MIN, 0))) {
-                        // Check if entity has a mesh component
-                        if (entity.HasComponent<MeshComponent>()) {
-                            auto& meshComponent = entity.GetComponent<MeshComponent>();
-                            
-                            // Make sure we have both a valid mesh and collider
-                            if (meshComponent.GetMesh() && currentCollider) {
-                                // Get the mesh's AABB
-                                const AABB& meshAABB = meshComponent.GetMesh()->GetAABB();
-                                
-                                // Store current rigidbody properties
-                                RigidBody::Properties props = rbComponent.rb->GetProperties();
-                                glm::vec3 position = rbComponent.rb->GetPosition();
-                                glm::vec3 rotation = rbComponent.rb->GetRotation();
-                                glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                                
-                                // Remove from physics world
-                                m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
-                                
-                                // Resize the collider to fit the mesh AABB
-                                rbComponent.rb->ResizeColliderToFitAABB(meshAABB);
-                                
-                                // Add back to physics world
-                                m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
-                                rbComponent.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
-                            }
-                            else {
-                                // Display a message if there's no valid mesh
+                        if (!ResizeColliderToFitMeshAABB(entity, rbComponent)) {
+                            // Display error messages only if resize failed
+                            if (!entity.HasComponent<MeshComponent>()) {
+                                ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "Entity has no mesh component!");
+                            } else if (!entity.GetComponent<MeshComponent>().GetMesh()) {
                                 ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "No valid mesh found!");
                             }
-                        }
-                        else {
-                            // Display a message if there's no mesh component
-                            ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "Entity has no mesh component!");
                         }
                     }
                     
@@ -2115,19 +2089,19 @@ namespace Coffee
                             
                             auto& rbComponent = entity.AddComponent<RigidbodyComponent>(props, collider);
                             
-                            // Set initial transform from the entity
                             if (entity.HasComponent<TransformComponent>()) {
                                 auto& transform = entity.GetComponent<TransformComponent>();
                                 rbComponent.rb->SetPosition(transform.Position);
                                 rbComponent.rb->SetRotation(transform.Rotation);
                             }
                             
-                            // Add the rigidbody to the physics world
                             m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                             
                             // Set user pointer for collision detection
-                            rbComponent.rb->GetNativeBody()->setUserPointer(
-                                reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                            rbComponent.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                            
+                            // Try to automatically size the collider to the mesh AABB
+                            ResizeColliderToFitMeshAABB(entity, rbComponent);
                         }
                         catch (const std::exception& e) {
                             COFFEE_CORE_ERROR("Exception creating rigidbody: {0}", e.what());
@@ -2136,7 +2110,7 @@ namespace Coffee
                             }
                         }
                     }
-
+                
                     ImGui::CloseCurrentPopup();
                 }
                 else if(items[item_current] == "NavMesh Component")
@@ -2326,5 +2300,41 @@ namespace Coffee
 
             ImGui::EndPopup();
         }
+    }
+
+    bool SceneTreePanel::ResizeColliderToFitMeshAABB(Entity entity, RigidbodyComponent& rbComponent)
+    {
+        // Check if entity has a mesh component
+        if (entity.HasComponent<MeshComponent>()) {
+            auto& meshComponent = entity.GetComponent<MeshComponent>();
+            Ref<Collider> currentCollider = rbComponent.rb->GetCollider();
+            
+            // Make sure we have both a valid mesh and collider
+            if (meshComponent.GetMesh() && currentCollider) {
+                // Get the mesh's AABB
+                const AABB& meshAABB = meshComponent.GetMesh()->GetAABB();
+                
+                // Store current rigidbody properties
+                RigidBody::Properties props = rbComponent.rb->GetProperties();
+                glm::vec3 position = rbComponent.rb->GetPosition();
+                glm::vec3 rotation = rbComponent.rb->GetRotation();
+                glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                
+                // Remove from physics world
+                m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                
+                // Resize the collider to fit the mesh AABB
+                rbComponent.rb->ResizeColliderToFitAABB(meshAABB);
+                
+                // Add back to physics world
+                m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                rbComponent.rb->GetNativeBody()->setUserPointer(
+                    reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                
+                return true;
+            }
+        }
+        
+        return false;
     }
 } // namespace Coffee
