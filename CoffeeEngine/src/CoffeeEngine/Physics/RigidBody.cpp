@@ -343,7 +343,6 @@ namespace Coffee {
 
     void RigidBody::ResizeColliderToFitAABB(const AABB& aabb) {
         if (m_Collider) {
-            // Store current physics properties
             const glm::vec3 position = GetPosition();
             const glm::vec3 rotation = GetRotation();
             const glm::vec3 velocity = GetVelocity();
@@ -367,9 +366,6 @@ namespace Coffee {
             
             // Remove the old body from the physics world if it exists
             if (m_Body) {
-                // The physics world reference isn't directly available here,
-                // so this would typically be handled by the caller
-                
                 delete m_Body;
             }
             
