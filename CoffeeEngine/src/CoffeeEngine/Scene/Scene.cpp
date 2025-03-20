@@ -508,7 +508,16 @@ namespace Coffee {
 
     void Scene::OnExitRuntime()
     {
-
+        auto view = m_Registry.view<ScriptComponent>();
+        for (auto entity : view)
+        {
+            auto& scriptComponent = view.get<ScriptComponent>(entity);
+            if (scriptComponent.script)
+            {
+                scriptComponent.script->OnExit();
+                scriptComponent.script.reset();
+            }
+        }
 
         // Clear collision system state
         CollisionSystem::Shutdown();        
