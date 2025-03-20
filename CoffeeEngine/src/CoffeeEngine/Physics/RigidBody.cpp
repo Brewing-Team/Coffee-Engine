@@ -70,9 +70,17 @@ namespace Coffee {
 
     void RigidBody::SetPosition(const glm::vec3& position) const
     {
+        const glm::vec3& offset = m_Collider->getOffset();
+        btVector3 btPosition(
+            position.x + offset.x,
+            position.y + offset.y,
+            position.z + offset.z
+        );
+        
         btTransform transform = m_Body->getWorldTransform();
-        transform.setOrigin(btVector3(position.x, position.y, position.z));
+        transform.setOrigin(btPosition);
         m_Body->setWorldTransform(transform);
+        m_Collider->setOffset(offset);
     }
 
     void RigidBody::SetVelocity(const glm::vec3& velocity) const
@@ -95,7 +103,8 @@ namespace Coffee {
 
     glm::vec3 RigidBody::GetPosition() const {
         btVector3 pos = m_Body->getWorldTransform().getOrigin();
-        return {pos.x(), pos.y(), pos.z()};
+        const glm::vec3& offset = m_Collider->getOffset();
+        return {pos.x() - offset.x, pos.y() - offset.y, pos.z() - offset.z};
     }
 
     void RigidBody::ApplyForce(const glm::vec3& force) const
