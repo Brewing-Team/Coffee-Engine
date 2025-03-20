@@ -1086,6 +1086,33 @@ namespace Coffee
                             }
                         }
                     }
+
+                    ImGui::Text("Collider Offset");
+                    glm::vec3 offset = currentCollider->getOffset();
+                    if (ImGui::DragFloat3("##ColliderOffset", glm::value_ptr(offset), 0.1f))
+                    {
+                        // Store current rigidbody properties before modifying
+                        RigidBody::Properties props = rbComponent.rb->GetProperties();
+                        glm::vec3 position = rbComponent.rb->GetPosition();
+                        glm::vec3 rotation = rbComponent.rb->GetRotation();
+                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                        
+                        // Remove from physics world
+                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                        
+                        // Update the collider offset
+                        currentCollider->setOffset(offset);
+                        
+                        // Create new rigidbody with the updated collider
+                        rbComponent.rb = RigidBody::Create(props, currentCollider);
+                        rbComponent.rb->SetPosition(position);
+                        rbComponent.rb->SetRotation(rotation);
+                        rbComponent.rb->SetVelocity(velocity);
+                        
+                        // Add back to physics world
+                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                        rbComponent.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                    }
                     
                     // Add friction and drag controls
                     ImGui::Separator();
