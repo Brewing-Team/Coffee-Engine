@@ -994,6 +994,44 @@ namespace Coffee {
             return RigidBody::Create(props, collider);
         });
 
+        sol::table physicsTable = luaState.create_table();
+        luaState["Physics"] = physicsTable;
+
+        // Bind RaycastHit type to Lua
+        luaState.new_usertype<RaycastHit>(
+            "RaycastHit",
+            "hasHit", &RaycastHit::hasHit,
+            "hitEntity", &RaycastHit::hitEntity,
+            "hitPoint", &RaycastHit::hitPoint,
+            "hitNormal", &RaycastHit::hitNormal,
+            "hitFraction", &RaycastHit::hitFraction
+        );
+
+        // Bind Raycast functions
+        physicsTable["Raycast"] = [](const glm::vec3& origin, const glm::vec3& direction, float maxDistance) -> RaycastHit {
+            auto scene = SceneManager::GetActiveScene();
+            if (!scene)
+                return RaycastHit{};
+
+            return scene->GetPhysicsWorld().Raycast(origin, direction, maxDistance);
+        };
+
+        physicsTable["RaycastAll"] = [](const glm::vec3& origin, const glm::vec3& direction, float maxDistance) -> std::vector<RaycastHit> {
+            auto scene = SceneManager::GetActiveScene();
+            if (!scene)
+                return std::vector<RaycastHit>{};
+
+            return scene->GetPhysicsWorld().RaycastAll(origin, direction, maxDistance);
+        };
+
+        physicsTable["RaycastAny"] = [](const glm::vec3& origin, const glm::vec3& direction, float maxDistance) -> bool {
+            auto scene = SceneManager::GetActiveScene();
+            if (!scene)
+                return false;
+
+            return scene->GetPhysicsWorld().RaycastAny(origin, direction, maxDistance);
+        };
+
         # pragma endregion
     }
 
