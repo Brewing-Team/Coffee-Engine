@@ -2,18 +2,21 @@
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 
-#include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Core/Base.h"
 
 #include <btBulletDynamicsCommon.h>
+#include <glm/vec3.hpp>
 #include <vector>
 
 namespace Coffee {
 
     constexpr float GRAVITY = -9.81f;
 
+    class Entity;
+
     struct RaycastHit {
         bool hasHit = false;
-        Entity hitEntity;
+        Ref<Entity> hitEntity;
         glm::vec3 hitPoint = {0.0f, 0.0f, 0.0f};
         glm::vec3 hitNormal = {0.0f, 0.0f, 0.0f};
         float hitFraction = 1.0f;  // Fraction of the ray where the hit occurred
