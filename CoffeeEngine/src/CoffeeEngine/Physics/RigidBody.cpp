@@ -1,5 +1,7 @@
 #include "RigidBody.h"
 
+#include "CoffeeEngine/Math/BoundingBox.h"
+
 namespace Coffee {
 
     Ref<RigidBody> RigidBody::Create(const Properties& props, const Ref<Collider>& collider) {
@@ -337,6 +339,64 @@ namespace Coffee {
     {
         btVector3 vel = m_Body->getAngularVelocity();
         return {vel.x(), vel.y(), vel.z()};
+    }
+
+    void RigidBody::ResizeColliderToFitAABB(const AABB& aabb) {
+        if (m_Collider) {
+            // Store current physics properties
+            const glm::vec3 position = GetPosition();
+            const glm::vec3 rotation = GetRotation();
+            const glm::vec3 velocity = GetVelocity();
+            
+            // Resize the collider
+            m_Collider->ResizeToFitAABB(aabb);
+            
+            // We need to recreate the rigid body with the updated collider
+            btVector3 localInertia(0, 0, 0);
+            if (m_Properties.type != Type::Static) {
+                m_Collider->getShape()->calculateLocalInertia(m_Properties.mass, localInertia);
+            }
+            
+            // Update the rigidbody construction info
+            btRigidBody::btRigidBodyConstructionInfo rbInfo(
+                m_Properties.mass,
+                m_MotionState,
+                m_Collider->getShape(),
+                localInertia
+            );
+            
+            // Remove the old body from the physics world if it exists
+            if (m_Body) {
+                // The physics world reference isn't directly available here,
+                // so this would typically be handled by the caller
+                
+                delete m_Body;
+            }
+            
+            // Create new body
+            m_Body = new btRigidBody(rbInfo);
+            m_Body->setActivationState(DISABLE_DEACTIVATION);
+            
+            // Restore state
+            SetPosition(position);
+            SetRotation(rotation);
+            SetVelocity(velocity);
+            
+            // Apply other properties
+            m_Body->setFriction(m_Properties.friction);
+            m_Body->setDamping(m_Properties.linearDrag, m_Properties.angularDrag);
+            UpdateLinearFactor();
+            UpdateAngularFactor();
+            
+            if (m_Properties.isTrigger) {
+                m_Body->setCollisionFlags(m_Body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+            }
+            
+            if (!m_Properties.useGravity) {
+                m_Body->setFlags(m_Body->getFlags() | BT_DISABLE_WORLD_GRAVITY);
+                m_Body->setGravity(btVector3(0, 0, 0));
+            }
+        }
     }
 
 } // namespace Coffee

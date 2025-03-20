@@ -1113,6 +1113,43 @@ namespace Coffee
                         m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                         rbComponent.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
                     }
+
+                    if (ImGui::Button("Resize Collider to Fit Mesh AABB", ImVec2(-FLT_MIN, 0))) {
+                        // Check if entity has a mesh component
+                        if (entity.HasComponent<MeshComponent>()) {
+                            auto& meshComponent = entity.GetComponent<MeshComponent>();
+                            
+                            // Make sure we have both a valid mesh and collider
+                            if (meshComponent.GetMesh() && currentCollider) {
+                                // Get the mesh's AABB
+                                const AABB& meshAABB = meshComponent.GetMesh()->GetAABB();
+                                
+                                // Store current rigidbody properties
+                                RigidBody::Properties props = rbComponent.rb->GetProperties();
+                                glm::vec3 position = rbComponent.rb->GetPosition();
+                                glm::vec3 rotation = rbComponent.rb->GetRotation();
+                                glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                                
+                                // Remove from physics world
+                                m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                                
+                                // Resize the collider to fit the mesh AABB
+                                rbComponent.rb->ResizeColliderToFitAABB(meshAABB);
+                                
+                                // Add back to physics world
+                                m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                                rbComponent.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                            }
+                            else {
+                                // Display a message if there's no valid mesh
+                                ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "No valid mesh found!");
+                            }
+                        }
+                        else {
+                            // Display a message if there's no mesh component
+                            ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "Entity has no mesh component!");
+                        }
+                    }
                     
                     // Add friction and drag controls
                     ImGui::Separator();

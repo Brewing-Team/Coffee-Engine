@@ -23,6 +23,8 @@ namespace Coffee {
             }
         }
 
+        virtual void ResizeToFitAABB(const AABB& aabb) = 0;
+
         btCollisionShape* getShape() const { return m_Shape; }
         
         // Offset functions
@@ -115,6 +117,16 @@ namespace Coffee {
 
         const glm::vec3& GetSize() const { return m_Size; }
 
+        void ResizeToFitAABB(const AABB& aabb) override {
+            m_Size = aabb.max - aabb.min;
+            
+            if (m_Shape) {
+                delete m_Shape;
+            }
+
+            m_Shape = new btBoxShape(btVector3(m_Size.x / 2.0f, m_Size.y / 2.0f, m_Size.z / 2.0f));
+        }
+
     private:
         glm::vec3 m_Size;
 
@@ -139,6 +151,18 @@ namespace Coffee {
         }
 
         float GetRadius() const { return m_Radius; }
+
+        void ResizeToFitAABB(const AABB& aabb) override {
+            // Calculate the maximum distance from center to any corner
+            glm::vec3 center = (aabb.min + aabb.max) * 0.5f;
+            glm::vec3 extents = aabb.max - center;
+            m_Radius = glm::length(extents);
+            
+            if (m_Shape) {
+                delete m_Shape;
+            }
+            m_Shape = new btSphereShape(m_Radius);
+        }
 
     private:
         float m_Radius;
@@ -166,6 +190,34 @@ namespace Coffee {
 
         float GetRadius() const { return m_Radius; }
         float GetHeight() const { return m_Height; }
+
+        void ResizeToFitAABB(const AABB& aabb) override {
+            glm::vec3 size = aabb.max - aabb.min;
+            
+            // Find the longest axis for the capsule direction
+            float maxAxis = glm::max(size.x, glm::max(size.y, size.z));
+            
+            // Set height to longest dimension, radius to half of the average of the other two dimensions
+            if (maxAxis == size.y) {
+                // Y-axis oriented capsule
+                m_Height = size.y;
+                m_Radius = (size.x + size.z) / 4.0f;
+            } else if (maxAxis == size.x) {
+                // X-axis oriented capsule
+                m_Height = size.x;
+                m_Radius = (size.y + size.z) / 4.0f;
+            } else {
+                // Z-axis oriented capsule
+                m_Height = size.z;
+                m_Radius = (size.x + size.y) / 4.0f;
+            }
+            
+            // Update the shape with the new dimensions
+            if (m_Shape) {
+                delete m_Shape;
+            }
+            m_Shape = new btCapsuleShape(m_Radius, m_Height);
+        }
 
     private:
         float m_Radius;
