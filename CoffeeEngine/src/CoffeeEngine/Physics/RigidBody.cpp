@@ -347,7 +347,6 @@ namespace Coffee {
             const glm::vec3 rotation = GetRotation();
             const glm::vec3 velocity = GetVelocity();
             
-            // Resize the collider
             m_Collider->ResizeToFitAABB(aabb);
             
             // We need to recreate the rigid body with the updated collider

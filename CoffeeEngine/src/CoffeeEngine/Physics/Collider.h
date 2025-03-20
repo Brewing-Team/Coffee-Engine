@@ -27,7 +27,6 @@ namespace Coffee {
 
         btCollisionShape* getShape() const { return m_Shape; }
         
-        // Offset functions
         const glm::vec3& getOffset() const { return m_Offset; }
         void setOffset(const glm::vec3& offset) { m_Offset = offset; }
 
@@ -35,10 +34,8 @@ namespace Coffee {
         btCollisionShape* m_Shape = nullptr;
         glm::vec3 m_Offset = {0.0f, 0.0f, 0.0f}; // Offset from the rigidbody's center
         
-        // Add friend declaration for cereal
         friend class cereal::access;
         
-        // Add template methods for serialization
         template<class Archive>
         void save(Archive& archive) const {
             btCollisionShape* shape = getShape();
