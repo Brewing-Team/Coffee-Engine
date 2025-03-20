@@ -188,6 +188,7 @@ namespace Coffee {
         return result;
     }
 
+    // this function is not correctly tested yet
     std::vector<RaycastHit> PhysicsWorld::RaycastAll(const glm::vec3& origin, const glm::vec3& direction, float maxDistance) const
     {
         btVector3 btFrom(origin.x, origin.y, origin.z);
