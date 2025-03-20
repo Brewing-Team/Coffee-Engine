@@ -1032,6 +1032,19 @@ namespace Coffee {
             return scene->GetPhysicsWorld().RaycastAny(origin, direction, maxDistance);
         };
 
+        physicsTable["DebugDrawRaycast"] = [](const glm::vec3& origin, const glm::vec3& direction, float maxDistance,
+            sol::optional<glm::vec4> rayColor, sol::optional<glm::vec4> hitColor) {
+            auto scene = SceneManager::GetActiveScene();
+            if (!scene)
+            return;
+
+            // Default colors if not provided
+            glm::vec4 rColor = rayColor.value_or(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            glm::vec4 hColor = hitColor.value_or(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+            scene->GetPhysicsWorld().DebugDrawRaycast(origin, direction, maxDistance, rColor, hColor);
+        };
+
         # pragma endregion
     }
 

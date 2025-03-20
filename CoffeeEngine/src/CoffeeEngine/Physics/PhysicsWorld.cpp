@@ -123,6 +123,42 @@ namespace Coffee {
         }
     }
 
+    void PhysicsWorld::DebugDrawRaycast(const glm::vec3& origin, const glm::vec3& direction, float maxDistance, 
+                                        const glm::vec4& rayColor, const glm::vec4& hitColor) const 
+    {
+        // Normalize direction
+        glm::vec3 normalizedDir = glm::normalize(direction);
+        
+        // Perform the raycast to get hit info
+        RaycastHit hit = Raycast(origin, normalizedDir, maxDistance);
+        
+        // Calculate end point
+        glm::vec3 endPoint;
+        if (hit.hasHit) {
+            // Draw only up to the hit point
+            endPoint = hit.hitPoint;
+            
+            // Draw the hit point
+            const float hitPointSize = 0.1f;
+            Renderer2D::DrawSphere(hit.hitPoint, hitPointSize, glm::quat(), hitColor);
+            
+            // Draw the hit normal
+            const float normalLength = 0.5f;
+            Renderer2D::DrawLine(
+                hit.hitPoint, 
+                hit.hitPoint + hit.hitNormal * normalLength,
+                glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 
+                0.02f
+            );
+        } else {
+            // No hit, draw the full ray
+            endPoint = origin + normalizedDir * maxDistance;
+        }
+        
+        // Draw the ray itself
+        Renderer2D::DrawLine(origin, endPoint, rayColor, 0.03f);
+    }
+
     RaycastHit PhysicsWorld::Raycast(const glm::vec3& origin, const glm::vec3& direction, float maxDistance) const {
         btVector3 btFrom(origin.x, origin.y, origin.z);
         btVector3 btDir(direction.x, direction.y, direction.z);

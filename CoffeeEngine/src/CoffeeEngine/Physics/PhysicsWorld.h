@@ -6,6 +6,7 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <vector>
 
 namespace Coffee {
@@ -38,6 +39,10 @@ namespace Coffee {
         btDiscreteDynamicsWorld* getDynamicsWorld() const;
 
         void drawCollisionShapes() const;
+        
+        void DebugDrawRaycast(const glm::vec3& origin, const glm::vec3& direction, float maxDistance = 1000.0f, 
+                              const glm::vec4& rayColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
+                              const glm::vec4& hitColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)) const;
 
         // Single raycast (returns closest hit)
         RaycastHit Raycast(const glm::vec3& origin, const glm::vec3& direction, float maxDistance = 1000.0f) const;
