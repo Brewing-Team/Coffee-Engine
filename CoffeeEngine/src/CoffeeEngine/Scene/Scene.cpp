@@ -130,6 +130,18 @@ namespace Coffee {
 
     void Scene::DestroyEntity(Entity entity)
     {
+        // TODO think where we can put this. If we don't remove first the rigidbody from the physics world we will have a crash
+        if (entity.HasComponent<RigidbodyComponent>())
+        {
+            auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
+            if (rbComponent.rb && rbComponent.rb->GetNativeBody())
+            {
+                m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                rbComponent.rb->GetNativeBody()->setUserPointer(nullptr);
+                rbComponent.rb.reset();
+            }
+        }
+
         auto& hierarchyComponent = m_Registry.get<HierarchyComponent>(entity);
         auto curr = hierarchyComponent.m_First;
 
@@ -140,6 +152,7 @@ namespace Coffee {
             DestroyEntity(e);
         }
 
+        // Finally destroy the entity itself
         m_Registry.destroy((entt::entity)entity);
     }
 

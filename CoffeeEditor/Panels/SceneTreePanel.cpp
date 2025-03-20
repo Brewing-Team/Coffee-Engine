@@ -1174,48 +1174,6 @@ namespace Coffee
                     {
                         rbComponent.rb->SetAngularDrag(angularDrag);
                     }
-                    
-                    // Show current velocity
-                    glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                    ImGui::Text("Current Velocity: X: %.2f, Y: %.2f, Z: %.2f", 
-                                velocity.x, velocity.y, velocity.z);
-
-                    // ---------------------Physics Debug Controls---------------------
-                    /*
-                    // Add force/impulse controls
-                    static glm::vec3 forceToApply = {0.0f, 0.0f, 0.0f};
-                    ImGui::Separator();
-                    ImGui::Text("Physics Controls");
-                    ImGui::DragFloat3("Vector", glm::value_ptr(forceToApply), 0.1f);
-                    
-                    // Force & Impulse buttons
-                    if (ImGui::Button("Apply Force"))
-                    {
-                        rbComponent.rb->ApplyForce(forceToApply);
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Apply Impulse"))
-                    {
-                        rbComponent.rb->ApplyImpulse(forceToApply);
-                    }
-                    
-                    // Velocity buttons
-                    if (ImGui::Button("Set Velocity"))
-                    {
-                        rbComponent.rb->SetVelocity(forceToApply);
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Add Velocity"))
-                    {
-                        rbComponent.rb->AddVelocity(forceToApply);
-                    }
-                    
-                    // Reset velocity
-                    if (ImGui::Button("Reset Velocity"))
-                    {
-                        rbComponent.rb->ResetVelocity();
-                    }
-                    */
                 }
                 else
                 {
@@ -1229,6 +1187,8 @@ namespace Coffee
                 if (rbComponent.rb && rbComponent.rb->GetNativeBody())
                 {
                     m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                    rbComponent.rb->GetNativeBody()->setUserPointer(nullptr); // Set user pointer to null to avoid dangling references
+                    rbComponent.rb.reset();
                 }
                 entity.RemoveComponent<RigidbodyComponent>();
             }
