@@ -26,7 +26,6 @@ namespace Coffee {
     struct AnimatorComponent;
     class Entity;
     class Model;
-    class Renderer2D;
 
     /**
      * @brief Class representing a scene.
@@ -103,9 +102,6 @@ namespace Coffee {
         void OnExitEditor();
         void OnExitRuntime();
 
-        void OnEditorUpdateUI(float dt, entt::registry& registry);
-        void OnRuntimeUpdateUI(float dt, entt::registry& registry);
-
         /**
          * @brief Load a scene from a file.
          * @param path The path to the file.
@@ -165,11 +161,6 @@ namespace Coffee {
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
             .template get<AudioZoneComponent>(archive)
-            .template get<UIImageComponent>(archive)
-            .template get<UICanvasComponent>(archive)
-            .template get<UITextComponent>(archive)
-            .template get<UISliderComponent>(archive)
-            .template get<UIButtonComponent>(archive)
             .template get<ParticlesSystemComponent>(archive);
          }
 
@@ -198,11 +189,6 @@ namespace Coffee {
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
             .template get<AudioZoneComponent>(archive)
-            .template get<UIImageComponent>(archive)
-            .template get<UICanvasComponent>(archive)
-            .template get<UITextComponent>(archive)
-            .template get<UISliderComponent>(archive)
-            .template get<UIButtonComponent>(archive)
             .template get<ParticlesSystemComponent>(archive);
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
@@ -210,13 +196,12 @@ namespace Coffee {
 
     private:
         // NOTE: this macro should be modified when adding new components
-        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, UIImageComponent, UICanvasComponent, UITextComponent, UISliderComponent, UIButtonComponent, ParticlesSystemComponent //, AnimatorComponent
+        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, ParticlesSystemComponent //, AnimatorComponent
 
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
         Octree<Ref<Mesh>> m_Octree;
         PhysicsWorld m_PhysicsWorld;
-
 
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;

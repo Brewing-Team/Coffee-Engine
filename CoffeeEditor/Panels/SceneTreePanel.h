@@ -7,7 +7,7 @@
 #include "entt/entity/fwd.hpp"
 
 namespace Coffee {
- class Entity;
+
     class SceneTreePanel : public Panel
     {
     public:
