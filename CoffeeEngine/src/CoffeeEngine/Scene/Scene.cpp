@@ -523,10 +523,7 @@ namespace Coffee {
     void Scene::OnExitEditor()
     {
         ZoneScoped;
-    }
 
-    void Scene::OnExitRuntime()
-    {
         auto view = m_Registry.view<ScriptComponent>();
         for (auto entity : view)
         {
@@ -537,7 +534,10 @@ namespace Coffee {
                 scriptComponent.script.reset();
             }
         }
+    }
 
+    void Scene::OnExitRuntime()
+    {
         // Clear collision system state
         CollisionSystem::Shutdown();        
         Audio::StopAllEvents();
