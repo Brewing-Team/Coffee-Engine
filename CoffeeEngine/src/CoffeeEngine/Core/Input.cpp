@@ -12,6 +12,7 @@
 #include <SDL3/SDL_init.h>
 
 #include <cereal/types/vector.hpp>
+#include <cereal/types/unordered_map.hpp>
 #include <cereal/archives/json.hpp>
 #include <fstream>
 
@@ -19,7 +20,7 @@ namespace Coffee {
 
     constexpr const char* MAPPING_FILE_PATH = "InputMapping.json";
 
-    std::vector<InputBinding> Input::m_Bindings = std::vector<InputBinding>(ActionsEnum::ActionCount);
+    std::unordered_map<std::string, InputBinding> Input::m_BindingsMap = std::unordered_map<std::string, InputBinding>();
     std::vector<Ref<Gamepad>> Input::m_Gamepads;
     std::unordered_map<ButtonCode, uint8_t> Input::m_ButtonStates = {{Button::Invalid, 0}};
     std::unordered_map<AxisCode, float> Input::m_AxisStates = {{Axis::Invalid, 0.0f}};
@@ -53,7 +54,7 @@ namespace Coffee {
 
         cereal::JSONOutputArchive archive(file);
 
-        archive(m_Bindings);
+        archive(m_BindingsMap);
     }
 
     void Input::Load()
@@ -74,7 +75,7 @@ namespace Coffee {
 
         cereal::JSONInputArchive archive(file);
 
-        archive(m_Bindings);
+        archive(m_BindingsMap);
 
         COFFEE_INFO("Loaded input mappings");
     }
@@ -119,9 +120,9 @@ namespace Coffee {
     {
         return m_AxisStates[axis];
     }
-    InputBinding& Input::GetBinding(const InputAction action)
+    InputBinding& Input::GetBinding(const std::string& actionName)
     {
-        return m_Bindings[action];
+        return m_BindingsMap[actionName];
     }
 
     void Input::OnAddController(const ControllerAddEvent* cEvent)
@@ -254,87 +255,87 @@ namespace Coffee {
         #pragma region Defaults
 
         //UI defaults
-        m_Bindings[ActionsEnum::UiMoveHorizontal].SetName("UiMoveHorizontal")
+        m_BindingsMap["UiX"]//.SetName("UiX")
             .SetAxis(Axis::LeftX)
             .SetButtonNeg(Button::DpadLeft).SetButtonPos(Button::DpadRight)
             .SetPosKey(Key::D).SetNegKey(Key::A);
 
-        m_Bindings[ActionsEnum::UiMoveVertical].SetName("UiMoveVertical")
+        m_BindingsMap["UiY"]//.SetName("UiY")
             .SetAxis(Axis::LeftY)
             .SetButtonNeg(Button::DpadDown).SetButtonPos(Button::DpadUp)
             .SetPosKey(Key::W).SetNegKey(Key::S);
 
-        m_Bindings[ActionsEnum::Cancel].SetName("Cancel")
+        m_BindingsMap["Cancel"]//.SetName("Cancel")
             .SetButtonPos(Button::East)
             .SetPosKey(Key::RShift);
 
-        m_Bindings[ActionsEnum::Confirm].SetName("Confirm")
+        m_BindingsMap["Confirm"]//.SetName("Confirm")
             .SetButtonPos(Button::South)
             .SetPosKey(Key::Return);
 
 
         // Gameplay defaults
-        m_Bindings[ActionsEnum::MoveHorizontal].SetName("MoveHorizontal")
+        m_BindingsMap["MoveX"]//.SetName("MoveX")
             .SetAxis(Axis::LeftX)
             .SetNegKey(Key::A).SetPosKey(Key::D);
 
-        m_Bindings[ActionsEnum::MoveVertical].SetName("MoveVertical")
+        m_BindingsMap["MoveY"]//.SetName("MoveY")
             .SetAxis(Axis::LeftY)
             .SetNegKey(Key::S).SetPosKey(Key::W);
 
-        m_Bindings[ActionsEnum::AimHorizontal].SetName("AimHorizontal")
+        m_BindingsMap["AimX"]//.SetName("AimX")
             .SetAxis(Axis::RightX)
             .SetNegKey(Key::Kp4).SetPosKey(Key::Kp6);
 
-        m_Bindings[ActionsEnum::AimVertical].SetName("AimVertical")
+        m_BindingsMap["AimY"]//.SetName("AimY")
             .SetAxis(Axis::RightY)
             .SetNegKey(Key::Kp2).SetPosKey(Key::Kp8);
 
-        m_Bindings[ActionsEnum::Shoot].SetName("Shoot")
+        m_BindingsMap["Shoot"]//.SetName("Shoot")
             .SetAxis(Axis::RightTrigger)
             .SetPosKey(Key::Kp0);
 
-        m_Bindings[ActionsEnum::Melee].SetName("Melee")
+        m_BindingsMap["Melee"]//.SetName("Melee")
             .SetButtonPos(Button::RightShoulder)
             .SetPosKey(Key::E);
 
-        m_Bindings[ActionsEnum::Interact].SetName("Interact")
+        m_BindingsMap["Interact"]//.SetName("Interact")
             .SetButtonPos(Button::South)
             .SetPosKey(Key::V);
 
-        m_Bindings[ActionsEnum::Dash].SetName("Dash")
+        m_BindingsMap["Dash"]//.SetName("Dash")
             .SetButtonPos(Button::East)
             .SetPosKey(Key::Space);
 
-        m_Bindings[ActionsEnum::Cover].SetName("Cover")
+        m_BindingsMap["Cover"]//.SetName("Cover")
             .SetButtonPos(Button::West)
             .SetPosKey(Key::C);
 
-        m_Bindings[ActionsEnum::Skill1].SetName("Skill1")
+        m_BindingsMap["Skill1"]//.SetName("Skill1")
             .SetButtonPos(Button::North)
             .SetPosKey(Key::D1);
 
-        m_Bindings[ActionsEnum::Skill2].SetName("Skill2")
+        m_BindingsMap["Skill2"]//.SetName("Skill2")
             .SetButtonPos(Button::LeftShoulder)
             .SetPosKey(Key::D2);
 
-        m_Bindings[ActionsEnum::Skill3].SetName("Skill3")
+        m_BindingsMap["Skill3"]//.SetName("Skill3")
             .SetAxis(Axis::LeftTrigger)
             .SetPosKey(Key::D3);
 
-        m_Bindings[ActionsEnum::Injector].SetName("Injector")
+        m_BindingsMap["Injector"]//.SetName("Injector")
             .SetButtonPos(Button::DpadUp)
             .SetPosKey(Key::D4);
 
-        m_Bindings[ActionsEnum::Grenade].SetName("Grenade")
+        m_BindingsMap["Grenade"]//.SetName("Grenade")
             .SetButtonPos(Button::DpadRight)
             .SetPosKey(Key::Q);
 
-        m_Bindings[ActionsEnum::Map].SetName("Map")
+        m_BindingsMap["Map"]//.SetName("Map")
             .SetButtonPos(Button::Back)
             .SetPosKey(Key::Tab);
 
-        m_Bindings[ActionsEnum::Pause].SetName("Pause")
+        m_BindingsMap["Pause"]//.SetName("Pause")
             .SetButtonPos(Button::Start)
             .SetPosKey(Key::Escape);
 
