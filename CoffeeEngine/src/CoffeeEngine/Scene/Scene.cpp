@@ -130,6 +130,18 @@ namespace Coffee {
 
     void Scene::DestroyEntity(Entity entity)
     {
+        // TODO think where we can put this. If we don't remove first the rigidbody from the physics world we will have a crash
+        if (entity.HasComponent<RigidbodyComponent>())
+        {
+            auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
+            if (rbComponent.rb && rbComponent.rb->GetNativeBody())
+            {
+                m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                rbComponent.rb->GetNativeBody()->setUserPointer(nullptr);
+                rbComponent.rb.reset();
+            }
+        }
+
         auto& hierarchyComponent = m_Registry.get<HierarchyComponent>(entity);
         auto curr = hierarchyComponent.m_First;
 
@@ -140,6 +152,7 @@ namespace Coffee {
             DestroyEntity(e);
         }
 
+        // Finally destroy the entity itself
         m_Registry.destroy((entt::entity)entity);
     }
 
@@ -238,9 +251,11 @@ namespace Coffee {
             }
         }
 
-        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
-        for (auto entity : viewPhysics) {
-            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
+
+        auto viewRigidbody = m_Registry.view<RigidbodyComponent, TransformComponent>();
+
+        for (auto entity : viewRigidbody) {
+            auto [rb, transform] = viewRigidbody.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
                 rb.rb->SetPosition(transform.Position);
                 rb.rb->SetRotation(transform.Rotation);
@@ -467,12 +482,21 @@ namespace Coffee {
     void Scene::OnExitEditor()
     {
         ZoneScoped;
+
+        auto view = m_Registry.view<ScriptComponent>();
+        for (auto entity : view)
+        {
+            auto& scriptComponent = view.get<ScriptComponent>(entity);
+            if (scriptComponent.script)
+            {
+                scriptComponent.script->OnExit();
+                scriptComponent.script.reset();
+            }
+        }
     }
 
     void Scene::OnExitRuntime()
     {
-
-
         // Clear collision system state
         CollisionSystem::Shutdown();
         Audio::StopAllEvents();

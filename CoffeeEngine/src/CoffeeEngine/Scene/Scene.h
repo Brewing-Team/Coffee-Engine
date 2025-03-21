@@ -102,6 +102,9 @@ namespace Coffee {
         void OnExitEditor();
         void OnExitRuntime();
 
+        const PhysicsWorld& GetPhysicsWorld() const { return m_PhysicsWorld; }
+        PhysicsWorld& GetPhysicsWorld() { return m_PhysicsWorld; }
+
         /**
          * @brief Load a scene from a file.
          * @param path The path to the file.

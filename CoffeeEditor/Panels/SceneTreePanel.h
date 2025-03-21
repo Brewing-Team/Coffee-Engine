@@ -27,6 +27,7 @@ namespace Coffee {
 
         //UI functions for scenetree menus
         void ShowCreateEntityMenu();
+        bool ResizeColliderToFitMeshAABB(Entity entity, RigidbodyComponent& rbComponent);
 
     private:
         Ref<Scene> m_Context;
