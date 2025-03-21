@@ -14,6 +14,7 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Renderer/Renderer3D.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
@@ -26,9 +27,11 @@
 #include "entt/entity/fwd.hpp"
 #include "entt/entity/snapshot.hpp"
 
+
 #include <cstdint>
 #include <cstdlib>
 #include <glm/detail/type_quat.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <memory>
 #include <string>
@@ -37,6 +40,7 @@
 #include <CoffeeEngine/Scripting/Script.h>
 #include <cereal/archives/json.hpp>
 #include <fstream>
+#include <spdlog/details/registry.h>
 
 
 
@@ -231,8 +235,7 @@ namespace Coffee {
         }
     }
 
-    void Scene::OnUpdateEditor(EditorCamera& camera, float dt)
-    {
+    void Scene::OnUpdateEditor(EditorCamera& camera, float dt) {
         ZoneScoped;
 
         m_SceneTree->Update();
@@ -251,10 +254,9 @@ namespace Coffee {
             }
         }
 
-        auto viewRigidbody = m_Registry.view<RigidbodyComponent, TransformComponent>();
-
-        for (auto entity : viewRigidbody) {
-            auto [rb, transform] = viewRigidbody.get<RigidbodyComponent, TransformComponent>(entity);
+        auto viewPhysics = m_Registry.view<RigidbodyComponent, TransformComponent>();
+        for (auto entity : viewPhysics) {
+            auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
                 rb.rb->SetPosition(transform.Position);
                 rb.rb->SetRotation(transform.Rotation);
@@ -275,12 +277,12 @@ namespace Coffee {
         auto view = m_Registry.view<MeshComponent, TransformComponent>();
 
         // Loop through each entity with the specified components
-        for (auto& entity : view)
-        {
-            // Get the ModelComponent and TransformComponent for the current entity
+
+        for (auto& entity : view) {
             auto& meshComponent = view.get<MeshComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
             auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
+
 
             Ref<Mesh> mesh = meshComponent.GetMesh();
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
@@ -288,22 +290,6 @@ namespace Coffee {
             //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
             Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
         }
-
-        //Get all entities with LightComponent and TransformComponent
-        auto lightView = m_Registry.view<LightComponent, TransformComponent>();
-
-        //Loop through each entity with the specified components
-        for(auto& entity : lightView)
-        {
-            auto& lightComponent = lightView.get<LightComponent>(entity);
-            auto& transformComponent = lightView.get<TransformComponent>(entity);
-
-            lightComponent.Position = transformComponent.GetWorldTransform()[3];
-            lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
-
-            Renderer3D::Submit(lightComponent);
-        }
-
 
         // Get all entities with ParticlesSystemComponent and TransformComponent
         auto particleSystemView = m_Registry.view<ParticlesSystemComponent, TransformComponent>();
@@ -428,7 +414,7 @@ namespace Coffee {
         //m_Octree.DebugDraw();
 
         // Get all the static meshes from the Octree
-/* 
+/*
         glm::mat4 testProjection = glm::perspective(glm::radians(90.0f), 16.0f / 9.0f, 0.1f, 100.0f);
 
         Frustum frustum = Frustum(camera->GetProjection() * glm::inverse(cameraTransform));
@@ -491,6 +477,7 @@ namespace Coffee {
             Renderer3D::Submit(lightComponent);
         }
 
+        
 
         // Get all entities with ParticlesSystemComponent and TransformComponent
         auto particleSystemView = m_Registry.view<ParticlesSystemComponent, TransformComponent>();
@@ -513,6 +500,8 @@ namespace Coffee {
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
 
         }
+
+        OnRuntimeUpdateUI(dt, m_Registry);
     }
 
     void Scene::OnEvent(Event& e)
