@@ -1086,6 +1086,44 @@ namespace Coffee
                             }
                         }
                     }
+
+                    ImGui::Text("Collider Offset");
+                    glm::vec3 offset = currentCollider->getOffset();
+                    if (ImGui::DragFloat3("##ColliderOffset", glm::value_ptr(offset), 0.1f))
+                    {
+                        // Store current rigidbody properties before modifying
+                        RigidBody::Properties props = rbComponent.rb->GetProperties();
+                        glm::vec3 position = rbComponent.rb->GetPosition();
+                        glm::vec3 rotation = rbComponent.rb->GetRotation();
+                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                        
+                        // Remove from physics world
+                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                        
+                        // Update the collider offset
+                        currentCollider->setOffset(offset);
+                        
+                        // Create new rigidbody with the updated collider
+                        rbComponent.rb = RigidBody::Create(props, currentCollider);
+                        rbComponent.rb->SetPosition(position);
+                        rbComponent.rb->SetRotation(rotation);
+                        rbComponent.rb->SetVelocity(velocity);
+                        
+                        // Add back to physics world
+                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                        rbComponent.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                    }
+
+                    if (ImGui::Button("Resize Collider to Fit Mesh AABB", ImVec2(-FLT_MIN, 0))) {
+                        if (!ResizeColliderToFitMeshAABB(entity, rbComponent)) {
+                            // Display error messages only if resize failed
+                            if (!entity.HasComponent<MeshComponent>()) {
+                                ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "Entity has no mesh component!");
+                            } else if (!entity.GetComponent<MeshComponent>().GetMesh()) {
+                                ImGui::TextColored(ImVec4(1.0f, 0.3f, 0.3f, 1.0f), "No valid mesh found!");
+                            }
+                        }
+                    }
                     
                     // Add friction and drag controls
                     ImGui::Separator();
@@ -1110,48 +1148,6 @@ namespace Coffee
                     {
                         rbComponent.rb->SetAngularDrag(angularDrag);
                     }
-                    
-                    // Show current velocity
-                    glm::vec3 velocity = rbComponent.rb->GetVelocity();
-                    ImGui::Text("Current Velocity: X: %.2f, Y: %.2f, Z: %.2f", 
-                                velocity.x, velocity.y, velocity.z);
-
-                    // ---------------------Physics Debug Controls---------------------
-                    /*
-                    // Add force/impulse controls
-                    static glm::vec3 forceToApply = {0.0f, 0.0f, 0.0f};
-                    ImGui::Separator();
-                    ImGui::Text("Physics Controls");
-                    ImGui::DragFloat3("Vector", glm::value_ptr(forceToApply), 0.1f);
-                    
-                    // Force & Impulse buttons
-                    if (ImGui::Button("Apply Force"))
-                    {
-                        rbComponent.rb->ApplyForce(forceToApply);
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Apply Impulse"))
-                    {
-                        rbComponent.rb->ApplyImpulse(forceToApply);
-                    }
-                    
-                    // Velocity buttons
-                    if (ImGui::Button("Set Velocity"))
-                    {
-                        rbComponent.rb->SetVelocity(forceToApply);
-                    }
-                    ImGui::SameLine();
-                    if (ImGui::Button("Add Velocity"))
-                    {
-                        rbComponent.rb->AddVelocity(forceToApply);
-                    }
-                    
-                    // Reset velocity
-                    if (ImGui::Button("Reset Velocity"))
-                    {
-                        rbComponent.rb->ResetVelocity();
-                    }
-                    */
                 }
                 else
                 {
@@ -2091,14 +2087,12 @@ namespace Coffee
                             
                             auto& rbComponent = entity.AddComponent<RigidbodyComponent>(props, collider);
                             
-                            // Set initial transform from the entity
                             if (entity.HasComponent<TransformComponent>()) {
                                 auto& transform = entity.GetComponent<TransformComponent>();
                                 rbComponent.rb->SetPosition(transform.Position);
                                 rbComponent.rb->SetRotation(transform.Rotation);
                             }
                             
-                            // Add the rigidbody to the physics world
                             m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
                             
                             // Set user pointer for collision detection
