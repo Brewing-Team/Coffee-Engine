@@ -124,10 +124,10 @@ namespace Coffee {
 
         /**
          * Gets the InputBinding object for the given action
-         * @param action The action to retrieve an InputBinding for
+         * @param actionName The action to retrieve an InputBinding for
          * @return The InputBinding containing the bounds keys, buttons and axis for the provided action
          */
-        static InputBinding& GetBinding(InputAction action);
+        static InputBinding& GetBinding(const std::string& actionName);
 
         static void OnEvent(Event& e);
 
@@ -194,7 +194,7 @@ namespace Coffee {
          */
 	    static void OnMouseMoved(const MouseMovedEvent& event);
 
-        static std::vector<InputBinding> m_Bindings;
+        static std::unordered_map<std::string, InputBinding> m_BindingsMap;
 
 	    static std::vector<Ref<Gamepad>> m_Gamepads;
 	    static std::unordered_map<ButtonCode, uint8_t> m_ButtonStates;
