@@ -1,6 +1,10 @@
 # Coffee Engine
 [![Publish Documentation](https://github.com/Brewing-Team/Coffee-Engine/actions/workflows/publish-docs.yml/badge.svg)](https://github.com/Brewing-Team/Coffee-Engine/actions/workflows/publish-docs.yml)
 
+> [!WARNING]  
+> This project is being developed by the core team of [Burned-Games](https://github.com/burned-games) at this repository: [Coffee Engine](https://github.com/burned-games/coffee-engine).  
+> Check it out if you want to see a more up-to-date version of Coffee Engine.
+
 <p align="center">
     <img src="/Resources/logo-wip.png?raw=true" width="350" height="350">
 </p>
@@ -9,7 +13,6 @@
 
 > [!IMPORTANT]
 > This is a university project for learning how to make a 3D game engine.
-
 ---
 
 # Getting Started
