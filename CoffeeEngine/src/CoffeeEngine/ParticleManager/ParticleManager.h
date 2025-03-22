@@ -53,6 +53,12 @@ namespace Coffee
         void SetSize(glm::vec3 size);
 
         /**
+         * @brief Update the transform matrix of the particle.
+         * 
+         */
+        void UpdateTransform();
+
+        /**
          * @brief Gets the position of the particle.
          * @return The position of the particle.
          */
@@ -154,29 +160,40 @@ namespace Coffee
         bool useVelocityOverLifetime = false;          // Whether to use velocity over lifetime
         bool velocityOverLifeTimeSeparateAxes = false; // Whether to use separate axes for velocity
         std::vector<CurvePoint> speedOverLifeTimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Velocity curve for X axis
+        glm::vec2 minMaxSpeedOverLifeTimeX = glm::vec2(0,1);
         std::vector<CurvePoint> speedOverLifeTimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Velocity curve for Y axis
+        glm::vec2 minMaxSpeedOverLifeTimeY = glm::vec2(0, 1);
         std::vector<CurvePoint> speedOverLifeTimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Velocity curve for Z axis
+        glm::vec2 minMaxSpeedOverLifeTimeZ = glm::vec2(0, 1);
         std::vector<CurvePoint> speedOverLifeTimeGeneral = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // General velocity curve
+        glm::vec2 minMaxSpeedOverLifeTimeGeneral = glm::vec2(0, 1);
 
         // Size over lifetime settings
         bool useSizeOverLifetime = false;          // Whether to use size over lifetime
         bool sizeOverLifeTimeSeparateAxes = false; // Whether to use separate axes for size
         std::vector<CurvePoint> sizeOverLifetimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Size curve for X axis
+        glm::vec2 minMaxSizeOverLifeTimeX = glm::vec2(0, 1);
         std::vector<CurvePoint> sizeOverLifetimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Size curve for Y axis
+        glm::vec2 minMaxSizeOverLifeTimeY = glm::vec2(0, 1);
         std::vector<CurvePoint> sizeOverLifetimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Size curve for Z axis
+        glm::vec2 minMaxSizeOverLifeTimeZ = glm::vec2(0, 1);
         std::vector<CurvePoint> sizeOverLifetimeGeneral = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // General size curve
+        glm::vec2 minMaxSizeOverLifeTimeGeneral = glm::vec2(0, 1);
 
         // Rotation over lifetime settings
         bool useRotationOverLifetime = false; // Whether to use rotation over lifetime
         std::vector<CurvePoint> rotationOverLifetimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // Rotation curve for X axis
+        glm::vec2 minMaxRotationOverLifetimeX = glm::vec2(0, 1);
         std::vector<CurvePoint> rotationOverLifetimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // Rotation curve for Y axis
+        glm::vec2 minMaxRotationOverLifetimeY = glm::vec2(0, 1);
         std::vector<CurvePoint> rotationOverLifetimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // Rotation curve for Z axis
+        glm::vec2 minMaxRotationOverLifetimeZ = glm::vec2(0, 1);
 
         // Color over lifetime settings
         bool useColorOverLifetime = false; // Whether to use color over lifetime
         glm::vec4 overLifetimecolor;       // Color over lifetime
         std::vector<GradientPoint> colorOverLifetime_gradientPoints = {
-            {0.0f, ImVec4(1, 1, 1, 1)}, {0.3f, ImVec4(1, 1, 1, 1)}}; // Gradient points for color
+            {0.0f, ImVec4(1, 1, 1, 1)}, {1.0f, ImVec4(1, 1, 1, 1)}}; // Gradient points for color
 
         bool useRenderer = true;    // Whether to use a renderer
         int renderMode = 0;         // Render mode
@@ -268,7 +285,8 @@ namespace Coffee
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
-        template <class Archive> void serialize(Archive& archive)
+
+        template <class Archive> void save(Archive& archive) const
         {
             archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
                     colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
@@ -281,7 +299,31 @@ namespace Coffee
                     sizeOverLifetimeY, sizeOverLifetimeZ, sizeOverLifetimeGeneral, useRotationOverLifetime,
                     rotationOverLifetimeX, rotationOverLifetimeY, rotationOverLifetimeZ, useColorOverLifetime,
                     overLifetimecolor, colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment,
-                    elapsedTime);
+                    elapsedTime, particleMaterial->GetMaterialTextures().albedo->GetUUID(), particleMaterial->GetMaterialProperties().color);
+        }
+
+
+        template <class Archive> void load(Archive& archive)
+        {
+
+            UUID textureUUID;
+            glm::vec4 materialColor;
+
+            archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
+                    colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
+                    startLifeTime, useRandomSpeed, startSpeedMin, startSpeedMax, startSpeed, useRandomSize,
+                    useSplitAxesSize, startSizeMin, startSizeMax, startSize, useRandomRotation, startRotationMin,
+                    startRotationMax, startRotation, simulationSpace, useEmission, rateOverTime, shape, minSpread,
+                    maxSpread, useShape, shapeAngle, shapeRadius, shapeRadiusThickness, useVelocityOverLifetime,
+                    velocityOverLifeTimeSeparateAxes, speedOverLifeTimeX, speedOverLifeTimeY, speedOverLifeTimeZ,
+                    speedOverLifeTimeGeneral, useSizeOverLifetime, sizeOverLifeTimeSeparateAxes, sizeOverLifetimeX,
+                    sizeOverLifetimeY, sizeOverLifetimeZ, sizeOverLifetimeGeneral, useRotationOverLifetime,
+                    rotationOverLifetimeX, rotationOverLifetimeY, rotationOverLifetimeZ, useColorOverLifetime,
+                    overLifetimecolor, colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment,
+                    elapsedTime, textureUUID, materialColor);
+            
+            particleMaterial->GetMaterialTextures().albedo = ResourceLoader::GetResource<Texture2D>(textureUUID);
+            particleMaterial->GetMaterialProperties().color = materialColor;
         }
     };
 } // namespace Coffee

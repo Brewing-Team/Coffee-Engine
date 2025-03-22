@@ -124,6 +124,8 @@ namespace Coffee {
             
             material->Use();
 
+            if (command.newColor != glm::vec4(1.0f))  material->GetShader()->setVec4("material.color", command.newColor);
+
             const Ref<Shader>& shader = material->GetShader();
 
             shader->Bind();
