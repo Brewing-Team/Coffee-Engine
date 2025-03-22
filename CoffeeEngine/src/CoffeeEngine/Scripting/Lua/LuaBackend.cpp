@@ -816,8 +816,10 @@ namespace Coffee {
         );
 
         luaState.new_usertype<AnimatorComponent>(
-            "AnimatorComponent", sol::constructors<AnimatorComponent(), AnimatorComponent()>()/*,
-            "set_current_animation", &AnimatorComponent::SetCurrentAnimation*/
+            "AnimatorComponent", sol::constructors<AnimatorComponent(), AnimatorComponent()>(),
+            "set_current_animation", &AnimatorComponent::SetCurrentAnimation,
+            "set_upper_animation", &AnimatorComponent::SetUpperAnimation,
+            "set_lower_animation", &AnimatorComponent::SetLowerAnimation
         );
 
         luaState.new_usertype<AudioSourceComponent>("AudioSourceComponent",

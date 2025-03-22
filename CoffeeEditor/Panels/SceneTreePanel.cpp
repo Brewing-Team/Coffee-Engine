@@ -1183,11 +1183,10 @@ namespace Coffee
                     for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
                         if (ImGui::Selectable(name.c_str()) && name != UpperAnimName)
-                        {;
+                        {
                             UpperAnimName = name.c_str();
                             LowerAnimName = name.c_str();
-                            AnimationSystem::SetCurrentAnimation(animation, &animatorComponent, animatorComponent.UpperAnimation.get());
-                            AnimationSystem::SetCurrentAnimation(animation, &animatorComponent, animatorComponent.LowerAnimation.get());
+                            animatorComponent.SetCurrentAnimation(animation);
                         }
                     }
                     ImGui::EndCombo();
@@ -1200,7 +1199,7 @@ namespace Coffee
                         if (ImGui::Selectable(name.c_str()) && name != UpperAnimName)
                         {;
                             UpperAnimName = name.c_str();
-                            AnimationSystem::SetCurrentAnimation(animation, &animatorComponent, animatorComponent.UpperAnimation.get());
+                            animatorComponent.SetUpperAnimation(animation);
                         }
                     }
                     ImGui::EndCombo();
@@ -1213,7 +1212,7 @@ namespace Coffee
                         if (ImGui::Selectable(name.c_str()) && name != LowerAnimName)
                         {
                             LowerAnimName = name.c_str();
-                            AnimationSystem::SetCurrentAnimation(animation, &animatorComponent, animatorComponent.LowerAnimation.get());
+                            animatorComponent.SetLowerAnimation(animation);
                         }
                     }
                     ImGui::EndCombo();

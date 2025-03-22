@@ -252,7 +252,14 @@
           */
          ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
 
-         //void SetCurrentAnimation(int index) { AnimationSystem::SetCurrentAnimation(index, this);}
+         void SetCurrentAnimation(int index)
+         {
+            AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get());
+            AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get());
+         }
+
+         void SetUpperAnimation(int index) { AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get()); }
+         void SetLowerAnimation(int index) { AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get()); }
  
          /**
           * @brief Serializes the AnimatorComponent.
