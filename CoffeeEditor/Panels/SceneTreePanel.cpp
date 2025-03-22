@@ -1175,15 +1175,45 @@ namespace Coffee
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                const char* animationName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.CurrentAnimation)->GetAnimationName().c_str();
+                static const char* UpperAnimName = "";
+                static const char* LowerAnimName = "";
 
-                if (ImGui::BeginCombo("Animation", animationName))
+                if (ImGui::BeginCombo("Animation", UpperAnimName))
                 {
                     for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
-                        if (ImGui::Selectable(name.c_str()) && name != animationName)
+                        if (ImGui::Selectable(name.c_str()) && name != UpperAnimName)
+                        {;
+                            UpperAnimName = name.c_str();
+                            LowerAnimName = name.c_str();
+                            AnimationSystem::SetCurrentAnimation(animation, &animatorComponent, animatorComponent.UpperAnimation.get());
+                            AnimationSystem::SetCurrentAnimation(animation, &animatorComponent, animatorComponent.LowerAnimation.get());
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                if (ImGui::BeginCombo("UpperAnimation", UpperAnimName))
+                {
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    {
+                        if (ImGui::Selectable(name.c_str()) && name != UpperAnimName)
+                        {;
+                            UpperAnimName = name.c_str();
+                            AnimationSystem::SetCurrentAnimation(animation, &animatorComponent, animatorComponent.UpperAnimation.get());
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                if (ImGui::BeginCombo("LowerAnimation", LowerAnimName))
+                {
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    {
+                        if (ImGui::Selectable(name.c_str()) && name != LowerAnimName)
                         {
-                            AnimationSystem::SetCurrentAnimation(name, &animatorComponent);
+                            LowerAnimName = name.c_str();
+                            AnimationSystem::SetCurrentAnimation(animation, &animatorComponent, animatorComponent.LowerAnimation.get());
                         }
                     }
                     ImGui::EndCombo();
@@ -1191,7 +1221,11 @@ namespace Coffee
 
                 ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
 
-                ImGui::DragFloat("Blend Threshold", &animatorComponent.BlendThreshold, 0.01f, 0.01f, 1.0f, "%.2f");
+                ImGui::DragFloat("UpperBodyWeight", &animatorComponent.UpperBodyWeight, 0.01f, 0.0f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("LowerBodyWeight", &animatorComponent.LowerBodyWeight, 0.01f, 0.0f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("PartialBlendThreshold", &animatorComponent.PartialBlendThreshold, 0.01f, 0.0f, 1.0f, "%.2f");
 
                 ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
 

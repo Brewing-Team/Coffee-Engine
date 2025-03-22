@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "ozz/base/maths/soa_transform.h"
+
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/base/memory/unique_ptr.h>
 
@@ -8,6 +10,18 @@
 #include <vector>
 
 namespace Coffee {
+
+    struct AnimationLayer
+    {
+        bool IsBlending = false;
+        unsigned int CurrentAnimation = 0;
+        unsigned int NextAnimation = 0;
+        float BlendTime = 0.0f;
+        float AnimationTime = 0.0f;
+        float NextAnimationTime = 0.0f;
+        std::vector<ozz::math::SoaTransform> LocalTransforms;
+        std::vector<ozz::math::SimdFloat4> JointWeights;
+    };
 
     /**
      * @brief Class representing an animation.

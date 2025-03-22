@@ -567,7 +567,8 @@ namespace Coffee {
         if (model->HasAnimations())
         {
             animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController());
-            AnimationSystem::SetCurrentAnimation(0, animatorComponent);
+            AnimationSystem::SetupPartialBlending(0, 0, "Chest", animatorComponent);
+
             animatorComponent->modelUUID = model->GetUUID();
             animatorComponent->animatorUUID = UUID();
         }
