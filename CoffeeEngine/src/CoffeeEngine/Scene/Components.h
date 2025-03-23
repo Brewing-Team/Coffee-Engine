@@ -226,7 +226,7 @@
           * @brief Sets the skeleton reference.
           * @param skeleton The skeleton reference to set.
           */
-         void SetSkeleton(Ref<Skeleton> skeleton) { m_Skeleton = skeleton; }
+         void SetSkeleton(Ref<Skeleton> skeleton) { m_Skeleton = std::move(skeleton); }
  
          /**
           * @brief Gets the animation controller reference.
@@ -238,7 +238,7 @@
           * @brief Sets the animation controller reference.
           * @param animationController The animation controller reference to set.
           */
-         void SetAnimationController(Ref<AnimationController> animationController) { m_AnimationController = animationController; }
+         void SetAnimationController(Ref<AnimationController> animationController) { m_AnimationController = std::move(animationController); }
 
          /**
           * @brief Gets the sampling job context.
@@ -258,14 +258,14 @@
           */
          ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
 
-         void SetCurrentAnimation(int index)
+         void SetCurrentAnimation(unsigned int index)
          {
             AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get());
             AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get());
          }
 
-         void SetUpperAnimation(int index) { AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get()); }
-         void SetLowerAnimation(int index) { AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get()); }
+         void SetUpperAnimation(unsigned int index) { AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get()); }
+         void SetLowerAnimation(unsigned int index) { AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get()); }
  
          /**
           * @brief Serializes the AnimatorComponent.
