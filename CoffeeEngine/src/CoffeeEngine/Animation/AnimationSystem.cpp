@@ -326,6 +326,10 @@ namespace Coffee {
             layer->NextAnimation = index;
             layer->BlendTime = 0.f;
             layer->IsBlending = true;
+            layer->NextAnimationTime = (layer == animator->UpperAnimation.get() && index == animator->LowerAnimation->CurrentAnimation)
+                                    || (layer == animator->LowerAnimation.get() && index == animator->UpperAnimation->CurrentAnimation)
+                                    ? (layer == animator->UpperAnimation.get() ? animator->LowerAnimation->AnimationTime : animator->UpperAnimation->AnimationTime)
+                                    : 0.0f;
             animator->GetContext().Resize(animator->GetAnimationController()->GetAnimation(index)->GetAnimation()->num_tracks());
         }
     }
