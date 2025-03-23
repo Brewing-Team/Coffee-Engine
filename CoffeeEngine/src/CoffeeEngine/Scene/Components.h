@@ -196,10 +196,12 @@
            LowerAnimation(other.LowerAnimation),
            PartialBlendThreshold(other.PartialBlendThreshold),
            UpperBodyWeight(other.UpperBodyWeight),
-          LowerBodyWeight(other.LowerBodyWeight)
+           LowerBodyWeight(other.LowerBodyWeight),
+           UpperBodyRootJoint(other.UpperBodyRootJoint)
          {
              m_BlendJob.layers = ozz::make_span(m_BlendLayers);
-             AnimationSystem::SetupPartialBlending(UpperAnimation->CurrentAnimation, LowerAnimation->CurrentAnimation, "Chest", this);
+             const std::string rootJointName = GetSkeleton()->GetJoints()[UpperBodyRootJoint].name;
+             AnimationSystem::SetupPartialBlending(UpperAnimation->CurrentAnimation, LowerAnimation->CurrentAnimation, rootJointName, this);
              AnimationSystem::AddAnimator(this);
          }
  
@@ -283,7 +285,8 @@
                      cereal::make_nvp("LowerAnimation", LowerAnimation),
                      cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
                      cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
-                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight));
+                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
+                     cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
          }
  
          /**
@@ -303,7 +306,8 @@
                      cereal::make_nvp("LowerAnimation", LowerAnimation),
                      cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
                      cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
-                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight));
+                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
+                     cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
 
              AnimationSystem::LoadAnimator(this);
          }
