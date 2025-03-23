@@ -5,6 +5,8 @@
 #include <ozz/animation/runtime/animation.h>
 #include <ozz/base/memory/unique_ptr.h>
 
+#include <cereal/cereal.hpp>
+
 #include <string>
 #include <map>
 #include <vector>
@@ -21,6 +23,12 @@ namespace Coffee {
         float NextAnimationTime = 0.0f;
         std::vector<ozz::math::SoaTransform> LocalTransforms;
         std::vector<ozz::math::SimdFloat4> JointWeights;
+
+         template<class Archive>
+         void serialize(Archive& archive)
+         {
+             archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation));
+         }
     };
 
     /**

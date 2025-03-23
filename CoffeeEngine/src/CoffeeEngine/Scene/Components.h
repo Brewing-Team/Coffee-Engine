@@ -192,9 +192,15 @@
            modelUUID(other.modelUUID),
            animatorUUID(other.animatorUUID),
            m_Skeleton(other.m_Skeleton),
-           m_AnimationController(other.m_AnimationController)
+           m_AnimationController(other.m_AnimationController),
+           UpperAnimation(other.UpperAnimation),
+           LowerAnimation(other.LowerAnimation),
+           PartialBlendThreshold(other.PartialBlendThreshold),
+           UpperBodyWeight(other.UpperBodyWeight),
+          LowerBodyWeight(other.LowerBodyWeight)
          {
              m_BlendJob.layers = ozz::make_span(m_BlendLayers);
+             AnimationSystem::SetupPartialBlending(UpperAnimation->CurrentAnimation, LowerAnimation->CurrentAnimation, "Chest", this);
              AnimationSystem::AddAnimator(this);
          }
  
@@ -273,7 +279,12 @@
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
                      cereal::make_nvp("Loop", Loop),
                      cereal::make_nvp("ModelUUID", modelUUID),
-                     cereal::make_nvp("AnimatorUUID", animatorUUID));
+                     cereal::make_nvp("AnimatorUUID", animatorUUID),
+                     cereal::make_nvp("UpperAnimation", UpperAnimation),
+                     cereal::make_nvp("LowerAnimation", LowerAnimation),
+                     cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
+                     cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
+                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight));
          }
  
          /**
@@ -288,7 +299,12 @@
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
                      cereal::make_nvp("Loop", Loop),
                      cereal::make_nvp("ModelUUID", modelUUID),
-                     cereal::make_nvp("AnimatorUUID", animatorUUID));
+                     cereal::make_nvp("AnimatorUUID", animatorUUID),
+                     cereal::make_nvp("UpperAnimation", UpperAnimation),
+                     cereal::make_nvp("LowerAnimation", LowerAnimation),
+                     cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
+                     cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
+                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight));
 
              AnimationSystem::LoadAnimator(this);
          }
