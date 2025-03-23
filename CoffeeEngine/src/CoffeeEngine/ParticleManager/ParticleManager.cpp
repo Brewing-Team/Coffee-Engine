@@ -83,7 +83,13 @@ namespace Coffee
 
         particle->transformMatrix = auxMatrix;
 
-        particle->direction = useDirectionRandom ? glm::linearRand(direction, directionRandom) : direction;
+
+        //Relative to Transform Component rotation
+        glm::vec3 worldDirection = useDirectionRandom ? glm::linearRand(direction, directionRandom) : direction;
+        particle->direction = glm::vec3(transformComponentMatrix * glm::vec4(worldDirection, 0));
+
+
+
         particle->color = useColorRandom ? glm::linearRand(colorNormal, colorRandom) : colorNormal;
         if (particleMaterial)
             particleMaterial->GetMaterialProperties().color = particle->color;
@@ -328,7 +334,12 @@ namespace Coffee
     void ParticleEmitter::DrawDebug()
     {
         glm::vec3 auxTransformPosition = glm::vec3(transformComponentMatrix[3]);
+        glm::vec3 direction = glm::normalize(glm::vec3(transformComponentMatrix[1]));
+
+
         Renderer2D::DrawBox(minSpread + auxTransformPosition, maxSpread + auxTransformPosition, glm::vec4(1.0f), 1.0f);
+        Renderer2D::DrawArrow(transformComponentMatrix[3], direction, 1.5f);
+
     }
 
     void ParticleEmitter::Emit(int quantity)
