@@ -1219,6 +1219,22 @@ namespace Coffee
                     ImGui::EndCombo();
                 }
 
+                const char* RootJointName = animatorComponent.GetSkeleton()->GetJoints()[animatorComponent.UpperBodyRootJoint].name.c_str();
+
+                if (ImGui::BeginCombo("RootJointName", RootJointName))
+                {
+                    for (auto& joint : animatorComponent.GetSkeleton()->GetJoints())
+                    {
+                        if (ImGui::Selectable(joint.name.c_str()) && joint.name != RootJointName)
+                        {
+                            RootJointName = joint.name.c_str();
+                            std::map<std::string, unsigned int> animationMap = animatorComponent.GetAnimationController()->GetAnimationMap();
+                            AnimationSystem::SetupPartialBlending(animationMap[UpperAnimName], animationMap[LowerAnimName], RootJointName, &animatorComponent);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
                 ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
 
                 ImGui::DragFloat("UpperBodyWeight", &animatorComponent.UpperBodyWeight, 0.01f, 0.0f, 1.0f, "%.2f");
