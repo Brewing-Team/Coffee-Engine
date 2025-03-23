@@ -1160,14 +1160,15 @@ namespace Coffee
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                static const char* UpperAnimName = "";
-                static const char* LowerAnimName = "";
+                const char* UpperAnimName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.UpperAnimation->CurrentAnimation)->GetAnimationName().c_str();
+                const char* LowerAnimName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.LowerAnimation->CurrentAnimation)->GetAnimationName().c_str();
+                const char* AnimName = UpperAnimName == LowerAnimName ? UpperAnimName : "Mixed";
 
-                if (ImGui::BeginCombo("Animation", UpperAnimName))
+                if (ImGui::BeginCombo("Animation", AnimName))
                 {
                     for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
-                        if (ImGui::Selectable(name.c_str()) && name != UpperAnimName)
+                        if (ImGui::Selectable(name.c_str()) && name != AnimName)
                         {
                             UpperAnimName = name.c_str();
                             LowerAnimName = name.c_str();
