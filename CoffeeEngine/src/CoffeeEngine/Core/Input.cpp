@@ -125,6 +125,118 @@ namespace Coffee {
         return m_BindingsMap[actionName];
     }
 
+    std::unordered_map<std::string, InputBinding>& Input::GetAllBindings()
+    {
+        return m_BindingsMap;
+    }
+
+    const char* Input::GetKeyLabel(KeyCode key)
+    {
+        return SDL_GetScancodeName((SDL_Scancode)key);
+        //SDL_GetScancodeName(SDL_GetScancodeFromKey(key, nullptr));
+    }
+
+    const char* Input::GetMouseButtonLabel(MouseCode button)
+    {
+        constexpr const char* buttonNames[] = {"Mouse1", "Mouse2", "Mouse3", "Mouse4", "Mouse5"};
+        return buttonNames[button - 1];
+    }
+
+    const char* Input::GetButtonLabel(ButtonCode button)
+    {
+        if (button <= Button::Invalid)
+            return "Empty";
+
+        SDL_GamepadType type;
+        if (m_Gamepads.empty())
+            type = SDL_GAMEPAD_TYPE_XBOXONE;
+        else if (button < Button::Count)
+            type = SDL_GetGamepadType(m_Gamepads[0]->GetGamepad());
+        else
+            type = SDL_GAMEPAD_TYPE_STANDARD;
+
+        switch (type)
+        {
+        case SDL_GAMEPAD_TYPE_XBOX360:
+        case SDL_GAMEPAD_TYPE_XBOXONE: {
+            constexpr const char* names[Button::Count] = {
+                "A",    "B",    "X",      "Y",      "Select", "Home",   "Start",   "LS",    "RS",
+                "LB",   "RB",   "Up",     "Down",   "Left",   "Right",  "Capture", "!RP1",  "!LP1",
+                "!RP2", "!LP2", "!Misc1", "!Misc2", "!Misc3", "!Misc4", "!Misc5",  "!Misc6"
+            };
+            return names[button];
+        }
+        case SDL_GAMEPAD_TYPE_PS3:
+        case SDL_GAMEPAD_TYPE_PS4:
+        case SDL_GAMEPAD_TYPE_PS5: {
+            constexpr const char* names[Button::Count] = {
+                "Circle", "Cross", "Square", "Triangle", "Share", "PS button", "Option",
+                "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right", "Microphone",
+                "Right Paddle 1", "Left Paddle 1", "Right Paddle 2", "Left Paddle 2",
+                "Touchpad", "!Misc2", "!Misc3", "!Misc4", "!Misc5", "!Misc6"
+            };
+            return names[button];
+        }
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: {
+            constexpr const char* names[Button::Count] = {
+                "B",    "A",    "Y",      "X",      "Select", "Home",   "Start",   "LS",    "RS",
+                "L",    "R",    "Up",     "Down",   "Left",   "Right",  "Capture", "!RP1",  "!LP1",
+                "!RP2", "!LP2", "!Misc1", "!Misc2", "!Misc3", "!Misc4", "!Misc5",  "!Misc6"
+            };
+            return names[button];
+        }
+        default:
+            return std::format("Button {}", button).c_str();
+        }
+    }
+
+    const char* Input::GetAxisLabel(AxisCode axis)
+    {
+        if (axis <= Axis::Invalid) return "Empty";
+        if (axis >= Axis::Count) return "Unknown";
+
+        SDL_GamepadType type;
+        if (m_Gamepads.empty()) type = SDL_GAMEPAD_TYPE_XBOXONE;
+        else type = SDL_GetGamepadType(m_Gamepads[0]->GetGamepad());
+
+        switch (type)
+        {
+        case SDL_GAMEPAD_TYPE_XBOX360:
+        case SDL_GAMEPAD_TYPE_XBOXONE:
+            {
+                constexpr const char* axis_names[Axis::Count] = {
+                    "Left X", "Left Y", "Right X", "Right Y", "Left Trigger", "Right Trigger"
+                };
+                return axis_names[axis];
+            }
+        case SDL_GAMEPAD_TYPE_PS3:
+        case SDL_GAMEPAD_TYPE_PS4:
+        case SDL_GAMEPAD_TYPE_PS5:
+            {
+                constexpr const char* axis_names[Axis::Count] = {
+                    "Left X", "Left Y", "Right X", "Right Y", "L2", "R2"
+                };
+                return axis_names[axis];
+            }
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+            {
+                constexpr const char* axis_names[Axis::Count] = {
+                    "Left X", "Left Y", "Right X", "Right Y", "ZL", "ZR"
+                };
+                return axis_names[axis];
+            }
+        default:
+            return std::format("Axis {}", axis).c_str();
+        }
+
+    }
+
     void Input::OnAddController(const ControllerAddEvent* cEvent)
     {
         m_Gamepads.emplace_back(new Gamepad(cEvent->Controller));
@@ -135,7 +247,7 @@ namespace Coffee {
     {
         // Remove controller by SDL_Gamepad ID
         auto pred = [&cEvent](const Ref<Gamepad>& gamepad) {
-            return gamepad->getId() == cEvent->Controller;
+            return gamepad->GetId() == cEvent->Controller;
         };
         erase_if(m_Gamepads, pred);
     }

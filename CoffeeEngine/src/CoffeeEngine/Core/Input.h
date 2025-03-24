@@ -129,6 +129,13 @@ namespace Coffee {
          */
         static InputBinding& GetBinding(const std::string& actionName);
 
+        static std::unordered_map<std::string, InputBinding>& GetAllBindings();
+
+        static const char* GetKeyLabel(KeyCode key);
+        static const char* GetMouseButtonLabel(MouseCode button);
+        static const char* GetButtonLabel(ButtonCode button);
+        static const char* GetAxisLabel(AxisCode axis);
+
         static void OnEvent(Event& e);
 
       private:
