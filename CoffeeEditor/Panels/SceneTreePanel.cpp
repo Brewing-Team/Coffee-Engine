@@ -138,6 +138,29 @@ namespace Coffee
                                    ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding |
                                    ImGuiTreeNodeFlags_SpanAvailWidth;
 
+        bool isActive = entity.IsActive();
+        // Choose icon based on active state
+        const char* icon = isActive ? ICON_LC_EYE : ICON_LC_EYE_OFF;
+        // Create unique ID for the button
+        std::string buttonId = "##Active" + std::to_string((uint32_t)entity);
+
+        // Remove button background with custom styling
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 0.8f));
+
+        // Create button with just the icon
+        if (ImGui::Button((icon + buttonId).c_str()))
+        {
+            // Toggle active state when clicked
+            isActive = !isActive;
+            entity.SetActive(isActive);
+        }
+
+        // Restore original style
+        ImGui::PopStyleColor(3);
+        ImGui::SameLine();
+
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityNameTag.c_str());
 
         if (ImGui::IsItemClicked())

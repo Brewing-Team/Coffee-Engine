@@ -52,8 +52,16 @@ namespace Coffee {
         T& AddComponent(Args&&... args)
         {
             COFFEE_CORE_ASSERT(!HasComponent<T>(), "Entity already has this component!");
-            T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
-            return component;
+            
+            if constexpr(std::is_empty_v<T>) { // Check if the component is empty (ActiveComponent, for example)
+                // For empty types, register the component and return a static instance
+                m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+
+                static T emptyInstance; // Since empty types have no state, a static instance is functionally equivalent
+                return emptyInstance;
+            } else {
+                return m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+            }
         }
 
         /**
@@ -188,6 +196,38 @@ namespace Coffee {
             }
 
             return children;
+        }
+
+        bool IsActive()
+        {
+            return HasComponent<ActiveComponent>();
+        }
+        
+        void SetActive(bool active)
+        {
+            if (active && !HasComponent<ActiveComponent>())
+            {
+                AddComponent<ActiveComponent>();
+                
+                if (HasComponent<RigidbodyComponent>())
+                {
+                    auto& rbComponent = GetComponent<RigidbodyComponent>();
+                    if (rbComponent.rb && rbComponent.rb->GetNativeBody())
+                        rbComponent.rb->GetNativeBody()->setActivationState(ACTIVE_TAG);
+                }
+            }
+            else if (!active && HasComponent<ActiveComponent>())
+            {
+                RemoveComponent<ActiveComponent>();
+                
+                // If entity has a rigidbody, deactivate it in the physics world
+                if (HasComponent<RigidbodyComponent>())
+                {
+                    auto& rbComponent = GetComponent<RigidbodyComponent>();
+                    if (rbComponent.rb && rbComponent.rb->GetNativeBody())
+                        rbComponent.rb->GetNativeBody()->setActivationState(DISABLE_SIMULATION);
+                }
+            }
         }
 
     private:
