@@ -160,34 +160,23 @@ namespace Coffee
         bool useVelocityOverLifetime = false;          // Whether to use velocity over lifetime
         bool velocityOverLifeTimeSeparateAxes = false; // Whether to use separate axes for velocity
         std::vector<CurvePoint> speedOverLifeTimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Velocity curve for X axis
-        glm::vec2 minMaxSpeedOverLifeTimeX = glm::vec2(0,1);
         std::vector<CurvePoint> speedOverLifeTimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Velocity curve for Y axis
-        glm::vec2 minMaxSpeedOverLifeTimeY = glm::vec2(0, 1);
         std::vector<CurvePoint> speedOverLifeTimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Velocity curve for Z axis
-        glm::vec2 minMaxSpeedOverLifeTimeZ = glm::vec2(0, 1);
         std::vector<CurvePoint> speedOverLifeTimeGeneral = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // General velocity curve
-        glm::vec2 minMaxSpeedOverLifeTimeGeneral = glm::vec2(0, 1);
 
         // Size over lifetime settings
         bool useSizeOverLifetime = false;          // Whether to use size over lifetime
         bool sizeOverLifeTimeSeparateAxes = false; // Whether to use separate axes for size
         std::vector<CurvePoint> sizeOverLifetimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Size curve for X axis
-        glm::vec2 minMaxSizeOverLifeTimeX = glm::vec2(0, 1);
         std::vector<CurvePoint> sizeOverLifetimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Size curve for Y axis
-        glm::vec2 minMaxSizeOverLifeTimeY = glm::vec2(0, 1);
         std::vector<CurvePoint> sizeOverLifetimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}};       // Size curve for Z axis
-        glm::vec2 minMaxSizeOverLifeTimeZ = glm::vec2(0, 1);
         std::vector<CurvePoint> sizeOverLifetimeGeneral = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // General size curve
-        glm::vec2 minMaxSizeOverLifeTimeGeneral = glm::vec2(0, 1);
 
         // Rotation over lifetime settings
         bool useRotationOverLifetime = false; // Whether to use rotation over lifetime
         std::vector<CurvePoint> rotationOverLifetimeX = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // Rotation curve for X axis
-        glm::vec2 minMaxRotationOverLifetimeX = glm::vec2(0, 1);
         std::vector<CurvePoint> rotationOverLifetimeY = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // Rotation curve for Y axis
-        glm::vec2 minMaxRotationOverLifetimeY = glm::vec2(0, 1);
         std::vector<CurvePoint> rotationOverLifetimeZ = {{0.0f, 1.0f}, {1.0f, 0.5f}}; // Rotation curve for Z axis
-        glm::vec2 minMaxRotationOverLifetimeZ = glm::vec2(0, 1);
 
         // Color over lifetime settings
         bool useColorOverLifetime = false; // Whether to use color over lifetime
@@ -322,8 +311,12 @@ namespace Coffee
                     overLifetimecolor, colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment,
                     elapsedTime, textureUUID, materialColor);
             
-            particleMaterial->GetMaterialTextures().albedo = ResourceLoader::GetResource<Texture2D>(textureUUID);
-            particleMaterial->GetMaterialProperties().color = materialColor;
+            if (textureUUID)
+            {
+                particleMaterial->GetMaterialTextures().albedo = ResourceLoader::GetResource<Texture2D>(textureUUID);
+                particleMaterial->GetMaterialProperties().color = materialColor;
+            }
+            
         }
     };
 } // namespace Coffee

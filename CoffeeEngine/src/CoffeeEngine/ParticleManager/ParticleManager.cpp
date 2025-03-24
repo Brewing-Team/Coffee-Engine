@@ -174,14 +174,11 @@ namespace Coffee
             else
             {
                 glm::vec3 newRotation;
-                newRotation.x = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeX),
-                                                 minMaxRotationOverLifetimeX.x, minMaxRotationOverLifetimeX.y);
+                newRotation.x = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeX), -1, 1);
 
-                newRotation.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeY),
-                                                 minMaxRotationOverLifetimeY.x, minMaxRotationOverLifetimeY.y);
+                newRotation.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeY), -1, 1);
 
-                newRotation.z = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeZ),
-                                                 minMaxRotationOverLifetimeZ.x, minMaxRotationOverLifetimeZ.y);
+                newRotation.z = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, rotationOverLifetimeZ), -1, 1);
 
 
                 glm::mat4 localRotationX = glm::rotate(glm::mat4(1.0f), glm::radians(newRotation.x * particle->startRotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -217,21 +214,18 @@ namespace Coffee
         {
             if (velocityOverLifeTimeSeparateAxes)
             {
-                newVelocity.x = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeX),
-                                                 minMaxSpeedOverLifeTimeX.x, minMaxSpeedOverLifeTimeX.y);
+                newVelocity.x = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeX), -1, 1);
                 
-                newVelocity.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeY),
-                                                 minMaxSpeedOverLifeTimeY.x, minMaxSpeedOverLifeTimeY.y);
+                newVelocity.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeY), -1, 1);
                 
-                newVelocity.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeZ),
-                                                 minMaxSpeedOverLifeTimeZ.x, minMaxSpeedOverLifeTimeZ.y);
+                newVelocity.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeZ), -1, 1);
                 
             }
             else
             {
                 
                 float uniformSize = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeGeneral),
-                                                 minMaxSpeedOverLifeTimeGeneral.x, minMaxSpeedOverLifeTimeGeneral.y);
+                                                 -1, 1);
                 newVelocity = glm::vec3(uniformSize);
             }
         }
@@ -242,21 +236,17 @@ namespace Coffee
             if (sizeOverLifeTimeSeparateAxes)
             {
 
-                newSize.x = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeX),
-                                                         minMaxSizeOverLifeTimeX.x, minMaxSizeOverLifeTimeX.y);
+                newSize.x = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeX), -1, 1);
 
-                newSize.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeY),
-                                                          minMaxSizeOverLifeTimeY.x, minMaxSizeOverLifeTimeY.y);
+                newSize.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeY), -1, 1);
 
-                newSize.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeZ),
-                                                         minMaxSizeOverLifeTimeZ.x, minMaxSizeOverLifeTimeZ.y);
+                newSize.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeZ), -1, 1);
 
 
             }
             else
             {
-                float uniformSize = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeGeneral),
-                                                 minMaxSizeOverLifeTimeGeneral.x, minMaxSizeOverLifeTimeGeneral.y);
+                float uniformSize = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeGeneral), -1, 1);
                 newSize = glm::vec3(uniformSize);
             }
             particle->SetSize(newSize * particle->startSize);
