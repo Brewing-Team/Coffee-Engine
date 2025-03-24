@@ -915,6 +915,12 @@
         Ref<NavMeshPathfinding> m_PathFinder = nullptr; ///< The pathfinder.
         Ref<NavMeshComponent> m_NavMeshComponent = nullptr; ///< The navigation mesh component.
     };
+
+    struct ActiveComponent
+    {
+        ActiveComponent() = default;
+        ActiveComponent(const ActiveComponent&) = default;
+    };
  }
  
  /** @} */
