@@ -315,7 +315,6 @@ namespace Coffee
         renderCommand.transform = p->GetWorldTransform();
         renderCommand.mesh = ParticleEmitter::particleMesh;
         renderCommand.material = particleMaterial;
-        renderCommand.newColor = p->color;
         renderCommand.animator = nullptr;
 
        Renderer3D::Submit(renderCommand); 

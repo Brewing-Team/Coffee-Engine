@@ -1583,6 +1583,14 @@ namespace Coffee
                     ImGui::SameLine();
                     ImGui::DragFloat("##ParticleRateOverTime", &emitter->rateOverTime, 0.1, 0);
 
+                    ImGui::Text("Emit test");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticlesEmitTest", &emitter->emitParticlesTest, 0.1, 0);
+                    if (ImGui::Button("Emit Particles"))
+                    {   
+                        emitter->Emit(emitter->emitParticlesTest);
+                    }
+
                     ImGui::TreePop();
                 }
                 ImGui::PopID();

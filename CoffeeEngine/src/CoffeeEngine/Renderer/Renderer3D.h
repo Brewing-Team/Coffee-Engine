@@ -28,7 +28,6 @@ namespace Coffee {
         Ref<Material> material;
         uint32_t entityID;
         AnimatorComponent* animator;
-        glm::vec4 newColor = glm::vec4(1.0f);  //TEMPORAL FIX FOR PARTICLE COLOR
     };
 
     /**

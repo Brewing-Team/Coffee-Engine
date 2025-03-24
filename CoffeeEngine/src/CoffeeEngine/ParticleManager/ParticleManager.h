@@ -137,6 +137,7 @@ namespace Coffee
 
         bool useEmission = true;   // Whether emission is enabled
         float rateOverTime = 1.0f; // Emission rate over time
+        float emitParticlesTest = 5.0f;
 
         /**
          * @brief Enum for shape types.
@@ -275,7 +276,7 @@ namespace Coffee
          * @param archive The archive to serialize to.
          */
 
-        template <class Archive> void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
                     colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
@@ -292,31 +293,55 @@ namespace Coffee
         }
 
 
-        template <class Archive> void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
 
             UUID textureUUID;
             glm::vec4 materialColor;
 
-            archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
-                    colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
-                    startLifeTime, useRandomSpeed, startSpeedMin, startSpeedMax, startSpeed, useRandomSize,
-                    useSplitAxesSize, startSizeMin, startSizeMax, startSize, useRandomRotation, startRotationMin,
-                    startRotationMax, startRotation, simulationSpace, useEmission, rateOverTime, shape, minSpread,
-                    maxSpread, useShape, shapeAngle, shapeRadius, shapeRadiusThickness, useVelocityOverLifetime,
-                    velocityOverLifeTimeSeparateAxes, speedOverLifeTimeX, speedOverLifeTimeY, speedOverLifeTimeZ,
-                    speedOverLifeTimeGeneral, useSizeOverLifetime, sizeOverLifeTimeSeparateAxes, sizeOverLifetimeX,
-                    sizeOverLifetimeY, sizeOverLifetimeZ, sizeOverLifetimeGeneral, useRotationOverLifetime,
-                    rotationOverLifetimeX, rotationOverLifetimeY, rotationOverLifetimeZ, useColorOverLifetime,
-                    overLifetimecolor, colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment,
-                    elapsedTime, textureUUID, materialColor);
-            
-            if (textureUUID)
+            if (version >= 2)
             {
-                particleMaterial->GetMaterialTextures().albedo = ResourceLoader::GetResource<Texture2D>(textureUUID);
-                particleMaterial->GetMaterialProperties().color = materialColor;
+                archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
+                        colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin,
+                        startLifeTimeMax, startLifeTime, useRandomSpeed, startSpeedMin, startSpeedMax, startSpeed,
+                        useRandomSize, useSplitAxesSize, startSizeMin, startSizeMax, startSize, useRandomRotation,
+                        startRotationMin, startRotationMax, startRotation, simulationSpace, useEmission, rateOverTime,
+                        shape, minSpread, maxSpread, useShape, shapeAngle, shapeRadius, shapeRadiusThickness,
+                        useVelocityOverLifetime, velocityOverLifeTimeSeparateAxes, speedOverLifeTimeX,
+                        speedOverLifeTimeY, speedOverLifeTimeZ, speedOverLifeTimeGeneral, useSizeOverLifetime,
+                        sizeOverLifeTimeSeparateAxes, sizeOverLifetimeX, sizeOverLifetimeY, sizeOverLifetimeZ,
+                        sizeOverLifetimeGeneral, useRotationOverLifetime, rotationOverLifetimeX, rotationOverLifetimeY,
+                        rotationOverLifetimeZ, useColorOverLifetime, overLifetimecolor,
+                        colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment, elapsedTime,
+                        textureUUID, materialColor);
+
+                if (textureUUID)
+                {
+                    particleMaterial->GetMaterialTextures().albedo =
+                        ResourceLoader::GetResource<Texture2D>(textureUUID);
+                    particleMaterial->GetMaterialProperties().color = materialColor;
+                }
             }
+            else
+            {
+                archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
+                        colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin,
+                        startLifeTimeMax, startLifeTime, useRandomSpeed, startSpeedMin, startSpeedMax, startSpeed,
+                        useRandomSize, useSplitAxesSize, startSizeMin, startSizeMax, startSize, useRandomRotation,
+                        startRotationMin, startRotationMax, startRotation, simulationSpace, useEmission, rateOverTime,
+                        shape, minSpread, maxSpread, useShape, shapeAngle, shapeRadius, shapeRadiusThickness,
+                        useVelocityOverLifetime, velocityOverLifeTimeSeparateAxes, speedOverLifeTimeX,
+                        speedOverLifeTimeY, speedOverLifeTimeZ, speedOverLifeTimeGeneral, useSizeOverLifetime,
+                        sizeOverLifeTimeSeparateAxes, sizeOverLifetimeX, sizeOverLifetimeY, sizeOverLifetimeZ,
+                        sizeOverLifetimeGeneral, useRotationOverLifetime, rotationOverLifetimeX, rotationOverLifetimeY,
+                        rotationOverLifetimeZ, useColorOverLifetime, overLifetimecolor,
+                        colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment, elapsedTime);
+            }
+
+          
             
         }
     };
 } // namespace Coffee
+
+CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 2)
