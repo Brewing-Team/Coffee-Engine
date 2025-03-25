@@ -13,16 +13,19 @@
 
 namespace Coffee {
 
+    /**
+     * @brief Struct representing a layer of animation blending.
+     */
     struct AnimationLayer
     {
-        bool IsBlending = false;
-        unsigned int CurrentAnimation = 0;
-        unsigned int NextAnimation = 0;
-        float BlendTime = 0.0f;
-        float AnimationTime = 0.0f;
-        float NextAnimationTime = 0.0f;
-        std::vector<ozz::math::SoaTransform> LocalTransforms;
-        std::vector<ozz::math::SimdFloat4> JointWeights;
+        bool IsBlending = false; ///< Indicates if blending is currently active.
+        unsigned int CurrentAnimation = 0; ///< Index of the current animation.
+        unsigned int NextAnimation = 0; ///< Index of the next animation to blend to.
+        float BlendTime = 0.0f; ///< Time duration for blending between animations.
+        float AnimationTime = 0.0f; ///< Current time position in the current animation.
+        float NextAnimationTime = 0.0f; ///< Current time position in the next animation.
+        std::vector<ozz::math::SoaTransform> LocalTransforms; ///< Local transforms for the animation joints.
+        std::vector<ozz::math::SimdFloat4> JointWeights; ///< Weights for blending animation joints.
 
          template<class Archive>
          void serialize(Archive& archive)
