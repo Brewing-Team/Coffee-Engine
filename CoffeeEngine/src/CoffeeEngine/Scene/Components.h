@@ -260,13 +260,26 @@
           */
          ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
 
+         /**
+          * @brief Sets the current animation for both upper and lower body layers.
+          * @param index The index of the animation to set.
+          */
          void SetCurrentAnimation(unsigned int index)
          {
             AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get());
             AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get());
          }
 
+         /**
+          * @brief Sets the current animation for the upper body layer.
+          * @param index The index of the animation to set.
+          */
          void SetUpperAnimation(unsigned int index) { AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get()); }
+
+         /**
+          * @brief Sets the current animation for the lower body layer.
+          * @param index The index of the animation to set.
+          */
          void SetLowerAnimation(unsigned int index) { AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get()); }
  
          /**
@@ -321,17 +334,15 @@
          std::vector<glm::mat4> JointMatrices; ///< The joint matrices.
          UUID modelUUID; ///< The UUID of the model.
          UUID animatorUUID; ///< The UUID of the animator.
+         int UpperBodyRootJoint = 0; ///< Index of the root joint for upper body animations.
+         std::vector<ozz::math::SoaTransform> PartialBlendOutput; ///< Output transforms for partial blending.
 
-         int UpperBodyRootJoint = 0;
-         std::vector<ozz::math::SoaTransform> PartialBlendOutput;
+         float UpperBodyWeight = 1.0f; ///< Weight for blending upper body animations.
+         float LowerBodyWeight = 1.0f; ///< Weight for blending lower body animations.
+         float PartialBlendThreshold = 0.01f; ///< Threshold for partial blending.
 
-         float UpperBodyWeight = 1.0f;
-         float LowerBodyWeight = 1.0f;
-         float PartialBlendThreshold = 0.01f;
-
-         Ref<AnimationLayer> UpperAnimation;
-         Ref<AnimationLayer> LowerAnimation;
-
+         Ref<AnimationLayer> UpperAnimation; ///< Animation layer for upper body animations.
+         Ref<AnimationLayer> LowerAnimation; ///< Animation layer for lower body animations.
      private:
          Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
          Ref<AnimationController> m_AnimationController; ///< The animation controller reference.

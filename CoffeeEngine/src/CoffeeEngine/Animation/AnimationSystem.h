@@ -35,6 +35,12 @@ namespace Coffee {
          */
         static void SetBoneTransformations(const Ref<Shader>& shader, const AnimatorComponent* animator);
 
+        /**
+         * @brief Sets the current animation for a specific layer.
+         * @param index The index of the animation to set.
+         * @param animator The animator component.
+         * @param layer The animation layer to update.
+         */
         static void SetCurrentAnimation(unsigned int index, AnimatorComponent* animator, AnimationLayer* layer);
 
         /**
@@ -60,19 +66,63 @@ namespace Coffee {
          */
         static void LoadAnimator(AnimatorComponent* animator);
 
+        /**
+         * @brief Sets up partial blending for upper and lower body animations.
+         * @param upperBodyAnimIndex The index of the upper body animation.
+         * @param lowerBodyAnimIndex The index of the lower body animation.
+         * @param upperBodyJointName The name of the upper body root joint.
+         * @param animator The animator component.
+         */
         static void SetupPartialBlending(unsigned int upperBodyAnimIndex, unsigned int lowerBodyAnimIndex, const std::string& upperBodyJointName, AnimatorComponent* animator);
 
     private:
+        /**
+         * @brief Updates blending for a specific animation layer.
+         * @param deltaTime The time elapsed since the last update.
+         * @param animator The animator component.
+         * @param layer The animation layer to update.
+         */
         static void UpdateBlending(float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer);
 
+        /**
+         * @brief Blends transforms between two sets of animations.
+         * @param currentTransforms The current animation transforms.
+         * @param nextTransforms The next animation transforms.
+         * @param blendRatio The ratio for blending between the two animations.
+         */
         static void BlendTransforms(std::vector<ozz::math::SoaTransform>& currentTransforms, const std::vector<ozz::math::SoaTransform>& nextTransforms, float blendRatio);
 
+        /**
+         * @brief Updates partial blending for upper and lower body animations.
+         * @param deltaTime The time elapsed since the last update.
+         * @param animator The animator component.
+         */
         static void UpdatePartialBlending(float deltaTime, AnimatorComponent* animator);
 
+        /**
+         * @brief Sets up per-joint weights for partial blending.
+         * @param animator The animator component.
+         * @param upperBodyRootIndex The index of the upper body root joint.
+         */
         static void SetupPerJointWeights(const AnimatorComponent* animator, int upperBodyRootIndex);
 
+        /**
+         * @brief Updates the animation times for a specific layer.
+         * @param deltaTime The time elapsed since the last update.
+         * @param animator The animator component.
+         * @param layer The animation layer to update.
+         * @param currentAnim The current animation.
+         */
         static void UpdateLayerTimes(float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer, const Animation* currentAnim);
 
+        /**
+         * @brief Samples and blends animations for a specific layer.
+         * @param animator The animator component.
+         * @param layer The animation layer.
+         * @param currentAnim The current animation.
+         * @param nextAnim The next animation.
+         * @param outputTransforms The output transforms for the layer.
+         */
         static void SampleAndBlendLayerAnimations(AnimatorComponent* animator, AnimationLayer* layer, const Animation* currentAnim, const Animation* nextAnim, std::vector<ozz::math::SoaTransform>& outputTransforms);
 
         /**
