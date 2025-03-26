@@ -164,7 +164,8 @@ namespace Coffee {
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
             .template get<AudioZoneComponent>(archive)
-            .template get<ParticlesSystemComponent>(archive);
+            .template get<ParticlesSystemComponent>(archive)
+            .template get<ActiveComponent>(archive);
          }
 
         /**
@@ -192,7 +193,9 @@ namespace Coffee {
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
             .template get<AudioZoneComponent>(archive)
-            .template get<ParticlesSystemComponent>(archive);
+            .template get<ParticlesSystemComponent>(archive)
+            .template get<ActiveComponent>(archive);
+
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         }

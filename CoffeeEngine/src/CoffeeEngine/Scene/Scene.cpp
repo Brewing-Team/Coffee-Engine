@@ -521,7 +521,7 @@ namespace Coffee {
         // TODO: Think where this could be done instead of the Load function
 
         // Add rigidbodies back to physics world
-        auto view = scene->m_Registry.view<RigidbodyComponent, TransformComponent>();
+        auto view = scene->m_Registry.view<ActiveComponent, RigidbodyComponent, TransformComponent>();
         for (auto entity : view)
         {
             auto [rb, transform] = view.get<RigidbodyComponent, TransformComponent>(entity);
