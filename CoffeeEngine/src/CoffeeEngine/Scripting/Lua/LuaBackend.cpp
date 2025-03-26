@@ -719,7 +719,9 @@ namespace Coffee {
             "get_prev_sibling", &Entity::GetPrevSibling,
             "get_child", &Entity::GetChild,
             "get_children", &Entity::GetChildren,
-            "is_valid", [](Entity* self) { return static_cast<bool>(*self); }
+            "is_valid", [](Entity* self) { return static_cast<bool>(*self); },
+            "is_active", &Entity::IsActive,
+            "set_active", &Entity::SetActive
         );
         #pragma endregion
 
