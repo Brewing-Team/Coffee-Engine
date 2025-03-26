@@ -200,13 +200,28 @@ namespace Coffee {
 
         bool IsActive()
         {
-            return HasComponent<ActiveComponent>();
+            if (!HasComponent<ActiveComponent>())
+                return false;
+                
+            Entity parent = GetParent();
+            while (parent)
+            {
+                if (!parent.HasComponent<ActiveComponent>())
+                    return false;
+                parent = parent.GetParent();
+            }
+            
+            return true;
         }
         
         void SetActive(bool active)
         {
-            if (active && !HasComponent<ActiveComponent>())
-            {
+            bool currentlyActive = HasComponent<ActiveComponent>();
+        
+            if (active == currentlyActive)
+                return;
+        
+            if (active) {
                 AddComponent<ActiveComponent>();
                 
                 if (HasComponent<RigidbodyComponent>())
@@ -216,17 +231,22 @@ namespace Coffee {
                         rbComponent.rb->GetNativeBody()->setActivationState(ACTIVE_TAG);
                 }
             }
-            else if (!active && HasComponent<ActiveComponent>())
+            else
             {
                 RemoveComponent<ActiveComponent>();
                 
-                // If entity has a rigidbody, deactivate it in the physics world
                 if (HasComponent<RigidbodyComponent>())
                 {
                     auto& rbComponent = GetComponent<RigidbodyComponent>();
                     if (rbComponent.rb && rbComponent.rb->GetNativeBody())
                         rbComponent.rb->GetNativeBody()->setActivationState(DISABLE_SIMULATION);
                 }
+            }
+            
+            auto children = GetChildren();
+            for (auto& child : children)
+            {
+                child.SetActive(active);
             }
         }
 
