@@ -276,7 +276,7 @@ namespace Coffee
          * @param archive The archive to serialize to.
          */
 
-        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
+        template <class Archive> void save(Archive& archive) const
         {
             archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
                     colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
@@ -293,7 +293,7 @@ namespace Coffee
         }
 
 
-        template <class Archive> void load(Archive& archive, std::uint32_t const version)
+        template <class Archive> void load(Archive& archive)
         {
 
             UUID textureUUID;
@@ -323,5 +323,3 @@ namespace Coffee
         }
     };
 } // namespace Coffee
-
-CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 2)

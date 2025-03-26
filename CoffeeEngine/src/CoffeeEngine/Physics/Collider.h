@@ -36,7 +36,7 @@ namespace Coffee {
         
         friend class cereal::access;
         
-        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        template<class Archive> void save(Archive& archive) const
         {
             btCollisionShape* shape = getShape();
             int shapeType = shape ? shape->getShapeType() : -1;
@@ -70,7 +70,7 @@ namespace Coffee {
             }
         }
 
-        template<class Archive> void load(Archive& archive, std::uint32_t const version)
+        template<class Archive> void load(Archive& archive)
         {
             int shapeType;
             archive(cereal::make_nvp("ShapeType", shapeType));
@@ -242,7 +242,3 @@ CEREAL_REGISTER_TYPE(Coffee::CapsuleCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::BoxCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::SphereCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::CapsuleCollider)
-CEREAL_CLASS_VERSION(Coffee::Collider, 2)
-CEREAL_CLASS_VERSION(Coffee::BoxCollider, 2)
-CEREAL_CLASS_VERSION(Coffee::SphereCollider, 2)
-CEREAL_CLASS_VERSION(Coffee::CapsuleCollider, 2)
