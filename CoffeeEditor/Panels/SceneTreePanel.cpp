@@ -130,9 +130,8 @@ namespace Coffee
     void SceneTreePanel::DrawEntityNode(Entity entity)
     {
         auto& entityNameTag = entity.GetComponent<TagComponent>().Tag;
-
         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
-
+    
         ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
                                    ((hierarchyComponent.m_First == entt::null) ? ImGuiTreeNodeFlags_Leaf : 0) |
                                    ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding;
@@ -141,43 +140,17 @@ namespace Coffee
         const char* icon = isActive ? ICON_LC_EYE : ICON_LC_EYE_OFF;
         std::string buttonId = "##Active" + std::to_string((uint32_t)entity);
         
-        // Calculate positions before drawing tree node
-        float windowWidth = ImGui::GetContentRegionAvail().x;
-        float iconWidth = ImGui::CalcTextSize(icon).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-        float iconPosition = windowWidth - iconWidth;
-
+        // Draw the tree node first, so ImGui sets up the proper indentation
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityNameTag.c_str());
-
+    
         if (ImGui::IsItemClicked())
         {
             m_SelectionContext = entity;
         }
-        
-        // Set cursor position to align icon to the right
-        float currentX = ImGui::GetCursorPosX();
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(iconPosition);
-        
-        // Style the icon button
-        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.5f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 0.8f));
-        
-        // Create button with just the icon
-        if (ImGui::Button((icon + buttonId).c_str()))
-        {
-            // Toggle active state when clicked
-            isActive = !isActive;
-            entity.SetActive(isActive);
-        }
-        
-        // Restore original style
-        ImGui::PopStyleColor(3);
-
+    
         // Code of Double clicking the item for changing the name (WIP)
-
         ImVec2 itemSize = ImGui::GetItemRectSize();
-
+    
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
             ImVec2 popupPos = ImGui::GetItemRectMin();
@@ -185,9 +158,9 @@ namespace Coffee
             ImGui::SetNextWindowPos({popupPos.x + indent, popupPos.y});
             ImGui::OpenPopup("EntityPopup");
         }
-
+    
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
+    
         if (ImGui::BeginPopup("EntityPopup" /*, ImGuiWindowFlags_NoBackground*/))
         {
             auto buff = entity.GetComponent<TagComponent>().Tag.c_str();
@@ -195,9 +168,9 @@ namespace Coffee
             ImGui::InputText("##entity-name", (char*)buff, 128);
             ImGui::EndPopup();
         }
-
+    
         ImGui::PopStyleVar();
-
+    
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
         {
             ImGui::SetDragDropPayload("ENTITY_NODE", &entity,
@@ -205,7 +178,7 @@ namespace Coffee
             ImGui::Text("%s", entityNameTag.c_str());
             ImGui::EndDragDropSource();
         }
-
+    
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_NODE"))
@@ -220,7 +193,34 @@ namespace Coffee
             }
             ImGui::EndDragDropTarget();
         }
-
+    
+        // Calculate the eye icon position based on current indentation level
+        // This fixes the issue where eye icon moves left when entity becomes a child
+        float iconPosition = ImGui::GetWindowContentRegionMax().x - 
+                             ImGui::CalcTextSize(icon).x - 
+                             ImGui::GetStyle().FramePadding.x * 2.0f;
+    
+        // Set cursor position to align icon to the right
+        float currentX = ImGui::GetCursorPosX();
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(iconPosition);
+    
+        // Style the icon button
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 0.8f));
+    
+        // Create button with just the icon
+        if (ImGui::Button((icon + buttonId).c_str()))
+        {
+            // Toggle active state when clicked
+            isActive = !isActive;
+            entity.SetActive(isActive);
+        }
+    
+        // Restore original style
+        ImGui::PopStyleColor(3);
+    
         if (opened)
         {
             if (hierarchyComponent.m_First != entt::null)
