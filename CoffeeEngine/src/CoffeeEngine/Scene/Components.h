@@ -943,6 +943,25 @@
         Ref<NavMeshPathfinding> m_PathFinder = nullptr; ///< The pathfinder.
         Ref<NavMeshComponent> m_NavMeshComponent = nullptr; ///< The navigation mesh component.
     };
+
+    struct ActiveComponent
+    {
+        ActiveComponent() = default;
+        ActiveComponent(const ActiveComponent&) = default;
+
+        template<class Archive>
+        void save (Archive& archive) const
+        {
+            archive(cereal::make_nvp("Active", true));
+        }
+
+        template<class Archive>
+        void load (Archive& archive)
+        {
+            bool active;
+            archive(cereal::make_nvp("Active", active));
+        }
+    };
  }
  
  /** @} */
