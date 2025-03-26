@@ -243,19 +243,47 @@ namespace Coffee
         if (entity.HasComponent<TagComponent>())
         {
             auto& entityNameTag = entity.GetComponent<TagComponent>().Tag;
-
+        
             ImGui::Text(ICON_LC_TAG " Tag");
             ImGui::SameLine();
-
+        
+            // Make the tag input field smaller to accommodate the "Static" checkbox
+            float availableWidth = ImGui::GetContentRegionAvail().x;
+            float tagInputWidth = availableWidth * 0.7f; // Use 70% of the width for the tag input
+        
+            // Set the width of the input field
+            ImGui::PushItemWidth(tagInputWidth);
+        
             char buffer[256];
             memset(buffer, 0, sizeof(buffer));
             strcpy(buffer, entityNameTag.c_str());
-
+        
             if (ImGui::InputText("##", buffer, sizeof(buffer)))
             {
                 entityNameTag = std::string(buffer);
             }
-
+            
+            ImGui::PopItemWidth();
+        
+            // Add a small space
+            ImGui::SameLine();
+            
+            // Add the "Static" checkbox
+            bool isStatic = entity.HasComponent<StaticComponent>();
+            if (ImGui::Checkbox("Static", &isStatic))
+            {
+                if (isStatic)
+                {
+                    if (!entity.HasComponent<StaticComponent>())
+                        entity.AddComponent<StaticComponent>();
+                }
+                else
+                {
+                    if (entity.HasComponent<StaticComponent>())
+                        entity.RemoveComponent<StaticComponent>();
+                }
+            }
+        
             ImGui::Separator();
         }
 

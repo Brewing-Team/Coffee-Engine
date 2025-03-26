@@ -950,17 +950,22 @@
         ActiveComponent(const ActiveComponent&) = default;
 
         template<class Archive>
-        void save (Archive& archive) const
-        {
-            archive(cereal::make_nvp("Active", true));
-        }
+        void save (Archive& archive) const {}
 
         template<class Archive>
-        void load (Archive& archive)
-        {
-            bool active;
-            archive(cereal::make_nvp("Active", active));
-        }
+        void load (Archive& archive) {}
+    };
+
+    struct StaticComponent
+    {
+        StaticComponent() = default;
+        StaticComponent(const StaticComponent&) = default;
+
+        template<class Archive>
+        void save (Archive& archive) const {}
+
+        template<class Archive>
+        void load (Archive& archive) {}
     };
  }
  
