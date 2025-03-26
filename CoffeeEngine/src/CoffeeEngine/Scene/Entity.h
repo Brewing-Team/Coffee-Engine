@@ -217,30 +217,35 @@ namespace Coffee {
         void SetActive(bool active)
         {
             bool currentlyActive = HasComponent<ActiveComponent>();
-        
+
             if (active == currentlyActive)
                 return;
-        
+
             if (active) {
                 AddComponent<ActiveComponent>();
-                
-                if (HasComponent<RigidbodyComponent>())
-                {
+
+                // TODO move this to a more appropriate place
+                // Re-enable physics if entity has a rigidbody
+                if (HasComponent<RigidbodyComponent>()) {
                     auto& rbComponent = GetComponent<RigidbodyComponent>();
-                    if (rbComponent.rb && rbComponent.rb->GetNativeBody())
-                        rbComponent.rb->GetNativeBody()->setActivationState(ACTIVE_TAG);
+                    if (rbComponent.rb && rbComponent.rb->GetNativeBody()) {
+                        m_Scene->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                        rbComponent.rb->GetNativeBody()->setUserPointer(reinterpret_cast<void*>(static_cast<uintptr_t>(m_EntityHandle)));
+                    }
                 }
             }
             else
             {
-                RemoveComponent<ActiveComponent>();
-                
-                if (HasComponent<RigidbodyComponent>())
-                {
+                // TODO move this to a more appropriate place
+                // Disable physics before removing ActiveComponent
+                if (HasComponent<RigidbodyComponent>()) {
                     auto& rbComponent = GetComponent<RigidbodyComponent>();
-                    if (rbComponent.rb && rbComponent.rb->GetNativeBody())
-                        rbComponent.rb->GetNativeBody()->setActivationState(DISABLE_SIMULATION);
+                    if (rbComponent.rb && rbComponent.rb->GetNativeBody()) {
+                        m_Scene->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                    }
                 }
+                
+                RemoveComponent<ActiveComponent>();
             }
             
             auto children = GetChildren();
