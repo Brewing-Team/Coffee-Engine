@@ -1160,15 +1160,61 @@ namespace Coffee
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                const char* animationName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.CurrentAnimation)->GetAnimationName().c_str();
+                const char* UpperAnimName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.UpperAnimation->CurrentAnimation)->GetAnimationName().c_str();
+                const char* LowerAnimName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.LowerAnimation->CurrentAnimation)->GetAnimationName().c_str();
+                const char* AnimName = UpperAnimName == LowerAnimName ? UpperAnimName : "Mixed";
 
-                if (ImGui::BeginCombo("Animation", animationName))
+                if (ImGui::BeginCombo("Animation", AnimName))
                 {
                     for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
-                        if (ImGui::Selectable(name.c_str()) && name != animationName)
+                        if (ImGui::Selectable(name.c_str()) && name != AnimName)
                         {
-                            AnimationSystem::SetCurrentAnimation(name, &animatorComponent);
+                            UpperAnimName = name.c_str();
+                            LowerAnimName = name.c_str();
+                            animatorComponent.SetCurrentAnimation(animation);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                if (ImGui::BeginCombo("UpperAnimation", UpperAnimName))
+                {
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    {
+                        if (ImGui::Selectable(name.c_str()) && name != UpperAnimName)
+                        {;
+                            UpperAnimName = name.c_str();
+                            animatorComponent.SetUpperAnimation(animation);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                if (ImGui::BeginCombo("LowerAnimation", LowerAnimName))
+                {
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    {
+                        if (ImGui::Selectable(name.c_str()) && name != LowerAnimName)
+                        {
+                            LowerAnimName = name.c_str();
+                            animatorComponent.SetLowerAnimation(animation);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                const char* RootJointName = animatorComponent.GetSkeleton()->GetJoints()[animatorComponent.UpperBodyRootJoint].name.c_str();
+
+                if (ImGui::BeginCombo("RootJointName", RootJointName))
+                {
+                    for (auto& joint : animatorComponent.GetSkeleton()->GetJoints())
+                    {
+                        if (ImGui::Selectable(joint.name.c_str()) && joint.name != RootJointName)
+                        {
+                            RootJointName = joint.name.c_str();
+                            std::map<std::string, unsigned int> animationMap = animatorComponent.GetAnimationController()->GetAnimationMap();
+                            AnimationSystem::SetupPartialBlending(animationMap[UpperAnimName], animationMap[LowerAnimName], RootJointName, &animatorComponent);
                         }
                     }
                     ImGui::EndCombo();
@@ -1176,7 +1222,11 @@ namespace Coffee
 
                 ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
 
-                ImGui::DragFloat("Blend Threshold", &animatorComponent.BlendThreshold, 0.01f, 0.01f, 1.0f, "%.2f");
+                ImGui::DragFloat("UpperBodyWeight", &animatorComponent.UpperBodyWeight, 0.01f, 0.0f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("LowerBodyWeight", &animatorComponent.LowerBodyWeight, 0.01f, 0.0f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("PartialBlendThreshold", &animatorComponent.PartialBlendThreshold, 0.01f, 0.0f, 1.0f, "%.2f");
 
                 ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
 

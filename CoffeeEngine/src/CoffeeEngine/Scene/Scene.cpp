@@ -567,7 +567,15 @@ namespace Coffee {
         if (model->HasAnimations())
         {
             animatorComponent = &modelEntity.AddComponent<AnimatorComponent>(model->GetSkeleton(), model->GetAnimationController());
-            AnimationSystem::SetCurrentAnimation(0, animatorComponent);
+
+            std::string jointName = "Chest";
+            const auto& joints = animatorComponent->GetSkeleton()->GetJoints();
+            auto it = std::ranges::find_if(joints, [](const auto& joint) { return joint.name == "Chest"; });
+            if (it == joints.end())
+                jointName = joints[0].name;
+
+            AnimationSystem::SetupPartialBlending(0, 0, jointName, animatorComponent);
+
             animatorComponent->modelUUID = model->GetUUID();
             animatorComponent->animatorUUID = UUID();
         }
