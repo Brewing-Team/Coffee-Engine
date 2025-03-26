@@ -216,7 +216,7 @@ namespace Coffee
             {
                 newVelocity.x = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeX), -1, 1);
                 
-                newVelocity.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeY), -1, 1);
+                newVelocity.z = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeY), -1, 1);
                 
                 newVelocity.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, speedOverLifeTimeZ), -1, 1);
                 
@@ -238,7 +238,7 @@ namespace Coffee
 
                 newSize.x = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeX), -1, 1);
 
-                newSize.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeY), -1, 1);
+                newSize.z = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeY), -1, 1);
 
                 newSize.y = CurveEditor::ScaleCurveValue(CurveEditor::GetCurveValue(normalizedLife, sizeOverLifetimeZ), -1, 1);
 
