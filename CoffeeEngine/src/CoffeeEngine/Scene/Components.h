@@ -184,24 +184,24 @@
           * @param other The other AnimatorComponent to copy from.
           */
          AnimatorComponent(const AnimatorComponent& other)
-         : IsBlending(other.IsBlending),
-           Loop(other.Loop),
-           CurrentAnimation(other.CurrentAnimation),
-           NextAnimation(other.NextAnimation),
-           AnimationTime(other.AnimationTime),
-           NextAnimationTime(other.NextAnimationTime),
-           BlendTime(other.BlendTime),
+         : Loop(other.Loop),
            BlendDuration(other.BlendDuration),
-           BlendThreshold(other.BlendThreshold),
            AnimationSpeed(other.AnimationSpeed),
            JointMatrices(other.JointMatrices),
            modelUUID(other.modelUUID),
            animatorUUID(other.animatorUUID),
            m_Skeleton(other.m_Skeleton),
-           m_AnimationController(other.m_AnimationController)
+           m_AnimationController(other.m_AnimationController),
+           UpperAnimation(other.UpperAnimation),
+           LowerAnimation(other.LowerAnimation),
+           PartialBlendThreshold(other.PartialBlendThreshold),
+           UpperBodyWeight(other.UpperBodyWeight),
+           LowerBodyWeight(other.LowerBodyWeight),
+           UpperBodyRootJoint(other.UpperBodyRootJoint)
          {
              m_BlendJob.layers = ozz::make_span(m_BlendLayers);
-             AnimationSystem::SetCurrentAnimation(CurrentAnimation, this);
+             const std::string rootJointName = GetSkeleton()->GetJoints()[UpperBodyRootJoint].name;
+             AnimationSystem::SetupPartialBlending(UpperAnimation->CurrentAnimation, LowerAnimation->CurrentAnimation, rootJointName, this);
              AnimationSystem::AddAnimator(this);
          }
  
@@ -211,7 +211,7 @@
           * @param animationController The animation controller reference.
           */
          AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController)
-         : m_Skeleton(std::move(skeleton)), m_AnimationController(std::move(animationController))
+         : m_Skeleton(std::move(skeleton)), m_AnimationController(std::move(animationController)), UpperAnimation(std::make_shared<AnimationLayer>()), LowerAnimation(std::make_shared<AnimationLayer>())
          {
              m_BlendJob.layers = ozz::make_span(m_BlendLayers);
              JointMatrices = m_Skeleton->GetJointMatrices();
@@ -227,7 +227,7 @@
           * @brief Sets the skeleton reference.
           * @param skeleton The skeleton reference to set.
           */
-         void SetSkeleton(Ref<Skeleton> skeleton) { m_Skeleton = skeleton; }
+         void SetSkeleton(Ref<Skeleton> skeleton) { m_Skeleton = std::move(skeleton); }
  
          /**
           * @brief Gets the animation controller reference.
@@ -239,7 +239,7 @@
           * @brief Sets the animation controller reference.
           * @param animationController The animation controller reference to set.
           */
-         void SetAnimationController(Ref<AnimationController> animationController) { m_AnimationController = animationController; }
+         void SetAnimationController(Ref<AnimationController> animationController) { m_AnimationController = std::move(animationController); }
 
          /**
           * @brief Gets the sampling job context.
@@ -258,9 +258,28 @@
           * @return The blending job.
           */
          ozz::animation::BlendingJob& GetBlendJob() { return m_BlendJob; }
- 
- 
-         void SetCurrentAnimation(int index) { AnimationSystem::SetCurrentAnimation(index, this);}
+
+         /**
+          * @brief Sets the current animation for both upper and lower body layers.
+          * @param index The index of the animation to set.
+          */
+         void SetCurrentAnimation(unsigned int index)
+         {
+            AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get());
+            AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get());
+         }
+
+         /**
+          * @brief Sets the current animation for the upper body layer.
+          * @param index The index of the animation to set.
+          */
+         void SetUpperAnimation(unsigned int index) { AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get()); }
+
+         /**
+          * @brief Sets the current animation for the lower body layer.
+          * @param index The index of the animation to set.
+          */
+         void SetLowerAnimation(unsigned int index) { AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get()); }
  
          /**
           * @brief Serializes the AnimatorComponent.
@@ -270,13 +289,17 @@
          template<class Archive>
          void save(Archive& archive) const
          {
-             archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation),
-                     cereal::make_nvp("BlendDuration", BlendDuration),
-                     cereal::make_nvp("BlendThreshold", BlendThreshold),
+             archive(cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
                      cereal::make_nvp("Loop", Loop),
                      cereal::make_nvp("ModelUUID", modelUUID),
-                     cereal::make_nvp("AnimatorUUID", animatorUUID));
+                     cereal::make_nvp("AnimatorUUID", animatorUUID),
+                     cereal::make_nvp("UpperAnimation", UpperAnimation),
+                     cereal::make_nvp("LowerAnimation", LowerAnimation),
+                     cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
+                     cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
+                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
+                     cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
          }
  
          /**
@@ -287,33 +310,38 @@
          template<class Archive>
          void load(Archive& archive)
          {
-             archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation),
-                     cereal::make_nvp("BlendDuration", BlendDuration),
-                     cereal::make_nvp("BlendThreshold", BlendThreshold),
+             archive(cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
                      cereal::make_nvp("Loop", Loop),
                      cereal::make_nvp("ModelUUID", modelUUID),
-                     cereal::make_nvp("AnimatorUUID", animatorUUID));
+                     cereal::make_nvp("AnimatorUUID", animatorUUID),
+                     cereal::make_nvp("UpperAnimation", UpperAnimation),
+                     cereal::make_nvp("LowerAnimation", LowerAnimation),
+                     cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
+                     cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
+                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
+                     cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
 
              AnimationSystem::LoadAnimator(this);
          }
  
      public:
-         bool IsBlending = false; ///< Indicates if the animation is blending.
          bool Loop = true; ///< Indicates if the animation should loop.
-         unsigned int CurrentAnimation = 0; ///< The current animation index.
-         unsigned int NextAnimation = 0; ///< The next animation index.
-         float AnimationTime = 0.f; ///< The current animation time.
-         float NextAnimationTime = 0.f; ///< The next animation time.
-         float BlendTime = 0.f; ///< The current blend time.
          float BlendDuration = 0.25f; ///< The duration of the blend.
-         float BlendThreshold = 0.8; ///< The blend threshold.
          float AnimationSpeed = 1.0f; ///< The speed of the animation.
  
          std::vector<glm::mat4> JointMatrices; ///< The joint matrices.
          UUID modelUUID; ///< The UUID of the model.
          UUID animatorUUID; ///< The UUID of the animator.
+         int UpperBodyRootJoint = 0; ///< Index of the root joint for upper body animations.
+         std::vector<ozz::math::SoaTransform> PartialBlendOutput; ///< Output transforms for partial blending.
 
+         float UpperBodyWeight = 1.0f; ///< Weight for blending upper body animations.
+         float LowerBodyWeight = 1.0f; ///< Weight for blending lower body animations.
+         float PartialBlendThreshold = 0.01f; ///< Threshold for partial blending.
+
+         Ref<AnimationLayer> UpperAnimation; ///< Animation layer for upper body animations.
+         Ref<AnimationLayer> LowerAnimation; ///< Animation layer for lower body animations.
      private:
          Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
          Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
@@ -914,6 +942,30 @@
     private:
         Ref<NavMeshPathfinding> m_PathFinder = nullptr; ///< The pathfinder.
         Ref<NavMeshComponent> m_NavMeshComponent = nullptr; ///< The navigation mesh component.
+    };
+
+    struct ActiveComponent
+    {
+        ActiveComponent() = default;
+        ActiveComponent(const ActiveComponent&) = default;
+
+        template<class Archive>
+        void save (Archive& archive) const {}
+
+        template<class Archive>
+        void load (Archive& archive) {}
+    };
+
+    struct StaticComponent
+    {
+        StaticComponent() = default;
+        StaticComponent(const StaticComponent&) = default;
+
+        template<class Archive>
+        void save (Archive& archive) const {}
+
+        template<class Archive>
+        void load (Archive& archive) {}
     };
  }
  

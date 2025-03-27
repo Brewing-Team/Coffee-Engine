@@ -718,7 +718,9 @@ namespace Coffee {
             "get_prev_sibling", &Entity::GetPrevSibling,
             "get_child", &Entity::GetChild,
             "get_children", &Entity::GetChildren,
-            "is_valid", [](Entity* self) { return static_cast<bool>(*self); }
+            "is_valid", [](Entity* self) { return static_cast<bool>(*self); },
+            "is_active", &Entity::IsActive,
+            "set_active", &Entity::SetActive
         );
         #pragma endregion
 
@@ -817,7 +819,9 @@ namespace Coffee {
 
         luaState.new_usertype<AnimatorComponent>(
             "AnimatorComponent", sol::constructors<AnimatorComponent(), AnimatorComponent()>(),
-            "set_current_animation", &AnimatorComponent::SetCurrentAnimation
+            "set_current_animation", &AnimatorComponent::SetCurrentAnimation,
+            "set_upper_animation", &AnimatorComponent::SetUpperAnimation,
+            "set_lower_animation", &AnimatorComponent::SetLowerAnimation
         );
 
         luaState.new_usertype<AudioSourceComponent>("AudioSourceComponent",

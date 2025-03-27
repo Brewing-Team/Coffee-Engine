@@ -130,25 +130,27 @@ namespace Coffee
     void SceneTreePanel::DrawEntityNode(Entity entity)
     {
         auto& entityNameTag = entity.GetComponent<TagComponent>().Tag;
-
         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
-
+    
         ImGuiTreeNodeFlags flags = ((m_SelectionContext == entity) ? ImGuiTreeNodeFlags_Selected : 0) |
                                    ((hierarchyComponent.m_First == entt::null) ? ImGuiTreeNodeFlags_Leaf : 0) |
-                                   ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding |
-                                   ImGuiTreeNodeFlags_SpanAvailWidth;
-
+                                   ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_FramePadding;
+        
+        bool isActive = entity.IsActive();
+        const char* icon = isActive ? ICON_LC_EYE : ICON_LC_EYE_OFF;
+        std::string buttonId = "##Active" + std::to_string((uint32_t)entity);
+        
+        // Draw the tree node first, so ImGui sets up the proper indentation
         bool opened = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, entityNameTag.c_str());
-
+    
         if (ImGui::IsItemClicked())
         {
             m_SelectionContext = entity;
         }
-
+    
         // Code of Double clicking the item for changing the name (WIP)
-
         ImVec2 itemSize = ImGui::GetItemRectSize();
-
+    
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
             ImVec2 popupPos = ImGui::GetItemRectMin();
@@ -156,9 +158,9 @@ namespace Coffee
             ImGui::SetNextWindowPos({popupPos.x + indent, popupPos.y});
             ImGui::OpenPopup("EntityPopup");
         }
-
+    
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-
+    
         if (ImGui::BeginPopup("EntityPopup" /*, ImGuiWindowFlags_NoBackground*/))
         {
             auto buff = entity.GetComponent<TagComponent>().Tag.c_str();
@@ -166,9 +168,9 @@ namespace Coffee
             ImGui::InputText("##entity-name", (char*)buff, 128);
             ImGui::EndPopup();
         }
-
+    
         ImGui::PopStyleVar();
-
+    
         if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
         {
             ImGui::SetDragDropPayload("ENTITY_NODE", &entity,
@@ -176,7 +178,7 @@ namespace Coffee
             ImGui::Text("%s", entityNameTag.c_str());
             ImGui::EndDragDropSource();
         }
-
+    
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("ENTITY_NODE"))
@@ -191,7 +193,34 @@ namespace Coffee
             }
             ImGui::EndDragDropTarget();
         }
-
+    
+        // Calculate the eye icon position based on current indentation level
+        // This fixes the issue where eye icon moves left when entity becomes a child
+        float iconPosition = ImGui::GetWindowContentRegionMax().x - 
+                             ImGui::CalcTextSize(icon).x - 
+                             ImGui::GetStyle().FramePadding.x * 2.0f;
+    
+        // Set cursor position to align icon to the right
+        float currentX = ImGui::GetCursorPosX();
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(iconPosition);
+    
+        // Style the icon button
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 0.8f));
+    
+        // Create button with just the icon
+        if (ImGui::Button((icon + buttonId).c_str()))
+        {
+            // Toggle active state when clicked
+            isActive = !isActive;
+            entity.SetActive(isActive);
+        }
+    
+        // Restore original style
+        ImGui::PopStyleColor(3);
+    
         if (opened)
         {
             if (hierarchyComponent.m_First != entt::null)
@@ -214,19 +243,47 @@ namespace Coffee
         if (entity.HasComponent<TagComponent>())
         {
             auto& entityNameTag = entity.GetComponent<TagComponent>().Tag;
-
+        
             ImGui::Text(ICON_LC_TAG " Tag");
             ImGui::SameLine();
-
+        
+            // Make the tag input field smaller to accommodate the "Static" checkbox
+            float availableWidth = ImGui::GetContentRegionAvail().x;
+            float tagInputWidth = availableWidth * 0.7f; // Use 70% of the width for the tag input
+        
+            // Set the width of the input field
+            ImGui::PushItemWidth(tagInputWidth);
+        
             char buffer[256];
             memset(buffer, 0, sizeof(buffer));
             strcpy(buffer, entityNameTag.c_str());
-
+        
             if (ImGui::InputText("##", buffer, sizeof(buffer)))
             {
                 entityNameTag = std::string(buffer);
             }
-
+            
+            ImGui::PopItemWidth();
+        
+            // Add a small space
+            ImGui::SameLine();
+            
+            // Add the "Static" checkbox
+            bool isStatic = entity.HasComponent<StaticComponent>();
+            if (ImGui::Checkbox("Static", &isStatic))
+            {
+                if (isStatic)
+                {
+                    if (!entity.HasComponent<StaticComponent>())
+                        entity.AddComponent<StaticComponent>();
+                }
+                else
+                {
+                    if (entity.HasComponent<StaticComponent>())
+                        entity.RemoveComponent<StaticComponent>();
+                }
+            }
+        
             ImGui::Separator();
         }
 
@@ -1160,15 +1217,61 @@ namespace Coffee
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Animator", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                const char* animationName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.CurrentAnimation)->GetAnimationName().c_str();
+                const char* UpperAnimName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.UpperAnimation->CurrentAnimation)->GetAnimationName().c_str();
+                const char* LowerAnimName = animatorComponent.GetAnimationController()->GetAnimation(animatorComponent.LowerAnimation->CurrentAnimation)->GetAnimationName().c_str();
+                const char* AnimName = UpperAnimName == LowerAnimName ? UpperAnimName : "Mixed";
 
-                if (ImGui::BeginCombo("Animation", animationName))
+                if (ImGui::BeginCombo("Animation", AnimName))
                 {
                     for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
-                        if (ImGui::Selectable(name.c_str()) && name != animationName)
+                        if (ImGui::Selectable(name.c_str()) && name != AnimName)
                         {
-                            AnimationSystem::SetCurrentAnimation(name, &animatorComponent);
+                            UpperAnimName = name.c_str();
+                            LowerAnimName = name.c_str();
+                            animatorComponent.SetCurrentAnimation(animation);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                if (ImGui::BeginCombo("UpperAnimation", UpperAnimName))
+                {
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    {
+                        if (ImGui::Selectable(name.c_str()) && name != UpperAnimName)
+                        {;
+                            UpperAnimName = name.c_str();
+                            animatorComponent.SetUpperAnimation(animation);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                if (ImGui::BeginCombo("LowerAnimation", LowerAnimName))
+                {
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
+                    {
+                        if (ImGui::Selectable(name.c_str()) && name != LowerAnimName)
+                        {
+                            LowerAnimName = name.c_str();
+                            animatorComponent.SetLowerAnimation(animation);
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+
+                const char* RootJointName = animatorComponent.GetSkeleton()->GetJoints()[animatorComponent.UpperBodyRootJoint].name.c_str();
+
+                if (ImGui::BeginCombo("RootJointName", RootJointName))
+                {
+                    for (auto& joint : animatorComponent.GetSkeleton()->GetJoints())
+                    {
+                        if (ImGui::Selectable(joint.name.c_str()) && joint.name != RootJointName)
+                        {
+                            RootJointName = joint.name.c_str();
+                            std::map<std::string, unsigned int> animationMap = animatorComponent.GetAnimationController()->GetAnimationMap();
+                            AnimationSystem::SetupPartialBlending(animationMap[UpperAnimName], animationMap[LowerAnimName], RootJointName, &animatorComponent);
                         }
                     }
                     ImGui::EndCombo();
@@ -1176,7 +1279,11 @@ namespace Coffee
 
                 ImGui::DragFloat("Blend Duration", &animatorComponent.BlendDuration, 0.01f, 0.01f, 2.0f, "%.2f");
 
-                ImGui::DragFloat("Blend Threshold", &animatorComponent.BlendThreshold, 0.01f, 0.01f, 1.0f, "%.2f");
+                ImGui::DragFloat("UpperBodyWeight", &animatorComponent.UpperBodyWeight, 0.01f, 0.0f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("LowerBodyWeight", &animatorComponent.LowerBodyWeight, 0.01f, 0.0f, 1.0f, "%.2f");
+
+                ImGui::DragFloat("PartialBlendThreshold", &animatorComponent.PartialBlendThreshold, 0.01f, 0.0f, 1.0f, "%.2f");
 
                 ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
 
