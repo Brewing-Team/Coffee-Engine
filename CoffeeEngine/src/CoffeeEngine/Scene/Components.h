@@ -286,8 +286,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, const std::uint32_t& version) const
          {
              archive(cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
@@ -307,20 +306,32 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to deserialize from.
           */
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, const std::uint32_t& version)
          {
-             archive(cereal::make_nvp("BlendDuration", BlendDuration),
-                     cereal::make_nvp("AnimationSpeed", AnimationSpeed),
-                     cereal::make_nvp("Loop", Loop),
-                     cereal::make_nvp("ModelUUID", modelUUID),
-                     cereal::make_nvp("AnimatorUUID", animatorUUID),
-                     cereal::make_nvp("UpperAnimation", UpperAnimation),
-                     cereal::make_nvp("LowerAnimation", LowerAnimation),
-                     cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
-                     cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
-                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
-                     cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
+             if (version >= 2)
+             {
+                 archive(cereal::make_nvp("BlendDuration", BlendDuration),
+                         cereal::make_nvp("AnimationSpeed", AnimationSpeed), cereal::make_nvp("Loop", Loop),
+                         cereal::make_nvp("ModelUUID", modelUUID), cereal::make_nvp("AnimatorUUID", animatorUUID),
+                         cereal::make_nvp("UpperAnimation", UpperAnimation),
+                         cereal::make_nvp("LowerAnimation", LowerAnimation),
+                         cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
+                         cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
+                         cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
+                         cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
+             }
+             else
+             {
+                 //Version 0
+                /* archive(cereal::make_nvp("CurrentAnimation", UpperAnimation),
+                         cereal::make_nvp("CurrentAnimation", LowerAnimation),
+                         cereal::make_nvp("BlendDuration", BlendDuration),
+                         cereal::make_nvp("BlendThreshold", PartialBlendThreshold),
+                         cereal::make_nvp("AnimationSpeed", AnimationSpeed), cereal::make_nvp("Loop", Loop),
+                         cereal::make_nvp("ModelUUID", modelUUID), cereal::make_nvp("AnimatorUUID", animatorUUID));*/
+             
+             }
+             
 
              AnimationSystem::LoadAnimator(this);
          }
@@ -967,6 +978,7 @@
         template<class Archive>
         void load (Archive& archive) {}
     };
- }
+ } // namespace Coffee
+ CEREAL_CLASS_VERSION(Coffee::AnimatorComponent, 2);
  
  /** @} */
