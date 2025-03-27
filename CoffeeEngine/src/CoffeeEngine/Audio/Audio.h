@@ -130,13 +130,13 @@ namespace Coffee {
              * @tparam Archive The type of the archive.
              * @param archive The archive to serialize to.
              */
-            template<class Archive>
-            void serialize(Archive& archive)
+            template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
             {
                 archive(cereal::make_nvp("Name", name), cereal::make_nvp("Events", events));
             }
         };
-
+        
+        
         /**
          * @brief Audio banks.
          */
@@ -243,5 +243,5 @@ namespace Coffee {
          */
         static bool LoadAudioBanks();
     };
-
-}
+} // namespace Coffee
+CEREAL_CLASS_VERSION(Coffee::Audio::AudioBank, 2);
