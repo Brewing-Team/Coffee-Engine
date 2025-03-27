@@ -1687,20 +1687,6 @@ namespace Coffee
                     ImGui::DragFloat3("##ParticleStartRotation", glm::value_ptr(emitter->startRotation), 0.1f);
                 }
 
-                // Simulation Space
-                // ImGui::Text("Simulation Space");
-                // ImGui::SameLine();
-
-                //// Show Combo Menu
-                // const char* simulationSpaceOptions[] = {"Local", "World", "Custom"};
-                // int currentSimulationSpace = static_cast<int>(emitter->simulationSpace);
-
-                // if (ImGui::Combo("##SimulationSpace", &currentSimulationSpace, simulationSpaceOptions,
-                //                  IM_ARRAYSIZE(simulationSpaceOptions)))
-                //{
-                //     emitter->simulationSpace = static_cast<ParticleEmitter::SimulationSpace>(currentSimulationSpace);
-                // }
-
                 ImGui::Checkbox("##UseEmission", &emitter->useEmission);
                 ImGui::SameLine();
                 ImGui::PushID("Emission");
@@ -1718,6 +1704,14 @@ namespace Coffee
                     ImGui::Text("Rate over Time");
                     ImGui::SameLine();
                     ImGui::DragFloat("##ParticleRateOverTime", &emitter->rateOverTime, 0.1, 0);
+
+                    ImGui::Text("Emit test");
+                    ImGui::SameLine();
+                    ImGui::DragFloat("##ParticlesEmitTest", &emitter->emitParticlesTest, 0.1, 0);
+                    if (ImGui::Button("Emit Particles"))
+                    {   
+                        emitter->Emit(emitter->emitParticlesTest);
+                    }
 
                     ImGui::TreePop();
                 }
@@ -1988,26 +1982,77 @@ namespace Coffee
                     ImGui::Combo("##RenderAlignment", reinterpret_cast<int*>(&emitter->renderAlignment), renderModes,
                                  IM_ARRAYSIZE(renderModes));
 
-                    //ImGui::SameLine();
-                    //if (ImGui::Button("Select Material"))
-                    //{
-                    //    // Open Material selection logic here
-                    //}
+                    // Material selection
+                    ImGui::Text("Material");
+                    auto DrawTextureWidget = [&](const std::string& label, Ref<Texture2D>& texture) {
+                        uint32_t textureID = texture ? texture->GetID() : 0;
+                        ImGui::ImageButton(label.c_str(), (ImTextureID)textureID, {64, 64});
 
-                    //// Texture Selector
-                    // ImGui::Text("Texture");
-                    // ImGui::SameLine();
-                    // if (ImGui::Button("Select Texture"))
-                    //{
-                    //     // Open texture selection logic here
-                    // }
+                        auto textureImageFormat = [](ImageFormat format) -> std::string {
+                            switch (format)
+                            {
+                            case ImageFormat::R8:
+                                return "R8";
+                            case ImageFormat::RGB8:
+                                return "RGB8";
+                            case ImageFormat::RGBA8:
+                                return "RGBA8";
+                            case ImageFormat::SRGB8:
+                                return "SRGB8";
+                            case ImageFormat::SRGBA8:
+                                return "SRGBA8";
+                            case ImageFormat::RGBA32F:
+                                return "RGBA32F";
+                            case ImageFormat::DEPTH24STENCIL8:
+                                return "DEPTH24STENCIL8";
+                            }
+                        };
 
-                    // Render Alignment selection
-                    /*const char* renderAlignments[] = {"View", "Local", "World"};
-                    ImGui::Text("Render Alignment");
-                    ImGui::SameLine();
-                    ImGui::Combo("##RenderAlignment", reinterpret_cast<int*>(&emitter->renderAlignment),
-                                 renderAlignments, IM_ARRAYSIZE(renderAlignments));*/
+                        if (ImGui::IsItemHovered() and texture)
+                        {
+                            ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s", texture->GetName().c_str(),
+                                              texture->GetWidth(), texture->GetHeight(),
+                                              textureImageFormat(texture->GetImageFormat()).c_str(),
+                                              texture->GetPath().c_str());
+                        }
+
+                        if (ImGui::BeginDragDropTarget())
+                        {
+                            if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
+                            {
+                                const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
+                                if (resource->GetType() == ResourceType::Texture2D)
+                                {
+                                    const Ref<Texture2D>& t = std::static_pointer_cast<Texture2D>(resource);
+                                    texture = t;
+                                }
+                            }
+                            ImGui::EndDragDropTarget();
+                        }
+
+                        ImGui::SameLine();
+                        if (ImGui::BeginCombo((label + "texture").c_str(), "", ImGuiComboFlags_NoPreview))
+                        {
+                            if (ImGui::Selectable("Clear"))
+                            {
+                                texture = nullptr;
+                            }
+                            if (ImGui::Selectable("Open"))
+                            {
+                                std::string path = FileDialog::OpenFile({}).string();
+                                if (!path.empty())
+                                {
+                                    Ref<Texture2D> t = Texture2D::Load(path);
+                                    texture = t;
+                                }
+                            }
+                            ImGui::EndCombo();
+                        }
+                    };
+
+                    ImGui::Text("Texture");
+                    DrawTextureWidget("##Albedo", emitter->particleMaterial->GetMaterialTextures().albedo);
+
 
                     // Restore default state
                     if (!emitter->useRenderer)
@@ -2393,7 +2438,7 @@ namespace Coffee
                 {
                     Entity e = m_Context->CreateEntity("ParticleSystem");
                     e.AddComponent<ParticlesSystemComponent>();
-                    e.AddComponent<MaterialComponent>(Material::Create("Default Particle Material"));
+                    //e.AddComponent<MaterialComponent>(Material::Create("Default Particle Material"));
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
