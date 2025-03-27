@@ -29,6 +29,10 @@ namespace Coffee {
     std::unordered_map<MouseCode, bool> Input::m_MouseStates;
     glm::vec2 Input::m_MousePosition = glm::vec2(0.0f);
 
+    Timer Input::m_RebindTimer(5.0,false,true,[](){Input::ResetRebindState();});
+    RebindState Input::m_RebindState = RebindState::None;
+    std::string Input::m_RebindActionName = "";
+
     void Input::Init()
     {
         SDL_InitSubSystem(SDL_INIT_GAMEPAD);
@@ -132,7 +136,9 @@ namespace Coffee {
 
     const char* Input::GetKeyLabel(KeyCode key)
     {
-        return SDL_GetScancodeName((SDL_Scancode)key);
+        auto label = SDL_GetScancodeName((SDL_Scancode)key);
+        if (strlen(label) == 0) return "Empty";
+        return label;
         //SDL_GetScancodeName(SDL_GetScancodeFromKey(key, nullptr));
     }
 
@@ -195,46 +201,54 @@ namespace Coffee {
 
     const char* Input::GetAxisLabel(AxisCode axis)
     {
-        if (axis <= Axis::Invalid) return "Empty";
-        if (axis >= Axis::Count) return "Unknown";
+        if (axis <= Axis::Invalid)
+            return "Empty";
+        if (axis >= Axis::Count)
+            return "Unknown";
 
         SDL_GamepadType type;
-        if (m_Gamepads.empty()) type = SDL_GAMEPAD_TYPE_XBOXONE;
-        else type = SDL_GetGamepadType(m_Gamepads[0]->GetGamepad());
+        if (m_Gamepads.empty())
+            type = SDL_GAMEPAD_TYPE_XBOXONE;
+        else
+            type = SDL_GetGamepadType(m_Gamepads[0]->GetGamepad());
 
         switch (type)
         {
         case SDL_GAMEPAD_TYPE_XBOX360:
-        case SDL_GAMEPAD_TYPE_XBOXONE:
-            {
-                constexpr const char* axis_names[Axis::Count] = {
-                    "Left X", "Left Y", "Right X", "Right Y", "Left Trigger", "Right Trigger"
-                };
-                return axis_names[axis];
-            }
+        case SDL_GAMEPAD_TYPE_XBOXONE: {
+            constexpr const char* axis_names[Axis::Count] = {"Left X",  "Left Y",       "Right X",
+                                                             "Right Y", "Left Trigger", "Right Trigger"};
+            return axis_names[axis];
+        }
         case SDL_GAMEPAD_TYPE_PS3:
         case SDL_GAMEPAD_TYPE_PS4:
-        case SDL_GAMEPAD_TYPE_PS5:
-            {
-                constexpr const char* axis_names[Axis::Count] = {
-                    "Left X", "Left Y", "Right X", "Right Y", "L2", "R2"
-                };
-                return axis_names[axis];
-            }
+        case SDL_GAMEPAD_TYPE_PS5: {
+            constexpr const char* axis_names[Axis::Count] = {"Left X", "Left Y", "Right X", "Right Y", "L2", "R2"};
+            return axis_names[axis];
+        }
         case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
         case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
         case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
-            {
-                constexpr const char* axis_names[Axis::Count] = {
-                    "Left X", "Left Y", "Right X", "Right Y", "ZL", "ZR"
-                };
-                return axis_names[axis];
-            }
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: {
+            constexpr const char* axis_names[Axis::Count] = {"Left X", "Left Y", "Right X", "Right Y", "ZL", "ZR"};
+            return axis_names[axis];
+        }
         default:
             return std::format("Axis {}", axis).c_str();
         }
+    }
 
+    void Input::StartRebindMode(std::string actionName, RebindState state)
+    {
+        m_RebindActionName = actionName;
+        m_RebindState = state;
+        m_RebindTimer.Start(5.0);
+    }
+
+
+    void Input::ResetRebindState()
+    {
+        m_RebindState = RebindState::None;
     }
 
     void Input::OnAddController(const ControllerAddEvent* cEvent)
@@ -253,6 +267,20 @@ namespace Coffee {
     }
     void Input::OnButtonPressed(const ButtonPressEvent& e) {
         m_ButtonStates[e.Button] += 1;
+
+        // TODO I've got the feeling there's a better way of handling this
+        if (m_RebindState == RebindState::PosButton)
+        {
+            m_BindingsMap[m_RebindActionName].SetButtonPos(e.Button);
+            m_RebindTimer.Stop();
+            ResetRebindState();
+        }
+        else if (m_RebindState == RebindState::NegButton)
+        {
+            m_BindingsMap[m_RebindActionName].SetButtonNeg(e.Button);
+            m_RebindTimer.Stop();
+            ResetRebindState();
+        }
     }
 
     void Input::OnButtonReleased(const ButtonReleaseEvent& e) {
@@ -271,9 +299,30 @@ namespace Coffee {
         }
        
         m_AxisStates[e.Axis] = normalizedValue;
+
+        if (m_RebindState == RebindState::Axis && abs(normalizedValue) > 0.5f)
+        {
+            m_BindingsMap[m_RebindActionName].SetAxis(e.Axis);
+            m_RebindTimer.Stop();
+            ResetRebindState();
+        }
     }
     void Input::OnKeyPressed(const KeyPressedEvent& kEvent) {
         m_KeyStates[kEvent.GetKeyCode()] = true;
+
+        // TODO I've got the feeling there's a better way of handling this
+        if (m_RebindState == RebindState::PosKey)
+        {
+            m_BindingsMap[m_RebindActionName].SetPosKey(kEvent.GetKeyCode());
+            m_RebindTimer.Stop();
+            ResetRebindState();
+        }
+        else if (m_RebindState == RebindState::NegKey)
+        {
+            m_BindingsMap[m_RebindActionName].SetNegKey(kEvent.GetKeyCode());
+            m_RebindTimer.Stop();
+            ResetRebindState();
+        }
     }
 
     void Input::OnKeyReleased(const KeyReleasedEvent& kEvent) {

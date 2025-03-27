@@ -359,6 +359,7 @@ namespace Coffee {
 
     void BindInputActionsToLua(sol::state& lua, sol::table& inputTable)
     {
+        // DEPRECATED - Temporary conversion table for default input map
         // Old actions - Old identifiers -> New identifiers
         std::vector<std::pair<std::string, std::string>> actionCodes = {
             {"UiMoveHorizontal", "UiX"},

@@ -3,11 +3,12 @@
 #include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
-#include "CoffeeEngine/Input/Gamepad.h"
 #include "CoffeeEngine/Events/ControllerEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
+#include "CoffeeEngine/Input/Gamepad.h"
 #include "CoffeeEngine/Input/InputBinding.h"
+#include "Timer.h"
 
 #include "CoffeeEngine/Events/Event.h"
 
@@ -52,7 +53,20 @@ namespace Coffee {
             // Action count for array creation and iteration
             ActionCount
         };
-    }
+    } // namespace ActionsEnum
+
+    /**
+     * @brief Possible states for rebinding inputs
+     */
+    enum class RebindState
+    {
+        None,
+        PosButton,
+        NegButton,
+        PosKey,
+        NegKey,
+        Axis
+    };
 
     /**
      * @defgroup core Core
@@ -136,6 +150,9 @@ namespace Coffee {
         static const char* GetButtonLabel(ButtonCode button);
         static const char* GetAxisLabel(AxisCode axis);
 
+        static void StartRebindMode(std::string actionName, RebindState type);
+        static void ResetRebindState();
+
         static void OnEvent(Event& e);
 
       private:
@@ -211,6 +228,12 @@ namespace Coffee {
         static std::unordered_map<AxisCode, float> m_AxisDeadzones;
         static glm::vec2 m_MousePosition; // Position relative to window
 
+
+        // Rebind mode
+        static Timer m_RebindTimer;
+        static RebindState m_RebindState;
+	    static std::string m_RebindActionName;
+
     };
     /** @} */
-}
+} // namespace Coffee
