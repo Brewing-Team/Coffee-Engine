@@ -3,6 +3,8 @@
 #include "Panel.h"
 
 namespace Coffee {
+    class InputBinding;
+
 
     namespace PanelDisplayEnum
     {
@@ -22,11 +24,17 @@ namespace Coffee {
 
     private:
 
-        void BeginHorizontalChild(const char* label, ImGuiWindowFlags flags = ImGuiWindowFlags_None);
-        void RenderInputSettings(ImGuiWindowFlags flags);
+        static void BeginHorizontalChild(const char* label, ImGuiWindowFlags flags = ImGuiWindowFlags_None);
+      void SetSelectedBinding(std::string actionName, InputBinding* binding);
+      void RenderInputSettings(ImGuiWindowFlags flags);
         void RenderGeneralSettings(ImGuiWindowFlags flags);
 
         uint8_t m_VisiblePanels = 0;
+
+
+        InputBinding* m_SelectedInputBinding = nullptr;
+        std::string m_SelectedInputKey = "";
+
     };
 
 } // Coffee
