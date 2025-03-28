@@ -555,8 +555,7 @@ namespace Coffee {
         std::ofstream sceneFile(path);
         cereal::JSONOutputArchive archive(sceneFile);
 
-        snapshot::OutputArchive snapshotArchive{archive};
-        snapshot::Snapshot::save(snapshotArchive, scene->m_Registry, snapshot::ShouldSerialize::tautology());
+        archive(*scene);
 
         scene->m_FilePath = path;
     }
