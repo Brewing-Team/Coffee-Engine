@@ -102,6 +102,9 @@ namespace Coffee {
         void OnExitEditor();
         void OnExitRuntime();
 
+        const PhysicsWorld& GetPhysicsWorld() const { return m_PhysicsWorld; }
+        PhysicsWorld& GetPhysicsWorld() { return m_PhysicsWorld; }
+
         /**
          * @brief Load a scene from a file.
          * @param path The path to the file.
@@ -161,7 +164,9 @@ namespace Coffee {
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
             .template get<AudioZoneComponent>(archive)
-            .template get<ParticlesSystemComponent>(archive);
+            .template get<ParticlesSystemComponent>(archive)
+            .template get<ActiveComponent>(archive)
+            .template get<StaticComponent>(archive);
          }
 
         /**
@@ -189,7 +194,10 @@ namespace Coffee {
             .template get<AudioSourceComponent>(archive)
             .template get<AudioListenerComponent>(archive)
             .template get<AudioZoneComponent>(archive)
-            .template get<ParticlesSystemComponent>(archive);
+            .template get<ParticlesSystemComponent>(archive)
+            .template get<ActiveComponent>(archive)
+            .template get<StaticComponent>(archive);
+
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         }

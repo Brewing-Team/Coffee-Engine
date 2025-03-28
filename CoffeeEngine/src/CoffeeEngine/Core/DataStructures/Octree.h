@@ -3,7 +3,10 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Math/Frustum.h"
+#include "CoffeeEngine/Renderer/Renderer2D.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
 #include <vector>
+#include <memory>
 #include "CoffeeEngine/Renderer/Renderer2D.h"
 
 namespace Coffee {
@@ -147,10 +150,10 @@ namespace Coffee {
             if (frustum.Contains(object.aabb.CalculateTransformedAABB(object.transform)))
                 results.push_back(object);
         }
-    
+
         if (node.isLeaf)
             return;
-    
+
         for (const auto& child : node.children)
         {
             if (child)

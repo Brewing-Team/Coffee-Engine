@@ -23,8 +23,6 @@
 
 namespace Coffee {
 
-    sol::state LuaBackend::luaState;
-
     void BindKeyCodesToLua(sol::state& lua, sol::table& inputTable)
     {
         std::vector<std::pair<std::string, KeyCode>> keyCodes = {
@@ -410,7 +408,9 @@ namespace Coffee {
     }
 
     void LuaBackend::Initialize() {
-        luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table);
+        luaState.open_libraries(sol::lib::base, sol::lib::math, sol::lib::string, sol::lib::table, sol::lib::package, sol::lib::coroutine);
+
+        dafaultPackagePath = luaState["package"]["path"];
 
         # pragma region Bind Log Functions
         luaState.set_function("log", [](const std::string& message) {
@@ -719,7 +719,9 @@ namespace Coffee {
             "get_prev_sibling", &Entity::GetPrevSibling,
             "get_child", &Entity::GetChild,
             "get_children", &Entity::GetChildren,
-            "is_valid", [](Entity* self) { return static_cast<bool>(*self); }
+            "is_valid", [](Entity* self) { return static_cast<bool>(*self); },
+            "is_active", &Entity::IsActive,
+            "set_active", &Entity::SetActive
         );
         #pragma endregion
 
@@ -818,7 +820,9 @@ namespace Coffee {
 
         luaState.new_usertype<AnimatorComponent>(
             "AnimatorComponent", sol::constructors<AnimatorComponent(), AnimatorComponent()>(),
-            "set_current_animation", &AnimatorComponent::SetCurrentAnimation
+            "set_current_animation", &AnimatorComponent::SetCurrentAnimation,
+            "set_upper_animation", &AnimatorComponent::SetUpperAnimation,
+            "set_lower_animation", &AnimatorComponent::SetLowerAnimation
         );
 
         luaState.new_usertype<AudioSourceComponent>("AudioSourceComponent",
@@ -849,9 +853,13 @@ namespace Coffee {
             },
             "change_scene", sol::overload(
                 [](const std::string& scenePath) {
+                    AudioZone::RemoveAllReverbZones();
+                    Audio::UnregisterAllGameObjects();
                     SceneManager::ChangeScene(scenePath);
                 },
                 [](const Ref<Scene>& scene) {
+                    AudioZone::RemoveAllReverbZones();
+                    Audio::UnregisterAllGameObjects();
                     SceneManager::ChangeScene(scene);
                 }
             ),
@@ -991,6 +999,57 @@ namespace Coffee {
             return RigidBody::Create(props, collider);
         });
 
+        sol::table physicsTable = luaState.create_table();
+        luaState["Physics"] = physicsTable;
+
+        // Bind RaycastHit type to Lua
+        luaState.new_usertype<RaycastHit>(
+            "RaycastHit",
+            "hasHit", &RaycastHit::hasHit,
+            "hitEntity", &RaycastHit::hitEntity,
+            "hitPoint", &RaycastHit::hitPoint,
+            "hitNormal", &RaycastHit::hitNormal,
+            "hitFraction", &RaycastHit::hitFraction
+        );
+
+        // Bind Raycast functions
+        physicsTable["Raycast"] = [](const glm::vec3& origin, const glm::vec3& direction, float maxDistance) -> RaycastHit {
+            auto scene = SceneManager::GetActiveScene();
+            if (!scene)
+                return RaycastHit{};
+
+            return scene->GetPhysicsWorld().Raycast(origin, direction, maxDistance);
+        };
+
+        physicsTable["RaycastAll"] = [](const glm::vec3& origin, const glm::vec3& direction, float maxDistance) -> std::vector<RaycastHit> {
+            auto scene = SceneManager::GetActiveScene();
+            if (!scene)
+                return std::vector<RaycastHit>{};
+
+            return scene->GetPhysicsWorld().RaycastAll(origin, direction, maxDistance);
+        };
+
+        physicsTable["RaycastAny"] = [](const glm::vec3& origin, const glm::vec3& direction, float maxDistance) -> bool {
+            auto scene = SceneManager::GetActiveScene();
+            if (!scene)
+                return false;
+
+            return scene->GetPhysicsWorld().RaycastAny(origin, direction, maxDistance);
+        };
+
+        physicsTable["DebugDrawRaycast"] = [](const glm::vec3& origin, const glm::vec3& direction, float maxDistance,
+            sol::optional<glm::vec4> rayColor, sol::optional<glm::vec4> hitColor) {
+            auto scene = SceneManager::GetActiveScene();
+            if (!scene)
+            return;
+
+            // Default colors if not provided
+            glm::vec4 rColor = rayColor.value_or(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            glm::vec4 hColor = hitColor.value_or(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+
+            scene->GetPhysicsWorld().DebugDrawRaycast(origin, direction, maxDistance, rColor, hColor);
+        };
+
         # pragma endregion
     }
 
@@ -1005,6 +1064,12 @@ namespace Coffee {
         } catch (const sol::error& e) {
             COFFEE_CORE_ERROR("Lua: {0}", e.what());
         }
+    }
+
+    void LuaBackend::SetWorkingDirectory(const std::filesystem::path& path) {
+        
+        luaState["package"]["path"] = dafaultPackagePath + ";" + path.string() + "/?.lua";
+
     }
 
 } // namespace Coffee
