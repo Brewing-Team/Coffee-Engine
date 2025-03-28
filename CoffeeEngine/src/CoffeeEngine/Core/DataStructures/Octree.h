@@ -7,7 +7,6 @@
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include <vector>
 #include <memory>
-#include "CoffeeEngine/Renderer/Renderer2D.h"
 
 namespace Coffee {
 
