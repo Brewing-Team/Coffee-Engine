@@ -53,7 +53,9 @@ namespace Coffee {
          */
         Entity CreateEntity(const std::string& name = std::string());
 
-        Entity Duplicate(const Entity& parent);
+        Entity DuplicateEntityRecursive(Entity& sourceEntity, Entity* parentEntity);
+
+        Entity Duplicate(Entity& parent);
 
         /**
          * @brief Destroy an entity in the scene.
