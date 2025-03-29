@@ -63,6 +63,18 @@ namespace Coffee {
     }
 
     template <>
+    void CopyComponentIfExists<HierarchyComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        // We don't need to copy the hierarchy component directly
+        // The hierarchy will be set up by SetParent() calls in DuplicateEntityRecursive
+        
+        // Just make sure we have a fresh hierarchy component
+        if (!registry.all_of<HierarchyComponent>(destinyEntity)) {
+            registry.emplace<HierarchyComponent>(destinyEntity);
+        }
+    }
+
+    template <>
     void CopyComponentIfExists<RigidbodyComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
     {
         if(registry.all_of<RigidbodyComponent>(sourceEntity))
@@ -124,11 +136,27 @@ namespace Coffee {
         return entity;
     }
 
-    Entity Scene::Duplicate(const Entity& parent)
+    Entity Scene::DuplicateEntityRecursive(Entity& sourceEntity, Entity* parentEntity = nullptr)
     {
-        Entity newEntity = CreateEntity();
-        CopyEntity<ALL_COMPONENTS>(newEntity, parent, m_Registry);
+        Entity newEntity = CreateEntity(sourceEntity.GetComponent<TagComponent>().Tag);
+        CopyEntity<ALL_COMPONENTS>(newEntity, sourceEntity, m_Registry);
+        
+        if (parentEntity)
+            newEntity.SetParent(*parentEntity);
+
+        
+        auto children = sourceEntity.GetChildren();
+        for (auto& child : children)
+        {
+            DuplicateEntityRecursive(child, &newEntity);
+        }
+        
         return newEntity;
+    }
+    
+    Entity Scene::Duplicate(Entity& entity)
+    {
+        return DuplicateEntityRecursive(entity);
     }
 
     void Scene::DestroyEntity(Entity entity)
