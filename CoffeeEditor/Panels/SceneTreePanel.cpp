@@ -1300,6 +1300,7 @@ namespace Coffee
                 if (auto* uiToggle = registry.try_get<UIToggleComponent>(entity))
                     uiToggle->Layer = layer;
             });
+            m_Context->UpdateUIEntities();
         };
 
         const char* anchorPoints[] = {"TopLeft",     "TopCenter",  "TopRight",     "CenterLeft", "Center",
@@ -1474,7 +1475,10 @@ namespace Coffee
             }
 
             ImGui::Text("Layer");
-            ImGui::DragInt("##Layer", &uiImageComponent.Layer, 1, 0);
+            if (ImGui::DragInt("##Layer", &uiImageComponent.Layer, 1, 0))
+            {
+                m_Context->UpdateUIEntities();
+            }
 
             ImGui::SameLine();
             if (ImGui::Button("Apply Children"))
@@ -1551,7 +1555,10 @@ namespace Coffee
                 }
 
                 ImGui::Text("Layer");
-                ImGui::DragInt("##Layer", &uiTextComponent.Layer, 1, 0);
+                if (ImGui::DragInt("##Layer", &uiTextComponent.Layer, 1, 0))
+                {
+                    m_Context->UpdateUIEntities();
+                }
 
                 ImGui::SameLine();
                 if (ImGui::Button("Apply Children"))
@@ -1671,7 +1678,10 @@ namespace Coffee
                 }
 
                 ImGui::Text("Layer");
-                ImGui::DragInt("##Layer", &uiButtonComponent.Layer, 1, 0);
+                if (ImGui::DragInt("##Layer", &uiButtonComponent.Layer, 1, 0))
+                {
+                    m_Context->UpdateUIEntities();
+                }
 
                 ImGui::SameLine();
                 if (ImGui::Button("Apply Children"))
@@ -1772,7 +1782,10 @@ namespace Coffee
                 }
 
                 ImGui::Text("Layer");
-                ImGui::DragInt("##Layer", &uiSliderComponent.Layer, 1, 0);
+                if (ImGui::DragInt("##Layer", &uiSliderComponent.Layer, 1, 0))
+                {
+                    m_Context->UpdateUIEntities();
+                }
 
                 ImGui::SameLine();
                 if (ImGui::Button("Apply Children"))
@@ -1853,7 +1866,10 @@ namespace Coffee
                 }
 
                 ImGui::Text("Layer");
-                ImGui::DragInt("##Layer", &uiToggleComponent.Layer, 1, 0);
+                if (ImGui::DragInt("##Layer", &uiToggleComponent.Layer, 1, 0))
+                {
+                    m_Context->UpdateUIEntities();
+                }
 
                 ImGui::SameLine();
                 if (ImGui::Button("Apply Children"))
@@ -3084,6 +3100,46 @@ namespace Coffee
                 {
                     Entity e = m_Context->CreateEntity("Light");
                     e.AddComponent<LightComponent>();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Image")
+                {
+                    Entity e = m_Context->CreateEntity("UI Image");
+                    e.AddComponent<UIImageComponent>();
+                    m_Context->UpdateUIEntities();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Text")
+                {
+                    Entity e = m_Context->CreateEntity("UI Text");
+                    e.AddComponent<UITextComponent>();
+                    m_Context->UpdateUIEntities();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Button")
+                {
+                    Entity e = m_Context->CreateEntity("UI Button");
+                    e.AddComponent<UIButtonComponent>();
+                    m_Context->UpdateUIEntities();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Slider")
+                {
+                    Entity e = m_Context->CreateEntity("UI Slider");
+                    e.AddComponent<UISliderComponent>();
+                    m_Context->UpdateUIEntities();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Toggle")
+                {
+                    Entity e = m_Context->CreateEntity("UI Toggle");
+                    e.AddComponent<UIToggleComponent>();
+                    m_Context->UpdateUIEntities();
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
