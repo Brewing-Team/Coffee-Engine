@@ -633,6 +633,52 @@ namespace Coffee {
                 } else if (componentName == "AudioSourceComponent") {
                     self->AddComponent<AudioSourceComponent>();
                 }
+                else if (componentName == "RigidbodyComponent")
+                {
+                    if (!self->HasComponent<RigidbodyComponent>())
+                    {
+                        try
+                        {
+                            Ref<BoxCollider> collider = CreateRef<BoxCollider>(glm::vec3(1.0f, 1.0f, 1.0f));
+
+                            RigidBody::Properties props;
+                            props.type = RigidBody::Type::Dynamic;
+                            props.mass = 1.0f;
+                            props.useGravity = true;
+
+                            auto& rbComponent = self->AddComponent<RigidbodyComponent>(props, collider);
+
+                            if (self->HasComponent<TransformComponent>())
+                            {
+                                auto& transform = self->GetComponent<TransformComponent>();
+                                rbComponent.rb->SetPosition(transform.GetLocalPosition());
+                                rbComponent.rb->SetRotation(transform.GetLocalRotation());
+                            }
+
+                            
+                             
+                           SceneManager::GetActiveScene()->GetPhysicsWorld().addRigidBody(
+                                rbComponent.rb->GetNativeBody());
+
+                            // Set user pointer for collision detection
+                            rbComponent.rb->GetNativeBody()->setUserPointer(
+                                reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)*self)));
+
+                            // Try to automatically size the collider to the mesh AABB
+                            ResizeColliderToFitMeshAABB(*self, rbComponent);
+                        }
+                        catch (const std::exception& e)
+                        {
+                            COFFEE_CORE_ERROR("Exception creating rigidbody: {0}", e.what());
+                            if (self->HasComponent<RigidbodyComponent>())
+                            {
+                                self->RemoveComponent<RigidbodyComponent>();
+                            }
+                        }
+                    }
+
+
+                }
             },
             "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
                 if (componentName == "TagComponent") {
@@ -734,9 +780,18 @@ namespace Coffee {
 
         luaState.new_usertype<TransformComponent>("TransformComponent",
             sol::constructors<TransformComponent(), TransformComponent(const glm::vec3&)>(),
-            "position", &TransformComponent::Position,
-            "rotation", &TransformComponent::Rotation,
-            "scale", &TransformComponent::Scale,
+            "position", sol::property(
+                [](TransformComponent& self) { return self.GetLocalPosition(); }, // Getter
+                [](TransformComponent& self, const glm::vec3& pos) { self.SetLocalPosition(pos); } // Setter
+            ),
+            "rotation", sol::property(
+                [](TransformComponent& self) { return self.GetLocalRotation(); }, // Getter
+                [](TransformComponent& self, const glm::vec3& rot) { self.SetLocalRotation(rot); } // Setter
+            ),
+            "scale", sol::property(
+                [](TransformComponent& self) { return self.GetLocalScale(); }, // Getter
+                [](TransformComponent& self, const glm::vec3& scale) { self.SetLocalScale(scale); } // Setter
+            ),
             "get_local_transform", &TransformComponent::GetLocalTransform,
             "set_local_transform", &TransformComponent::SetLocalTransform,
             "get_world_transform", &TransformComponent::GetWorldTransform,
