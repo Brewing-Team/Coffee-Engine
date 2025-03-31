@@ -342,6 +342,9 @@
 
          Ref<AnimationLayer> UpperAnimation; ///< Animation layer for upper body animations.
          Ref<AnimationLayer> LowerAnimation; ///< Animation layer for lower body animations.
+
+         bool NeedsUpdate = true; ///< Flag to indicate if the animator needs an update.
+
      private:
          Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
          Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
