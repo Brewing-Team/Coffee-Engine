@@ -155,8 +155,8 @@ namespace Coffee {
 
                 if (registry.all_of<TransformComponent>(destinyEntity)) {
                     auto& transform = registry.get<TransformComponent>(destinyEntity);
-                    newComponent.rb->SetPosition(transform.Position);
-                    newComponent.rb->SetRotation(transform.Rotation);
+                    newComponent.rb->SetPosition(transform.GetLocalPosition());
+                    newComponent.rb->SetRotation(transform.GetLocalRotation());
                 }
             }
             catch (const std::exception& e) {
@@ -365,8 +365,8 @@ namespace Coffee {
         for (auto entity : viewRigidbody) {
             auto [rb, transform] = viewRigidbody.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
-                rb.rb->SetPosition(transform.Position);
-                rb.rb->SetRotation(transform.Rotation);
+                rb.rb->SetPosition(transform.GetLocalPosition());
+                rb.rb->SetRotation(transform.GetLocalRotation());
             }
         }
 
@@ -498,8 +498,8 @@ namespace Coffee {
         for (auto entity : viewPhysics) {
             auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
-                transform.Position = rb.rb->GetPosition();
-                transform.Rotation = rb.rb->GetRotation();
+                transform.SetLocalPosition(rb.rb->GetPosition());
+                transform.SetLocalRotation(rb.rb->GetRotation());
             }
         }
 
@@ -552,6 +552,7 @@ namespace Coffee {
         // Loop through each entity with the specified components
         for (auto& entity : view)
         {
+
             // Get the ModelComponent and TransformComponent for the current entity
             auto& meshComponent = view.get<MeshComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
@@ -652,8 +653,8 @@ namespace Coffee {
             if (rb.rb && rb.rb->GetNativeBody())
             {
                 // Set initial transform
-                rb.rb->SetPosition(transform.Position);
-                rb.rb->SetRotation(transform.Rotation);
+                rb.rb->SetPosition(transform.GetLocalPosition());
+                rb.rb->SetRotation(transform.GetLocalRotation());
 
                 // Add to physics world
                 scene->m_PhysicsWorld.addRigidBody(rb.rb->GetNativeBody());

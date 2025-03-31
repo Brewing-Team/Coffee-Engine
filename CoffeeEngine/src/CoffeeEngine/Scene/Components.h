@@ -80,17 +80,68 @@
      struct TransformComponent
      {
      private:
-         glm::mat4 worldMatrix = glm::mat4(1.0f); ///< The world transformation matrix.
-     public:
          glm::vec3 Position = { 0.0f, 0.0f, 0.0f }; ///< The position vector.
          glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f }; ///< The rotation vector.
          glm::vec3 Scale = { 1.0f, 1.0f, 1.0f }; ///< The scale vector.
- 
+
+         glm::mat4 worldMatrix = glm::mat4(1.0f); ///< The world transformation matrix.
+         bool isDirty = true; ///< Flag to indicate if the transform is dirty.
+     public:
          TransformComponent() = default;
          TransformComponent(const TransformComponent&) = default;
          TransformComponent(const glm::vec3& position)
              : Position(position) {}
  
+        void SetLocalPosition(const glm::vec3& position)
+        {
+            Position = position;
+            isDirty = true; // Mark the transform as dirty
+        } 
+        
+        void SetLocalRotation(const glm::vec3& rotation)
+        {
+            Rotation = rotation;
+            isDirty = true; // Mark the transform as dirty
+        }
+
+        void SetLocalScale(const glm::vec3& scale)
+        {
+            Scale = scale;
+            isDirty = true; // Mark the transform as dirty
+        }
+
+        /**
+        * @brief Gets the local position vector.
+        * @return The local position vector.
+        */
+        glm::vec3& GetLocalPosition() { return Position; }
+        glm::vec3& GetLocalRotation() { return Rotation; }
+        glm::vec3& GetLocalScale() { return Scale; }
+
+        void SetWorldPosition(const glm::vec3& position)
+        {
+            Position = position;
+            SetWorldTransform(glm::translate(glm::mat4(1.0f), Position) * 
+                                        glm::toMat4(glm::quat(glm::radians(Rotation))) * 
+                                        glm::scale(glm::mat4(1.0f), Scale));
+        }
+
+        void SetWorldRotation(const glm::vec3& rotation)
+        {
+            Rotation = rotation;
+            SetWorldTransform(glm::translate(glm::mat4(1.0f), Position) * 
+                                        glm::toMat4(glm::quat(glm::radians(Rotation))) * 
+                                        glm::scale(glm::mat4(1.0f), Scale));
+        }
+
+        void SetWorldScale(const glm::vec3& scale)
+        {
+            Scale = scale;
+            SetWorldTransform(glm::translate(glm::mat4(1.0f), Position) * 
+                                        glm::toMat4(glm::quat(glm::radians(Rotation))) * 
+                                        glm::scale(glm::mat4(1.0f), Scale));
+        }
+    
          /**
           * @brief Gets the local transformation matrix.
           * @return The local transformation matrix.
@@ -116,6 +167,7 @@
  
              glm::decompose(transform, Scale, orientation, Position, skew, perspective);
              Rotation = glm::degrees(glm::eulerAngles(orientation));
+             isDirty = true; // Mark the transform as dirty
          }
  
          /**
@@ -134,6 +186,15 @@
          void SetWorldTransform(const glm::mat4& transform)
          {
              worldMatrix = transform * GetLocalTransform();
+             isDirty = false; // Mark the transform as clean
+         }
+
+         void MarkDirty() {
+            isDirty = true; // Mark the transform as dirty
+         }
+    
+         bool IsDirty() const {
+            return isDirty; // Check if the transform is dirty
          }
  
          /**
