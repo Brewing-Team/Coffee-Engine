@@ -402,17 +402,45 @@
          float LowerBodyWeight = 1.0f; ///< Weight for blending lower body animations.
          float PartialBlendThreshold = 0.01f; ///< Threshold for partial blending.
 
-             Ref<AnimationLayer> UpperAnimation; ///< Animation layer for upper body animations.
-             Ref<AnimationLayer> LowerAnimation; ///< Animation layer for lower body animations.
+         Ref<AnimationLayer> UpperAnimation; ///< Animation layer for upper body animations.
+         Ref<AnimationLayer> LowerAnimation; ///< Animation layer for lower body animations.
 
-            bool NeedsUpdate = true;
+         bool NeedsUpdate = true; ///< Flag to indicate if the animator needs an update.
 
-         private:
-           Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
-           Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
-
-            bool NeedsUpdate = true;
-
+     private:
+         Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
+         Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
+ 
+         ozz::animation::SamplingJob::Context m_Context; ///< The sampling job context.
+         ozz::animation::BlendingJob::Layer m_BlendLayers[2]; ///< The blend layers.
+         ozz::animation::BlendingJob m_BlendJob; ///< The blending job.
+     };
+ 
+     /**
+      * @brief Component representing a mesh.
+      * @ingroup scene
+      */
+     struct MeshComponent
+     {
+         Ref<Mesh> mesh; ///< The mesh reference.
+         bool drawAABB = false; ///< Flag to draw the axis-aligned bounding box (AABB).
+ 
+         AnimatorComponent* animator = nullptr; ///< The animator component.
+         UUID animatorUUID = 0; ///< The UUID of the animator.
+ 
+         MeshComponent()
+         {
+         }
+         MeshComponent(const MeshComponent&) = default;
+         MeshComponent(Ref<Mesh> mesh)
+             : mesh(mesh) {}
+ 
+         /**
+          * @brief Gets the mesh reference.
+          * @return The mesh reference.
+          */
+         const Ref<Mesh>& GetMesh() const { return mesh; }
+ 
          private:
              friend class cereal::access;
          /**
