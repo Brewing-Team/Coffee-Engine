@@ -306,30 +306,27 @@ namespace Coffee
 
             if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+                glm::vec3 position = transformComponent.GetLocalPosition();
+                glm::vec3 rotation = transformComponent.GetLocalRotation();
+                glm::vec3 scale = transformComponent.GetLocalScale();
+
+                ImGui::Text("Position");
+                if (ImGui::DragFloat3("##Position", glm::value_ptr(position), 0.1f))
                 {
-                    glm::vec3 position = transformComponent.GetLocalPosition();
-                    glm::vec3 rotation = transformComponent.GetLocalRotation();
-                    glm::vec3 scale = transformComponent.GetLocalScale();
+                    transformComponent.SetLocalPosition(position);
+                }
+                
 
-                    ImGui::Text("Position");
-                    if (ImGui::DragFloat3("##Position", glm::value_ptr(position), 0.1f))
-                    {
-                        transformComponent.SetLocalPosition(position);
-                    }
-                    
+                ImGui::Text("Rotation");
+                if (ImGui::DragFloat3("##Rotation", glm::value_ptr(rotation), 0.1f))
+                {
+                    transformComponent.SetLocalRotation(rotation);
+                }
 
-                    ImGui::Text("Rotation");
-                    if (ImGui::DragFloat3("##Rotation", glm::value_ptr(rotation), 0.1f))
-                    {
-                        transformComponent.SetLocalRotation(rotation);
-                    }
-
-                    ImGui::Text("Scale");
-                    if (ImGui::DragFloat3("##Scale", glm::value_ptr(scale), 0.1f))
-                    {
-                        transformComponent.SetLocalScale(scale);
-                    }
+                ImGui::Text("Scale");
+                if (ImGui::DragFloat3("##Scale", glm::value_ptr(scale), 0.1f))
+                {
+                    transformComponent.SetLocalScale(scale);
                 }
             }
         }
