@@ -408,6 +408,12 @@
             bool NeedsUpdate = true;
 
          private:
+           Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
+           Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
+
+            bool NeedsUpdate = true;
+
+         private:
              friend class cereal::access;
          /**
           * @brief Serializes the MeshComponent.
