@@ -18,6 +18,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <sol/types.hpp>
 
 #define SOL_PRINT_ERRORS 1
 
@@ -454,8 +455,7 @@ namespace Coffee {
         });
 
         inputTable.set_function("get_mouse_position", []() {
-            glm::vec2 mousePosition = Input::GetMousePosition();
-            return std::make_tuple(mousePosition.x, mousePosition.y);
+            return Input::GetMousePosition();
         });
 
         inputTable.set_function("get_axis", [](InputAction action) {
@@ -537,7 +537,27 @@ namespace Coffee {
             "angle_to", [](const glm::vec2& a, const glm::vec2& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
             "max", [](const glm::vec2& a, const glm::vec2& b) { return (glm::max)(a, b); },
             "min", [](const glm::vec2& a, const glm::vec2& b) { return (glm::min)(a, b); },
-            "abs", [](const glm::vec2& a) { return glm::abs(a); }
+            "abs", [](const glm::vec2& a) { return glm::abs(a); },
+            // Improve this to not have to specify the operation for each type
+            sol::meta_function::addition, [](const glm::vec2& a, const glm::vec2& b) { return a + b; },
+            sol::meta_function::subtraction, [](const glm::vec2& a, const glm::vec2& b) { return a - b; },
+            sol::meta_function::multiplication, [](const glm::vec2& vec, sol::object obj) -> glm::vec2 {
+                if (obj.is<float>()) {
+                    return vec * obj.as<float>(); // Scalar multiplication
+                } else if (obj.is<glm::vec2>()) {
+                    return vec * obj.as<glm::vec2>(); // Component-wise multiplication
+                }
+                throw std::invalid_argument("Invalid multiplication operand for Vector2");
+            },
+            sol::meta_function::division, [](const glm::vec2& a, sol::object b) -> glm::vec2 {
+                if (b.is<float>()) {
+                    return a / b.as<float>();
+                } else if (b.is<glm::vec2>()) {
+                    return a / b.as<glm::vec2>();
+                }
+                throw std::invalid_argument("Invalid division operand for Vector2");
+            },
+            sol::meta_function::equal_to, [](const glm::vec2& a, const glm::vec2& b) { return a == b; }
             //TODO: Add more functions
         );
 
@@ -546,6 +566,7 @@ namespace Coffee {
             "x", &glm::vec3::x,
             "y", &glm::vec3::y,
             "z", &glm::vec3::z,
+
             "cross", [](const glm::vec3& a, const glm::vec3& b) { return glm::cross(a, b); },
             "dot", [](const glm::vec3& a, const glm::vec3& b) { return glm::dot(a, b); },
             "normalize", [](const glm::vec3& a) { return glm::normalize(a); },
@@ -558,7 +579,34 @@ namespace Coffee {
             "angle_to", [](const glm::vec3& a, const glm::vec3& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
             "max", [](const glm::vec3& a, const glm::vec3& b) { return (glm::max)(a, b); },
             "min", [](const glm::vec3& a, const glm::vec3& b) { return (glm::min)(a, b); },
-            "abs", [](const glm::vec3& a) { return glm::abs(a); }
+            "abs", [](const glm::vec3& a) { return glm::abs(a); },
+            //Improve this to not have to specify the operation for each type
+            sol::meta_function::addition, [](const glm::vec3& a, const glm::vec3& b) { return a + b; },
+            sol::meta_function::subtraction, [](const glm::vec3& a, const glm::vec3& b) { return a - b; },
+            sol::meta_function::multiplication, [](const glm::vec3& vec, sol::object obj) -> glm::vec3 {
+                if (obj.is<glm::quat>()) {
+                    const glm::quat& quat = obj.as<glm::quat>();
+                    return quat * vec; // Rotate the vector by the quaternion
+                } else if (obj.is<float>()) {
+                    return vec * obj.as<float>(); // Scalar multiplication
+                } else if (obj.is<glm::vec3>()) {
+                    return vec * obj.as<glm::vec3>(); // Component-wise multiplication
+                }
+                throw std::invalid_argument("Invalid multiplication operand for Vector3");
+            },
+            sol::meta_function::division, [](const glm::vec3& a, sol::object b) -> glm::vec3 {
+                if (b.is<float>()) {
+                    return a / b.as<float>();
+                } else if (b.is<glm::vec3>()) {
+                    return a / b.as<glm::vec3>();
+                }
+                throw std::invalid_argument("Invalid division operand for Vector3");
+            },
+            sol::meta_function::equal_to, [](const glm::vec3& a, const glm::vec3& b) { return a == b; },
+            //sol::meta_function::greater_than, [](const glm::vec3& a, const glm::vec3& b) { return a > b; },
+            //sol::meta_function::greater_than_equal_to, [](const glm::vec3& a, const glm::vec3& b) { return a >= b; }
+            //sol::meta_function::not_equal_to, [](const glm::vec3& a, const glm::vec3& b) { return a != b; }
+            sol::meta_function::unary_minus, [](const glm::vec3& a) { return -a; }
             //TODO: Add more functions
         );
 
@@ -578,7 +626,27 @@ namespace Coffee {
             "angle_to", [](const glm::vec4& a, const glm::vec4& b) { return glm::degrees(glm::acos(glm::dot(glm::normalize(a), glm::normalize(b)))); },
             "max", [](const glm::vec4& a, const glm::vec4& b) { return (glm::max)(a, b); },
             "min", [](const glm::vec4& a, const glm::vec4& b) { return (glm::min)(a, b); },
-            "abs", [](const glm::vec4& a) { return glm::abs(a); }
+            "abs", [](const glm::vec4& a) { return glm::abs(a); },
+            // Improve this to not have to specify the operation for each type
+            sol::meta_function::addition, [](const glm::vec4& a, const glm::vec4& b) { return a + b; },
+            sol::meta_function::subtraction, [](const glm::vec4& a, const glm::vec4& b) { return a - b; },
+            sol::meta_function::multiplication, [](const glm::vec4& a, sol::object b) -> glm::vec4 {
+                if (b.is<float>()) {
+                    return a * b.as<float>();
+                } else if (b.is<glm::vec4>()) {
+                    return a * b.as<glm::vec4>();
+                }
+                throw std::invalid_argument("Invalid multiplication operand for Vector4");
+            },
+            sol::meta_function::division, [](const glm::vec4& a, sol::object b) -> glm::vec4 {
+                if (b.is<float>()) {
+                    return a / b.as<float>();
+                } else if (b.is<glm::vec4>()) {
+                    return a / b.as<glm::vec4>();
+                }
+                throw std::invalid_argument("Invalid division operand for Vector4");
+            },
+            sol::meta_function::equal_to, [](const glm::vec4& a, const glm::vec4& b) { return a == b; }
             //TODO: Add more functions
         );
 
@@ -591,7 +659,16 @@ namespace Coffee {
             "rotate", [](const glm::mat4& mat, float angle, const glm::vec3& axis) { return glm::rotate(mat, angle, axis); },
             "scale", [](const glm::mat4& mat, const glm::vec3& vec) { return glm::scale(mat, vec); },
             "perspective", [](float fovy, float aspect, float nearPlane, float farPlane) { return glm::perspective(fovy, aspect, nearPlane, farPlane); },
-            "ortho", [](float left, float right, float bottom, float top, float zNear, float zFar) { return glm::ortho(left, right, bottom, top, zNear, zFar); }
+            "ortho", [](float left, float right, float bottom, float top, float zNear, float zFar) { return glm::ortho(left, right, bottom, top, zNear, zFar); },
+            "forward", [](const glm::mat4& mat) { return glm::vec3(-mat[2]); },
+            "right", [](const glm::mat4& mat) { return glm::vec3(mat[0]); },
+            "up", [](const glm::mat4& mat) { return glm::vec3(mat[1]); },
+            // Improve this to not have to specify the operation for each type
+            sol::meta_function::addition, [](const glm::mat4& a, const glm::mat4& b) { return a + b; },
+            sol::meta_function::subtraction, [](const glm::mat4& a, const glm::mat4& b) { return a - b; },
+            sol::meta_function::multiplication, [](const glm::mat4& a, const glm::mat4& b) { return a * b; },
+            sol::meta_function::division, [](const glm::mat4& a, const glm::mat4& b) { return a / b; },
+            sol::meta_function::equal_to, [](const glm::mat4& a, const glm::mat4& b) { return a == b; }
         );
 
         luaState.new_usertype<glm::quat>("Quaternion",
