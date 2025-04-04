@@ -32,7 +32,14 @@ namespace Coffee {
         );
 
         m_Body = new btRigidBody(rbInfo);
-        m_Body->setActivationState(DISABLE_DEACTIVATION);
+
+        if (props.type == Type::Static) {
+            m_Body->setActivationState(DISABLE_SIMULATION); // For static objects, disable simulation
+        } else {
+            m_Body->setActivationState(ACTIVE_TAG); // For dynamic objects, allow to sleep if not moving
+            m_Body->setSleepingThresholds(0.8f, 1.0f);
+        }
+
         m_Body->setUserPointer(nullptr);
 
         // Apply friction and damping
