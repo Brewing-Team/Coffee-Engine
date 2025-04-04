@@ -19,6 +19,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <sol/property.hpp>
 #include <sol/types.hpp>
 
 #define SOL_PRINT_ERRORS 1
@@ -460,7 +461,26 @@ namespace Coffee {
             return Input::GetMousePosition();
         });
 
-        inputTable.set_function("get_axis", [](const std::string& action) {
+        inputTable.set_function("get_mouse_delta", []() {
+            return Input::GetMouseDelta();
+        });
+
+        inputTable["MOUSE_MODE_NORMAL"] = false;
+        inputTable["MOUSE_MODE_GRABBED"] = true;
+
+        // It does not work with the property
+        inputTable["mouse_mode"] = sol::property(
+            [](bool grabbed) {
+                Input::SetMouseGrabbed(grabbed);
+            }
+        );
+
+        // Temporary solution to set the mouse mode
+        inputTable.set_function("set_mouse_grabbed", [](bool grabbed) {
+            Input::SetMouseGrabbed(grabbed);
+        });
+
+        inputTable.set_function("get_axis", [](InputAction action) {
             return Input::GetBinding(action).AsAxis(false);
         });
 
