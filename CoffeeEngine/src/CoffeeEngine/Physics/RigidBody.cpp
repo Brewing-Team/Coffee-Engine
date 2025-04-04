@@ -33,13 +33,10 @@ namespace Coffee {
 
         m_Body = new btRigidBody(rbInfo);
 
-        // For static objects
         if (props.type == Type::Static) {
-            m_Body->setActivationState(DISABLE_SIMULATION);
+            m_Body->setActivationState(DISABLE_SIMULATION); // For static objects, disable simulation
         } else {
-            // For dynamic objects, allow them to sleep when not moving
-            m_Body->setActivationState(ACTIVE_TAG);
-            // Set thresholds for when to deactivate
+            m_Body->setActivationState(ACTIVE_TAG); // For dynamic objects, allow to sleep if not moving
             m_Body->setSleepingThresholds(0.8f, 1.0f);
         }
 
