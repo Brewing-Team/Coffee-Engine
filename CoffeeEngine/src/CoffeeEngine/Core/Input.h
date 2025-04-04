@@ -88,6 +88,15 @@ namespace Coffee {
          * @return True if the mouse button is pressed, false otherwise.
          */
         static bool IsMouseButtonPressed(const MouseCode button);
+
+        /**
+            * Sets the mouse cursor to be grabbed or ungrabbed.
+            * When grabbed, the mouse cursor is confined to the window and hidden.
+            * When ungrabbed, the mouse cursor is free to move outside the window.
+            * @param grabbed True to grab the mouse cursor, false to ungrab it.
+            */
+        static void SetMouseGrabbed(bool grabbed);
+
         /**
          * Retrieves the current position of the mouse.
          *
@@ -107,6 +116,8 @@ namespace Coffee {
          */
 
         static const float GetMouseY();
+
+        static glm::vec2 GetMouseDelta();
         /**
          * @brief Checks if a specific button is currently pressed on a given controller.
          *
