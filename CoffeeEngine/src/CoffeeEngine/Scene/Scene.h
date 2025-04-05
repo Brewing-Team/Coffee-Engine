@@ -53,7 +53,9 @@ namespace Coffee {
          */
         Entity CreateEntity(const std::string& name = std::string());
 
-        Entity Duplicate(const Entity& parent);
+        Entity DuplicateEntityRecursive(Entity& sourceEntity, Entity* parentEntity);
+
+        Entity Duplicate(Entity& parent);
 
         /**
          * @brief Destroy an entity in the scene.
@@ -135,7 +137,11 @@ namespace Coffee {
          * @param animators The vector of animator components.
          */
         void AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators);
-    
+
+        static std::map<UUID, UUID> s_UUIDMap;
+        static std::vector<MeshComponent*> s_MeshComponents;
+        static std::vector<AnimatorComponent*> s_AnimatorComponents;
+
     private:
         friend class cereal::access;
 
@@ -204,7 +210,7 @@ namespace Coffee {
 
     private:
         // NOTE: this macro should be modified when adding new components
-        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, ParticlesSystemComponent //, AnimatorComponent
+        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, ParticlesSystemComponent, AnimatorComponent
 
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
