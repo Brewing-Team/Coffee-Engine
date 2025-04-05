@@ -134,12 +134,12 @@ namespace Coffee {
 
         friend class cereal::access;
 
-        template <class Archive> void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::base_class<Collider>(this));
         }
 
-        template <class Archive> void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::base_class<Collider>(this));
         }
@@ -171,12 +171,12 @@ namespace Coffee {
 
         friend class cereal::access;
 
-        template <class Archive> void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::base_class<Collider>(this));
         }
 
-        template <class Archive> void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::base_class<Collider>(this));
         }
@@ -227,12 +227,12 @@ namespace Coffee {
 
         friend class cereal::access;
 
-        template <class Archive> void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::base_class<Collider>(this));
         }
 
-        template<class Archive> void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::base_class<Collider>(this));
         }

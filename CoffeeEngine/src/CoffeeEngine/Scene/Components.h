@@ -828,12 +828,12 @@
 
 
         public:
-        template <class Archive> void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::make_nvp("ParticleEmitter", m_Particles));
         }
 
-        template <class Archive> void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
         }
@@ -943,11 +943,9 @@
         ActiveComponent() = default;
         ActiveComponent(const ActiveComponent&) = default;
 
-        template<class Archive>
-        void save (Archive& archive) const {}
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const {}
 
-        template<class Archive>
-        void load (Archive& archive) {}
+        template<class Archive> void load(Archive& archive, std::uint32_t const version) {}
     };
 
     struct StaticComponent
@@ -955,11 +953,9 @@
         StaticComponent() = default;
         StaticComponent(const StaticComponent&) = default;
 
-        template<class Archive>
-        void save (Archive& archive) const {}
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const {}
 
-        template<class Archive>
-        void load (Archive& archive) {}
+        template<class Archive> void load(Archive& archive, std::uint32_t const version) {}
     };
  } // namespace Coffee
  CEREAL_CLASS_VERSION(Coffee::TagComponent, 2);
