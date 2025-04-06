@@ -631,7 +631,7 @@ namespace Coffee {
         }
 
         //Get all entities with LightComponent and TransformComponent
-        auto lightView = m_Registry.view<LightComponent, TransformComponent>(entt::exclude<StaticComponent>);
+        auto lightView = m_Registry.view<ActiveComponent, LightComponent, TransformComponent>();
 
         //Loop through each entity with the specified components
         for(auto& entity : lightView)
@@ -644,8 +644,6 @@ namespace Coffee {
 
             Renderer3D::Submit(lightComponent);
         }
-
-
 
         // Get all entities with ParticlesSystemComponent and TransformComponent
         auto particleSystemView = m_Registry.view<ActiveComponent, ParticlesSystemComponent, TransformComponent>(entt::exclude<StaticComponent>);
