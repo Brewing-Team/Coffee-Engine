@@ -82,18 +82,7 @@ namespace Coffee {
         {
             const auto& srcComponent = registry.get<AnimatorComponent>(sourceEntity);
 
-            AnimatorComponent newComponent;
-
-            newComponent.Loop = srcComponent.Loop;
-            newComponent.BlendDuration = srcComponent.BlendDuration;
-            newComponent.AnimationSpeed = srcComponent.AnimationSpeed;
-            newComponent.modelUUID = srcComponent.modelUUID;
-            newComponent.animatorUUID = srcComponent.animatorUUID;
-            newComponent.UpperBodyRootJoint = srcComponent.UpperBodyRootJoint;
-            newComponent.PartialBlendOutput = srcComponent.PartialBlendOutput;
-            newComponent.UpperBodyWeight = srcComponent.UpperBodyWeight;
-            newComponent.LowerBodyWeight = srcComponent.LowerBodyWeight;
-            newComponent.PartialBlendThreshold = srcComponent.PartialBlendThreshold;
+            AnimatorComponent newComponent = srcComponent;
 
             newComponent.UpperAnimation = CreateRef<AnimationLayer>(*srcComponent.UpperAnimation);
             newComponent.LowerAnimation = CreateRef<AnimationLayer>(*srcComponent.LowerAnimation);
@@ -224,17 +213,21 @@ namespace Coffee {
 
         Entity duplicatedEntity = DuplicateEntityRecursive(entity);
 
+        if (s_AnimatorComponents.empty())
+            return duplicatedEntity;
+
         for (auto mesh : s_MeshComponents)
         {
             auto it = s_UUIDMap.find(mesh->animator->animatorUUID);
             if (it != s_UUIDMap.end())
             {
-                for (auto& animator : s_AnimatorComponents)
+                for (const auto& animator : s_AnimatorComponents)
                 {
-                    if (animator->animatorUUID == s_UUIDMap[mesh->animator->animatorUUID])
+                    if (animator->animatorUUID == it->second)
                     {
                         mesh->animatorUUID = animator->animatorUUID;
                         mesh->animator = animator;
+                        break;
                     }
                 }
             }
@@ -568,6 +561,21 @@ namespace Coffee {
             Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
             Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
+        }
+
+        //Get all entities with LightComponent and TransformComponent
+        auto lightView = m_Registry.view<ActiveComponent, LightComponent, TransformComponent>();
+
+        //Loop through each entity with the specified components
+        for(auto& entity : lightView)
+        {
+            auto& lightComponent = lightView.get<LightComponent>(entity);
+            auto& transformComponent = lightView.get<TransformComponent>(entity);
+
+            lightComponent.Position = transformComponent.GetWorldTransform()[3];
+            lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
+
+            Renderer3D::Submit(lightComponent);
         }
 
         // Get all entities with ParticlesSystemComponent and TransformComponent
