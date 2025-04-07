@@ -66,8 +66,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("Tag", Tag));
          }
@@ -202,8 +201,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("Position", Position), cereal::make_nvp("Rotation", Rotation), cereal::make_nvp("Scale", Scale));
          }
@@ -225,8 +223,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("Camera", Camera));
          }
@@ -347,8 +344,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, const std::uint32_t& version) const
          {
              archive(cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
@@ -368,20 +364,32 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to deserialize from.
           */
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, const std::uint32_t& version)
          {
-             archive(cereal::make_nvp("BlendDuration", BlendDuration),
-                     cereal::make_nvp("AnimationSpeed", AnimationSpeed),
-                     cereal::make_nvp("Loop", Loop),
-                     cereal::make_nvp("ModelUUID", modelUUID),
-                     cereal::make_nvp("AnimatorUUID", animatorUUID),
-                     cereal::make_nvp("UpperAnimation", UpperAnimation),
-                     cereal::make_nvp("LowerAnimation", LowerAnimation),
-                     cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
-                     cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
-                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
-                     cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
+             if (version >= 2)
+             {
+                 archive(cereal::make_nvp("BlendDuration", BlendDuration),
+                         cereal::make_nvp("AnimationSpeed", AnimationSpeed), cereal::make_nvp("Loop", Loop),
+                         cereal::make_nvp("ModelUUID", modelUUID), cereal::make_nvp("AnimatorUUID", animatorUUID),
+                         cereal::make_nvp("UpperAnimation", UpperAnimation),
+                         cereal::make_nvp("LowerAnimation", LowerAnimation),
+                         cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
+                         cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
+                         cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
+                         cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
+             }
+             else
+             {
+                 //Version 0
+                /* archive(cereal::make_nvp("CurrentAnimation", UpperAnimation),
+                         cereal::make_nvp("CurrentAnimation", LowerAnimation),
+                         cereal::make_nvp("BlendDuration", BlendDuration),
+                         cereal::make_nvp("BlendThreshold", PartialBlendThreshold),
+                         cereal::make_nvp("AnimationSpeed", AnimationSpeed), cereal::make_nvp("Loop", Loop),
+                         cereal::make_nvp("ModelUUID", modelUUID), cereal::make_nvp("AnimatorUUID", animatorUUID));*/
+             
+             }
+             
 
              AnimationSystem::LoadAnimator(this);
          }
@@ -447,8 +455,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              archive(cereal::make_nvp("Mesh", mesh->GetUUID()),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
@@ -457,8 +464,7 @@
                  animator->animatorUUID = animatorUUID;
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              UUID meshUUID;
              archive(cereal::make_nvp("Mesh", meshUUID),
@@ -491,15 +497,13 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
             ResourceSaver::SaveToCache<Material>(material->GetUUID(), material);
             archive(cereal::make_nvp("Material", material->GetUUID()));
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              UUID materialUUID;
              archive(cereal::make_nvp("Material", materialUUID));
@@ -546,8 +550,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
          }
@@ -617,8 +620,7 @@
          void Stop() { Audio::StopEvent(*this); }
  
  
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              archive(cereal::make_nvp("GameObjectID", gameObjectID),
                      cereal::make_nvp("AudioBank", audioBank),
@@ -631,8 +633,7 @@
              );
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("GameObjectID", gameObjectID),
                      cereal::make_nvp("AudioBank", audioBank),
@@ -673,16 +674,14 @@
              return *this;
          }
  
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              archive(cereal::make_nvp("GameObjectID", gameObjectID),
                      cereal::make_nvp("Transform", transform)
              );
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("GameObjectID", gameObjectID),
                      cereal::make_nvp("Transform", transform)
@@ -718,8 +717,7 @@
              return *this;
          }
  
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              archive(cereal::make_nvp("ZoneID", zoneID),
                      cereal::make_nvp("AudioBusName", audioBusName),
@@ -728,8 +726,7 @@
              );
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("ZoneID", zoneID),
                      cereal::make_nvp("AudioBusName", audioBusName),
@@ -766,8 +763,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              std::filesystem::path relativePath;
              if (Project::GetActive())
@@ -782,8 +778,7 @@
              archive(cereal::make_nvp("ScriptPath", relativePath.generic_string()), cereal::make_nvp("Language", ScriptingLanguage::Lua));
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              std::string relativePath;
              ScriptingLanguage language;
@@ -848,8 +843,8 @@
          private:
              friend class cereal::access;
  
-             template<class Archive>
-             void save(Archive& archive) const {
+             template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+             {
                  if (rb) {
                      archive(
                          cereal::make_nvp("RigidBody", true),
@@ -860,8 +855,8 @@
                  }
              }
  
-             template<class Archive>
-             void load(Archive& archive) {
+             template<class Archive> void load(Archive& archive, std::uint32_t const version)
+             {
                  bool hasRigidBody;
                  archive(cereal::make_nvp("RigidBody", hasRigidBody));
                  
@@ -894,12 +889,12 @@
 
 
         public:
-        template <class Archive> void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::make_nvp("ParticleEmitter", m_Particles));
         }
 
-        template <class Archive> void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
         }
@@ -935,14 +930,12 @@
          */
         void SetNavMeshUUID(const UUID& navMeshUUID) { m_NavMeshUUID = navMeshUUID; }
 
-        template<class Archive>
-        void save(Archive& archive) const
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
         }
 
-        template<class Archive>
-        void load(Archive& archive)
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
         }
@@ -989,14 +982,12 @@
          */
         void SetNavMeshComponent(const Ref<NavMeshComponent>& navMeshComponent) { m_NavMeshComponent = navMeshComponent; }
 
-        template<class Archive>
-        void save(Archive& archive) const
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
         }
 
-        template<class Archive>
-        void load(Archive& archive)
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
 
@@ -1013,11 +1004,9 @@
         ActiveComponent() = default;
         ActiveComponent(const ActiveComponent&) = default;
 
-        template<class Archive>
-        void save (Archive& archive) const {}
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const {}
 
-        template<class Archive>
-        void load (Archive& archive) {}
+        template<class Archive> void load(Archive& archive, std::uint32_t const version) {}
     };
 
     struct StaticComponent
@@ -1025,12 +1014,26 @@
         StaticComponent() = default;
         StaticComponent(const StaticComponent&) = default;
 
-        template<class Archive>
-        void save (Archive& archive) const {}
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const {}
 
-        template<class Archive>
-        void load (Archive& archive) {}
+        template<class Archive> void load(Archive& archive, std::uint32_t const version) {}
     };
- }
+ } // namespace Coffee
+ CEREAL_CLASS_VERSION(Coffee::TagComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::TransformComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::CameraComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AnimatorComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::MeshComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::MaterialComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::LightComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioSourceComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioListenerComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioZoneComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::ScriptComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::RigidbodyComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::NavMeshComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::NavigationAgentComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::ParticlesSystemComponent, 0);
+
  
  /** @} */

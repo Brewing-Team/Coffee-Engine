@@ -75,13 +75,12 @@ namespace Coffee {
         {
             archive(cereal::make_nvp("Parent", m_Parent), cereal::make_nvp("First", m_First), cereal::make_nvp("Next", m_Next), cereal::make_nvp("Prev", m_Prev));
         } */
-        void save(Archive& archive) const
+        void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::make_nvp("Parent", m_Parent), cereal::make_nvp("First", m_First), cereal::make_nvp("Next", m_Next), cereal::make_nvp("Prev", m_Prev));
         }
 
-        template<class Archive>
-        void load(Archive& archive)
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::make_nvp("Parent", m_Parent), cereal::make_nvp("First", m_First), cereal::make_nvp("Next", m_Next), cereal::make_nvp("Prev", m_Prev));
         }
