@@ -310,17 +310,11 @@ namespace Coffee
 
     void ParticleEmitter::DrawParticles(Ref<Particle> p)
     {  
-        /*RenderCommand renderCommand;
-        renderCommand.transform = p->GetWorldTransform();
-        renderCommand.mesh = ParticleEmitter::particleMesh;
-        renderCommand.material = particleMaterial;
-        renderCommand.animator = nullptr;
-
-       Renderer3D::Submit(renderCommand); */
-
-        Renderer2D::DrawQuad(p->GetWorldTransform(), p->current_texture, 1,
-                             p->color, Renderer2D::RenderMode::World);
-
+        if (p->current_texture)
+        {
+            Renderer2D::DrawQuad(p->GetWorldTransform(), p->current_texture, 1, p->color,
+                                 Renderer2D::RenderMode::World);
+        }
     }
 
     void ParticleEmitter::DrawDebug()
