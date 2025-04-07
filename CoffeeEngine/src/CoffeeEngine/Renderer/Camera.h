@@ -192,3 +192,4 @@ namespace Coffee
 }
 
 CEREAL_REGISTER_TYPE(Coffee::Camera);
+CEREAL_CLASS_VERSION(Coffee::Camera, 0);

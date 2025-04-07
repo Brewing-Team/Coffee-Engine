@@ -1033,6 +1033,22 @@
         template<class Archive>
         void load (Archive& archive) {}
     };
- }
+ } // namespace Coffee
+ CEREAL_CLASS_VERSION(Coffee::TagComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::TransformComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::CameraComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AnimatorComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::MeshComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::MaterialComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::LightComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioSourceComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioListenerComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioZoneComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::ScriptComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::RigidbodyComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::NavMeshComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::NavigationAgentComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::ParticlesSystemComponent, 0);
+
  
  /** @} */

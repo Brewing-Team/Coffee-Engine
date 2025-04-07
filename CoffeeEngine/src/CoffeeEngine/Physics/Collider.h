@@ -242,3 +242,7 @@ CEREAL_REGISTER_TYPE(Coffee::CapsuleCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::BoxCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::SphereCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::CapsuleCollider)
+CEREAL_CLASS_VERSION(Coffee::Collider, 0);
+CEREAL_CLASS_VERSION(Coffee::BoxCollider, 0);
+CEREAL_CLASS_VERSION(Coffee::SphereCollider, 0);
+CEREAL_CLASS_VERSION(Coffee::CapsuleCollider, 0);

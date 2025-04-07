@@ -195,3 +195,5 @@ namespace Coffee {
     };
 
 } // namespace Coffee
+CEREAL_CLASS_VERSION(Coffee::RigidBody, 0);
+CEREAL_CLASS_VERSION(Coffee::RigidBody::Properties, 0);

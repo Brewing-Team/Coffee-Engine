@@ -323,3 +323,4 @@ namespace Coffee
         }
     };
 } // namespace Coffee
+CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 0);

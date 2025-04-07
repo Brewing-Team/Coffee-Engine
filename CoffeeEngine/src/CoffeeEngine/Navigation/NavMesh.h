@@ -128,4 +128,6 @@ namespace Coffee
         std::vector<NavMeshTriangle> m_Triangles; ///< Triangles in the navigation mesh
         bool m_Calculated = false; ///< Flag indicating if the navigation mesh has been calculated
     };
-}
+} // namespace Coffee
+CEREAL_CLASS_VERSION(NavMeshTriangle, 0);
+CEREAL_CLASS_VERSION(Coffee::NavMesh, 0);
