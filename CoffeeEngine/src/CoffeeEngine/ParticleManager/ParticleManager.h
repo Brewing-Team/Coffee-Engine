@@ -320,4 +320,4 @@ template <class Archive> void load(Archive& archive, const std::uint32_t& versio
         }
     };
 } // namespace Coffee
-CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 2);
+CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 0);

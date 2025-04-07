@@ -126,5 +126,5 @@ namespace Coffee
         bool m_Calculated = false; ///< Flag indicating if the navigation mesh has been calculated
     };
 } // namespace Coffee
-CEREAL_CLASS_VERSION(NavMeshTriangle, 2);
-CEREAL_CLASS_VERSION(Coffee::NavMesh, 2);
+CEREAL_CLASS_VERSION(NavMeshTriangle, 0);
+CEREAL_CLASS_VERSION(Coffee::NavMesh, 0);

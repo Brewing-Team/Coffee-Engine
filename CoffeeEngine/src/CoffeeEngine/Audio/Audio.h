@@ -244,4 +244,4 @@ namespace Coffee {
         static bool LoadAudioBanks();
     };
 } // namespace Coffee
-CEREAL_CLASS_VERSION(Coffee::Audio::AudioBank, 2);
+CEREAL_CLASS_VERSION(Coffee::Audio::AudioBank, 0);
