@@ -48,8 +48,8 @@ namespace Coffee {
                 friend class cereal::access;
                 friend class RigidBody;
 
-                template<class Archive>
-                void save(Archive& archive) const {
+                template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+                {
                     archive(
                         CEREAL_NVP(type),
                         CEREAL_NVP(mass),
@@ -68,8 +68,8 @@ namespace Coffee {
                     );
                 }
 
-                template<class Archive>
-                void load(Archive& archive) {
+                template<class Archive> void load(Archive& archive, std::uint32_t const version)
+                {
                     archive(
                         CEREAL_NVP(type),
                         CEREAL_NVP(mass),
@@ -176,8 +176,8 @@ namespace Coffee {
 
     private:
         friend class cereal::access;
-        template<class Archive>
-        void save(Archive& archive) const {
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
             archive(
                 CEREAL_NVP(m_Properties),
                 CEREAL_NVP(m_Collider)
@@ -185,7 +185,8 @@ namespace Coffee {
         }
 
         template<class Archive> 
-        void load(Archive& archive) {
+        void load(Archive& archive, std::uint32_t const version)
+        {
             archive(
                 CEREAL_NVP(m_Properties),
                 CEREAL_NVP(m_Collider)

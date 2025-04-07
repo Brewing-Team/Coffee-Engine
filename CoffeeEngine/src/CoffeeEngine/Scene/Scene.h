@@ -154,8 +154,7 @@ namespace Coffee {
          * @tparam Archive The type of the archive.
          * @param archive The archive to save the scene to.
          */
-         template <class Archive>
-         void save(Archive& archive) const
+         template <class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
             entt::snapshot{m_Registry}
             .get<entt::entity>(archive)
@@ -184,8 +183,7 @@ namespace Coffee {
          * @tparam Archive The type of the archive.
          * @param archive The archive to load the scene from.
          */
-        template <class Archive>
-        void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             entt::snapshot_loader{m_Registry}
             .get<entt::entity>(archive)

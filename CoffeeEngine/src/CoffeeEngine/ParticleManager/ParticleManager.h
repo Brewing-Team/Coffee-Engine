@@ -276,7 +276,7 @@ namespace Coffee
          * @param archive The archive to serialize to.
          */
 
-        template <class Archive> void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
                     colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
@@ -293,33 +293,30 @@ namespace Coffee
         }
 
 
-        template <class Archive> void load(Archive& archive)
+template <class Archive> void load(Archive& archive, const std::uint32_t& version) 
         {
-
             UUID textureUUID;
             glm::vec4 materialColor;
-   
+
             archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
-                    colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin,
-                    startLifeTimeMax, startLifeTime, useRandomSpeed, startSpeedMin, startSpeedMax, startSpeed,
-                    useRandomSize, useSplitAxesSize, startSizeMin, startSizeMax, startSize, useRandomRotation,
-                    startRotationMin, startRotationMax, startRotation, simulationSpace, useEmission, rateOverTime,
-                    shape, minSpread, maxSpread, useShape, shapeAngle, shapeRadius, shapeRadiusThickness,
-                    useVelocityOverLifetime, velocityOverLifeTimeSeparateAxes, speedOverLifeTimeX,
-                    speedOverLifeTimeY, speedOverLifeTimeZ, speedOverLifeTimeGeneral, useSizeOverLifetime,
-                    sizeOverLifeTimeSeparateAxes, sizeOverLifetimeX, sizeOverLifetimeY, sizeOverLifetimeZ,
-                    sizeOverLifetimeGeneral, useRotationOverLifetime, rotationOverLifetimeX, rotationOverLifetimeY,
-                    rotationOverLifetimeZ, useColorOverLifetime, overLifetimecolor,
-                    colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment, elapsedTime,
-                    textureUUID, materialColor);
+                    colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
+                    startLifeTime, useRandomSpeed, startSpeedMin, startSpeedMax, startSpeed, useRandomSize,
+                    useSplitAxesSize, startSizeMin, startSizeMax, startSize, useRandomRotation, startRotationMin,
+                    startRotationMax, startRotation, simulationSpace, useEmission, rateOverTime, shape, minSpread,
+                    maxSpread, useShape, shapeAngle, shapeRadius, shapeRadiusThickness, useVelocityOverLifetime,
+                    velocityOverLifeTimeSeparateAxes, speedOverLifeTimeX, speedOverLifeTimeY, speedOverLifeTimeZ,
+                    speedOverLifeTimeGeneral, useSizeOverLifetime, sizeOverLifeTimeSeparateAxes, sizeOverLifetimeX,
+                    sizeOverLifetimeY, sizeOverLifetimeZ, sizeOverLifetimeGeneral, useRotationOverLifetime,
+                    rotationOverLifetimeX, rotationOverLifetimeY, rotationOverLifetimeZ, useColorOverLifetime,
+                    overLifetimecolor, colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment,
+                    elapsedTime, textureUUID, materialColor);
 
             if (textureUUID)
             {
-                particleMaterial->GetMaterialTextures().albedo =
-                    ResourceLoader::GetResource<Texture2D>(textureUUID);
+                particleMaterial->GetMaterialTextures().albedo = ResourceLoader::GetResource<Texture2D>(textureUUID);
                 particleMaterial->GetMaterialProperties().color = materialColor;
             }
-
+  
         }
     };
 } // namespace Coffee
