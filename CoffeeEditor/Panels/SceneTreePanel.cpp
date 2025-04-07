@@ -2050,7 +2050,7 @@ namespace Coffee
                     };
 
                     ImGui::Text("Texture");
-                    DrawTextureWidget("##Albedo", emitter->particleMaterial->GetMaterialTextures().albedo);
+                    DrawTextureWidget("##Albedo", emitter->particleTexture);
 
 
                     // Restore default state

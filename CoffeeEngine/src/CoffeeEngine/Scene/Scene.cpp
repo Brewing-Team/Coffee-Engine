@@ -425,14 +425,6 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
-            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-
-            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
-            {
-                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }
-
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
@@ -585,15 +577,6 @@ namespace Coffee {
         {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
-
-
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
-            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-
-            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
-            {
-                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }
 
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(cameraTransform);
