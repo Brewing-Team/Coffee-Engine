@@ -171,7 +171,8 @@ namespace Coffee {
             .template get<AudioZoneComponent>(archive)
             .template get<ParticlesSystemComponent>(archive)
             .template get<ActiveComponent>(archive)
-            .template get<StaticComponent>(archive);
+            .template get<StaticComponent>(archive)
+            .template get<SpriteComponent>(archive);
          }
 
         /**
@@ -200,7 +201,8 @@ namespace Coffee {
             .template get<AudioZoneComponent>(archive)
             .template get<ParticlesSystemComponent>(archive)
             .template get<ActiveComponent>(archive)
-            .template get<StaticComponent>(archive);
+            .template get<StaticComponent>(archive)
+            .template get<SpriteComponent>(archive);
 
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
@@ -208,7 +210,7 @@ namespace Coffee {
 
     private:
         // NOTE: this macro should be modified when adding new components
-        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, ParticlesSystemComponent, AnimatorComponent
+        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, ParticlesSystemComponent, AnimatorComponent, SpriteComponent
 
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;

@@ -999,6 +999,52 @@
         Ref<NavMeshComponent> m_NavMeshComponent = nullptr; ///< The navigation mesh component.
     };
 
+
+     struct SpriteComponent
+    {
+        Ref<Texture2D> texture;                 ///< The zone ID.
+        glm::vec4 tintColor = glm::vec4(1);
+        bool flipX = false;
+        bool flipY = false;
+        float tilingFactor = 1;
+
+        SpriteComponent(){ texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); };
+
+        SpriteComponent(const SpriteComponent& other) { *this = other; }
+
+        SpriteComponent& operator=(const SpriteComponent& other)
+        {
+            if (this != &other)
+            {
+                texture = other.texture;
+                tintColor = other.tintColor;
+                flipX = other.flipX;
+                flipY = other.flipY;
+                tilingFactor = other.tilingFactor;
+            }
+            return *this;
+        }
+
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("TextureUUID", texture->GetUUID()));
+            archive(cereal::make_nvp("TintColor", tintColor));
+            archive(cereal::make_nvp("FlipX", flipX));
+            archive(cereal::make_nvp("FlipY", flipY));
+            archive(cereal::make_nvp("TilingFactor", tilingFactor));
+        }
+
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::make_nvp("TextureUUID", texture->GetUUID()));
+            archive(cereal::make_nvp("TintColor", tintColor));
+            archive(cereal::make_nvp("FlipX", flipX));
+            archive(cereal::make_nvp("FlipY", flipY));
+            archive(cereal::make_nvp("TilingFactor", tilingFactor));
+        }
+    };
+
+
     struct ActiveComponent
     {
         ActiveComponent() = default;
