@@ -47,8 +47,6 @@ namespace Coffee {
     std::vector<MeshComponent*> Scene::s_MeshComponents;
     std::vector<AnimatorComponent*> Scene::s_AnimatorComponents;
 
-    std::vector<std::tuple<entt::entity, int, int, int>> Scene::uiEntities;
-
     Scene::Scene() : m_Octree({glm::vec3(-50.0f), glm::vec3(50.0f)}, 10, 5)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
