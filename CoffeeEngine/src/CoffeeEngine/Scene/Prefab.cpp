@@ -1,0 +1,226 @@
+#include "Prefab.h"
+
+#include "SceneManager.h"
+#include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/IO/ResourceRegistry.h"
+
+namespace Coffee {
+
+    Prefab::Prefab()
+        : Resource(ResourceType::Prefab)
+    {
+    }
+
+    Ref<Prefab> Prefab::Create(Entity sourceEntity)
+    {
+        Ref<Prefab> prefab = CreateRef<Prefab>();
+        prefab->SetUUID(UUID());
+        prefab->SetName(sourceEntity.GetComponent<TagComponent>().Tag + "_Prefab");
+
+        prefab->m_RootEntity = prefab->CopyEntityToPrefab(sourceEntity);
+
+        return prefab;
+    }
+
+    entt::entity Prefab::CopyEntityToPrefab(Entity sourceEntity, entt::entity parentEntity)
+    {
+        entt::entity destEntity = m_Registry.create();
+
+        if (sourceEntity.HasComponent<TagComponent>())
+            m_Registry.emplace<TagComponent>(destEntity, sourceEntity.GetComponent<TagComponent>());
+
+        if (sourceEntity.HasComponent<TransformComponent>())
+            m_Registry.emplace<TransformComponent>(destEntity, sourceEntity.GetComponent<TransformComponent>());
+
+        auto& destHierarchy = m_Registry.emplace<HierarchyComponent>(destEntity);
+        destHierarchy.m_Parent = parentEntity;
+
+        if (sourceEntity.HasComponent<MeshComponent>())
+            m_Registry.emplace<MeshComponent>(destEntity, sourceEntity.GetComponent<MeshComponent>());
+
+        if (sourceEntity.HasComponent<MaterialComponent>())
+            m_Registry.emplace<MaterialComponent>(destEntity, sourceEntity.GetComponent<MaterialComponent>());
+
+        if (sourceEntity.HasComponent<LightComponent>())
+            m_Registry.emplace<LightComponent>(destEntity, sourceEntity.GetComponent<LightComponent>());
+
+        if (sourceEntity.HasComponent<RigidbodyComponent>())
+            m_Registry.emplace<RigidbodyComponent>(destEntity, sourceEntity.GetComponent<RigidbodyComponent>());
+
+        if (sourceEntity.HasComponent<ParticlesSystemComponent>())
+            m_Registry.emplace<ParticlesSystemComponent>(destEntity, sourceEntity.GetComponent<ParticlesSystemComponent>());
+
+        if (sourceEntity.HasComponent<StaticComponent>())
+            m_Registry.emplace<StaticComponent>(destEntity);
+
+        if (sourceEntity.HasComponent<ActiveComponent>())
+            m_Registry.emplace<ActiveComponent>(destEntity);
+
+        std::vector<Entity> children = sourceEntity.GetChildren();
+        for (auto& child : children)
+        {
+            entt::entity childEntity = CopyEntityToPrefab(child, destEntity);
+
+            if (destHierarchy.m_First == entt::null)
+            {
+                destHierarchy.m_First = childEntity;
+            }
+            else
+            {
+                entt::entity lastSibling = destHierarchy.m_First;
+                auto& lastSiblingHierarchy = m_Registry.get<HierarchyComponent>(lastSibling);
+
+                while (lastSiblingHierarchy.m_Next != entt::null)
+                {
+                    lastSibling = lastSiblingHierarchy.m_Next;
+                    lastSiblingHierarchy = m_Registry.get<HierarchyComponent>(lastSibling);
+                }
+
+                lastSiblingHierarchy.m_Next = childEntity;
+                m_Registry.get<HierarchyComponent>(childEntity).m_Prev = lastSibling;
+            }
+        }
+
+        return destEntity;
+    }
+
+    Entity Prefab::Instantiate(Scene* scene, const glm::mat4& transform)
+    {
+        if (m_RootEntity == entt::null)
+        {
+            COFFEE_CORE_ERROR("Prefab::Instantiate: Failed to instantiate prefab - no root entity");
+            return Entity(entt::null, scene);
+        }
+
+        Entity instance = CopyEntityToScene(scene, m_RootEntity, Entity());
+
+        if (transform != glm::mat4(1.0f))
+        {
+            auto& instanceTransform = instance.GetComponent<TransformComponent>();
+            instanceTransform.SetLocalTransform(transform * instanceTransform.GetLocalTransform());
+        }
+
+        return instance;
+    }
+
+    Entity Prefab::CopyEntityToScene(Scene* scene, entt::entity prefabEntity, Entity parent)
+    {
+        Entity entity = scene->CreateEntity();
+
+        if (m_Registry.all_of<TagComponent>(prefabEntity))
+        {
+            auto& tag = m_Registry.get<TagComponent>(prefabEntity);
+            entity.GetComponent<TagComponent>().Tag = tag.Tag;
+        }
+
+        if (m_Registry.all_of<TransformComponent>(prefabEntity))
+        {
+            auto& transform = m_Registry.get<TransformComponent>(prefabEntity);
+            entity.GetComponent<TransformComponent>() = transform;
+        }
+
+        if (m_Registry.all_of<MeshComponent>(prefabEntity))
+        {
+            auto& meshComp = m_Registry.get<MeshComponent>(prefabEntity);
+            entity.AddComponent<MeshComponent>(meshComp);
+        }
+
+        if (m_Registry.all_of<MaterialComponent>(prefabEntity))
+        {
+            auto& matComp = m_Registry.get<MaterialComponent>(prefabEntity);
+            entity.AddComponent<MaterialComponent>(matComp);
+        }
+
+        if (m_Registry.all_of<LightComponent>(prefabEntity))
+        {
+            auto& lightComp = m_Registry.get<LightComponent>(prefabEntity);
+            entity.AddComponent<LightComponent>(lightComp);
+        }
+
+        if (m_Registry.all_of<RigidbodyComponent>(prefabEntity))
+        {
+            auto& rbComp = m_Registry.get<RigidbodyComponent>(prefabEntity);
+            entity.AddComponent<RigidbodyComponent>(rbComp);
+        }
+
+        if (m_Registry.all_of<ParticlesSystemComponent>(prefabEntity))
+        {
+            auto& particlesComp = m_Registry.get<ParticlesSystemComponent>(prefabEntity);
+            entity.AddComponent<ParticlesSystemComponent>(particlesComp);
+        }
+
+        if (m_Registry.all_of<StaticComponent>(prefabEntity))
+        {
+            entity.AddComponent<StaticComponent>();
+        }
+
+        if (m_Registry.all_of<ActiveComponent>(prefabEntity))
+        {
+            entity.AddComponent<ActiveComponent>();
+        }
+
+        if (parent)
+        {
+            entity.SetParent(parent);
+        }
+
+        auto& hierarchy = m_Registry.get<HierarchyComponent>(prefabEntity);
+        entt::entity childEntity = hierarchy.m_First;
+
+        while (childEntity != entt::null)
+        {
+            CopyEntityToScene(scene, childEntity, entity);
+            childEntity = m_Registry.get<HierarchyComponent>(childEntity).m_Next;
+        }
+
+        return entity;
+    }
+
+    bool Prefab::Save(const std::filesystem::path& path)
+    {
+        try
+        {
+            std::ofstream file(path);
+            cereal::JSONOutputArchive archive(file);
+            archive(*this);
+
+            SetPath(path);
+            ResourceRegistry::Add(UUID(), Ref<Resource>(this));
+
+            return true;
+        }
+        catch(const std::exception& e)
+        {
+            COFFEE_CORE_ERROR("Prefab::Save: Exception during serialization: {0}", e.what());
+            return false;
+        }
+    }
+
+    Ref<Prefab> Prefab::Load(const std::filesystem::path& path)
+    {
+        try
+        {
+            std::ifstream file(path);
+            if (!file.is_open())
+            {
+                COFFEE_CORE_ERROR("Prefab::Load: Failed to open file: {0}", path.string());
+                return nullptr;
+            }
+
+            Ref<Prefab> prefab = CreateRef<Prefab>();
+            prefab->SetPath(path);
+
+            cereal::JSONInputArchive archive(file);
+            archive(*prefab);
+
+            ResourceRegistry::Add(UUID(), prefab);
+
+            return prefab;
+        }
+        catch(const std::exception& e)
+        {
+            COFFEE_CORE_ERROR("Prefab::Load: Exception during deserialization: {0}", e.what());
+            return nullptr;
+        }
+    }
+}
