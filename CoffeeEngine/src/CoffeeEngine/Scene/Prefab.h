@@ -1,0 +1,56 @@
+#pragma once
+
+#include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/Scene.h"
+
+#include <entt/entt.hpp>
+#include <filesystem>
+#include <unordered_map>
+
+namespace Coffee {
+
+    class Prefab : public Resource {
+    public:
+        Prefab();
+        ~Prefab() = default;
+        
+        static Ref<Prefab> Create(Entity entity);
+        
+        Entity Instantiate(Scene* scene, const glm::mat4& transform = glm::mat4(1.0f));
+        
+        bool Save(const std::filesystem::path& path);
+        static Ref<Prefab> Load(const std::filesystem::path& path);
+        
+    private:
+        entt::entity CopyEntityToPrefab(Entity sourceEntity, entt::entity parentEntity = entt::null);
+        Entity CopyEntityToScene(Scene* scene, entt::entity prefabEntity, Entity parent);
+        
+        // Cereal serialization
+        friend class cereal::access;
+        
+        template<class Archive>
+        void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("Base", cereal::base_class<Resource>(this)));
+            archive(cereal::make_nvp("RootEntity", m_RootEntity));
+        }
+        
+        template<class Archive>
+        void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::make_nvp("Base", cereal::base_class<Resource>(this)));
+            archive(cereal::make_nvp("RootEntity", m_RootEntity));
+        }
+        
+    private:
+        entt::registry m_Registry;
+        entt::entity m_RootEntity = entt::null;
+        std::unordered_map<UUID, UUID> m_EntityMap;
+    };
+
+} // namespace Coffee
+
+CEREAL_CLASS_VERSION(Coffee::Prefab, 0);
