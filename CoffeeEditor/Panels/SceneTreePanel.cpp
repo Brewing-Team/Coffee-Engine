@@ -3,7 +3,6 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Renderer/Camera.h"
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Model.h"
@@ -21,7 +20,6 @@
 #include <IconsLucide.h>
 
 #include <CoffeeEngine/Scripting/Script.h>
-#include <any>
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -293,14 +291,28 @@ namespace Coffee
 
             if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
             {
+                glm::vec3 position = transformComponent.GetLocalPosition();
+                glm::vec3 rotation = transformComponent.GetLocalRotation();
+                glm::vec3 scale = transformComponent.GetLocalScale();
+
                 ImGui::Text("Position");
-                ImGui::DragFloat3("##Position", glm::value_ptr(transformComponent.Position), 0.1f);
+                if (ImGui::DragFloat3("##Position", glm::value_ptr(position), 0.1f))
+                {
+                    transformComponent.SetLocalPosition(position);
+                }
+                
 
                 ImGui::Text("Rotation");
-                ImGui::DragFloat3("##Rotation", glm::value_ptr(transformComponent.Rotation), 0.1f);
+                if (ImGui::DragFloat3("##Rotation", glm::value_ptr(rotation), 0.1f))
+                {
+                    transformComponent.SetLocalRotation(rotation);
+                }
 
                 ImGui::Text("Scale");
-                ImGui::DragFloat3("##Scale", glm::value_ptr(transformComponent.Scale), 0.1f);
+                if (ImGui::DragFloat3("##Scale", glm::value_ptr(scale), 0.1f))
+                {
+                    transformComponent.SetLocalScale(scale);
+                }
             }
         }
 
@@ -1288,6 +1300,8 @@ namespace Coffee
                 ImGui::DragFloat("Animation Speed", &animatorComponent.AnimationSpeed, 0.01f, 0.1f, 5.0f, "%.2f");
 
                 ImGui::Checkbox("Loop", &animatorComponent.Loop);
+
+                animatorComponent.NeedsUpdate = true;
             }
 
             if (!isCollapsingHeaderOpen)
@@ -2221,8 +2235,8 @@ namespace Coffee
                             
                             if (entity.HasComponent<TransformComponent>()) {
                                 auto& transform = entity.GetComponent<TransformComponent>();
-                                rbComponent.rb->SetPosition(transform.Position);
-                                rbComponent.rb->SetRotation(transform.Rotation);
+                                rbComponent.rb->SetPosition(transform.GetLocalPosition());
+                                rbComponent.rb->SetRotation(transform.GetLocalRotation());
                             }
                             
                             m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());

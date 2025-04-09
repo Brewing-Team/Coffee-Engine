@@ -27,8 +27,7 @@ namespace Coffee {
         std::vector<ozz::math::SoaTransform> LocalTransforms; ///< Local transforms for the animation joints.
         std::vector<ozz::math::SimdFloat4> JointWeights; ///< Weights for blending animation joints.
 
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation));
          }
