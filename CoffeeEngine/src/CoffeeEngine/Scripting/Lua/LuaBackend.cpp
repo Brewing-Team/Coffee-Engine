@@ -480,7 +480,7 @@ namespace Coffee {
             Input::SetMouseGrabbed(grabbed);
         });
 
-        inputTable.set_function("get_axis", [](InputAction action) {
+        inputTable.set_function("get_axis", [](const std::string& action) {
             return Input::GetBinding(action).AsAxis(false);
         });
 

@@ -94,4 +94,4 @@ namespace Coffee
 
 } // namespace Coffee
 
-CEREAL_CLASS_VERSION(Coffee::InputBinding, 0)
+CEREAL_CLASS_VERSION(Coffee::InputBinding, 2)
