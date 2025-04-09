@@ -21,6 +21,9 @@ namespace Coffee {
         Entity GetSelectedEntity() const { return m_SelectionContext; };
         void SetSelectedEntity(Entity entity) { m_SelectionContext = entity; };
 
+        void CreatePrefab(Entity entity);
+        void InstantiatePrefab(const std::filesystem::path& path);
+
     private:
         void DrawEntityNode(Entity entity);
         void DrawComponents(Entity entity);
@@ -32,6 +35,7 @@ namespace Coffee {
     private:
         Ref<Scene> m_Context;
         Entity m_SelectionContext;
+        std::vector<std::filesystem::path> m_RecentPrefabs;
 
         bool m_ShowLuaScriptOptions = false;
     };

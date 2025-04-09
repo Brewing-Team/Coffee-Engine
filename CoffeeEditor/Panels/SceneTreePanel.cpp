@@ -9,6 +9,7 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/Prefab.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
@@ -3178,6 +3179,49 @@ namespace Coffee
 
             ImGui::EndPopup();
         }
+
+        if (ImGui::BeginPopupContextItem())
+        {
+            if (ImGui::MenuItem("Create Prefab"))
+            {
+                CreatePrefab(m_SelectionContext);
+                ImGui::CloseCurrentPopup();
+            }
+            
+            // For the Prefabs menu
+            if (ImGui::BeginMenu("Prefabs"))
+            {
+                // List recently used prefabs
+                for (const auto& path : m_RecentPrefabs)
+                {
+                    if (ImGui::MenuItem(path.filename().string().c_str()))
+                    {
+                        InstantiatePrefab(path);
+                    }
+                }
+                
+                if (ImGui::MenuItem("Browse..."))
+                {
+                    FileDialogArgs args;
+                    args.Filters = {{"Prefab", "prefab"}};
+                    auto path = FileDialog::OpenFile(args);
+                    if (!path.empty())
+                    {
+                        InstantiatePrefab(path);
+                        // Add to recent prefabs list if not already there
+                        if (std::find(m_RecentPrefabs.begin(), m_RecentPrefabs.end(), path) == m_RecentPrefabs.end())
+                        {
+                            m_RecentPrefabs.push_back(path);
+                            // Keep only the last 5 prefabs
+                            if (m_RecentPrefabs.size() > 5)
+                                m_RecentPrefabs.erase(m_RecentPrefabs.begin());
+                        }
+                    }
+                }
+                
+                ImGui::EndMenu();
+            }
+        }
     }
 
     bool SceneTreePanel::ResizeColliderToFitMeshAABB(Entity entity, RigidbodyComponent& rbComponent)
@@ -3214,5 +3258,52 @@ namespace Coffee
         }
         
         return false;
+    }
+    
+    void SceneTreePanel::CreatePrefab(Entity entity)
+    {
+        if (!entity)
+            return;
+            
+        FileDialogArgs args;
+        args.Filters = {{"Prefab", "prefab"}};
+        args.DefaultName = entity.GetComponent<TagComponent>().Tag + ".prefab";
+        const std::filesystem::path& path = FileDialog::SaveFile(args);
+        
+        if (path.empty())
+            return;
+            
+        Ref<Prefab> prefab = Prefab::Create(entity);
+        prefab->Save(path);
+        
+        // Add to recent prefabs
+        if (std::find(m_RecentPrefabs.begin(), m_RecentPrefabs.end(), path) == m_RecentPrefabs.end()) {
+            m_RecentPrefabs.push_back(path);
+            // Keep only last 5 prefabs
+            if (m_RecentPrefabs.size() > 5)
+                m_RecentPrefabs.erase(m_RecentPrefabs.begin());
+        }
+        
+        COFFEE_CORE_INFO("Created prefab: {0}", path.string());
+    }
+    
+    void SceneTreePanel::InstantiatePrefab(const std::filesystem::path& path)
+    {
+        Ref<Prefab> prefab = Prefab::Load(path);
+        if (!prefab)
+            return;
+            
+        Entity instance = prefab->Instantiate(m_Context.get());
+        SetSelectedEntity(instance);
+        
+        // Add to recent prefabs if not already there
+        if (std::find(m_RecentPrefabs.begin(), m_RecentPrefabs.end(), path) == m_RecentPrefabs.end()) {
+            m_RecentPrefabs.push_back(path);
+            // Keep only last 5 prefabs
+            if (m_RecentPrefabs.size() > 5)
+                m_RecentPrefabs.erase(m_RecentPrefabs.begin());
+        }
+        
+        COFFEE_CORE_INFO("Instantiated prefab: {0}", path.string());
     }
 } // namespace Coffee
