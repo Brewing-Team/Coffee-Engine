@@ -146,10 +146,59 @@ namespace Coffee
         {
             m_SelectionContext = entity;
         }
+
+        if (ImGui::BeginPopup("EntityContextMenu"))
+        {
+            if (ImGui::MenuItem("Create Prefab"))
+            {
+                CreatePrefab(m_SelectionContext);
+                ImGui::CloseCurrentPopup();
+            }
+            
+            // For the Prefabs menu
+            if (ImGui::BeginMenu("Prefabs"))
+            {
+                // List recently used prefabs
+                for (const auto& path : m_RecentPrefabs)
+                {
+                    if (ImGui::MenuItem(path.filename().string().c_str()))
+                    {
+                        InstantiatePrefab(path);
+                    }
+                }
+                
+                if (ImGui::MenuItem("Browse..."))
+                {
+                    FileDialogArgs args;
+                    args.Filters = {{"Prefab", "prefab"}};
+                    auto path = FileDialog::OpenFile(args);
+                    if (!path.empty())
+                    {
+                        InstantiatePrefab(path);
+                        // Add to recent prefabs list if not already there
+                        if (std::find(m_RecentPrefabs.begin(), m_RecentPrefabs.end(), path) == m_RecentPrefabs.end())
+                        {
+                            m_RecentPrefabs.push_back(path);
+                            // Keep only the last 5 prefabs
+                            if (m_RecentPrefabs.size() > 5)
+                                m_RecentPrefabs.erase(m_RecentPrefabs.begin());
+                        }
+                    }
+                }
+                
+                ImGui::EndMenu();
+            }
+            ImGui::EndPopup();
+        }
     
         // Code of Double clicking the item for changing the name (WIP)
         ImVec2 itemSize = ImGui::GetItemRectSize();
     
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+            ImGui::OpenPopup("EntityContextMenu");
+        }
+
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
             ImVec2 popupPos = ImGui::GetItemRectMin();
@@ -2444,49 +2493,6 @@ namespace Coffee
             }
 
             ImGui::EndPopup();
-        }
-
-        if (ImGui::BeginPopupContextItem())
-        {
-            if (ImGui::MenuItem("Create Prefab"))
-            {
-                CreatePrefab(m_SelectionContext);
-                ImGui::CloseCurrentPopup();
-            }
-            
-            // For the Prefabs menu
-            if (ImGui::BeginMenu("Prefabs"))
-            {
-                // List recently used prefabs
-                for (const auto& path : m_RecentPrefabs)
-                {
-                    if (ImGui::MenuItem(path.filename().string().c_str()))
-                    {
-                        InstantiatePrefab(path);
-                    }
-                }
-                
-                if (ImGui::MenuItem("Browse..."))
-                {
-                    FileDialogArgs args;
-                    args.Filters = {{"Prefab", "prefab"}};
-                    auto path = FileDialog::OpenFile(args);
-                    if (!path.empty())
-                    {
-                        InstantiatePrefab(path);
-                        // Add to recent prefabs list if not already there
-                        if (std::find(m_RecentPrefabs.begin(), m_RecentPrefabs.end(), path) == m_RecentPrefabs.end())
-                        {
-                            m_RecentPrefabs.push_back(path);
-                            // Keep only the last 5 prefabs
-                            if (m_RecentPrefabs.size() > 5)
-                                m_RecentPrefabs.erase(m_RecentPrefabs.begin());
-                        }
-                    }
-                }
-                
-                ImGui::EndMenu();
-            }
         }
     }
 
