@@ -182,27 +182,54 @@ namespace Coffee {
          */
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
-            entt::snapshot_loader{m_Registry}
-            .get<entt::entity>(archive)
-            .template get<TagComponent>(archive)
-            .template get<TransformComponent>(archive)
-            .template get<HierarchyComponent>(archive)
-            .template get<CameraComponent>(archive)
-            .template get<MeshComponent>(archive)
-            .template get<MaterialComponent>(archive)
-            .template get<LightComponent>(archive)
-            .template get<RigidbodyComponent>(archive)
-            .template get<ScriptComponent>(archive)
-            .template get<NavMeshComponent>(archive)
-            .template get<NavigationAgentComponent>(archive)
-            .template get<AnimatorComponent>(archive)
-            .template get<AudioSourceComponent>(archive)
-            .template get<AudioListenerComponent>(archive)
-            .template get<AudioZoneComponent>(archive)
-            .template get<ParticlesSystemComponent>(archive)
-            .template get<ActiveComponent>(archive)
-            .template get<StaticComponent>(archive)
-            .template get<SpriteComponent>(archive);
+            if (version == 0)
+            {
+                entt::snapshot_loader{m_Registry}
+                    .get<entt::entity>(archive)
+                    .template get<TagComponent>(archive)
+                    .template get<TransformComponent>(archive)
+                    .template get<HierarchyComponent>(archive)
+                    .template get<CameraComponent>(archive)
+                    .template get<MeshComponent>(archive)
+                    .template get<MaterialComponent>(archive)
+                    .template get<LightComponent>(archive)
+                    .template get<RigidbodyComponent>(archive)
+                    .template get<ScriptComponent>(archive)
+                    .template get<NavMeshComponent>(archive)
+                    .template get<NavigationAgentComponent>(archive)
+                    .template get<AnimatorComponent>(archive)
+                    .template get<AudioSourceComponent>(archive)
+                    .template get<AudioListenerComponent>(archive)
+                    .template get<AudioZoneComponent>(archive)
+                    .template get<ParticlesSystemComponent>(archive)
+                    .template get<ActiveComponent>(archive)
+                    .template get<StaticComponent>(archive);
+            }
+            else if (version == 1)
+            {
+                entt::snapshot_loader{m_Registry}
+                    .get<entt::entity>(archive)
+                    .template get<TagComponent>(archive)
+                    .template get<TransformComponent>(archive)
+                    .template get<HierarchyComponent>(archive)
+                    .template get<CameraComponent>(archive)
+                    .template get<MeshComponent>(archive)
+                    .template get<MaterialComponent>(archive)
+                    .template get<LightComponent>(archive)
+                    .template get<RigidbodyComponent>(archive)
+                    .template get<ScriptComponent>(archive)
+                    .template get<NavMeshComponent>(archive)
+                    .template get<NavigationAgentComponent>(archive)
+                    .template get<AnimatorComponent>(archive)
+                    .template get<AudioSourceComponent>(archive)
+                    .template get<AudioListenerComponent>(archive)
+                    .template get<AudioZoneComponent>(archive)
+                    .template get<ParticlesSystemComponent>(archive)
+                    .template get<ActiveComponent>(archive)
+                    .template get<StaticComponent>(archive)
+                    .template get<SpriteComponent>(archive);
+            }
+            
 
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
@@ -235,4 +262,5 @@ namespace Coffee {
     void AddModelToTheSceneTree(Scene* scene, Ref<Model> model, AnimatorComponent* animatorComponent = nullptr);
 
     /** @} */ // end of scene group
-}
+} // namespace Coffee
+CEREAL_CLASS_VERSION(Coffee::Scene, 1);
