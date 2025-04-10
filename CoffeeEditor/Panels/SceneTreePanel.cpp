@@ -1771,18 +1771,18 @@ namespace Coffee
                     ImGui::DragFloat3("##ParticleStartRotation", glm::value_ptr(emitter->startRotation), 0.1f);
                 }
 
-                ImGui::Checkbox("##UseEmission", &emitter->useEmission);
-                ImGui::SameLine();
+                //ImGui::Checkbox("##UseEmission", &emitter->useEmission);
+                //ImGui::SameLine();
                 ImGui::PushID("Emission");
 
                 if (ImGui::TreeNodeEx("Emission Settings", ImGuiTreeNodeFlags_None))
                 {
                     // If not enabled, set the text to gray and disable the controls
-                    if (!emitter->useEmission)
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
-                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
-                    }
+                    //if (!emitter->useEmission)
+                    //{
+                    //    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
+                    //    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                    //}
 
                     // Select emitter shape
                     ImGui::Text("Rate over Time");
@@ -1796,6 +1796,58 @@ namespace Coffee
                     {   
                         emitter->Emit(emitter->emitParticlesTest);
                     }
+
+                    ImGui::Checkbox("##UseBurst", &emitter->useBurst);
+                    ImGui::SameLine();
+                    if (ImGui::TreeNodeEx("Bursts Settings", ImGuiTreeNodeFlags_None))
+                    {
+                        if (!emitter->useBurst)
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
+                            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                        }
+                        ImGui::PushItemWidth(50.0f);
+
+                        for (int i = 0; i < emitter->bursts.size(); i++)
+                        {
+                            BurstParticleEmitter& burst = emitter->bursts[i];
+                            
+                            std::string number = std::to_string(i);
+
+                            ImGui::DragFloat(("##Time" + number).c_str(), &burst.initialTime, 0.1, 0);
+                            ImGui::SameLine();
+                            ImGui::DragInt(("##Count" + number).c_str(), &burst.count, 1, 0);
+                            ImGui::SameLine();
+                            ImGui::DragFloat(("##Interval" + number).c_str(), &burst.interval, 0.01f, 0);
+
+                            ImGui::SameLine();
+                            if (ImGui::Button(("X##" + number).c_str()))
+                            {
+                                emitter->bursts.erase(emitter->bursts.begin() + i);
+                                i--;
+                            }
+                           
+                        }
+
+
+                        if (ImGui::Button("Add Burst"))
+                        {
+                            emitter->bursts.push_back({0, 0, 0});
+                        }
+
+
+
+
+                        if (!emitter->useBurst)
+                        {
+                            ImGui::PopItemFlag();
+                            ImGui::PopStyleColor();
+                        }
+                        ImGui::PopItemWidth();
+
+                        ImGui::TreePop();
+                    }
+
 
                     ImGui::TreePop();
                 }

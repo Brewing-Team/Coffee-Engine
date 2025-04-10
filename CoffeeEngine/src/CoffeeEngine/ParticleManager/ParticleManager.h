@@ -8,6 +8,28 @@ namespace Coffee
 {
     class ParticleEmitter;
 
+
+    struct BurstParticleEmitter
+    {
+        float initialTime;
+        int count;
+        float interval;
+
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const {
+            archive(cereal::make_nvp("initialTime", initialTime));
+            archive(cereal::make_nvp("count", count));
+            archive(cereal::make_nvp("interval", interval));
+        }
+
+        template <class Archive> void load(Archive& archive, const std::uint32_t& version) {
+            archive(cereal::make_nvp("initialTime", initialTime));
+            archive(cereal::make_nvp("count", count));
+            archive(cereal::make_nvp("interval", interval));
+        }
+
+    };
+
+
     /**
      * @brief Represents a particle in the particle system.
      */
@@ -139,6 +161,11 @@ namespace Coffee
         bool useEmission = true;   // Whether emission is enabled
         float rateOverTime = 1.0f; // Emission rate over time
         float emitParticlesTest = 5.0f;
+
+
+        bool useBurst = false;
+        std::vector<BurstParticleEmitter> bursts;
+
 
         /**
          * @brief Enum for shape types.
@@ -279,20 +306,7 @@ namespace Coffee
 
         template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
-           /* archive(transformComponentMatrix, useDirectionRandom, direction, directionRandom, useColorRandom,
-                    colorNormal, colorRandom, amount, looping, useRandomLifeTime, startLifeTimeMin, startLifeTimeMax,
-                    startLifeTime, useRandomSpeed, startSpeedMin, startSpeedMax, startSpeed, useRandomSize,
-                    useSplitAxesSize, startSizeMin, startSizeMax, startSize, useRandomRotation, startRotationMin,
-                    startRotationMax, startRotation, simulationSpace, useEmission, rateOverTime, shape, minSpread,
-                    maxSpread, useShape, shapeAngle, shapeRadius, shapeRadiusThickness, useVelocityOverLifetime,
-                    velocityOverLifeTimeSeparateAxes, speedOverLifeTimeX, speedOverLifeTimeY, speedOverLifeTimeZ,
-                    speedOverLifeTimeGeneral, useSizeOverLifetime, sizeOverLifeTimeSeparateAxes, sizeOverLifetimeX,
-                    sizeOverLifetimeY, sizeOverLifetimeZ, sizeOverLifetimeGeneral, useRotationOverLifetime,
-                    rotationOverLifetimeX, rotationOverLifetimeY, rotationOverLifetimeZ, useColorOverLifetime,
-                    overLifetimecolor, colorOverLifetime_gradientPoints, useRenderer, renderMode, renderAlignment,
-                    elapsedTime, particleTexture->GetUUID());*/
-
-
+  
             // -------------------- Transform --------------------
            archive(cereal::make_nvp("TransformMatrix", transformComponentMatrix));
 
@@ -341,6 +355,8 @@ namespace Coffee
            // -------------------- Emisión --------------------
            archive(cereal::make_nvp("UseEmission", useEmission));
            archive(cereal::make_nvp("RateOverTime", rateOverTime));
+           archive(cereal::make_nvp("UseBurst", useBurst));
+           archive(cereal::make_nvp("Bursts", bursts));
 
            // -------------------- Forma --------------------
            archive(cereal::make_nvp("ShapeType", shape));
@@ -422,7 +438,7 @@ template <class Archive> void load(Archive& archive, const std::uint32_t& versio
                 }
             
             }
-            else if (version >= 1)
+            if (version >= 1)
             {
                 // -------------------- Transform --------------------
                 archive(cereal::make_nvp("TransformMatrix", transformComponentMatrix));
@@ -529,10 +545,16 @@ template <class Archive> void load(Archive& archive, const std::uint32_t& versio
                 }
 
             }
+            if (version >= 2)
+            {
+                archive(cereal::make_nvp("UseBurst", useBurst));
+                archive(cereal::make_nvp("Bursts", bursts));
+            
+            }
 
            
   
         }
     };
 } // namespace Coffee
-CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 1);
+CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 2);
