@@ -1580,11 +1580,6 @@ namespace Coffee
             ImGui::PushID("ParticlesSystem");
             if (ImGui::CollapsingHeader("Particle System", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // Position
-                // ImGui::Text("Position");
-                // ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
-
-                // Rate over time
 
                 // Direction
                 ImGui::Checkbox("##ParticleDirectionUseRandom", &emitter->useDirectionRandom);
@@ -1616,14 +1611,6 @@ namespace Coffee
                 {
                     ImGui::ColorEdit4("##ParticleColorRandom", glm::value_ptr(emitter->colorRandom));
                 }
-
-                //// Life Time
-                // ImGui::Text("Life Time");
-                // ImGui::DragFloat("##ParticleLife", &emitter->lifeTime, 0.1f, 0.0f, 100.0f);
-
-                //// Size
-                // ImGui::Text("Size");
-                // ImGui::DragFloat("##ParticleSize", &emitter->size, 0.1f, 0.0f, 10.0f);
 
                 // Looping
                 ImGui::Checkbox("##ParticleLooping", &emitter->looping);
@@ -1777,12 +1764,6 @@ namespace Coffee
 
                 if (ImGui::TreeNodeEx("Emission Settings", ImGuiTreeNodeFlags_None))
                 {
-                    // If not enabled, set the text to gray and disable the controls
-                    //if (!emitter->useEmission)
-                    //{
-                    //    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
-                    //    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
-                    //}
 
                     // Select emitter shape
                     ImGui::Text("Rate over Time");
