@@ -154,10 +154,17 @@ namespace Coffee {
             entity.AddComponent<StaticComponent>();
         }
 
+        // We don't want to add the ActiveComponent to the prefab instance
+        // as it will be added to the entity when it is added to the scene
+        //
+        // Because of that, we can't have a Prefab without an ActiveComponent.
+        // TODO Make it possible to have a prefab without an ActiveComponent
+        /*
         if (m_Registry.all_of<ActiveComponent>(prefabEntity))
         {
             entity.AddComponent<ActiveComponent>();
         }
+        */
 
         if (parent)
         {
