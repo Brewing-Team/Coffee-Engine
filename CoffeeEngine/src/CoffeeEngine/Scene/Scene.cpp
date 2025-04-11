@@ -65,6 +65,24 @@ namespace Coffee {
     }
 
     template <>
+    void CopyComponentIfExists<ActiveComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        // ActiveComponent is empty, just place it
+        if (!registry.all_of<ActiveComponent>(destinyEntity)) {
+            registry.emplace<ActiveComponent>(destinyEntity);
+        }
+    }
+
+    template <>
+    void CopyComponentIfExists<StaticComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        // StaticComponent is empty, just place it
+        if (!registry.all_of<StaticComponent>(destinyEntity)) {
+            registry.emplace<StaticComponent>(destinyEntity);
+        }
+    }
+
+    template <>
     void CopyComponentIfExists<HierarchyComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
     {
         // We don't need to copy the hierarchy component directly
