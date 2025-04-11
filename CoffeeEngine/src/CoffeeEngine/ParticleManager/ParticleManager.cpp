@@ -129,6 +129,24 @@ namespace Coffee
                 GenerateParticle();
                 accumulatedParticles -= 1.0f;
             }
+
+
+            for (int i = 0; i < bursts.size(); i++)
+            {
+                Ref<BurstParticleEmitter> burst = bursts[i];
+
+                if (burst->initialTime <= elapsedTime)
+                {
+                    burst->intervalTimer += deltaTime;
+
+                    if (burst->intervalTimer > burst->interval)
+                    {
+                        Emit(burst->count);
+                        burst->intervalTimer = 0;
+                    }
+                }
+            }
+
         }
 
         for (size_t i = 0; i < activeParticles.size();)

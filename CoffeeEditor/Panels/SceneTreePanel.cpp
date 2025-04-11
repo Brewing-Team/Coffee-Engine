@@ -1808,17 +1808,24 @@ namespace Coffee
                         }
                         ImGui::PushItemWidth(50.0f);
 
+                        ImGui::Text("Time  ");
+                        ImGui::SameLine();
+                        ImGui::Text("Count  ");
+                        ImGui::SameLine();
+                        ImGui::Text("Interval");
+                        
+
                         for (int i = 0; i < emitter->bursts.size(); i++)
                         {
-                            BurstParticleEmitter& burst = emitter->bursts[i];
+                            Ref<BurstParticleEmitter> burst = emitter->bursts[i];
                             
                             std::string number = std::to_string(i);
 
-                            ImGui::DragFloat(("##Time" + number).c_str(), &burst.initialTime, 0.1, 0);
+                            ImGui::DragFloat(("##Time" + number).c_str(), &burst->initialTime, 0.1, 0);
                             ImGui::SameLine();
-                            ImGui::DragInt(("##Count" + number).c_str(), &burst.count, 1, 0);
+                            ImGui::DragInt(("##Count" + number).c_str(), &burst->count, 1, 0);
                             ImGui::SameLine();
-                            ImGui::DragFloat(("##Interval" + number).c_str(), &burst.interval, 0.01f, 0);
+                            ImGui::DragFloat(("##Interval" + number).c_str(), &burst->interval, 0.01f, 0);
 
                             ImGui::SameLine();
                             if (ImGui::Button(("X##" + number).c_str()))
@@ -1832,7 +1839,12 @@ namespace Coffee
 
                         if (ImGui::Button("Add Burst"))
                         {
-                            emitter->bursts.push_back({0, 0, 0});
+                            Ref<BurstParticleEmitter> newBurst = CreateRef<BurstParticleEmitter>();
+                            newBurst->initialTime = 0.0f;
+                            newBurst->count = 0.0f;
+                            newBurst->interval = 0.0f;
+
+                            emitter->bursts.push_back(newBurst);
                         }
 
 

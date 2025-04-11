@@ -14,6 +14,7 @@ namespace Coffee
         float initialTime;
         int count;
         float interval;
+        float intervalTimer;
 
         template <class Archive> void save(Archive& archive, std::uint32_t const version) const {
             archive(cereal::make_nvp("initialTime", initialTime));
@@ -164,7 +165,7 @@ namespace Coffee
 
 
         bool useBurst = false;
-        std::vector<BurstParticleEmitter> bursts;
+        std::vector<Ref<BurstParticleEmitter>> bursts;
 
 
         /**
