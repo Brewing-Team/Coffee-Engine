@@ -36,6 +36,19 @@ namespace Coffee {
         {
             archive(cereal::make_nvp("Base", cereal::base_class<Resource>(this)));
             archive(cereal::make_nvp("RootEntity", m_RootEntity));
+
+            entt::snapshot{m_Registry}
+                .get<entt::entity>(archive)
+                .template get<TagComponent>(archive)
+                .template get<TransformComponent>(archive)
+                .template get<HierarchyComponent>(archive)
+                .template get<MeshComponent>(archive)
+                .template get<MaterialComponent>(archive)
+                .template get<LightComponent>(archive)
+                .template get<RigidbodyComponent>(archive)
+                .template get<ParticlesSystemComponent>(archive)
+                .template get<StaticComponent>(archive)
+                .template get<ActiveComponent>(archive);
         }
         
         template<class Archive>
@@ -43,6 +56,19 @@ namespace Coffee {
         {
             archive(cereal::make_nvp("Base", cereal::base_class<Resource>(this)));
             archive(cereal::make_nvp("RootEntity", m_RootEntity));
+
+            entt::snapshot_loader{m_Registry}
+                .get<entt::entity>(archive)
+                .template get<TagComponent>(archive)
+                .template get<TransformComponent>(archive)
+                .template get<HierarchyComponent>(archive)
+                .template get<MeshComponent>(archive)
+                .template get<MaterialComponent>(archive)
+                .template get<LightComponent>(archive)
+                .template get<RigidbodyComponent>(archive)
+                .template get<ParticlesSystemComponent>(archive)
+                .template get<StaticComponent>(archive)
+                .template get<ActiveComponent>(archive);
         }
         
     private:
