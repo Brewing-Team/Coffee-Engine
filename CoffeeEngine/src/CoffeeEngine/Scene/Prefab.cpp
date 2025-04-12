@@ -103,97 +103,97 @@ namespace Coffee {
         return instance;
     }
 
-    Entity Prefab::CopyEntityToScene(Scene* scene, entt::entity prefabEntity, Entity parent)
+    Entity Prefab::CopyEntityToScene(Scene* scene, const entt::entity prefabEntity, const Entity parent)
     {
         Entity entity = scene->CreateEntity();
 
         if (m_Registry.all_of<TagComponent>(prefabEntity))
         {
-            auto& tag = m_Registry.get<TagComponent>(prefabEntity);
+            const auto& tag = m_Registry.get<TagComponent>(prefabEntity);
             entity.GetComponent<TagComponent>().Tag = tag.Tag;
         }
 
         if (m_Registry.all_of<TransformComponent>(prefabEntity))
         {
-            auto& transform = m_Registry.get<TransformComponent>(prefabEntity);
+            const auto& transform = m_Registry.get<TransformComponent>(prefabEntity);
             entity.GetComponent<TransformComponent>() = transform;
         }
 
         if (m_Registry.all_of<MeshComponent>(prefabEntity))
         {
-            auto& meshComp = m_Registry.get<MeshComponent>(prefabEntity);
+            const auto& meshComp = m_Registry.get<MeshComponent>(prefabEntity);
             entity.AddComponent<MeshComponent>(meshComp);
         }
 
         if (m_Registry.all_of<MaterialComponent>(prefabEntity))
         {
-            auto& matComp = m_Registry.get<MaterialComponent>(prefabEntity);
+            const auto& matComp = m_Registry.get<MaterialComponent>(prefabEntity);
             entity.AddComponent<MaterialComponent>(matComp);
         }
 
         if (m_Registry.all_of<LightComponent>(prefabEntity))
         {
-            auto& lightComp = m_Registry.get<LightComponent>(prefabEntity);
+            const auto& lightComp = m_Registry.get<LightComponent>(prefabEntity);
             entity.AddComponent<LightComponent>(lightComp);
         }
 
         if (m_Registry.all_of<RigidbodyComponent>(prefabEntity))
         {
-            auto& rbComp = m_Registry.get<RigidbodyComponent>(prefabEntity);
+            const auto& rbComp = m_Registry.get<RigidbodyComponent>(prefabEntity);
             entity.AddComponent<RigidbodyComponent>(rbComp);
         }
 
         if (m_Registry.all_of<ParticlesSystemComponent>(prefabEntity))
         {
-            auto& particlesComp = m_Registry.get<ParticlesSystemComponent>(prefabEntity);
+            const auto& particlesComp = m_Registry.get<ParticlesSystemComponent>(prefabEntity);
             entity.AddComponent<ParticlesSystemComponent>(particlesComp);
         }
 
         if (m_Registry.all_of<ScriptComponent>(prefabEntity))
         {
-            auto& scriptComp = m_Registry.get<ScriptComponent>(prefabEntity);
+            const auto& scriptComp = m_Registry.get<ScriptComponent>(prefabEntity);
             entity.AddComponent<ScriptComponent>(scriptComp);
         }
 
         if (m_Registry.all_of<AnimatorComponent>(prefabEntity))
         {
-            auto& animatorComp = m_Registry.get<AnimatorComponent>(prefabEntity);
+            const auto& animatorComp = m_Registry.get<AnimatorComponent>(prefabEntity);
             entity.AddComponent<AnimatorComponent>(animatorComp);
         }
 
         if (m_Registry.all_of<AudioSourceComponent>(prefabEntity))
         {
-            auto& audioSourceComp = m_Registry.get<AudioSourceComponent>(prefabEntity);
+            const auto& audioSourceComp = m_Registry.get<AudioSourceComponent>(prefabEntity);
             entity.AddComponent<AudioSourceComponent>(audioSourceComp);
         }
 
         if (m_Registry.all_of<AudioListenerComponent>(prefabEntity))
         {
-            auto& audioListenerComp = m_Registry.get<AudioListenerComponent>(prefabEntity);
+            const auto& audioListenerComp = m_Registry.get<AudioListenerComponent>(prefabEntity);
             entity.AddComponent<AudioListenerComponent>(audioListenerComp);
         }
 
         if (m_Registry.all_of<AudioZoneComponent>(prefabEntity))
         {
-            auto& audioZoneComp = m_Registry.get<AudioZoneComponent>(prefabEntity);
+            const auto& audioZoneComp = m_Registry.get<AudioZoneComponent>(prefabEntity);
             entity.AddComponent<AudioZoneComponent>(audioZoneComp);
         }
 
         if (m_Registry.all_of<NavigationAgentComponent>(prefabEntity))
         {
-            auto& navAgentComp = m_Registry.get<NavigationAgentComponent>(prefabEntity);
+            const auto& navAgentComp = m_Registry.get<NavigationAgentComponent>(prefabEntity);
             entity.AddComponent<NavigationAgentComponent>(navAgentComp);
         }
 
         if (m_Registry.all_of<NavMeshComponent>(prefabEntity))
         {
-            auto& navMeshComp = m_Registry.get<NavMeshComponent>(prefabEntity);
+            const auto& navMeshComp = m_Registry.get<NavMeshComponent>(prefabEntity);
             entity.AddComponent<NavMeshComponent>(navMeshComp);
         }
 
         if (m_Registry.all_of<ParticlesSystemComponent>(prefabEntity))
         {
-            auto& particlesComp = m_Registry.get<ParticlesSystemComponent>(prefabEntity);
+            const auto& particlesComp = m_Registry.get<ParticlesSystemComponent>(prefabEntity);
             entity.AddComponent<ParticlesSystemComponent>(particlesComp);
         }
 
