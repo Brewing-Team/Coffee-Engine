@@ -149,6 +149,54 @@ namespace Coffee {
             entity.AddComponent<ParticlesSystemComponent>(particlesComp);
         }
 
+        if (m_Registry.all_of<ScriptComponent>(prefabEntity))
+        {
+            auto& scriptComp = m_Registry.get<ScriptComponent>(prefabEntity);
+            entity.AddComponent<ScriptComponent>(scriptComp);
+        }
+
+        if (m_Registry.all_of<AnimatorComponent>(prefabEntity))
+        {
+            auto& animatorComp = m_Registry.get<AnimatorComponent>(prefabEntity);
+            entity.AddComponent<AnimatorComponent>(animatorComp);
+        }
+
+        if (m_Registry.all_of<AudioSourceComponent>(prefabEntity))
+        {
+            auto& audioSourceComp = m_Registry.get<AudioSourceComponent>(prefabEntity);
+            entity.AddComponent<AudioSourceComponent>(audioSourceComp);
+        }
+
+        if (m_Registry.all_of<AudioListenerComponent>(prefabEntity))
+        {
+            auto& audioListenerComp = m_Registry.get<AudioListenerComponent>(prefabEntity);
+            entity.AddComponent<AudioListenerComponent>(audioListenerComp);
+        }
+
+        if (m_Registry.all_of<AudioZoneComponent>(prefabEntity))
+        {
+            auto& audioZoneComp = m_Registry.get<AudioZoneComponent>(prefabEntity);
+            entity.AddComponent<AudioZoneComponent>(audioZoneComp);
+        }
+
+        if (m_Registry.all_of<NavigationAgentComponent>(prefabEntity))
+        {
+            auto& navAgentComp = m_Registry.get<NavigationAgentComponent>(prefabEntity);
+            entity.AddComponent<NavigationAgentComponent>(navAgentComp);
+        }
+
+        if (m_Registry.all_of<NavMeshComponent>(prefabEntity))
+        {
+            auto& navMeshComp = m_Registry.get<NavMeshComponent>(prefabEntity);
+            entity.AddComponent<NavMeshComponent>(navMeshComp);
+        }
+
+        if (m_Registry.all_of<ParticlesSystemComponent>(prefabEntity))
+        {
+            auto& particlesComp = m_Registry.get<ParticlesSystemComponent>(prefabEntity);
+            entity.AddComponent<ParticlesSystemComponent>(particlesComp);
+        }
+
         if (m_Registry.all_of<StaticComponent>(prefabEntity))
         {
             entity.AddComponent<StaticComponent>();
