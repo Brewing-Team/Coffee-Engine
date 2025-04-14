@@ -191,12 +191,6 @@ namespace Coffee {
             entity.AddComponent<NavMeshComponent>(navMeshComp);
         }
 
-        if (m_Registry.all_of<ParticlesSystemComponent>(prefabEntity))
-        {
-            const auto& particlesComp = m_Registry.get<ParticlesSystemComponent>(prefabEntity);
-            entity.AddComponent<ParticlesSystemComponent>(particlesComp);
-        }
-
         if (m_Registry.all_of<StaticComponent>(prefabEntity))
         {
             entity.AddComponent<StaticComponent>();
