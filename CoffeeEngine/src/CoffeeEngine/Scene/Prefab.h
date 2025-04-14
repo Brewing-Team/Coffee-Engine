@@ -48,7 +48,14 @@ namespace Coffee {
                 .template get<RigidbodyComponent>(archive)
                 .template get<ParticlesSystemComponent>(archive)
                 .template get<StaticComponent>(archive)
-                .template get<ActiveComponent>(archive);
+                .template get<ActiveComponent>(archive)
+                .template get<ScriptComponent>(archive)
+                .template get<AnimatorComponent>(archive)
+                .template get<AudioSourceComponent>(archive)
+                .template get<AudioListenerComponent>(archive)
+                .template get<AudioZoneComponent>(archive)
+                .template get<NavMeshComponent>(archive)
+                .template get<NavigationAgentComponent>(archive);
         }
         
         template<class Archive>
@@ -68,7 +75,14 @@ namespace Coffee {
                 .template get<RigidbodyComponent>(archive)
                 .template get<ParticlesSystemComponent>(archive)
                 .template get<StaticComponent>(archive)
-                .template get<ActiveComponent>(archive);
+                .template get<ActiveComponent>(archive)
+                .template get<ScriptComponent>(archive)
+                .template get<AnimatorComponent>(archive)
+                .template get<AudioSourceComponent>(archive)
+                .template get<AudioListenerComponent>(archive)
+                .template get<AudioZoneComponent>(archive)
+                .template get<NavMeshComponent>(archive)
+                .template get<NavigationAgentComponent>(archive);
         }
         
     private:
