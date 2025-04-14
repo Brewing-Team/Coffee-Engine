@@ -56,6 +56,27 @@ namespace Coffee {
         if (sourceEntity.HasComponent<ActiveComponent>())
             m_Registry.emplace<ActiveComponent>(destEntity);
 
+        if (sourceEntity.HasComponent<ScriptComponent>())
+            m_Registry.emplace<ScriptComponent>(destEntity, sourceEntity.GetComponent<ScriptComponent>());
+
+        if (sourceEntity.HasComponent<AnimatorComponent>())
+            m_Registry.emplace<AnimatorComponent>(destEntity, sourceEntity.GetComponent<AnimatorComponent>());
+
+        if (sourceEntity.HasComponent<AudioSourceComponent>())
+            m_Registry.emplace<AudioSourceComponent>(destEntity, sourceEntity.GetComponent<AudioSourceComponent>());
+
+        if (sourceEntity.HasComponent<AudioListenerComponent>())
+            m_Registry.emplace<AudioListenerComponent>(destEntity, sourceEntity.GetComponent<AudioListenerComponent>());
+
+        if (sourceEntity.HasComponent<AudioZoneComponent>())
+            m_Registry.emplace<AudioZoneComponent>(destEntity, sourceEntity.GetComponent<AudioZoneComponent>());
+
+        if (sourceEntity.HasComponent<NavMeshComponent>())
+            m_Registry.emplace<NavMeshComponent>(destEntity, sourceEntity.GetComponent<NavMeshComponent>());
+
+        if (sourceEntity.HasComponent<NavigationAgentComponent>())
+            m_Registry.emplace<NavigationAgentComponent>(destEntity, sourceEntity.GetComponent<NavigationAgentComponent>());
+
         std::vector<Entity> children = sourceEntity.GetChildren();
         for (auto& child : children)
         {
