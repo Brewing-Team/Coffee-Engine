@@ -213,13 +213,18 @@ namespace Coffee {
             entity.SetParent(parent);
         }
 
-        auto& hierarchy = m_Registry.get<HierarchyComponent>(prefabEntity);
-        entt::entity childEntity = hierarchy.m_First;
+        // Find and process all child entities of this entity
+        // This approach directly queries for all entities that have the current entity as parent
+        // instead of following the sibling chain (m_First -> m_Next links).
+        // This is safer than the sibling chain.
+        std::vector<entt::entity> childEntities;
+        m_Registry.view<HierarchyComponent>().each([&](entt::entity e, const HierarchyComponent& h) {
+            if (h.m_Parent == prefabEntity)
+                childEntities.push_back(e);
+        });
 
-        while (childEntity != entt::null)
-        {
+        for (auto childEntity : childEntities) {
             CopyEntityToScene(scene, childEntity, entity);
-            childEntity = m_Registry.get<HierarchyComponent>(childEntity).m_Next;
         }
 
         return entity;
