@@ -107,6 +107,7 @@ namespace Coffee
         }
 
         // Entity Tree Drag and Drop functionality
+                // Entity Tree Drag and Drop functionality
         if (ImGui::BeginDragDropTarget())
         {
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
@@ -119,9 +120,19 @@ namespace Coffee
                     AddModelToTheSceneTree(m_Context.get(), model);
                     break;
                 }
-                default:
+                case ResourceType::Prefab: {
+                    // Get the prefab and instantiate it in the scene
+                    Ref<Prefab> prefab = std::static_pointer_cast<Prefab>(resource);
+                    if (prefab)
+                    {
+                        InstantiatePrefab(prefab->GetPath());
+                    }
                     break;
                 }
+                default: {
+                    break;
+                }
+                } // This closing brace was missing in the original code
             }
             ImGui::EndDragDropTarget();
         }
@@ -169,40 +180,6 @@ namespace Coffee
             {
                 CreatePrefab(m_SelectionContext);
                 ImGui::CloseCurrentPopup();
-            }
-            
-            // For the Prefabs menu
-            if (ImGui::BeginMenu("Prefabs"))
-            {
-                // List recently used prefabs
-                for (const auto& path : m_RecentPrefabs)
-                {
-                    if (ImGui::MenuItem(path.filename().string().c_str()))
-                    {
-                        InstantiatePrefab(path);
-                    }
-                }
-                
-                if (ImGui::MenuItem("Browse..."))
-                {
-                    FileDialogArgs args;
-                    args.Filters = {{"Prefab", "prefab"}};
-                    auto path = FileDialog::OpenFile(args);
-                    if (!path.empty())
-                    {
-                        InstantiatePrefab(path);
-                        // Add to recent prefabs list if not already there
-                        if (std::find(m_RecentPrefabs.begin(), m_RecentPrefabs.end(), path) == m_RecentPrefabs.end())
-                        {
-                            m_RecentPrefabs.push_back(path);
-                            // Keep only the last 5 prefabs
-                            if (m_RecentPrefabs.size() > 5)
-                                m_RecentPrefabs.erase(m_RecentPrefabs.begin());
-                        }
-                    }
-                }
-                
-                ImGui::EndMenu();
             }
             ImGui::EndPopup();
         }
