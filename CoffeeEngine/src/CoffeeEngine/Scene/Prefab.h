@@ -5,6 +5,7 @@
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/Scene.h"
+#include "SceneManager.h"
 
 #include <entt/entt.hpp>
 #include <filesystem>
@@ -83,6 +84,9 @@ namespace Coffee {
                 .template get<AudioZoneComponent>(archive)
                 .template get<NavMeshComponent>(archive)
                 .template get<NavigationAgentComponent>(archive);
+
+            SceneManager::GetActiveScene()->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
+
         }
         
     private:
