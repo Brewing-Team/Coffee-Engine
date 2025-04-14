@@ -113,12 +113,20 @@ namespace Coffee {
             return Entity(entt::null, scene);
         }
 
+        Scene::s_AnimatorComponents.clear();
+        m_EntityMap.clear();
+
         Entity instance = CopyEntityToScene(scene, m_RootEntity, Entity());
 
         if (transform != glm::mat4(1.0f))
         {
             auto& instanceTransform = instance.GetComponent<TransformComponent>();
             instanceTransform.SetLocalTransform(transform * instanceTransform.GetLocalTransform());
+        }
+
+        if (!Scene::s_AnimatorComponents.empty())
+        {
+            scene->AssignAnimatorsToMeshes(Scene::s_AnimatorComponents);
         }
 
         return instance;
@@ -143,7 +151,22 @@ namespace Coffee {
         if (m_Registry.all_of<MeshComponent>(prefabEntity))
         {
             const auto& meshComp = m_Registry.get<MeshComponent>(prefabEntity);
-            entity.AddComponent<MeshComponent>(meshComp);
+            
+            // Create a copy of the mesh component
+            MeshComponent newMeshComp = meshComp;
+            
+            // Update animator UUID if needed
+            if (meshComp.animatorUUID != UUID())
+            {
+                auto it = m_EntityMap.find(meshComp.animatorUUID);
+                if (it != m_EntityMap.end())
+                {
+                    newMeshComp.animatorUUID = it->second;
+                    newMeshComp.animator = nullptr; // Will be reassigned later in AssignAnimatorsToMeshes
+                }
+            }
+            
+            entity.AddComponent<MeshComponent>(newMeshComp);
         }
 
         if (m_Registry.all_of<MaterialComponent>(prefabEntity))
@@ -179,7 +202,29 @@ namespace Coffee {
         if (m_Registry.all_of<AnimatorComponent>(prefabEntity))
         {
             const auto& animatorComp = m_Registry.get<AnimatorComponent>(prefabEntity);
-            entity.AddComponent<AnimatorComponent>(animatorComp);
+            
+            AnimatorComponent newAnimatorComp = animatorComp;
+            
+            newAnimatorComp.UpperAnimation = CreateRef<AnimationLayer>(*animatorComp.UpperAnimation);
+            newAnimatorComp.LowerAnimation = CreateRef<AnimationLayer>(*animatorComp.LowerAnimation);
+            
+            UUID oldUUID = animatorComp.animatorUUID;
+            UUID newUUID = UUID();
+            m_EntityMap[oldUUID] = newUUID;  // Store mapping for mesh references
+            newAnimatorComp.animatorUUID = newUUID;
+            
+            AnimationSystem::LoadAnimator(&newAnimatorComp);
+            
+            const std::string rootJointName = newAnimatorComp.GetSkeleton()->GetJoints()[newAnimatorComp.UpperBodyRootJoint].name;
+            AnimationSystem::SetupPartialBlending(
+                newAnimatorComp.UpperAnimation->CurrentAnimation,
+                newAnimatorComp.LowerAnimation->CurrentAnimation,
+                rootJointName,
+                &newAnimatorComp
+            );
+            
+            entity.AddComponent<AnimatorComponent>(newAnimatorComp);
+            Scene::s_AnimatorComponents.push_back(&entity.GetComponent<AnimatorComponent>());
         }
 
         if (m_Registry.all_of<AudioSourceComponent>(prefabEntity))
