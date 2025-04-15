@@ -386,27 +386,53 @@ namespace Coffee
 
             if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                glm::vec3 position = transformComponent.GetLocalPosition();
-                glm::vec3 rotation = transformComponent.GetLocalRotation();
-                glm::vec3 scale = transformComponent.GetLocalScale();
-
-                ImGui::Text("Position");
-                if (ImGui::DragFloat3("##Position", glm::value_ptr(position), 0.1f))
+                if (entity.HasComponent<UIImageComponent>())
                 {
-                    transformComponent.SetLocalPosition(position);
+                    glm::vec2 position = { transformComponent.GetLocalPosition().x, transformComponent.GetLocalPosition().y };
+                    float rotation = transformComponent.GetLocalRotation().z;
+                    glm::vec2 scale = { transformComponent.GetLocalScale().x, transformComponent.GetLocalScale().y };
+
+                    ImGui::Text("Position");
+                    if (ImGui::DragFloat2("##Position", glm::value_ptr(position), 0.1f))
+                    {
+                        transformComponent.SetLocalPosition(glm::vec3(position.x, position.y, 0.f));
+                    }
+
+                    ImGui::Text("Rotation");
+                    if (ImGui::DragFloat("##Rotation", &rotation, 0.1f))
+                    {
+                        transformComponent.SetLocalRotation(glm::vec3(0.f, 0.f, rotation));
+                    }
+
+                    ImGui::Text("Scale");
+                    if (ImGui::DragFloat2("##Scale", glm::value_ptr(scale), 0.1f))
+                    {
+                        transformComponent.SetLocalScale(glm::vec3(scale.x, scale.y, 1.f));
+                    }
                 }
-                
-
-                ImGui::Text("Rotation");
-                if (ImGui::DragFloat3("##Rotation", glm::value_ptr(rotation), 0.1f))
+                else
                 {
-                    transformComponent.SetLocalRotation(rotation);
-                }
+                    glm::vec3 position = transformComponent.GetLocalPosition();
+                    glm::vec3 rotation = transformComponent.GetLocalRotation();
+                    glm::vec3 scale = transformComponent.GetLocalScale();
 
-                ImGui::Text("Scale");
-                if (ImGui::DragFloat3("##Scale", glm::value_ptr(scale), 0.1f))
-                {
-                    transformComponent.SetLocalScale(scale);
+                    ImGui::Text("Position");
+                    if (ImGui::DragFloat3("##Position", glm::value_ptr(position), 0.1f))
+                    {
+                        transformComponent.SetLocalPosition(position);
+                    }
+
+                    ImGui::Text("Rotation");
+                    if (ImGui::DragFloat3("##Rotation", glm::value_ptr(rotation), 0.1f))
+                    {
+                        transformComponent.SetLocalRotation(rotation);
+                    }
+
+                    ImGui::Text("Scale");
+                    if (ImGui::DragFloat3("##Scale", glm::value_ptr(scale), 0.1f))
+                    {
+                        transformComponent.SetLocalScale(scale);
+                    }
                 }
             }
         }
@@ -2841,6 +2867,13 @@ namespace Coffee
             ImGui::PopID();
         }
 
+        if (entity.HasComponent<UIImageComponent>())
+        {
+            if (ImGui::CollapsingHeader("UI Image", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+            }
+        }
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -2861,7 +2894,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component"};
 
             static int item_current = 1;
 
@@ -3050,6 +3083,14 @@ namespace Coffee
                         navigationAgentComponent.SetPathFinder(CreateRef<NavMeshPathfinding>(nullptr));
                     }
 
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Image Component")
+                {
+                    if (!entity.HasComponent<UIImageComponent>())
+                    {
+                        entity.AddComponent<UIImageComponent>();
+                    }
                     ImGui::CloseCurrentPopup();
                 }
                 else
