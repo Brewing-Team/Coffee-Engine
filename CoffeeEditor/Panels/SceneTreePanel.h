@@ -22,7 +22,6 @@ namespace Coffee {
         void SetSelectedEntity(Entity entity) { m_SelectionContext = entity; };
 
         void CreatePrefab(Entity entity);
-        void InstantiatePrefab(const std::filesystem::path& path);
 
     private:
         void DrawEntityNode(Entity entity);
