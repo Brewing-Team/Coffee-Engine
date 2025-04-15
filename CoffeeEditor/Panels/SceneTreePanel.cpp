@@ -177,11 +177,21 @@ namespace Coffee
             m_SelectionContext = entity;
         }
 
-        if (ImGui::BeginPopup("EntityContextMenu"))
+        // Create a unique popup ID for each entity to prevent collisions
+        std::string contextMenuId = "EntityContextMenu##" + std::to_string((uint32_t)(uint64_t)(entt::entity)entity);
+
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+            // Set the selection context to this entity and open its unique popup
+            m_SelectionContext = entity;
+            ImGui::OpenPopup(contextMenuId.c_str());
+        }
+
+        if (ImGui::BeginPopup(contextMenuId.c_str()))
         {
             if (ImGui::MenuItem("Create Prefab"))
             {
-                CreatePrefab(m_SelectionContext);
+                CreatePrefab(entity);
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();
@@ -190,11 +200,6 @@ namespace Coffee
         // Code of Double clicking the item for changing the name (WIP)
         ImVec2 itemSize = ImGui::GetItemRectSize();
     
-        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
-        {
-            ImGui::OpenPopup("EntityContextMenu");
-        }
-
         if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
         {
             ImVec2 popupPos = ImGui::GetItemRectMin();
