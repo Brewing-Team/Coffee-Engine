@@ -35,7 +35,6 @@ namespace Coffee {
     private:
         Ref<Scene> m_Context;
         Entity m_SelectionContext;
-        std::vector<std::filesystem::path> m_RecentPrefabs;
 
         bool m_ShowLuaScriptOptions = false;
     };

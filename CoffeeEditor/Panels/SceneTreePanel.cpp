@@ -107,9 +107,9 @@ namespace Coffee
         }
 
         // Entity Tree Drag and Drop functionality
-                // Entity Tree Drag and Drop functionality
         if (ImGui::BeginDragDropTarget())
         {
+            // Handle normal resources (like models)
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
             {
                 const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
@@ -121,19 +121,38 @@ namespace Coffee
                     break;
                 }
                 case ResourceType::Prefab: {
-                    // Get the prefab and instantiate it in the scene
-                    Ref<Prefab> prefab = std::static_pointer_cast<Prefab>(resource);
-                    if (prefab)
+                    if (const Ref<Prefab> prefab = std::static_pointer_cast<Prefab>(resource))
                     {
-                        InstantiatePrefab(prefab->GetPath());
+                        const Entity instance = prefab->Instantiate(m_Context.get());
+                        SetSelectedEntity(instance);
+                        
+                        COFFEE_CORE_INFO("Instantiated prefab: {0}", prefab->GetPath().string());
                     }
                     break;
                 }
                 default: {
                     break;
                 }
-                } // This closing brace was missing in the original code
+                } // End of switch
             }
+
+            // Handle prefab paths - only load the prefab when it's actually dropped
+            if (const ImGuiPayload* prefabPayload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+            {
+                const char* pathStr = (const char*)prefabPayload->Data;
+                std::filesystem::path prefabPath = pathStr;
+                
+                // Load the prefab now that it's being used
+                Ref<Prefab> prefab = Prefab::Load(prefabPath);
+                if (prefab)
+                {
+                    Entity instance = prefab->Instantiate(m_Context.get());
+                    SetSelectedEntity(instance);
+                    
+                    COFFEE_CORE_INFO("Instantiated prefab: {0}", prefabPath.string());
+                }
+            }
+            
             ImGui::EndDragDropTarget();
         }
 
@@ -3270,38 +3289,10 @@ namespace Coffee
         
         if (path.empty())
             return;
-            
-        Ref<Prefab> prefab = Prefab::Create(entity);
+
+        const Ref<Prefab> prefab = Prefab::Create(entity);
         prefab->Save(path);
         
-        // Add to recent prefabs
-        if (std::find(m_RecentPrefabs.begin(), m_RecentPrefabs.end(), path) == m_RecentPrefabs.end()) {
-            m_RecentPrefabs.push_back(path);
-            // Keep only last 5 prefabs
-            if (m_RecentPrefabs.size() > 5)
-                m_RecentPrefabs.erase(m_RecentPrefabs.begin());
-        }
-        
         COFFEE_CORE_INFO("Created prefab: {0}", path.string());
-    }
-    
-    void SceneTreePanel::InstantiatePrefab(const std::filesystem::path& path)
-    {
-        Ref<Prefab> prefab = Prefab::Load(path);
-        if (!prefab)
-            return;
-            
-        Entity instance = prefab->Instantiate(m_Context.get());
-        SetSelectedEntity(instance);
-        
-        // Add to recent prefabs if not already there
-        if (std::find(m_RecentPrefabs.begin(), m_RecentPrefabs.end(), path) == m_RecentPrefabs.end()) {
-            m_RecentPrefabs.push_back(path);
-            // Keep only last 5 prefabs
-            if (m_RecentPrefabs.size() > 5)
-                m_RecentPrefabs.erase(m_RecentPrefabs.begin());
-        }
-        
-        COFFEE_CORE_INFO("Instantiated prefab: {0}", path.string());
     }
 } // namespace Coffee
