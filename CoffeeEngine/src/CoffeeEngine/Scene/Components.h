@@ -1006,6 +1006,14 @@
 
         template<class Archive> void load(Archive& archive, std::uint32_t const version) {}
     };
+
+    struct UIImageComponent
+    {
+        Ref<Texture2D> Texture;
+
+        UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
+    };
+
  } // namespace Coffee
  CEREAL_CLASS_VERSION(Coffee::TagComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::TransformComponent, 0);
