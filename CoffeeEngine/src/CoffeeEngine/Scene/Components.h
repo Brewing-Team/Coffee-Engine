@@ -20,6 +20,7 @@
  #include "CoffeeEngine/Navigation/NavMesh.h"
  #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
  #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
+#include "CoffeeEngine/UI/UIAnchor.h"
 
  #include <cereal/cereal.hpp>
  #include <cereal/access.hpp>
@@ -1005,11 +1006,20 @@
         template<class Archive> void load(Archive& archive, std::uint32_t const version) {}
     };
 
-    struct UIImageComponent
+    struct UIComponent
+    {
+        RectAnchor Anchor;
+
+        UIComponent() = default;
+    };
+
+    struct UIImageComponent : public UIComponent
     {
         Ref<Texture2D> Texture;
 
         UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
+
+        void SetTexture(const Ref<Texture2D>& texture) { Texture = texture; }
     };
 
  } // namespace Coffee

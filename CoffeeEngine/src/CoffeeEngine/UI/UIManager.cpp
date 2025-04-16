@@ -6,25 +6,64 @@
 
 namespace Coffee {
 
+    glm::vec2 UIManager::WindowSize;
+
     void UIManager::UpdateUI(entt::registry& registry)
     {
-        auto windowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+        WindowSize = Renderer::GetCurrentRenderTarget()->GetSize();
         auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
 
         for (auto entity : uiImageView)
         {
             auto& uiImageComponent = uiImageView.get<UIImageComponent>(entity);
             auto& transformComponent = uiImageView.get<TransformComponent>(entity);
+            auto& anchor = uiImageComponent.Anchor;
 
-            glm::vec2 anchorOffset = glm::vec2(windowSize.x / 2.0f, windowSize.y / 2.0f);
+            glm::vec2 anchoredPosition;
+            glm::vec2 anchoredSize;
+
+            anchor.CalculateTransformData(glm::vec2(WindowSize), anchoredPosition, anchoredSize);
+
+            transformComponent.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
+            transformComponent.SetLocalScale(glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+
+            float rotation = transformComponent.GetLocalRotation().z;
+
             glm::mat4 worldTransform = glm::mat4(1.0f);
-            glm::vec2 finalPosition = anchorOffset + glm::vec2(transformComponent.GetLocalPosition());
-            worldTransform = glm::translate(worldTransform, glm::vec3(finalPosition, 0.0f));
-            worldTransform = glm::rotate(worldTransform, glm::radians(transformComponent.GetLocalRotation().z), glm::vec3(0.0f, 0.0f, 1.0f));
-            worldTransform = glm::scale(worldTransform, glm::vec3(transformComponent.GetLocalScale().x, transformComponent.GetLocalScale().y, 1.0f));
+            worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
+            worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+            worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
 
             Renderer2D::DrawQuad(worldTransform, uiImageComponent.Texture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
         }
+    }
+
+    AnchorPreset UIManager::GetAnchorPreset(int row, int column)
+    {
+        // Row: 0=top, 1=middle, 2=bottom, 3=stretch
+        // Column: 0=left, 1=center, 2=right, 3=stretch
+
+        AnchorPresetY y;
+        switch(row)
+        {
+            case 0: y = AnchorPresetY::Top; break;
+            case 1: y = AnchorPresetY::Middle; break;
+            case 2: y = AnchorPresetY::Bottom; break;
+            case 3: y = AnchorPresetY::Stretch; break;
+            default: y = AnchorPresetY::Top;
+        }
+
+        AnchorPresetX x;
+        switch(column)
+        {
+            case 0: x = AnchorPresetX::Left; break;
+            case 1: x = AnchorPresetX::Center; break;
+            case 2: x = AnchorPresetX::Right; break;
+            case 3: x = AnchorPresetX::Stretch; break;
+            default: x = AnchorPresetX::Left;
+        }
+
+        return AnchorPreset(x, y);
     }
 
 } // Coffee
