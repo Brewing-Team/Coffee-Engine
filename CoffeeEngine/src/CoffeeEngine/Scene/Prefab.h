@@ -26,6 +26,31 @@ namespace Coffee {
         static Ref<Prefab> Load(const std::filesystem::path& path);
         
     private:
+        // Helper templates to simplify component copying
+        template<typename T>
+        void CopyComponentToPrefab(Entity source, entt::entity dest) {
+            if (source.HasComponent<T>())
+                m_Registry.emplace<T>(dest, source.GetComponent<T>());
+        }
+        
+        template<typename T>
+        void CopyEmptyComponentToPrefab(Entity source, entt::entity dest) {
+            if (source.HasComponent<T>())
+                m_Registry.emplace<T>(dest);
+        }
+        
+        template<typename T>
+        void CopyComponentToScene(Scene* scene, entt::entity source, Entity& dest) {
+            if (m_Registry.all_of<T>(source))
+                dest.AddComponent<T>(m_Registry.get<T>(source));
+        }
+        
+        template<typename T>
+        void CopyEmptyComponentToScene(Scene* scene, entt::entity source, Entity& dest) {
+            if (m_Registry.all_of<T>(source))
+                dest.AddComponent<T>();
+        }
+        
         entt::entity CopyEntityToPrefab(Entity sourceEntity, entt::entity parentEntity = entt::null);
         Entity CopyEntityToScene(Scene* scene, entt::entity prefabEntity, Entity parent);
         
