@@ -1035,6 +1035,13 @@
         float FontSize = 16.0f;
     };
 
+     struct UIToggleComponent : public UIComponent
+     {
+         bool Value = false;
+         Ref<Texture2D> OnTexture;
+         Ref<Texture2D> OffTexture;
+     };
+
  } // namespace Coffee
  CEREAL_CLASS_VERSION(Coffee::TagComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::TransformComponent, 0);

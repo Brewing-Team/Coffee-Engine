@@ -2327,6 +2327,35 @@ namespace Coffee
             }
         }
 
+        if (entity.HasComponent<UIToggleComponent>())
+        {
+            auto& toggleComponent = entity.GetComponent<UIToggleComponent>();
+            if (ImGui::CollapsingHeader("Toggle", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Checkbox("Value", &toggleComponent.Value);
+
+                if (ImGui::Selectable("On Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        toggleComponent.OnTexture = texture;
+                    }
+                }
+
+                if (ImGui::Selectable("Off Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        toggleComponent.OffTexture = texture;
+                    }
+                }
+            }
+        }
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -2347,7 +2376,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component", "UI Text Component"};
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component", "UI Text Component", "UI Toggle Component" };
 
             static int item_current = 1;
 
@@ -2546,6 +2575,14 @@ namespace Coffee
                     if (!entity.HasComponent<UITextComponent>())
                     {
                         entity.AddComponent<UITextComponent>();
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Toggle Component")
+                {
+                    if (!entity.HasComponent<UIToggleComponent>())
+                    {
+                        entity.AddComponent<UIToggleComponent>();
                     }
                     ImGui::CloseCurrentPopup();
                 }

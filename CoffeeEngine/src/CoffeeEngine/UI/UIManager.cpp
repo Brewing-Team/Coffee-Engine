@@ -69,6 +69,31 @@ namespace Coffee {
             transformComponent.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
             transformComponent.SetLocalScale(glm::vec3(1.0f));
         }
+
+        auto uiToggleView = registry.view<UIToggleComponent, TransformComponent>();
+
+        for (auto entity : uiToggleView)
+        {
+            auto& toggleComponent = uiToggleView.get<UIToggleComponent>(entity);
+            auto& transformComponent = uiToggleView.get<TransformComponent>(entity);
+
+            glm::vec2 anchoredPosition;
+            glm::vec2 anchoredSize;
+            toggleComponent.Anchor.CalculateTransformData(glm::vec2(WindowSize), anchoredPosition, anchoredSize);
+
+            transformComponent.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
+            transformComponent.SetLocalScale(glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+
+            float rotation = transformComponent.GetLocalRotation().z;
+            glm::mat4 worldTransform = glm::mat4(1.0f);
+            worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
+            worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+            worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+
+            Ref<Texture2D> currentTexture = toggleComponent.Value ? toggleComponent.OnTexture : toggleComponent.OffTexture;
+
+            Renderer2D::DrawQuad(worldTransform, currentTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
+        }
     }
 
     AnchorPreset UIManager::GetAnchorPreset(int row, int column)
