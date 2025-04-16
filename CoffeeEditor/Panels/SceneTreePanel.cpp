@@ -15,6 +15,8 @@
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
+#include "CoffeeEngine/UI/UIAnchor.h"
+#include "CoffeeEngine/UI/UIManager.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
@@ -386,31 +388,7 @@ namespace Coffee
 
             if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
             {
-                if (entity.HasComponent<UIImageComponent>())
-                {
-                    glm::vec2 position = { transformComponent.GetLocalPosition().x, transformComponent.GetLocalPosition().y };
-                    float rotation = transformComponent.GetLocalRotation().z;
-                    glm::vec2 scale = { transformComponent.GetLocalScale().x, transformComponent.GetLocalScale().y };
-
-                    ImGui::Text("Position");
-                    if (ImGui::DragFloat2("##Position", glm::value_ptr(position), 0.1f))
-                    {
-                        transformComponent.SetLocalPosition(glm::vec3(position.x, position.y, 0.f));
-                    }
-
-                    ImGui::Text("Rotation");
-                    if (ImGui::DragFloat("##Rotation", &rotation, 0.1f))
-                    {
-                        transformComponent.SetLocalRotation(glm::vec3(0.f, 0.f, rotation));
-                    }
-
-                    ImGui::Text("Scale");
-                    if (ImGui::DragFloat2("##Scale", glm::value_ptr(scale), 0.1f))
-                    {
-                        transformComponent.SetLocalScale(glm::vec3(scale.x, scale.y, 1.f));
-                    }
-                }
-                else
+                if (!entity.HasComponent<UIImageComponent>())
                 {
                     glm::vec3 position = transformComponent.GetLocalPosition();
                     glm::vec3 rotation = transformComponent.GetLocalRotation();
@@ -432,6 +410,220 @@ namespace Coffee
                     if (ImGui::DragFloat3("##Scale", glm::value_ptr(scale), 0.1f))
                     {
                         transformComponent.SetLocalScale(scale);
+                    }
+                }
+                else
+                {
+                    auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
+
+                    if (ImGui::Button("Anchor Presets"))
+                        ImGui::OpenPopup("AnchorPresetsPopup");
+
+                    if (ImGui::BeginPopup("AnchorPresetsPopup"))
+                    {
+                        ImGui::Text("Shift: Also set pivot    Alt: Also set position");
+                        ImGui::Separator();
+
+                        bool preservePosition = !ImGui::GetIO().KeyAlt;
+                        bool setPivot = ImGui::GetIO().KeyShift;
+
+                        static const char* rowLabels[] = { "top", "middle", "bottom", "stretch" };
+                        static const char* columnLabels[] = { "left", "center", "right", "stretch" };
+
+                        ImGui::BeginTable("AnchorPresets", 5);
+
+                        ImGui::TableNextColumn();
+                        for (int i = 0; i < 4; i++)
+                        {
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%s", columnLabels[i]);
+                        }
+
+                        for (int row = 0; row < 4; row++)
+                        {
+                            ImGui::TableNextRow();
+                            ImGui::TableNextColumn();
+                            ImGui::Text("%s", rowLabels[row]);
+
+                            for (int col = 0; col < 4; col++)
+                            {
+                                ImGui::TableNextColumn();
+
+                                char buttonId[16];
+                                sprintf_s(buttonId, "##anchor%d%d", row, col);
+
+                                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
+                                if (ImGui::Button(buttonId, ImVec2(24, 24)))
+                                {
+                                    auto windowSize = UIManager::WindowSize;
+                                    glm::vec4 currentRect = uiImageComponent.Anchor.CalculateRect(windowSize);
+
+                                    AnchorPreset preset = UIManager::GetAnchorPreset(row, col);
+                                    uiImageComponent.Anchor.SetAnchorPreset(preset, currentRect, windowSize, preservePosition);
+
+                                    if (setPivot)
+                                    {
+                                        switch (preset.X)
+                                        {
+                                            case AnchorPresetX::Left:
+                                                uiImageComponent.Anchor.Pivot.x = 0.0f;
+                                                break;
+                                            case AnchorPresetX::Center:
+                                                uiImageComponent.Anchor.Pivot.x = 0.5f;
+                                                break;
+                                            case AnchorPresetX::Right:
+                                                uiImageComponent.Anchor.Pivot.x = 1.0f;
+                                                break;
+                                            case AnchorPresetX::Stretch:
+                                                uiImageComponent.Anchor.Pivot.x = 0.5f;
+                                                break;
+                                        }
+
+                                        switch (preset.Y)
+                                        {
+                                            case AnchorPresetY::Top:
+                                                uiImageComponent.Anchor.Pivot.y = 0.0f;
+                                                break;
+                                            case AnchorPresetY::Middle:
+                                                uiImageComponent.Anchor.Pivot.y = 0.5f;
+                                                break;
+                                            case AnchorPresetY::Bottom:
+                                                uiImageComponent.Anchor.Pivot.y = 1.0f;
+                                                break;
+                                            case AnchorPresetY::Stretch:
+                                                uiImageComponent.Anchor.Pivot.y = 0.5f;
+                                                break;
+                                        }
+                                    }
+
+                                    ImGui::CloseCurrentPopup();
+                                }
+                                ImGui::PopStyleVar();
+
+                                ImVec2 buttonMin = ImGui::GetItemRectMin();
+                                ImVec2 buttonMax = ImGui::GetItemRectMax();
+                                ImVec2 buttonSize = ImVec2(buttonMax.x - buttonMin.x, buttonMax.y - buttonMin.y);
+                                ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+                                drawList->AddRect(buttonMin, buttonMax, IM_COL32(255, 255, 255, 100));
+
+                                float padding = 6.0f;
+                                ImVec2 innerMin, innerMax;
+
+                                switch (col) {
+                                    case 0: // Left
+                                        innerMin.x = buttonMin.x + padding;
+                                        innerMax.x = buttonMin.x + buttonSize.x / 2.0f;
+                                        break;
+                                    case 1: // Center
+                                        innerMin.x = buttonMin.x + buttonSize.x / 4.0f;
+                                        innerMax.x = buttonMax.x - buttonSize.x / 4.0f;
+                                        break;
+                                    case 2: // Right
+                                        innerMin.x = buttonMin.x + buttonSize.x / 2.0f;
+                                        innerMax.x = buttonMax.x - padding;
+                                        break;
+                                    case 3: // Stretch
+                                        innerMin.x = buttonMin.x + padding;
+                                        innerMax.x = buttonMax.x - padding;
+                                        break;
+                                }
+
+                                switch (row) {
+                                    case 0: // Top
+                                        innerMin.y = buttonMin.y + padding;
+                                        innerMax.y = buttonMin.y + buttonSize.y / 2.0f;
+                                        break;
+                                    case 1: // Middle
+                                        innerMin.y = buttonMin.y + buttonSize.y / 4.0f;
+                                        innerMax.y = buttonMax.y - buttonSize.y / 4.0f;
+                                        break;
+                                    case 2: // Bottom
+                                        innerMin.y = buttonMin.y + buttonSize.y / 2.0f;
+                                        innerMax.y = buttonMax.y - padding;
+                                        break;
+                                    case 3: // Stretch
+                                        innerMin.y = buttonMin.y + padding;
+                                        innerMax.y = buttonMax.y - padding;
+                                        break;
+                                }
+
+                                drawList->AddRectFilled(innerMin, innerMax, IM_COL32(100, 150, 250, 200));
+                            }
+                        }
+
+                        ImGui::EndTable();
+                        ImGui::EndPopup();
+                    }
+
+                    if (ImGui::TreeNodeEx("Anchors", ImGuiTreeNodeFlags_DefaultOpen))
+                    {
+                        ImGui::Text("Min");
+                        ImGui::DragFloat2("##AnchorMin", glm::value_ptr(uiImageComponent.Anchor.AnchorMin), 0.01f, 0.0f, 1.0f);
+
+                        ImGui::Text("Max");
+                        ImGui::DragFloat2("##AnchorMax", glm::value_ptr(uiImageComponent.Anchor.AnchorMax), 0.01f, 0.0f, 1.0f);
+
+                        ImGui::TreePop();
+                    }
+
+                    bool isStretchingX = uiImageComponent.Anchor.AnchorMin.x != uiImageComponent.Anchor.AnchorMax.x;
+                    bool isStretchingY = uiImageComponent.Anchor.AnchorMin.y != uiImageComponent.Anchor.AnchorMax.y;
+                    auto windowSize = UIManager::WindowSize;
+
+                    if (!isStretchingX && !isStretchingY)
+                    {
+                        glm::vec2 anchoredPos = uiImageComponent.Anchor.GetAnchoredPosition(windowSize);
+                        ImGui::Text("Position");
+                        if (ImGui::DragFloat2("##Position", glm::value_ptr(anchoredPos), 1.0f))
+                        {
+                            uiImageComponent.Anchor.SetAnchoredPosition(anchoredPos, windowSize);
+                        }
+
+                        glm::vec2 size = uiImageComponent.Anchor.GetSize();
+                        ImGui::Text("Size");
+                        if (ImGui::DragFloat2("##Size", glm::value_ptr(size), 1.0f, 0.0f, FLT_MAX, "%.0f"))
+                        {
+                            uiImageComponent.Anchor.SetSize(size, windowSize);
+                        }
+                    }
+
+                    if (isStretchingX || isStretchingY)
+                    {
+                        if (ImGui::TreeNodeEx("Offsets", ImGuiTreeNodeFlags_DefaultOpen))
+                        {
+                            if (isStretchingX)
+                            {
+                                ImGui::Text("Left");
+                                ImGui::DragFloat("##OffsetMinX", &uiImageComponent.Anchor.OffsetMin.x, 1.0f);
+                                ImGui::Text("Right");
+                                ImGui::DragFloat("##OffsetMaxX", &uiImageComponent.Anchor.OffsetMax.x, 1.0f);
+                            }
+
+                            if (isStretchingY)
+                            {
+                                ImGui::Text("Top");
+                                ImGui::DragFloat("##OffsetMinY", &uiImageComponent.Anchor.OffsetMin.y, 1.0f);
+                                ImGui::Text("Bottom");
+                                ImGui::DragFloat("##OffsetMaxY", &uiImageComponent.Anchor.OffsetMax.y, 1.0f);
+                            }
+                            ImGui::TreePop();
+                        }
+                    }
+
+                    ImGui::Text("Pivot");
+                    glm::vec2 pivot = uiImageComponent.Anchor.Pivot;
+                    if (ImGui::DragFloat2("##Pivot", glm::value_ptr(pivot), 0.01f, 0.0f, 1.0f))
+                    {
+                        uiImageComponent.Anchor.SetPivot(pivot, glm::vec2(UIManager::WindowSize));
+                    }
+
+                    float rotation = transformComponent.GetLocalRotation().z;
+
+                    ImGui::Text("Rotation");
+                    if (ImGui::DragFloat("##Rotation", &rotation, 0.1f))
+                    {
+                        transformComponent.SetLocalRotation(glm::vec3(0.f, 0.f, rotation));
                     }
                 }
             }
@@ -2869,8 +3061,18 @@ namespace Coffee
 
         if (entity.HasComponent<UIImageComponent>())
         {
+            auto& imageComponent = entity.GetComponent<UIImageComponent>();
             if (ImGui::CollapsingHeader("UI Image", ImGuiTreeNodeFlags_DefaultOpen))
             {
+                if (ImGui::Selectable("Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        imageComponent.SetTexture(texture);
+                    }
+                }
             }
         }
 
