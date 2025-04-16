@@ -36,6 +36,39 @@ namespace Coffee {
 
             Renderer2D::DrawQuad(worldTransform, uiImageComponent.Texture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
         }
+
+        auto uiTextView = registry.view<UITextComponent, TransformComponent>();
+
+        for (auto entity : uiTextView)
+        {
+            auto& uiTextComponent = uiTextView.get<UITextComponent>(entity);
+            auto& transformComponent = uiTextView.get<TransformComponent>(entity);
+
+            if (!uiTextComponent.Font)
+                uiTextComponent.Font = Font::GetDefault();
+
+            glm::vec2 anchoredPosition;
+            glm::vec2 anchoredSize;
+
+            uiTextComponent.Anchor.CalculateTransformData(glm::vec2(WindowSize), anchoredPosition, anchoredSize);
+
+            float rotation = transformComponent.GetLocalRotation().z;
+
+            glm::mat4 textTransform = glm::mat4(1.0f);
+            textTransform = glm::translate(textTransform, glm::vec3(anchoredPosition, 0.0f));
+            textTransform = glm::rotate(textTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+            Renderer2D::TextParams textParams;
+            textParams.Color = uiTextComponent.Color;
+            textParams.Kerning = uiTextComponent.Kerning;
+            textParams.LineSpacing = uiTextComponent.LineSpacing;
+            textParams.Size = uiTextComponent.FontSize;
+
+            Renderer2D::DrawTextString(uiTextComponent.Text, uiTextComponent.Font, textTransform, textParams, Renderer2D::RenderMode::Screen, (uint32_t)entity);
+
+            transformComponent.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
+            transformComponent.SetLocalScale(glm::vec3(1.0f));
+        }
     }
 
     AnchorPreset UIManager::GetAnchorPreset(int row, int column)

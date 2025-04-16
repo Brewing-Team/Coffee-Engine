@@ -808,7 +808,7 @@ namespace Coffee {
         }
     }
 
-    void Renderer2D::DrawText(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, RenderMode mode, uint32_t entityID)
+    void Renderer2D::DrawTextString(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, RenderMode mode, uint32_t entityID)
     {
 
         Batch& batch = GetBatch(mode);
@@ -827,7 +827,7 @@ namespace Coffee {
         batch.FontAtlasTexture = fontAtlas;
 
         double x = 0.0;
-		double fsScale = 1.0 / (metrics.ascenderY - metrics.descenderY);
+		double fsScale = textParams.Size / (metrics.ascenderY - metrics.descenderY);
 		double y = 0.0;
 
 		const float spaceGlyphAdvance = fontGeometry.getGlyph(' ')->getAdvance();
