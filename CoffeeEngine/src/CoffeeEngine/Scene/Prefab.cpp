@@ -26,57 +26,33 @@ namespace Coffee {
     {
         entt::entity destEntity = m_Registry.create();
 
-        if (sourceEntity.HasComponent<TagComponent>())
-            m_Registry.emplace<TagComponent>(destEntity, sourceEntity.GetComponent<TagComponent>());
-
-        if (sourceEntity.HasComponent<TransformComponent>())
-            m_Registry.emplace<TransformComponent>(destEntity, sourceEntity.GetComponent<TransformComponent>());
-
+        // Copy standard components with their values
+        CopyComponentToPrefab<TagComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<TransformComponent>(sourceEntity, destEntity);
+        
+        // Create hierarchy component with parent
         auto& destHierarchy = m_Registry.emplace<HierarchyComponent>(destEntity);
         destHierarchy.m_Parent = parentEntity;
-
-        if (sourceEntity.HasComponent<MeshComponent>())
-            m_Registry.emplace<MeshComponent>(destEntity, sourceEntity.GetComponent<MeshComponent>());
-
-        if (sourceEntity.HasComponent<MaterialComponent>())
-            m_Registry.emplace<MaterialComponent>(destEntity, sourceEntity.GetComponent<MaterialComponent>());
-
-        if (sourceEntity.HasComponent<LightComponent>())
-            m_Registry.emplace<LightComponent>(destEntity, sourceEntity.GetComponent<LightComponent>());
-
-        if (sourceEntity.HasComponent<RigidbodyComponent>())
-            m_Registry.emplace<RigidbodyComponent>(destEntity, sourceEntity.GetComponent<RigidbodyComponent>());
-
-        if (sourceEntity.HasComponent<ParticlesSystemComponent>())
-            m_Registry.emplace<ParticlesSystemComponent>(destEntity, sourceEntity.GetComponent<ParticlesSystemComponent>());
-
-        if (sourceEntity.HasComponent<StaticComponent>())
-            m_Registry.emplace<StaticComponent>(destEntity);
-
-        if (sourceEntity.HasComponent<ActiveComponent>())
-            m_Registry.emplace<ActiveComponent>(destEntity);
-
-        if (sourceEntity.HasComponent<ScriptComponent>())
-            m_Registry.emplace<ScriptComponent>(destEntity, sourceEntity.GetComponent<ScriptComponent>());
-
-        if (sourceEntity.HasComponent<AnimatorComponent>())
-            m_Registry.emplace<AnimatorComponent>(destEntity, sourceEntity.GetComponent<AnimatorComponent>());
-
-        if (sourceEntity.HasComponent<AudioSourceComponent>())
-            m_Registry.emplace<AudioSourceComponent>(destEntity, sourceEntity.GetComponent<AudioSourceComponent>());
-
-        if (sourceEntity.HasComponent<AudioListenerComponent>())
-            m_Registry.emplace<AudioListenerComponent>(destEntity, sourceEntity.GetComponent<AudioListenerComponent>());
-
-        if (sourceEntity.HasComponent<AudioZoneComponent>())
-            m_Registry.emplace<AudioZoneComponent>(destEntity, sourceEntity.GetComponent<AudioZoneComponent>());
-
-        if (sourceEntity.HasComponent<NavMeshComponent>())
-            m_Registry.emplace<NavMeshComponent>(destEntity, sourceEntity.GetComponent<NavMeshComponent>());
-
-        if (sourceEntity.HasComponent<NavigationAgentComponent>())
-            m_Registry.emplace<NavigationAgentComponent>(destEntity, sourceEntity.GetComponent<NavigationAgentComponent>());
-
+        
+        // Copy other standard components
+        CopyComponentToPrefab<MeshComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<MaterialComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<LightComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<RigidbodyComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<ParticlesSystemComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<ScriptComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<AnimatorComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<AudioSourceComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<AudioListenerComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<AudioZoneComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<NavMeshComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<NavigationAgentComponent>(sourceEntity, destEntity);
+        
+        // Copy empty components (which don't need values)
+        CopyEmptyComponentToPrefab<StaticComponent>(sourceEntity, destEntity);
+        CopyEmptyComponentToPrefab<ActiveComponent>(sourceEntity, destEntity);
+        
+        // Process children - this part remains unchanged
         std::vector<Entity> children = sourceEntity.GetChildren();
         for (auto& child : children)
         {
@@ -136,6 +112,7 @@ namespace Coffee {
     {
         Entity entity = scene->CreateEntity();
 
+        // Handle tag and transform (these are already on the entity)
         if (m_Registry.all_of<TagComponent>(prefabEntity))
         {
             const auto& tag = m_Registry.get<TagComponent>(prefabEntity);
@@ -148,6 +125,7 @@ namespace Coffee {
             entity.GetComponent<TransformComponent>() = transform;
         }
 
+        // Handle special components with custom logic
         if (m_Registry.all_of<MeshComponent>(prefabEntity))
         {
             const auto& meshComp = m_Registry.get<MeshComponent>(prefabEntity);
@@ -162,43 +140,13 @@ namespace Coffee {
                 if (it != m_EntityMap.end())
                 {
                     newMeshComp.animatorUUID = it->second;
-                    newMeshComp.animator = nullptr; // Will be reassigned later in AssignAnimatorsToMeshes
+                    newMeshComp.animator = nullptr; // Will be reassigned later
                 }
             }
             
             entity.AddComponent<MeshComponent>(newMeshComp);
         }
-
-        if (m_Registry.all_of<MaterialComponent>(prefabEntity))
-        {
-            const auto& matComp = m_Registry.get<MaterialComponent>(prefabEntity);
-            entity.AddComponent<MaterialComponent>(matComp);
-        }
-
-        if (m_Registry.all_of<LightComponent>(prefabEntity))
-        {
-            const auto& lightComp = m_Registry.get<LightComponent>(prefabEntity);
-            entity.AddComponent<LightComponent>(lightComp);
-        }
-
-        if (m_Registry.all_of<RigidbodyComponent>(prefabEntity))
-        {
-            const auto& rbComp = m_Registry.get<RigidbodyComponent>(prefabEntity);
-            entity.AddComponent<RigidbodyComponent>(rbComp);
-        }
-
-        if (m_Registry.all_of<ParticlesSystemComponent>(prefabEntity))
-        {
-            const auto& particlesComp = m_Registry.get<ParticlesSystemComponent>(prefabEntity);
-            entity.AddComponent<ParticlesSystemComponent>(particlesComp);
-        }
-
-        if (m_Registry.all_of<ScriptComponent>(prefabEntity))
-        {
-            const auto& scriptComp = m_Registry.get<ScriptComponent>(prefabEntity);
-            entity.AddComponent<ScriptComponent>(scriptComp);
-        }
-
+        
         if (m_Registry.all_of<AnimatorComponent>(prefabEntity))
         {
             const auto& animatorComp = m_Registry.get<AnimatorComponent>(prefabEntity);
@@ -226,42 +174,22 @@ namespace Coffee {
             entity.AddComponent<AnimatorComponent>(newAnimatorComp);
             Scene::s_AnimatorComponents.push_back(&entity.GetComponent<AnimatorComponent>());
         }
-
-        if (m_Registry.all_of<AudioSourceComponent>(prefabEntity))
-        {
-            const auto& audioSourceComp = m_Registry.get<AudioSourceComponent>(prefabEntity);
-            entity.AddComponent<AudioSourceComponent>(audioSourceComp);
-        }
-
-        if (m_Registry.all_of<AudioListenerComponent>(prefabEntity))
-        {
-            const auto& audioListenerComp = m_Registry.get<AudioListenerComponent>(prefabEntity);
-            entity.AddComponent<AudioListenerComponent>(audioListenerComp);
-        }
-
-        if (m_Registry.all_of<AudioZoneComponent>(prefabEntity))
-        {
-            const auto& audioZoneComp = m_Registry.get<AudioZoneComponent>(prefabEntity);
-            entity.AddComponent<AudioZoneComponent>(audioZoneComp);
-        }
-
-        if (m_Registry.all_of<NavigationAgentComponent>(prefabEntity))
-        {
-            const auto& navAgentComp = m_Registry.get<NavigationAgentComponent>(prefabEntity);
-            entity.AddComponent<NavigationAgentComponent>(navAgentComp);
-        }
-
-        if (m_Registry.all_of<NavMeshComponent>(prefabEntity))
-        {
-            const auto& navMeshComp = m_Registry.get<NavMeshComponent>(prefabEntity);
-            entity.AddComponent<NavMeshComponent>(navMeshComp);
-        }
-
-        if (m_Registry.all_of<StaticComponent>(prefabEntity))
-        {
-            entity.AddComponent<StaticComponent>();
-        }
-
+        
+        // Copy standard components
+        CopyComponentToScene<MaterialComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<LightComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<RigidbodyComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<ParticlesSystemComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<ScriptComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<AudioSourceComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<AudioListenerComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<AudioZoneComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<NavigationAgentComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<NavMeshComponent>(scene, prefabEntity, entity);
+        
+        // Copy empty components
+        CopyEmptyComponentToScene<StaticComponent>(scene, prefabEntity, entity);
+        
         // We don't want to add the ActiveComponent to the prefab instance
         // as it will be added to the entity when it is added to the scene
         //
