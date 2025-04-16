@@ -2307,6 +2307,26 @@ namespace Coffee
             }
         }
 
+        if (entity.HasComponent<UITextComponent>())
+        {
+            auto& textComponent = entity.GetComponent<UITextComponent>();
+            if (ImGui::CollapsingHeader("UI Text", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                char buffer[256] = {};
+                strncpy_s(buffer, textComponent.Text.c_str(), sizeof(buffer));
+
+                if (ImGui::InputTextMultiline("##Text", buffer, sizeof(buffer)))
+                {
+                    textComponent.Text = std::string(buffer);
+                }
+
+                ImGui::DragFloat("Size", &entity.GetComponent<UITextComponent>().FontSize, 0.1f, 0.0f, 100.0f);
+                ImGui::DragFloat("Kerning", &entity.GetComponent<UITextComponent>().Kerning, 0.1f, 0.0f, 100.0f);
+                ImGui::DragFloat("Line Spacing", &entity.GetComponent<UITextComponent>().LineSpacing, 0.1f, 0.0f, 100.0f);
+                ImGui::ColorEdit4("Color", glm::value_ptr(entity.GetComponent<UITextComponent>().Color));
+            }
+        }
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -2327,7 +2347,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component"};
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component", "UI Text Component"};
 
             static int item_current = 1;
 
@@ -2518,6 +2538,14 @@ namespace Coffee
                     if (!entity.HasComponent<UIImageComponent>())
                     {
                         entity.AddComponent<UIImageComponent>();
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Text Component")
+                {
+                    if (!entity.HasComponent<UITextComponent>())
+                    {
+                        entity.AddComponent<UITextComponent>();
                     }
                     ImGui::CloseCurrentPopup();
                 }

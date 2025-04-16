@@ -20,7 +20,8 @@
  #include "CoffeeEngine/Navigation/NavMesh.h"
  #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
  #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
-#include "CoffeeEngine/UI/UIAnchor.h"
+ #include "CoffeeEngine/UI/UIAnchor.h"
+ #include "CoffeeEngine//Renderer/Font.h"
 
  #include <cereal/cereal.hpp>
  #include <cereal/access.hpp>
@@ -1020,6 +1021,18 @@
         UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
 
         void SetTexture(const Ref<Texture2D>& texture) { Texture = texture; }
+    };
+
+    struct UITextComponent : public UIComponent
+    {
+        UITextComponent() { Text = "Text"; }
+
+        std::string Text;
+        Ref<Font> Font;
+        glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        float Kerning = 0.0f;
+        float LineSpacing = 0.0f;
+        float FontSize = 16.0f;
     };
 
  } // namespace Coffee
