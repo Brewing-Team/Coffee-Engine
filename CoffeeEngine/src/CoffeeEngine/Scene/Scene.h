@@ -172,7 +172,10 @@ namespace Coffee {
             .template get<ParticlesSystemComponent>(archive)
             .template get<ActiveComponent>(archive)
             .template get<StaticComponent>(archive)
-            .template get<SpriteComponent>(archive);
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive);
          }
 
         /**
@@ -182,54 +185,30 @@ namespace Coffee {
          */
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
-            if (version == 0)
-            {
-                entt::snapshot_loader{m_Registry}
-                    .get<entt::entity>(archive)
-                    .template get<TagComponent>(archive)
-                    .template get<TransformComponent>(archive)
-                    .template get<HierarchyComponent>(archive)
-                    .template get<CameraComponent>(archive)
-                    .template get<MeshComponent>(archive)
-                    .template get<MaterialComponent>(archive)
-                    .template get<LightComponent>(archive)
-                    .template get<RigidbodyComponent>(archive)
-                    .template get<ScriptComponent>(archive)
-                    .template get<NavMeshComponent>(archive)
-                    .template get<NavigationAgentComponent>(archive)
-                    .template get<AnimatorComponent>(archive)
-                    .template get<AudioSourceComponent>(archive)
-                    .template get<AudioListenerComponent>(archive)
-                    .template get<AudioZoneComponent>(archive)
-                    .template get<ParticlesSystemComponent>(archive)
-                    .template get<ActiveComponent>(archive)
-                    .template get<StaticComponent>(archive);
-            }
-            else if (version == 1)
-            {
-                entt::snapshot_loader{m_Registry}
-                    .get<entt::entity>(archive)
-                    .template get<TagComponent>(archive)
-                    .template get<TransformComponent>(archive)
-                    .template get<HierarchyComponent>(archive)
-                    .template get<CameraComponent>(archive)
-                    .template get<MeshComponent>(archive)
-                    .template get<MaterialComponent>(archive)
-                    .template get<LightComponent>(archive)
-                    .template get<RigidbodyComponent>(archive)
-                    .template get<ScriptComponent>(archive)
-                    .template get<NavMeshComponent>(archive)
-                    .template get<NavigationAgentComponent>(archive)
-                    .template get<AnimatorComponent>(archive)
-                    .template get<AudioSourceComponent>(archive)
-                    .template get<AudioListenerComponent>(archive)
-                    .template get<AudioZoneComponent>(archive)
-                    .template get<ParticlesSystemComponent>(archive)
-                    .template get<ActiveComponent>(archive)
-                    .template get<StaticComponent>(archive)
-                    .template get<SpriteComponent>(archive);
-            }
-            
+            entt::snapshot_loader{m_Registry}
+            .get<entt::entity>(archive)
+            .template get<TagComponent>(archive)
+            .template get<TransformComponent>(archive)
+            .template get<HierarchyComponent>(archive)
+            .template get<CameraComponent>(archive)
+            .template get<MeshComponent>(archive)
+            .template get<MaterialComponent>(archive)
+            .template get<LightComponent>(archive)
+            .template get<RigidbodyComponent>(archive)
+            .template get<ScriptComponent>(archive)
+            .template get<NavMeshComponent>(archive)
+            .template get<NavigationAgentComponent>(archive)
+            .template get<AnimatorComponent>(archive)
+            .template get<AudioSourceComponent>(archive)
+            .template get<AudioListenerComponent>(archive)
+            .template get<AudioZoneComponent>(archive)
+            .template get<ParticlesSystemComponent>(archive)
+            .template get<ActiveComponent>(archive)
+            .template get<StaticComponent>(archive)
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive);
 
              HierarchyComponent::LoadingScene = false;
 
