@@ -29,6 +29,9 @@ namespace Coffee {
         void ShowCreateEntityMenu();
         bool ResizeColliderToFitMeshAABB(Entity entity, RigidbodyComponent& rbComponent);
 
+        void DrawTransform(TransformComponent& transformComponent);
+        void DrawUITransform(TransformComponent& transformComponent, RectAnchor& anchor);
+
     private:
         Ref<Scene> m_Context;
         Entity m_SelectionContext;
