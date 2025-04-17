@@ -38,8 +38,6 @@ namespace Coffee {
         glm::vec2 OffsetMin = { 0.0f, 0.0f };
         glm::vec2 OffsetMax = { 0.0f, 0.0f };
 
-        glm::vec2 Pivot = { 0.5f, 0.5f };
-
         void SetAnchorPreset(AnchorPreset preset, const glm::vec4& currentRect, const glm::vec2& parentSize, bool preservePosition);
 
         glm::vec4 CalculateRect(const glm::vec2& parentSize) const;
@@ -52,7 +50,6 @@ namespace Coffee {
         void SetAnchoredPosition(const glm::vec2& position, const glm::vec2& parentSize);
         glm::vec2 GetSize() const;
         void SetSize(const glm::vec2& size, const glm::vec2& parentSize);
-        void SetPivot(const glm::vec2& newPivot, const glm::vec2& parentSize);
     };
 
 } // Coffee
