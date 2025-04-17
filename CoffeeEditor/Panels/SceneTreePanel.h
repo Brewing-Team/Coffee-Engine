@@ -30,7 +30,7 @@ namespace Coffee {
         bool ResizeColliderToFitMeshAABB(Entity entity, RigidbodyComponent& rbComponent);
 
         void DrawTransform(TransformComponent& transformComponent);
-        void DrawUITransform(TransformComponent& transformComponent, RectAnchor& anchor);
+        void DrawUITransform(TransformComponent& transformComponent, RectAnchor& anchor, Entity entity);
 
     private:
         Ref<Scene> m_Context;
