@@ -1042,6 +1042,30 @@
          Ref<Texture2D> OffTexture;
      };
 
+     struct UIButtonComponent : public UIComponent
+     {
+        enum class State
+        {
+            Normal,
+            Hover,
+            Pressed,
+            Disabled
+        };
+
+         State CurrentState = State::Normal;
+         bool Interactable = true;
+
+         Ref<Texture2D> NormalTexture;
+         Ref<Texture2D> HoverTexture;
+         Ref<Texture2D> PressedTexture;
+         Ref<Texture2D> DisabledTexture;
+
+         glm::vec4 NormalColor{1.0f};
+         glm::vec4 HoverColor{1.0f};
+         glm::vec4 PressedColor{1.0f};
+         glm::vec4 DisabledColor{1.0f};
+     };
+
  } // namespace Coffee
  CEREAL_CLASS_VERSION(Coffee::TagComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::TransformComponent, 0);

@@ -2356,6 +2356,73 @@ namespace Coffee
             }
         }
 
+        if (entity.HasComponent<UIButtonComponent>())
+        {
+            auto& buttonComponent = entity.GetComponent<UIButtonComponent>();
+            if (ImGui::CollapsingHeader("UI Button", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                if (ImGui::Checkbox("Interactable", &buttonComponent.Interactable))
+                {
+                    buttonComponent.CurrentState = buttonComponent.Interactable ? UIButtonComponent::State::Normal : UIButtonComponent::State::Disabled;
+                }
+
+                if (ImGui::Selectable("Normal Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        buttonComponent.NormalTexture = texture;
+                    }
+                }
+
+                if (ImGui::Selectable("Hover Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        buttonComponent.HoverTexture = texture;
+                    }
+                }
+
+                if (ImGui::Selectable("Pressed Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        buttonComponent.PressedTexture = texture;
+                    }
+                }
+
+                if (ImGui::Selectable("Dissabled Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        buttonComponent.DisabledTexture = texture;
+                    }
+                }
+
+                ImGui::Text("Normal Color");
+                ImGui::ColorEdit4("##NormalColor", glm::value_ptr(buttonComponent.NormalColor));
+
+                ImGui::Text("Hover Color");
+                ImGui::ColorEdit4("##HoverColor", glm::value_ptr(buttonComponent.HoverColor));
+
+                ImGui::Text("Pressed Color");
+                ImGui::ColorEdit4("##PressedColor", glm::value_ptr(buttonComponent.PressedColor));
+
+                ImGui::Text("Disabled Color");
+                ImGui::ColorEdit4("##DisabledColor", glm::value_ptr(buttonComponent.DisabledColor));
+
+                const char* stateNames[] = { "Normal", "Hover", "Pressed", "Disabled" };
+                ImGui::Text("Current State: %s", stateNames[static_cast<int>(buttonComponent.CurrentState)]);
+            }
+        }
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -2376,7 +2443,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component", "UI Text Component", "UI Toggle Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component", "UI Text Component", "UI Toggle Component", "UI Button Component" };
 
             static int item_current = 1;
 
@@ -2583,6 +2650,14 @@ namespace Coffee
                     if (!entity.HasComponent<UIToggleComponent>())
                     {
                         entity.AddComponent<UIToggleComponent>();
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Button Component")
+                {
+                    if (!entity.HasComponent<UIButtonComponent>())
+                    {
+                        entity.AddComponent<UIButtonComponent>();
                     }
                     ImGui::CloseCurrentPopup();
                 }

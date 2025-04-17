@@ -94,6 +94,53 @@ namespace Coffee {
 
             Renderer2D::DrawQuad(worldTransform, currentTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
         }
+
+        auto uiButtonView = registry.view<UIButtonComponent, TransformComponent>();
+
+        for (auto entity : uiButtonView)
+        {
+            auto& button = uiButtonView.get<UIButtonComponent>(entity);
+            auto& transform = uiButtonView.get<TransformComponent>(entity);
+
+            glm::vec2 anchoredPosition;
+            glm::vec2 anchoredSize;
+            button.Anchor.CalculateTransformData(glm::vec2(WindowSize), anchoredPosition, anchoredSize);
+
+            transform.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
+            transform.SetLocalScale(glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+
+            float rotation = transform.GetLocalRotation().z;
+            glm::mat4 worldTransform = glm::mat4(1.0f);
+            worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
+            worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+            worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+
+            Ref<Texture2D> currentTexture = nullptr;
+            glm::vec4 currentColor{1.0f};
+
+            switch (button.CurrentState)
+            {
+                case UIButtonComponent::State::Normal:
+                    currentTexture = button.NormalTexture;
+                    currentColor = button.NormalColor;
+                    break;
+                case UIButtonComponent::State::Hover:
+                    currentTexture = button.HoverTexture;
+                    currentColor = button.HoverColor;
+                    break;
+                case UIButtonComponent::State::Pressed:
+                    currentTexture = button.PressedTexture;
+                    currentColor = button.PressedColor;
+                    break;
+                case UIButtonComponent::State::Disabled:
+                    currentTexture = button.DisabledTexture;
+                    currentColor = button.DisabledColor;
+                    break;
+            }
+
+            if (currentTexture)
+                Renderer2D::DrawQuad(worldTransform, currentTexture, 1.0f, currentColor, Renderer2D::RenderMode::Screen, (uint32_t)entity);
+        }
     }
 
     AnchorPreset UIManager::GetAnchorPreset(int row, int column)
