@@ -235,7 +235,6 @@ namespace Coffee {
             archive(*this);
 
             SetPath(path);
-            ResourceRegistry::Add(UUID(), Ref<Resource>(this));
 
             return true;
         }
