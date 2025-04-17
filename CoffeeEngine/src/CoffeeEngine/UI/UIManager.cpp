@@ -42,88 +42,35 @@ namespace Coffee {
         }
     }
 
+    template<typename T, UIManager::UIComponentType Type>
+    void AddUIItems(entt::registry& registry, std::vector<UIManager::UIRenderItem>& items) {
+        auto view = registry.view<T, TransformComponent>();
+        for (auto entity : view) {
+            auto& uiComponent = view.get<T>(entity);
+
+            UIManager::UIRenderItem item;
+            item.Entity = entity;
+            item.Layer = uiComponent.Layer;
+            item.ComponentType = Type;
+
+            if (registry.any_of<HierarchyComponent>(entity)) {
+                auto& hierarchy = registry.get<HierarchyComponent>(entity);
+                item.Parent = hierarchy.m_Parent;
+                item.Next = hierarchy.m_Next;
+            }
+
+            items.push_back(item);
+        }
+    }
+
     void UIManager::SortUIElements(entt::registry& registry)
     {
         s_SortedUIItems.clear();
 
-        auto uiImageView = registry.view<UIImageComponent, TransformComponent>();
-        for (auto entity : uiImageView) {
-            auto& uiComponent = uiImageView.get<UIImageComponent>(entity);
-
-            UIRenderItem item;
-            item.Entity = entity;
-            item.Layer = uiComponent.Layer;
-            item.ComponentType = UIComponentType::Image;
-
-            if (registry.any_of<HierarchyComponent>(entity))
-            {
-                auto& hierarchy = registry.get<HierarchyComponent>(entity);
-                item.Parent = hierarchy.m_Parent;
-                item.Next = hierarchy.m_Next;
-            }
-
-            s_SortedUIItems.push_back(item);
-        }
-
-        auto uiTextView = registry.view<UITextComponent, TransformComponent>();
-        for (auto entity : uiTextView)
-        {
-            auto& uiComponent = uiTextView.get<UITextComponent>(entity);
-
-            UIRenderItem item;
-            item.Entity = entity;
-            item.Layer = uiComponent.Layer;
-            item.ComponentType = UIComponentType::Text;
-
-            if (registry.any_of<HierarchyComponent>(entity))
-            {
-                auto& hierarchy = registry.get<HierarchyComponent>(entity);
-                item.Parent = hierarchy.m_Parent;
-                item.Next = hierarchy.m_Next;
-            }
-
-            s_SortedUIItems.push_back(item);
-        }
-
-        auto uiToggleView = registry.view<UIToggleComponent, TransformComponent>();
-        for (auto entity : uiToggleView)
-        {
-            auto& uiComponent = uiToggleView.get<UIToggleComponent>(entity);
-
-            UIRenderItem item;
-            item.Entity = entity;
-            item.Layer = uiComponent.Layer;
-            item.ComponentType = UIComponentType::Toggle;
-
-            if (registry.any_of<HierarchyComponent>(entity))
-            {
-                auto& hierarchy = registry.get<HierarchyComponent>(entity);
-                item.Parent = hierarchy.m_Parent;
-                item.Next = hierarchy.m_Next;
-            }
-
-            s_SortedUIItems.push_back(item);
-        }
-
-        auto uiButtonView = registry.view<UIButtonComponent, TransformComponent>();
-        for (auto entity : uiButtonView)
-        {
-            auto& uiComponent = uiButtonView.get<UIButtonComponent>(entity);
-
-            UIRenderItem item;
-            item.Entity = entity;
-            item.Layer = uiComponent.Layer;
-            item.ComponentType = UIComponentType::Button;
-
-            if (registry.any_of<HierarchyComponent>(entity))
-            {
-                auto& hierarchy = registry.get<HierarchyComponent>(entity);
-                item.Parent = hierarchy.m_Parent;
-                item.Next = hierarchy.m_Next;
-            }
-
-            s_SortedUIItems.push_back(item);
-        }
+        AddUIItems<UIImageComponent, UIComponentType::Image>(registry, s_SortedUIItems);
+        AddUIItems<UITextComponent, UIComponentType::Text>(registry, s_SortedUIItems);
+        AddUIItems<UIToggleComponent, UIComponentType::Toggle>(registry, s_SortedUIItems);
+        AddUIItems<UIButtonComponent, UIComponentType::Button>(registry, s_SortedUIItems);
 
         std::sort(s_SortedUIItems.begin(), s_SortedUIItems.end(), [&registry](const UIRenderItem& a, const UIRenderItem& b) {
             if (a.Layer != b.Layer)
