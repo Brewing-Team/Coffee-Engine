@@ -2497,6 +2497,91 @@ namespace Coffee
             }
         }
 
+        if (entity.HasComponent<SpriteComponent>())
+        {
+            auto& spriteComponent = entity.GetComponent<SpriteComponent>();
+            bool isCollapsingHeaderOpen = true;
+            ImGui::PushID("SpriteComponent");
+            if (ImGui::CollapsingHeader("Sprite Component", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                auto DrawTextureWidget = [&](const std::string& label, Ref<Texture2D>& texture) {
+                    uint32_t textureID = texture ? texture->GetID() : 0;
+                    ImGui::ImageButton((label + " ").c_str(), (ImTextureID)textureID, {64, 64});
+
+                    auto textureImageFormat = [](ImageFormat format) -> std::string {
+                        switch (format)
+                        {
+                        case ImageFormat::R8:
+                            return "R8";
+                        case ImageFormat::RGB8:
+                            return "RGB8";
+                        case ImageFormat::RGBA8:
+                            return "RGBA8";
+                        case ImageFormat::SRGB8:
+                            return "SRGB8";
+                        case ImageFormat::SRGBA8:
+                            return "SRGBA8";
+                        case ImageFormat::RGBA32F:
+                            return "RGBA32F";
+                        case ImageFormat::DEPTH24STENCIL8:
+                            return "DEPTH24STENCIL8";
+                        }
+                    };
+
+                    if (ImGui::IsItemHovered() and texture)
+                    {
+                        ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s", texture->GetName().c_str(),
+                                          texture->GetWidth(), texture->GetHeight(),
+                                          textureImageFormat(texture->GetImageFormat()).c_str(),
+                                          texture->GetPath().c_str());
+                    }
+
+                    if (ImGui::BeginDragDropTarget())
+                    {
+                        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
+                        {
+                            const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
+                            if (resource->GetType() == ResourceType::Texture2D)
+                            {
+                                const Ref<Texture2D>& t = std::static_pointer_cast<Texture2D>(resource);
+                                texture = t;
+                            }
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+
+                    ImGui::SameLine();
+                    if (ImGui::BeginCombo((label).c_str(), "", ImGuiComboFlags_NoPreview))
+                    {
+                        if (ImGui::Selectable("Clear"))
+                        {
+                            texture = nullptr;
+                        }
+                        if (ImGui::Selectable("Open"))
+                        {
+                            std::string path = FileDialog::OpenFile({}).string();
+                            if (!path.empty())
+                            {
+                                Ref<Texture2D> t = Texture2D::Load(path);
+                                texture = t;
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+                };
+
+                DrawTextureWidget("Texture 2D", spriteComponent.texture);
+                
+                ImGui::ColorEdit4("Tint Color", glm::value_ptr(spriteComponent.tintColor));
+                ImGui::DragFloat("Tilling Factor", &spriteComponent.tilingFactor, 0.1, 0);
+
+                ImGui::Checkbox("Flip X", &spriteComponent.flipX);
+                ImGui::Checkbox("Flip Y", &spriteComponent.flipY);
+            }
+            ImGui::PopID();
+        
+        }
+
         if (entity.HasComponent<ParticlesSystemComponent>())
         {
             auto& particles = entity.GetComponent<ParticlesSystemComponent>();
@@ -2506,11 +2591,6 @@ namespace Coffee
             ImGui::PushID("ParticlesSystem");
             if (ImGui::CollapsingHeader("Particle System", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // Position
-                // ImGui::Text("Position");
-                // ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
-
-                // Rate over time
 
                 // Direction
                 ImGui::Checkbox("##ParticleDirectionUseRandom", &emitter->useDirectionRandom);
@@ -2542,14 +2622,6 @@ namespace Coffee
                 {
                     ImGui::ColorEdit4("##ParticleColorRandom", glm::value_ptr(emitter->colorRandom));
                 }
-
-                //// Life Time
-                // ImGui::Text("Life Time");
-                // ImGui::DragFloat("##ParticleLife", &emitter->lifeTime, 0.1f, 0.0f, 100.0f);
-
-                //// Size
-                // ImGui::Text("Size");
-                // ImGui::DragFloat("##ParticleSize", &emitter->size, 0.1f, 0.0f, 10.0f);
 
                 // Looping
                 ImGui::Checkbox("##ParticleLooping", &emitter->looping);
@@ -2697,18 +2769,12 @@ namespace Coffee
                     ImGui::DragFloat3("##ParticleStartRotation", glm::value_ptr(emitter->startRotation), 0.1f);
                 }
 
-                ImGui::Checkbox("##UseEmission", &emitter->useEmission);
-                ImGui::SameLine();
+                //ImGui::Checkbox("##UseEmission", &emitter->useEmission);
+                //ImGui::SameLine();
                 ImGui::PushID("Emission");
 
                 if (ImGui::TreeNodeEx("Emission Settings", ImGuiTreeNodeFlags_None))
                 {
-                    // If not enabled, set the text to gray and disable the controls
-                    if (!emitter->useEmission)
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
-                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
-                    }
 
                     // Select emitter shape
                     ImGui::Text("Rate over Time");
@@ -2722,6 +2788,70 @@ namespace Coffee
                     {   
                         emitter->Emit(emitter->emitParticlesTest);
                     }
+
+                    ImGui::Checkbox("##UseBurst", &emitter->useBurst);
+                    ImGui::SameLine();
+                    if (ImGui::TreeNodeEx("Bursts Settings", ImGuiTreeNodeFlags_None))
+                    {
+                        if (!emitter->useBurst)
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
+                            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                        }
+                        ImGui::PushItemWidth(50.0f);
+
+                        ImGui::Text("Time  ");
+                        ImGui::SameLine();
+                        ImGui::Text("Count  ");
+                        ImGui::SameLine();
+                        ImGui::Text("Interval");
+                        
+
+                        for (int i = 0; i < emitter->bursts.size(); i++)
+                        {
+                            Ref<BurstParticleEmitter> burst = emitter->bursts[i];
+                            
+                            std::string number = std::to_string(i);
+
+                            ImGui::DragFloat(("##Time" + number).c_str(), &burst->initialTime, 0.1, 0);
+                            ImGui::SameLine();
+                            ImGui::DragInt(("##Count" + number).c_str(), &burst->count, 1, 0);
+                            ImGui::SameLine();
+                            ImGui::DragFloat(("##Interval" + number).c_str(), &burst->interval, 0.01f, 0);
+
+                            ImGui::SameLine();
+                            if (ImGui::Button(("X##" + number).c_str()))
+                            {
+                                emitter->bursts.erase(emitter->bursts.begin() + i);
+                                i--;
+                            }
+                           
+                        }
+
+
+                        if (ImGui::Button("Add Burst"))
+                        {
+                            Ref<BurstParticleEmitter> newBurst = CreateRef<BurstParticleEmitter>();
+                            newBurst->initialTime = 0.0f;
+                            newBurst->count = 0.0f;
+                            newBurst->interval = 0.0f;
+
+                            emitter->bursts.push_back(newBurst);
+                        }
+
+
+
+
+                        if (!emitter->useBurst)
+                        {
+                            ImGui::PopItemFlag();
+                            ImGui::PopStyleColor();
+                        }
+                        ImGui::PopItemWidth();
+
+                        ImGui::TreePop();
+                    }
+
 
                     ImGui::TreePop();
                 }
@@ -3061,7 +3191,7 @@ namespace Coffee
                     };
 
                     ImGui::Text("Texture");
-                    DrawTextureWidget("##Albedo", emitter->particleMaterial->GetMaterialTextures().albedo);
+                    DrawTextureWidget("##Albedo", emitter->particleTexture);
 
 
                     // Restore default state
@@ -3236,7 +3366,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component", "UI Text Component", "UI Toggle Component", "UI Button Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component", "Sprite Component" };
 
             static int item_current = 1;
 
@@ -3358,13 +3488,7 @@ namespace Coffee
                 {
                     if (!entity.HasComponent<ParticlesSystemComponent>())
                     {
-
                         entity.AddComponent<ParticlesSystemComponent>();
-                        /*if (!entity.HasComponent<MaterialComponent>())
-                         {
-                             entity.AddComponent<MaterialComponent>(Material::Create("Default Particle Material"));
-                             
-                         }*/
                         ImGui::CloseCurrentPopup();
                     }
                 }  
@@ -3427,37 +3551,12 @@ namespace Coffee
 
                     ImGui::CloseCurrentPopup();
                 }
-                else if (items[item_current] == "UI Image Component")
+                else if (items[item_current] == "Sprite Component")
                 {
-                    if (!entity.HasComponent<UIImageComponent>())
+                    if (!entity.HasComponent<SpriteComponent>())
                     {
-                        entity.AddComponent<UIImageComponent>();
+                        entity.AddComponent<SpriteComponent>();
                     }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Text Component")
-                {
-                    if (!entity.HasComponent<UITextComponent>())
-                    {
-                        entity.AddComponent<UITextComponent>();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Toggle Component")
-                {
-                    if (!entity.HasComponent<UIToggleComponent>())
-                    {
-                        entity.AddComponent<UIToggleComponent>();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Button Component")
-                {
-                    if (!entity.HasComponent<UIButtonComponent>())
-                    {
-                        entity.AddComponent<UIButtonComponent>();
-                    }
-                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {
@@ -3551,7 +3650,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = {"Empty", "Camera", "Primitive", "Light", "Particle System"};
+            std::string items[] = {"Empty", "Camera", "Primitive", "Light", "Particle System", "Sprite2D"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -3654,6 +3753,13 @@ namespace Coffee
                     Entity e = m_Context->CreateEntity("ParticleSystem");
                     e.AddComponent<ParticlesSystemComponent>();
                     //e.AddComponent<MaterialComponent>(Material::Create("Default Particle Material"));
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "Sprite2D")
+                {
+                    Entity e = m_Context->CreateEntity("Sprite2D");
+                    e.AddComponent<SpriteComponent>();
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
