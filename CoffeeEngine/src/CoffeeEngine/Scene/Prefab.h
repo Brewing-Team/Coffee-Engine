@@ -81,7 +81,8 @@ namespace Coffee {
                 .template get<AudioListenerComponent>(archive)
                 .template get<AudioZoneComponent>(archive)
                 .template get<NavMeshComponent>(archive)
-                .template get<NavigationAgentComponent>(archive);
+                .template get<NavigationAgentComponent>(archive)
+                .template get<SpriteComponent>(archive);
         }
         
         template<class Archive>
@@ -108,7 +109,8 @@ namespace Coffee {
                 .template get<AudioListenerComponent>(archive)
                 .template get<AudioZoneComponent>(archive)
                 .template get<NavMeshComponent>(archive)
-                .template get<NavigationAgentComponent>(archive);
+                .template get<NavigationAgentComponent>(archive)
+                .template get<SpriteComponent>(archive);
 
             SceneManager::GetActiveScene()->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
 
