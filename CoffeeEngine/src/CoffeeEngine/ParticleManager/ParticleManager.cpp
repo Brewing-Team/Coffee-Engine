@@ -70,7 +70,8 @@ namespace Coffee
         {
             particleMesh = Coffee::PrimitiveMesh::CreatePlane(glm::vec2(1,1));
         }
-        particleMaterial = CreateRef<Material>("Default Particle Material");
+        particleTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+
     }
 
     void ParticleEmitter::InitParticle(Ref<Particle> particle)
