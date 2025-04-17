@@ -191,7 +191,7 @@ namespace Coffee {
         glm::mat4 worldTransform = glm::mat4(1.0f);
         worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
         worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, -anchoredSize.y, 1.0f));
 
         Renderer2D::DrawQuad(worldTransform, uiImageComponent.Texture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
@@ -214,6 +214,7 @@ namespace Coffee {
         glm::mat4 textTransform = glm::mat4(1.0f);
         textTransform = glm::translate(textTransform, glm::vec3(anchoredPosition, 0.0f));
         textTransform = glm::rotate(textTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        textTransform = glm::scale(textTransform, glm::vec3(1.0f, -1.0f, 1.0f));
 
         Renderer2D::TextParams textParams;
         textParams.Color = uiTextComponent.Color;
@@ -243,7 +244,7 @@ namespace Coffee {
         glm::mat4 worldTransform = glm::mat4(1.0f);
         worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
         worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, -anchoredSize.y, 1.0f));
 
         Ref<Texture2D> currentTexture = toggleComponent.Value ? toggleComponent.OnTexture : toggleComponent.OffTexture;
 
@@ -266,7 +267,7 @@ namespace Coffee {
         glm::mat4 worldTransform = glm::mat4(1.0f);
         worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
         worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, -anchoredSize.y, 1.0f));
 
         Ref<Texture2D> currentTexture = nullptr;
         glm::vec4 currentColor{1.0f};
