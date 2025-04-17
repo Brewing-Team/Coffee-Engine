@@ -1010,6 +1010,7 @@
     struct UIComponent
     {
         RectAnchor Anchor;
+        int Layer = 0;
 
         UIComponent() = default;
     };
