@@ -3564,37 +3564,8 @@ namespace Coffee
                 {
                     if (!entity.HasComponent<SpriteComponent>())
                     {
-                        entity.AddComponent<UIImageComponent>();
-                        UIManager::MarkForSorting();
+                        entity.AddComponent<SpriteComponent>();
                     }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Text Component")
-                {
-                    if (!entity.HasComponent<UITextComponent>())
-                    {
-                        entity.AddComponent<UITextComponent>();
-                        UIManager::MarkForSorting();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Toggle Component")
-                {
-                    if (!entity.HasComponent<UIToggleComponent>())
-                    {
-                        entity.AddComponent<UIToggleComponent>();
-                        UIManager::MarkForSorting();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Button Component")
-                {
-                    if (!entity.HasComponent<UIButtonComponent>())
-                    {
-                        entity.AddComponent<UIButtonComponent>();
-                        UIManager::MarkForSorting();
-                    }
-                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {
