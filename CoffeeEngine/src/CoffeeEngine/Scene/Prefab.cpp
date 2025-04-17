@@ -47,6 +47,7 @@ namespace Coffee {
         CopyComponentToPrefab<AudioZoneComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<NavMeshComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<NavigationAgentComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<SpriteComponent>(sourceEntity, destEntity);
         
         // Copy empty components (which don't need values)
         CopyEmptyComponentToPrefab<StaticComponent>(sourceEntity, destEntity);
@@ -186,6 +187,7 @@ namespace Coffee {
         CopyComponentToScene<AudioZoneComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<NavigationAgentComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<NavMeshComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<SpriteComponent>(scene, prefabEntity, entity);
         
         // Copy empty components
         CopyEmptyComponentToScene<StaticComponent>(scene, prefabEntity, entity);
