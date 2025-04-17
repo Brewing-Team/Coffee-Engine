@@ -270,11 +270,10 @@ namespace Coffee
 
         if (ImGui::BeginPopup("AnchorPresetsPopup"))
         {
-            ImGui::Text("Shift: Also set pivot    Alt: Also set position");
+            ImGui::Text("Alt: Also set position");
             ImGui::Separator();
 
             bool preservePosition = !ImGui::GetIO().KeyAlt;
-            bool setPivot = ImGui::GetIO().KeyShift;
 
             static const char* rowLabels[] = { "top", "middle", "bottom", "stretch" };
             static const char* columnLabels[] = { "left", "center", "right", "stretch" };
@@ -309,41 +308,6 @@ namespace Coffee
 
                         AnchorPreset preset = UIManager::GetAnchorPreset(row, col);
                         anchor.SetAnchorPreset(preset, currentRect, windowSize, preservePosition);
-
-                        if (setPivot)
-                        {
-                            switch (preset.X)
-                            {
-                                case AnchorPresetX::Left:
-                                    anchor.Pivot.x = 0.0f;
-                                    break;
-                                case AnchorPresetX::Center:
-                                    anchor.Pivot.x = 0.5f;
-                                    break;
-                                case AnchorPresetX::Right:
-                                    anchor.Pivot.x = 1.0f;
-                                    break;
-                                case AnchorPresetX::Stretch:
-                                    anchor.Pivot.x = 0.5f;
-                                    break;
-                            }
-
-                            switch (preset.Y)
-                            {
-                                case AnchorPresetY::Top:
-                                    anchor.Pivot.y = 0.0f;
-                                    break;
-                                case AnchorPresetY::Middle:
-                                    anchor.Pivot.y = 0.5f;
-                                    break;
-                                case AnchorPresetY::Bottom:
-                                    anchor.Pivot.y = 1.0f;
-                                    break;
-                                case AnchorPresetY::Stretch:
-                                    anchor.Pivot.y = 0.5f;
-                                    break;
-                            }
-                        }
 
                         ImGui::CloseCurrentPopup();
                     }
@@ -458,13 +422,6 @@ namespace Coffee
                 }
                 ImGui::TreePop();
             }
-        }
-
-        ImGui::Text("Pivot");
-        glm::vec2 pivot = anchor.Pivot;
-        if (ImGui::DragFloat2("##Pivot", glm::value_ptr(pivot), 0.01f, 0.0f, 1.0f))
-        {
-            anchor.SetPivot(pivot, glm::vec2(UIManager::WindowSize));
         }
 
         float rotation = transformComponent.GetLocalRotation().z;

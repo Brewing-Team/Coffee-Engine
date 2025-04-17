@@ -60,9 +60,9 @@ namespace Coffee {
 
             if (AnchorMin.x == AnchorMax.x)
             {
-                float pivotOffsetX = currentSize.x * Pivot.x;
-                OffsetMin.x = -pivotOffsetX;
-                OffsetMax.x = currentSize.x - pivotOffsetX;
+                float pivotOffsetX = AnchorMin.x;
+                OffsetMin.x = -currentSize.x * pivotOffsetX;
+                OffsetMax.x = currentSize.x * (1.0f - pivotOffsetX);
             }
             else
             {
@@ -72,9 +72,9 @@ namespace Coffee {
 
             if (AnchorMin.y == AnchorMax.y)
             {
-                float pivotOffsetY = currentSize.y * Pivot.y;
-                OffsetMin.y = -pivotOffsetY;
-                OffsetMax.y = currentSize.y - pivotOffsetY;
+                float pivotOffsetY = AnchorMin.y;
+                OffsetMin.y = -currentSize.y * pivotOffsetY;
+                OffsetMax.y = currentSize.y * (1.0f - pivotOffsetY);
             }
             else
             {
@@ -100,11 +100,8 @@ namespace Coffee {
         float width = rect.z;
         float height = rect.w;
 
-        float pivotOffsetX = width * Pivot.x;
-        float pivotOffsetY = height * Pivot.y;
-
-        position.x = rect.x + pivotOffsetX;
-        position.y = rect.y + pivotOffsetY;
+        position.x = rect.x + width * 0.5f;
+        position.y = rect.y + height * 0.5f;
 
         size = { width, height };
     }
@@ -117,14 +114,18 @@ namespace Coffee {
 
     glm::vec2 RectAnchor::GetAnchoredPosition(const glm::vec2& parentSize) const
     {
-        float absoluteX = parentSize.x * AnchorMin.x + OffsetMin.x;
-        float absoluteY = parentSize.y * AnchorMin.y + OffsetMin.y;
-        float width = OffsetMax.x - OffsetMin.x;
-        float height = OffsetMax.y - OffsetMin.y;
-        return {
-            absoluteX + width * Pivot.x,
-            absoluteY + height * Pivot.y
-        };
+        float pivotX = parentSize.x * (AnchorMin.x + AnchorMax.x) * 0.5f;
+        float pivotY = parentSize.y * (AnchorMin.y + AnchorMax.y) * 0.5f;
+
+        float minX = parentSize.x * AnchorMin.x + OffsetMin.x;
+        float minY = parentSize.y * AnchorMin.y + OffsetMin.y;
+        float maxX = parentSize.x * AnchorMax.x + OffsetMax.x;
+        float maxY = parentSize.y * AnchorMax.y + OffsetMax.y;
+
+        float centerX = (minX + maxX) * 0.5f;
+        float centerY = (minY + maxY) * 0.5f;
+
+        return { centerX - pivotX, centerY - pivotY };
     }
 
     void RectAnchor::SetAnchoredPosition(const glm::vec2& position, const glm::vec2& parentSize)
@@ -148,28 +149,41 @@ namespace Coffee {
 
     void RectAnchor::SetSize(const glm::vec2& size, const glm::vec2& parentSize)
     {
-        if (AnchorMin.x == AnchorMax.x && AnchorMin.y == AnchorMax.y)
-        {
-            glm::vec2 currentPos = GetAnchoredPosition(parentSize);
+        glm::vec2 currentPos = GetAnchoredPosition(parentSize);
+        glm::vec2 currentSize = GetSize();
 
-            OffsetMin.x = currentPos.x - size.x * Pivot.x;
-            OffsetMin.y = currentPos.y - size.y * Pivot.y;
-            OffsetMax.x = OffsetMin.x + size.x;
-            OffsetMax.y = OffsetMin.y + size.y;
-        }
-    }
-
-    void RectAnchor::SetPivot(const glm::vec2& newPivot, const glm::vec2& parentSize)
-    {
-        if (AnchorMin.x == AnchorMax.x && AnchorMin.y == AnchorMax.y)
+        if (AnchorMin.x == AnchorMax.x)
         {
-            glm::vec2 worldPosition = GetAnchoredPosition(parentSize);
-            Pivot = newPivot;
-            SetAnchoredPosition(worldPosition, parentSize);
+            float halfSizeDiff = (size.x - currentSize.x) * 0.5f;
+            OffsetMin.x -= halfSizeDiff;
+            OffsetMax.x += halfSizeDiff;
         }
         else
         {
-            Pivot = newPivot;
+            float anchorWidth = AnchorMax.x - AnchorMin.x;
+            float leftPortion = (0.0f - AnchorMin.x) / anchorWidth;
+            float rightPortion = (1.0f - AnchorMax.x) / anchorWidth;
+
+            OffsetMin.x = -size.x * leftPortion;
+            OffsetMax.x = size.x * rightPortion;
         }
+
+        if (AnchorMin.y == AnchorMax.y)
+        {
+            float halfSizeDiff = (size.y - currentSize.y) * 0.5f;
+            OffsetMin.y -= halfSizeDiff;
+            OffsetMax.y += halfSizeDiff;
+        }
+        else
+        {
+            float anchorHeight = AnchorMax.y - AnchorMin.y;
+            float topPortion = (0.0f - AnchorMin.y) / anchorHeight;
+            float bottomPortion = (1.0f - AnchorMax.y) / anchorHeight;
+
+            OffsetMin.y = -size.y * topPortion;
+            OffsetMax.y = size.y * bottomPortion;
+        }
+
+        SetAnchoredPosition(currentPos, parentSize);
     }
 } // Coffee
