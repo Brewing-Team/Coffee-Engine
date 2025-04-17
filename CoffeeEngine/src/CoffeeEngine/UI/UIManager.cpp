@@ -176,22 +176,18 @@ namespace Coffee {
     {
         auto& uiImageComponent = registry.get<UIImageComponent>(entity);
         auto& transformComponent = registry.get<TransformComponent>(entity);
-        auto& anchor = uiImageComponent.Anchor;
 
-        glm::vec2 anchoredPosition;
-        glm::vec2 anchoredSize;
+        auto anchored = CalculateAnchoredTransform(registry, entity, uiImageComponent.Anchor, WindowSize);
 
-        anchor.CalculateTransformData(glm::vec2(WindowSize), anchoredPosition, anchoredSize);
-
-        transformComponent.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
-        transformComponent.SetLocalScale(glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+        transformComponent.SetLocalPosition(glm::vec3(anchored.Position, 0.0f));
+        transformComponent.SetLocalScale(glm::vec3(anchored.Size.x, anchored.Size.y, 1.0f));
 
         float rotation = transformComponent.GetLocalRotation().z;
 
         glm::mat4 worldTransform = glm::mat4(1.0f);
-        worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
+        worldTransform = glm::translate(worldTransform, glm::vec3(anchored.Position, 0.0f));
         worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, -anchoredSize.y, 1.0f));
+        worldTransform = glm::scale(worldTransform, glm::vec3(anchored.Size.x, -anchored.Size.y, 1.0f));
 
         Renderer2D::DrawQuad(worldTransform, uiImageComponent.Texture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
@@ -204,15 +200,15 @@ namespace Coffee {
         if (!uiTextComponent.Font)
             uiTextComponent.Font = Font::GetDefault();
 
-        glm::vec2 anchoredPosition;
-        glm::vec2 anchoredSize;
+        auto anchored = CalculateAnchoredTransform(registry, entity, uiTextComponent.Anchor, WindowSize);
 
-        uiTextComponent.Anchor.CalculateTransformData(glm::vec2(WindowSize), anchoredPosition, anchoredSize);
+        transformComponent.SetLocalPosition(glm::vec3(anchored.Position, 0.0f));
+        transformComponent.SetLocalScale(glm::vec3(1.0f));
 
         float rotation = transformComponent.GetLocalRotation().z;
 
         glm::mat4 textTransform = glm::mat4(1.0f);
-        textTransform = glm::translate(textTransform, glm::vec3(anchoredPosition, 0.0f));
+        textTransform = glm::translate(textTransform, glm::vec3(anchored.Position, 0.0f));
         textTransform = glm::rotate(textTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         textTransform = glm::scale(textTransform, glm::vec3(1.0f, -1.0f, 1.0f));
 
@@ -223,9 +219,6 @@ namespace Coffee {
         textParams.Size = uiTextComponent.FontSize;
 
         Renderer2D::DrawTextString(uiTextComponent.Text, uiTextComponent.Font, textTransform, textParams, Renderer2D::RenderMode::Screen, (uint32_t)entity);
-
-        transformComponent.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
-        transformComponent.SetLocalScale(glm::vec3(1.0f));
     }
 
     void UIManager::RenderUIToggle(entt::registry& registry, entt::entity entity)
@@ -233,22 +226,21 @@ namespace Coffee {
         auto& toggleComponent = registry.get<UIToggleComponent>(entity);
         auto& transformComponent = registry.get<TransformComponent>(entity);
 
-        glm::vec2 anchoredPosition;
-        glm::vec2 anchoredSize;
-        toggleComponent.Anchor.CalculateTransformData(glm::vec2(WindowSize), anchoredPosition, anchoredSize);
+        auto anchored = CalculateAnchoredTransform(registry, entity, toggleComponent.Anchor, WindowSize);
 
-        transformComponent.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
-        transformComponent.SetLocalScale(glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+        transformComponent.SetLocalPosition(glm::vec3(anchored.Position, 0.0f));
+        transformComponent.SetLocalScale(glm::vec3(anchored.Size.x, anchored.Size.y, 1.0f));
 
         float rotation = transformComponent.GetLocalRotation().z;
         glm::mat4 worldTransform = glm::mat4(1.0f);
-        worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
+        worldTransform = glm::translate(worldTransform, glm::vec3(anchored.Position, 0.0f));
         worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, -anchoredSize.y, 1.0f));
+        worldTransform = glm::scale(worldTransform, glm::vec3(anchored.Size.x, -anchored.Size.y, 1.0f));
 
         Ref<Texture2D> currentTexture = toggleComponent.Value ? toggleComponent.OnTexture : toggleComponent.OffTexture;
 
-        Renderer2D::DrawQuad(worldTransform, currentTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
+        if (currentTexture)
+            Renderer2D::DrawQuad(worldTransform, currentTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
     void UIManager::RenderUIButton(entt::registry& registry, entt::entity entity)
@@ -256,18 +248,16 @@ namespace Coffee {
         auto& button = registry.get<UIButtonComponent>(entity);
         auto& transform = registry.get<TransformComponent>(entity);
 
-        glm::vec2 anchoredPosition;
-        glm::vec2 anchoredSize;
-        button.Anchor.CalculateTransformData(glm::vec2(WindowSize), anchoredPosition, anchoredSize);
+        auto anchored = CalculateAnchoredTransform(registry, entity, button.Anchor, WindowSize);
 
-        transform.SetLocalPosition(glm::vec3(anchoredPosition, 0.0f));
-        transform.SetLocalScale(glm::vec3(anchoredSize.x, anchoredSize.y, 1.0f));
+        transform.SetLocalPosition(glm::vec3(anchored.Position, 0.0f));
+        transform.SetLocalScale(glm::vec3(anchored.Size.x, anchored.Size.y, 1.0f));
 
         float rotation = transform.GetLocalRotation().z;
         glm::mat4 worldTransform = glm::mat4(1.0f);
-        worldTransform = glm::translate(worldTransform, glm::vec3(anchoredPosition, 0.0f));
+        worldTransform = glm::translate(worldTransform, glm::vec3(anchored.Position, 0.0f));
         worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-        worldTransform = glm::scale(worldTransform, glm::vec3(anchoredSize.x, -anchoredSize.y, 1.0f));
+        worldTransform = glm::scale(worldTransform, glm::vec3(anchored.Size.x, -anchored.Size.y, 1.0f));
 
         Ref<Texture2D> currentTexture = nullptr;
         glm::vec4 currentColor{1.0f};
@@ -296,6 +286,39 @@ namespace Coffee {
             Renderer2D::DrawQuad(worldTransform, currentTexture, 1.0f, currentColor, Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
+    glm::vec2 UIManager::GetParentSize(entt::registry& registry, entt::entity parentEntity)
+    {
+        if (parentEntity == entt::null)
+            return WindowSize;
+
+        if (registry.any_of<UIImageComponent>(parentEntity))
+        {
+            auto& parentAnchor = registry.get<UIImageComponent>(parentEntity).Anchor;
+            glm::vec4 parentRect = parentAnchor.CalculateRect(WindowSize);
+            return glm::vec2(parentRect.z, parentRect.w);
+        }
+        else if (registry.any_of<UITextComponent>(parentEntity))
+        {
+            auto& parentAnchor = registry.get<UITextComponent>(parentEntity).Anchor;
+            glm::vec4 parentRect = parentAnchor.CalculateRect(WindowSize);
+            return glm::vec2(parentRect.z, parentRect.w);
+        }
+        else if (registry.any_of<UIButtonComponent>(parentEntity))
+        {
+            auto& parentAnchor = registry.get<UIButtonComponent>(parentEntity).Anchor;
+            glm::vec4 parentRect = parentAnchor.CalculateRect(WindowSize);
+            return glm::vec2(parentRect.z, parentRect.w);
+        }
+        else if (registry.any_of<UIToggleComponent>(parentEntity))
+        {
+            auto& parentAnchor = registry.get<UIToggleComponent>(parentEntity).Anchor;
+            glm::vec4 parentRect = parentAnchor.CalculateRect(WindowSize);
+            return glm::vec2(parentRect.z, parentRect.w);
+        }
+
+        return WindowSize;
+    }
+
     AnchorPreset UIManager::GetAnchorPreset(int row, int column)
     {
         // Row: 0=top, 1=middle, 2=bottom, 3=stretch
@@ -322,6 +345,55 @@ namespace Coffee {
         }
 
         return AnchorPreset(x, y);
+    }
+
+    UIManager::AnchoredTransform UIManager::CalculateAnchoredTransform(entt::registry& registry, entt::entity entity, const RectAnchor& anchor, const glm::vec2& windowSize)
+    {
+        AnchoredTransform result;
+
+        glm::vec2 parentSize = windowSize;
+        glm::vec2 parentPosition = glm::vec2(windowSize.x / 2, windowSize.y / 2);
+        bool hasParent = false;
+
+        if (registry.any_of<HierarchyComponent>(entity))
+        {
+            auto& hierarchy = registry.get<HierarchyComponent>(entity);
+            if (hierarchy.m_Parent != entt::null)
+            {
+                hasParent = true;
+                parentSize = GetParentSize(registry, hierarchy.m_Parent);
+
+                if (registry.any_of<TransformComponent>(hierarchy.m_Parent))
+                {
+                    auto& parentTransform = registry.get<TransformComponent>(hierarchy.m_Parent);
+                    parentPosition = glm::vec2(parentTransform.GetLocalPosition().x, parentTransform.GetLocalPosition().y);
+                }
+            }
+        }
+
+        glm::vec4 rectInParentSpace = anchor.CalculateRect(parentSize);
+        result.Size = glm::vec2(rectInParentSpace.z, rectInParentSpace.w);
+
+        if (hasParent)
+        {
+            float parentCenterX = parentSize.x * 0.5f;
+            float parentCenterY = parentSize.y * 0.5f;
+
+            float elementCenterX = rectInParentSpace.x + rectInParentSpace.z * 0.5f;
+            float elementCenterY = rectInParentSpace.y + rectInParentSpace.w * 0.5f;
+
+            float offsetX = elementCenterX - parentCenterX;
+            float offsetY = elementCenterY - parentCenterY;
+
+            result.Position.x = parentPosition.x + offsetX;
+            result.Position.y = parentPosition.y + offsetY;
+        }
+        else
+        {
+            anchor.CalculateTransformData(parentSize, result.Position, result.Size);
+        }
+
+        return result;
     }
 
 } // Coffee

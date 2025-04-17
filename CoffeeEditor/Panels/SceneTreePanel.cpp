@@ -344,7 +344,7 @@ namespace Coffee
         }
     }
 
-    void SceneTreePanel::DrawUITransform(TransformComponent& transformComponent, RectAnchor& anchor)
+    void SceneTreePanel::DrawUITransform(TransformComponent& transformComponent, RectAnchor& anchor, Entity entity)
     {
         if (ImGui::Button("Anchor Presets"))
             ImGui::OpenPopup("AnchorPresetsPopup");
@@ -384,11 +384,15 @@ namespace Coffee
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
                     if (ImGui::Button(buttonId, ImVec2(24, 24)))
                     {
-                        auto windowSize = UIManager::WindowSize;
-                        glm::vec4 currentRect = anchor.CalculateRect(windowSize);
+                        auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
+
+                        Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
+                        glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentEntity);
+
+                        glm::vec4 currentRect = anchor.CalculateRect(parentSize);
 
                         AnchorPreset preset = UIManager::GetAnchorPreset(row, col);
-                        anchor.SetAnchorPreset(preset, currentRect, windowSize, preservePosition);
+                        anchor.SetAnchorPreset(preset, currentRect, parentSize, preservePosition);
 
                         ImGui::CloseCurrentPopup();
                     }
@@ -463,22 +467,25 @@ namespace Coffee
 
         bool isStretchingX = anchor.AnchorMin.x != anchor.AnchorMax.x;
         bool isStretchingY = anchor.AnchorMin.y != anchor.AnchorMax.y;
-        auto windowSize = UIManager::WindowSize;
+
+        auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
+        Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
+        glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentEntity);
 
         if (!isStretchingX && !isStretchingY)
         {
-            glm::vec2 anchoredPos = anchor.GetAnchoredPosition(windowSize);
+            glm::vec2 anchoredPos = anchor.GetAnchoredPosition(parentSize);
             ImGui::Text("Position");
             if (ImGui::DragFloat2("##Position", glm::value_ptr(anchoredPos), 1.0f))
             {
-                anchor.SetAnchoredPosition(anchoredPos, windowSize);
+                anchor.SetAnchoredPosition(anchoredPos, parentSize);
             }
 
             glm::vec2 size = anchor.GetSize();
             ImGui::Text("Size");
             if (ImGui::DragFloat2("##Size", glm::value_ptr(size), 1.0f, 0.0f, FLT_MAX, "%.0f"))
             {
-                anchor.SetSize(size, windowSize);
+                anchor.SetSize(size, parentSize);
             }
         }
 
@@ -586,7 +593,7 @@ namespace Coffee
                 if (entity.HasComponent<UIImageComponent>())
                 {
                     auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
-                    DrawUITransform(transformComponent, uiImageComponent.Anchor);
+                    DrawUITransform(transformComponent, uiImageComponent.Anchor, entity);
 
                     if (ImGui::DragInt("Layer", &uiImageComponent.Layer, 1.0f, 0.0f, 100.0f))
                         UIManager::MarkForSorting();
@@ -594,21 +601,21 @@ namespace Coffee
                 else if (entity.HasComponent<UITextComponent>())
                 {
                     auto& uiTextComponent = entity.GetComponent<UITextComponent>();
-                    DrawUITransform(transformComponent, uiTextComponent.Anchor);
+                    DrawUITransform(transformComponent, uiTextComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiTextComponent.Layer, 1.0f, 0.0f, 100.0f))
                         UIManager::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIToggleComponent>())
                 {
                     auto& uiToggleComponent = entity.GetComponent<UIToggleComponent>();
-                    DrawUITransform(transformComponent, uiToggleComponent.Anchor);
+                    DrawUITransform(transformComponent, uiToggleComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiToggleComponent.Layer, 1.0f, 0.0f, 100.0f))
                         UIManager::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIButtonComponent>())
                 {
                     auto& uiButtonComponent = entity.GetComponent<UIButtonComponent>();
-                    DrawUITransform(transformComponent, uiButtonComponent.Anchor);
+                    DrawUITransform(transformComponent, uiButtonComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiButtonComponent.Layer, 1.0f, 0.0f, 100.0f))
                         UIManager::MarkForSorting();
                 }

@@ -23,11 +23,18 @@ namespace Coffee {
             entt::entity Next;
         };
 
+        struct AnchoredTransform {
+            glm::vec2 Position;
+            glm::vec2 Size;
+        };
+
         static void UpdateUI(entt::registry& registry);
 
         static void MarkForSorting() { s_NeedsSorting = true; }
 
         static AnchorPreset GetAnchorPreset(int row, int column);
+
+        static glm::vec2 GetParentSize(entt::registry& registry, entt::entity parentEntity);
 
     private:
         static void SortUIElements(entt::registry& registry);
@@ -37,6 +44,7 @@ namespace Coffee {
         static void RenderUIToggle(entt::registry& registry, entt::entity entity);
         static void RenderUIButton(entt::registry& registry, entt::entity entity);
 
+        static AnchoredTransform CalculateAnchoredTransform(entt::registry& registry, entt::entity entity, const RectAnchor& anchor, const glm::vec2& windowSize);
     public:
         static glm::vec2 WindowSize;
 
