@@ -171,7 +171,11 @@ namespace Coffee {
             .template get<AudioZoneComponent>(archive)
             .template get<ParticlesSystemComponent>(archive)
             .template get<ActiveComponent>(archive)
-            .template get<StaticComponent>(archive);
+            .template get<StaticComponent>(archive)
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive);
          }
 
         /**
@@ -200,7 +204,11 @@ namespace Coffee {
             .template get<AudioZoneComponent>(archive)
             .template get<ParticlesSystemComponent>(archive)
             .template get<ActiveComponent>(archive)
-            .template get<StaticComponent>(archive);
+            .template get<StaticComponent>(archive)
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive);
 
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());

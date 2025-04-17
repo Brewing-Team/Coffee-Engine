@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cereal/cereal.hpp>
 #include <glm/glm.hpp>
 
 namespace Coffee {
@@ -50,6 +51,22 @@ namespace Coffee {
         void SetAnchoredPosition(const glm::vec2& position, const glm::vec2& parentSize);
         glm::vec2 GetSize() const;
         void SetSize(const glm::vec2& size, const glm::vec2& parentSize);
+
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("AnchorMin", AnchorMin),
+                    cereal::make_nvp("AnchorMax", AnchorMax),
+                    cereal::make_nvp("OffsetMin", OffsetMin),
+                    cereal::make_nvp("OffsetMax", OffsetMax));
+        }
+
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::make_nvp("AnchorMin", AnchorMin),
+                    cereal::make_nvp("AnchorMax", AnchorMax),
+                    cereal::make_nvp("OffsetMin", OffsetMin),
+                    cereal::make_nvp("OffsetMax", OffsetMax));
+        }
     };
 
 } // Coffee

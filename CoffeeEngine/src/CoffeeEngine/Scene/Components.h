@@ -21,6 +21,7 @@
  #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
  #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
  #include "CoffeeEngine/UI/UIAnchor.h"
+ #include "CoffeeEngine/UI/UIManager.h"
  #include "CoffeeEngine//Renderer/Font.h"
 
  #include <cereal/cereal.hpp>
@@ -1013,6 +1014,20 @@
         int Layer = 0;
 
         UIComponent() = default;
+
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("Anchor", Anchor),
+                    cereal::make_nvp("Layer", Layer));
+        }
+
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::make_nvp("Anchor", Anchor),
+                    cereal::make_nvp("Layer", Layer));
+
+            UIManager::MarkForSorting();
+        }
     };
 
     struct UIImageComponent : public UIComponent
@@ -1022,6 +1037,21 @@
         UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
 
         void SetTexture(const Ref<Texture2D>& texture) { Texture = texture; }
+
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("TextureUUID", Texture ? Texture->GetUUID() : UUID(0)));
+            UIComponent::save(archive, version);
+        }
+
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            UUID textureUUID;
+            archive(cereal::make_nvp("TextureUUID", textureUUID));
+            if (textureUUID != UUID(0))
+                Texture = ResourceLoader::GetResource<Texture2D>(textureUUID);
+            UIComponent::load(archive, version);
+        }
     };
 
     struct UITextComponent : public UIComponent
@@ -1030,21 +1060,84 @@
 
         std::string Text;
         Ref<Font> Font;
+        std::filesystem::path FontPath;
         glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         float Kerning = 0.0f;
         float LineSpacing = 0.0f;
         float FontSize = 16.0f;
+
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("Text", Text),
+                    cereal::make_nvp("FontPath", FontPath.generic_string()),
+                    cereal::make_nvp("Color", Color),
+                    cereal::make_nvp("Kerning", Kerning),
+                    cereal::make_nvp("LineSpacing", LineSpacing),
+                    cereal::make_nvp("FontSize", FontSize));
+            UIComponent::save(archive, version);
+        }
+
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::make_nvp("Text", Text),
+                    cereal::make_nvp("FontPath", FontPath.generic_string()),
+                    cereal::make_nvp("Color", Color),
+                    cereal::make_nvp("Kerning", Kerning),
+                    cereal::make_nvp("LineSpacing", LineSpacing),
+                    cereal::make_nvp("FontSize", FontSize));
+            if (!FontPath.empty())
+                Font = CreateRef<Coffee::Font>(FontPath);
+            else
+                Font = Font::GetDefault();
+            UIComponent::load(archive, version);
+        }
     };
 
      struct UIToggleComponent : public UIComponent
      {
+         UIToggleComponent()
+         {
+             OnTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             OffTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+         }
+
          bool Value = false;
          Ref<Texture2D> OnTexture;
          Ref<Texture2D> OffTexture;
+
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+         {
+             archive(cereal::make_nvp("Value", Value),
+                     cereal::make_nvp("OnTextureUUID", OnTexture ? OnTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("OffTextureUUID", OffTexture ? OffTexture->GetUUID() : UUID(0)));
+             UIComponent::save(archive, version);
+         }
+
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
+         {
+             UUID onTextureUUID;
+             UUID offTextureUUID;
+             archive(cereal::make_nvp("Value", Value),
+                     cereal::make_nvp("OnTextureUUID", onTextureUUID),
+                     cereal::make_nvp("OffTextureUUID", offTextureUUID));
+             if (onTextureUUID != UUID(0))
+                 OnTexture = ResourceLoader::GetResource<Texture2D>(onTextureUUID);
+             if (offTextureUUID != UUID(0))
+                 OffTexture = ResourceLoader::GetResource<Texture2D>(offTextureUUID);
+             UIComponent::load(archive, version);
+         }
      };
 
      struct UIButtonComponent : public UIComponent
      {
+         UIButtonComponent()
+         {
+             NormalTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             HoverTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             PressedTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             DisabledTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+         }
+
         enum class State
         {
             Normal,
@@ -1065,6 +1158,47 @@
          glm::vec4 HoverColor{1.0f};
          glm::vec4 PressedColor{1.0f};
          glm::vec4 DisabledColor{1.0f};
+
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+         {
+             archive(cereal::make_nvp("Interactable", Interactable),
+                     cereal::make_nvp("NormalTextureUUID", NormalTexture ? NormalTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("HoverTextureUUID", HoverTexture ? HoverTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("PressedTextureUUID", PressedTexture ? PressedTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("DisabledTextureUUID", DisabledTexture ? DisabledTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("NormalColor", NormalColor),
+                     cereal::make_nvp("HoverColor", HoverColor),
+                     cereal::make_nvp("PressedColor", PressedColor),
+                     cereal::make_nvp("DisabledColor", DisabledColor));
+             UIComponent::save(archive, version);
+         }
+
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
+         {
+             UUID NormalTextureUUID;
+             UUID HoverTextureUUID;
+             UUID PressedTextureUUID;
+             UUID DisabledTextureUUID;
+
+             archive(cereal::make_nvp("Interactable", Interactable),
+                     cereal::make_nvp("NormalTextureUUID", NormalTextureUUID),
+                     cereal::make_nvp("HoverTextureUUID", HoverTextureUUID),
+                     cereal::make_nvp("PressedTextureUUID", PressedTextureUUID),
+                     cereal::make_nvp("DisabledTextureUUID", DisabledTextureUUID),
+                     cereal::make_nvp("NormalColor", NormalColor),
+                     cereal::make_nvp("HoverColor", HoverColor),
+                     cereal::make_nvp("PressedColor", PressedColor),
+                     cereal::make_nvp("DisabledColor", DisabledColor));
+             if (NormalTextureUUID != UUID(0))
+                 NormalTexture = ResourceLoader::GetResource<Texture2D>(NormalTextureUUID);
+             if (HoverTextureUUID != UUID(0))
+                 HoverTexture = ResourceLoader::GetResource<Texture2D>(HoverTextureUUID);
+             if (PressedTextureUUID != UUID(0))
+                 PressedTexture = ResourceLoader::GetResource<Texture2D>(PressedTextureUUID);
+             if (DisabledTextureUUID != UUID(0))
+                 DisabledTexture = ResourceLoader::GetResource<Texture2D>(DisabledTextureUUID);
+             UIComponent::load(archive, version);
+         }
      };
 
  } // namespace Coffee
