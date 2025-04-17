@@ -630,21 +630,30 @@ namespace Coffee
                 {
                     auto& uiImageComponent = entity.GetComponent<UIImageComponent>();
                     DrawUITransform(transformComponent, uiImageComponent.Anchor);
+
+                    if (ImGui::DragInt("Layer", &uiImageComponent.Layer, 1.0f, 0.0f, 100.0f))
+                        UIManager::MarkForSorting();
                 }
                 else if (entity.HasComponent<UITextComponent>())
                 {
                     auto& uiTextComponent = entity.GetComponent<UITextComponent>();
                     DrawUITransform(transformComponent, uiTextComponent.Anchor);
+                    if (ImGui::DragInt("Layer", &uiTextComponent.Layer, 1.0f, 0.0f, 100.0f))
+                        UIManager::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIToggleComponent>())
                 {
                     auto& uiToggleComponent = entity.GetComponent<UIToggleComponent>();
                     DrawUITransform(transformComponent, uiToggleComponent.Anchor);
+                    if (ImGui::DragInt("Layer", &uiToggleComponent.Layer, 1.0f, 0.0f, 100.0f))
+                        UIManager::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIButtonComponent>())
                 {
                     auto& uiButtonComponent = entity.GetComponent<UIButtonComponent>();
                     DrawUITransform(transformComponent, uiButtonComponent.Anchor);
+                    if (ImGui::DragInt("Layer", &uiButtonComponent.Layer, 1.0f, 0.0f, 100.0f))
+                        UIManager::MarkForSorting();
                 }
                 else
                 {
@@ -3555,8 +3564,37 @@ namespace Coffee
                 {
                     if (!entity.HasComponent<SpriteComponent>())
                     {
-                        entity.AddComponent<SpriteComponent>();
+                        entity.AddComponent<UIImageComponent>();
+                        UIManager::MarkForSorting();
                     }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Text Component")
+                {
+                    if (!entity.HasComponent<UITextComponent>())
+                    {
+                        entity.AddComponent<UITextComponent>();
+                        UIManager::MarkForSorting();
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Toggle Component")
+                {
+                    if (!entity.HasComponent<UIToggleComponent>())
+                    {
+                        entity.AddComponent<UIToggleComponent>();
+                        UIManager::MarkForSorting();
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Button Component")
+                {
+                    if (!entity.HasComponent<UIButtonComponent>())
+                    {
+                        entity.AddComponent<UIButtonComponent>();
+                        UIManager::MarkForSorting();
+                    }
+                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {
