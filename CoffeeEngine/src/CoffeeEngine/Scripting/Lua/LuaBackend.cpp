@@ -10,6 +10,7 @@
 
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/Prefab.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include <fstream>
@@ -1049,6 +1050,33 @@ namespace Coffee {
 
             scene->GetPhysicsWorld().DebugDrawRaycast(origin, direction, maxDistance, rColor, hColor);
         };
+
+        # pragma endregion
+        
+        # pragma region Prefab Functions
+        // Helper function to load and instantiate a prefab in one call
+        luaState.set_function("instantiate_prefab", [](const std::string& path, sol::optional<glm::mat4> transform) -> Entity {
+            auto scene = SceneManager::GetActiveScene().get();
+            if (!scene) {
+                COFFEE_CORE_ERROR("Cannot instantiate prefab: no active scene");
+                return Entity();
+            }
+            
+            // Resolve the path (relative to project directory if not absolute)
+            std::string resolvedPath = path;
+            if (!path.empty() && path[0] != '/') {
+                auto projectDir = Project::GetActive()->GetProjectDirectory();
+                resolvedPath = (projectDir / path).string();
+            }
+            
+            auto prefab = Prefab::Load(resolvedPath);
+            if (!prefab) {
+                COFFEE_CORE_ERROR("Failed to load prefab: {0} (resolved to {1})", path, resolvedPath);
+                return Entity();
+            }
+            
+            return prefab->Instantiate(scene, transform.value_or(glm::mat4(1.0f)));
+        });
 
         # pragma endregion
     }

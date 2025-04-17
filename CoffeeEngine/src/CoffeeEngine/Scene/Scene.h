@@ -237,7 +237,12 @@ namespace Coffee {
 
     private:
         // NOTE: this macro should be modified when adding new components
-        #define ALL_COMPONENTS TagComponent, TransformComponent, HierarchyComponent, CameraComponent, MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, ParticlesSystemComponent, AnimatorComponent, SpriteComponent
+        #define ALL_COMPONENTS \
+            TagComponent, TransformComponent, HierarchyComponent, CameraComponent, \
+            MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, \
+            ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, \
+            ParticlesSystemComponent, AnimatorComponent, ActiveComponent, StaticComponent, SpriteComponent
+
 
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;

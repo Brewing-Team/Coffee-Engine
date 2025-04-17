@@ -9,6 +9,7 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/Prefab.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
@@ -92,6 +93,7 @@ namespace Coffee
         // Entity Tree Drag and Drop functionality
         if (ImGui::BeginDragDropTarget())
         {
+            // Handle normal resources (like models)
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
             {
                 const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
@@ -102,10 +104,39 @@ namespace Coffee
                     AddModelToTheSceneTree(m_Context.get(), model);
                     break;
                 }
-                default:
+                case ResourceType::Prefab: {
+                    if (const Ref<Prefab> prefab = std::static_pointer_cast<Prefab>(resource))
+                    {
+                        const Entity instance = prefab->Instantiate(m_Context.get());
+                        SetSelectedEntity(instance);
+                        
+                        COFFEE_CORE_INFO("Instantiated prefab: {0}", prefab->GetPath().string());
+                    }
                     break;
                 }
+                default: {
+                    break;
+                }
+                } // End of switch
             }
+
+            // Handle prefab paths - only load the prefab when it's actually dropped
+            if (const ImGuiPayload* prefabPayload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+            {
+                const char* pathStr = (const char*)prefabPayload->Data;
+                std::filesystem::path prefabPath = pathStr;
+                
+                // Load the prefab now that it's being used
+                Ref<Prefab> prefab = Prefab::Load(prefabPath);
+                if (prefab)
+                {
+                    Entity instance = prefab->Instantiate(m_Context.get());
+                    SetSelectedEntity(instance);
+                    
+                    COFFEE_CORE_INFO("Instantiated prefab: {0}", prefabPath.string());
+                }
+            }
+            
             ImGui::EndDragDropTarget();
         }
 
@@ -144,6 +175,26 @@ namespace Coffee
         if (ImGui::IsItemClicked())
         {
             m_SelectionContext = entity;
+        }
+
+        // Create a unique popup ID for each entity to prevent collisions
+        std::string contextMenuId = "EntityContextMenu##" + std::to_string((uint32_t)(uint64_t)(entt::entity)entity);
+
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+            // Set the selection context to this entity and open its unique popup
+            m_SelectionContext = entity;
+            ImGui::OpenPopup(contextMenuId.c_str());
+        }
+
+        if (ImGui::BeginPopup(contextMenuId.c_str()))
+        {
+            if (ImGui::MenuItem("Create Prefab"))
+            {
+                CreatePrefab(entity);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
         }
     
         // Code of Double clicking the item for changing the name (WIP)
@@ -2618,5 +2669,24 @@ namespace Coffee
         }
         
         return false;
+    }
+    
+    void SceneTreePanel::CreatePrefab(Entity entity)
+    {
+        if (!entity)
+            return;
+            
+        FileDialogArgs args;
+        args.Filters = {{"Prefab", "prefab"}};
+        args.DefaultName = entity.GetComponent<TagComponent>().Tag + ".prefab";
+        const std::filesystem::path& path = FileDialog::SaveFile(args);
+        
+        if (path.empty())
+            return;
+
+        const Ref<Prefab> prefab = Prefab::Create(entity);
+        prefab->Save(path);
+        
+        COFFEE_CORE_INFO("Created prefab: {0}", path.string());
     }
 } // namespace Coffee
