@@ -65,6 +65,24 @@ namespace Coffee {
     }
 
     template <>
+    void CopyComponentIfExists<ActiveComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        // ActiveComponent is empty, just place it
+        if (!registry.all_of<ActiveComponent>(destinyEntity)) {
+            registry.emplace<ActiveComponent>(destinyEntity);
+        }
+    }
+
+    template <>
+    void CopyComponentIfExists<StaticComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        // StaticComponent is empty, just place it
+        if (!registry.all_of<StaticComponent>(destinyEntity)) {
+            registry.emplace<StaticComponent>(destinyEntity);
+        }
+    }
+
+    template <>
     void CopyComponentIfExists<HierarchyComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
     {
         // We don't need to copy the hierarchy component directly
@@ -426,19 +444,26 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
-            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-
-            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
-            {
-                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }
-
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
             particlesSystemComponent.GetParticleEmitter()->DrawDebug();
         }
+
+        auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
+        for (auto& entity : spriteView)
+        {
+            auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
+            auto& transformComponent = spriteView.get<TransformComponent>(entity);
+
+            if (spriteComponent.texture)
+            {
+                Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), spriteComponent.texture,
+                                     spriteComponent.tilingFactor, spriteComponent.tintColor,
+                                     Renderer2D::RenderMode::World);
+            }
+        }
+
 
         m_PhysicsWorld.drawCollisionShapes();
 
@@ -589,19 +614,25 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
-            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-
-            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
-            {
-                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }
-
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(cameraTransform);
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
 
+        }
+
+        auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
+        for (auto& entity : spriteView)
+        {
+            auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
+            auto& transformComponent = spriteView.get<TransformComponent>(entity);
+
+            if (spriteComponent.texture) {
+                Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), spriteComponent.texture,
+                                     spriteComponent.tilingFactor, spriteComponent.tintColor,
+                                     Renderer2D::RenderMode::World);
+            }
+
+            
         }
 
         UIManager::UpdateUI(m_Registry);

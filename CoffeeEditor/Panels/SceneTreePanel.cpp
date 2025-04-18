@@ -9,6 +9,7 @@
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/Prefab.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
@@ -94,6 +95,7 @@ namespace Coffee
         // Entity Tree Drag and Drop functionality
         if (ImGui::BeginDragDropTarget())
         {
+            // Handle normal resources (like models)
             if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
             {
                 const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
@@ -104,10 +106,39 @@ namespace Coffee
                     AddModelToTheSceneTree(m_Context.get(), model);
                     break;
                 }
-                default:
+                case ResourceType::Prefab: {
+                    if (const Ref<Prefab> prefab = std::static_pointer_cast<Prefab>(resource))
+                    {
+                        const Entity instance = prefab->Instantiate(m_Context.get());
+                        SetSelectedEntity(instance);
+                        
+                        COFFEE_CORE_INFO("Instantiated prefab: {0}", prefab->GetPath().string());
+                    }
                     break;
                 }
+                default: {
+                    break;
+                }
+                } // End of switch
             }
+
+            // Handle prefab paths - only load the prefab when it's actually dropped
+            if (const ImGuiPayload* prefabPayload = ImGui::AcceptDragDropPayload("PREFAB_PATH"))
+            {
+                const char* pathStr = (const char*)prefabPayload->Data;
+                std::filesystem::path prefabPath = pathStr;
+                
+                // Load the prefab now that it's being used
+                Ref<Prefab> prefab = Prefab::Load(prefabPath);
+                if (prefab)
+                {
+                    Entity instance = prefab->Instantiate(m_Context.get());
+                    SetSelectedEntity(instance);
+                    
+                    COFFEE_CORE_INFO("Instantiated prefab: {0}", prefabPath.string());
+                }
+            }
+            
             ImGui::EndDragDropTarget();
         }
 
@@ -146,6 +177,26 @@ namespace Coffee
         if (ImGui::IsItemClicked())
         {
             m_SelectionContext = entity;
+        }
+
+        // Create a unique popup ID for each entity to prevent collisions
+        std::string contextMenuId = "EntityContextMenu##" + std::to_string((uint32_t)(uint64_t)(entt::entity)entity);
+
+        if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
+        {
+            // Set the selection context to this entity and open its unique popup
+            m_SelectionContext = entity;
+            ImGui::OpenPopup(contextMenuId.c_str());
+        }
+
+        if (ImGui::BeginPopup(contextMenuId.c_str()))
+        {
+            if (ImGui::MenuItem("Create Prefab"))
+            {
+                CreatePrefab(entity);
+                ImGui::CloseCurrentPopup();
+            }
+            ImGui::EndPopup();
         }
     
         // Code of Double clicking the item for changing the name (WIP)
@@ -1707,6 +1758,91 @@ namespace Coffee
             }
         }
 
+        if (entity.HasComponent<SpriteComponent>())
+        {
+            auto& spriteComponent = entity.GetComponent<SpriteComponent>();
+            bool isCollapsingHeaderOpen = true;
+            ImGui::PushID("SpriteComponent");
+            if (ImGui::CollapsingHeader("Sprite Component", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                auto DrawTextureWidget = [&](const std::string& label, Ref<Texture2D>& texture) {
+                    uint32_t textureID = texture ? texture->GetID() : 0;
+                    ImGui::ImageButton((label + " ").c_str(), (ImTextureID)textureID, {64, 64});
+
+                    auto textureImageFormat = [](ImageFormat format) -> std::string {
+                        switch (format)
+                        {
+                        case ImageFormat::R8:
+                            return "R8";
+                        case ImageFormat::RGB8:
+                            return "RGB8";
+                        case ImageFormat::RGBA8:
+                            return "RGBA8";
+                        case ImageFormat::SRGB8:
+                            return "SRGB8";
+                        case ImageFormat::SRGBA8:
+                            return "SRGBA8";
+                        case ImageFormat::RGBA32F:
+                            return "RGBA32F";
+                        case ImageFormat::DEPTH24STENCIL8:
+                            return "DEPTH24STENCIL8";
+                        }
+                    };
+
+                    if (ImGui::IsItemHovered() and texture)
+                    {
+                        ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s", texture->GetName().c_str(),
+                                          texture->GetWidth(), texture->GetHeight(),
+                                          textureImageFormat(texture->GetImageFormat()).c_str(),
+                                          texture->GetPath().c_str());
+                    }
+
+                    if (ImGui::BeginDragDropTarget())
+                    {
+                        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("RESOURCE"))
+                        {
+                            const Ref<Resource>& resource = *(Ref<Resource>*)payload->Data;
+                            if (resource->GetType() == ResourceType::Texture2D)
+                            {
+                                const Ref<Texture2D>& t = std::static_pointer_cast<Texture2D>(resource);
+                                texture = t;
+                            }
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+
+                    ImGui::SameLine();
+                    if (ImGui::BeginCombo((label).c_str(), "", ImGuiComboFlags_NoPreview))
+                    {
+                        if (ImGui::Selectable("Clear"))
+                        {
+                            texture = nullptr;
+                        }
+                        if (ImGui::Selectable("Open"))
+                        {
+                            std::string path = FileDialog::OpenFile({}).string();
+                            if (!path.empty())
+                            {
+                                Ref<Texture2D> t = Texture2D::Load(path);
+                                texture = t;
+                            }
+                        }
+                        ImGui::EndCombo();
+                    }
+                };
+
+                DrawTextureWidget("Texture 2D", spriteComponent.texture);
+                
+                ImGui::ColorEdit4("Tint Color", glm::value_ptr(spriteComponent.tintColor));
+                ImGui::DragFloat("Tilling Factor", &spriteComponent.tilingFactor, 0.1, 0);
+
+                ImGui::Checkbox("Flip X", &spriteComponent.flipX);
+                ImGui::Checkbox("Flip Y", &spriteComponent.flipY);
+            }
+            ImGui::PopID();
+        
+        }
+
         if (entity.HasComponent<ParticlesSystemComponent>())
         {
             auto& particles = entity.GetComponent<ParticlesSystemComponent>();
@@ -1716,11 +1852,6 @@ namespace Coffee
             ImGui::PushID("ParticlesSystem");
             if (ImGui::CollapsingHeader("Particle System", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // Position
-                // ImGui::Text("Position");
-                // ImGui::DragFloat3("##ParticlePosition", glm::value_ptr(particles.Position), 0.1f);
-
-                // Rate over time
 
                 // Direction
                 ImGui::Checkbox("##ParticleDirectionUseRandom", &emitter->useDirectionRandom);
@@ -1752,14 +1883,6 @@ namespace Coffee
                 {
                     ImGui::ColorEdit4("##ParticleColorRandom", glm::value_ptr(emitter->colorRandom));
                 }
-
-                //// Life Time
-                // ImGui::Text("Life Time");
-                // ImGui::DragFloat("##ParticleLife", &emitter->lifeTime, 0.1f, 0.0f, 100.0f);
-
-                //// Size
-                // ImGui::Text("Size");
-                // ImGui::DragFloat("##ParticleSize", &emitter->size, 0.1f, 0.0f, 10.0f);
 
                 // Looping
                 ImGui::Checkbox("##ParticleLooping", &emitter->looping);
@@ -1907,18 +2030,12 @@ namespace Coffee
                     ImGui::DragFloat3("##ParticleStartRotation", glm::value_ptr(emitter->startRotation), 0.1f);
                 }
 
-                ImGui::Checkbox("##UseEmission", &emitter->useEmission);
-                ImGui::SameLine();
+                //ImGui::Checkbox("##UseEmission", &emitter->useEmission);
+                //ImGui::SameLine();
                 ImGui::PushID("Emission");
 
                 if (ImGui::TreeNodeEx("Emission Settings", ImGuiTreeNodeFlags_None))
                 {
-                    // If not enabled, set the text to gray and disable the controls
-                    if (!emitter->useEmission)
-                    {
-                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
-                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
-                    }
 
                     // Select emitter shape
                     ImGui::Text("Rate over Time");
@@ -1932,6 +2049,70 @@ namespace Coffee
                     {   
                         emitter->Emit(emitter->emitParticlesTest);
                     }
+
+                    ImGui::Checkbox("##UseBurst", &emitter->useBurst);
+                    ImGui::SameLine();
+                    if (ImGui::TreeNodeEx("Bursts Settings", ImGuiTreeNodeFlags_None))
+                    {
+                        if (!emitter->useBurst)
+                        {
+                            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.5f, 0.5f, 0.5f, 1.0f)); // Gray
+                            ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);                   // Disable controls
+                        }
+                        ImGui::PushItemWidth(50.0f);
+
+                        ImGui::Text("Time  ");
+                        ImGui::SameLine();
+                        ImGui::Text("Count  ");
+                        ImGui::SameLine();
+                        ImGui::Text("Interval");
+                        
+
+                        for (int i = 0; i < emitter->bursts.size(); i++)
+                        {
+                            Ref<BurstParticleEmitter> burst = emitter->bursts[i];
+                            
+                            std::string number = std::to_string(i);
+
+                            ImGui::DragFloat(("##Time" + number).c_str(), &burst->initialTime, 0.1, 0);
+                            ImGui::SameLine();
+                            ImGui::DragInt(("##Count" + number).c_str(), &burst->count, 1, 0);
+                            ImGui::SameLine();
+                            ImGui::DragFloat(("##Interval" + number).c_str(), &burst->interval, 0.01f, 0);
+
+                            ImGui::SameLine();
+                            if (ImGui::Button(("X##" + number).c_str()))
+                            {
+                                emitter->bursts.erase(emitter->bursts.begin() + i);
+                                i--;
+                            }
+                           
+                        }
+
+
+                        if (ImGui::Button("Add Burst"))
+                        {
+                            Ref<BurstParticleEmitter> newBurst = CreateRef<BurstParticleEmitter>();
+                            newBurst->initialTime = 0.0f;
+                            newBurst->count = 0.0f;
+                            newBurst->interval = 0.0f;
+
+                            emitter->bursts.push_back(newBurst);
+                        }
+
+
+
+
+                        if (!emitter->useBurst)
+                        {
+                            ImGui::PopItemFlag();
+                            ImGui::PopStyleColor();
+                        }
+                        ImGui::PopItemWidth();
+
+                        ImGui::TreePop();
+                    }
+
 
                     ImGui::TreePop();
                 }
@@ -2271,7 +2452,7 @@ namespace Coffee
                     };
 
                     ImGui::Text("Texture");
-                    DrawTextureWidget("##Albedo", emitter->particleMaterial->GetMaterialTextures().albedo);
+                    DrawTextureWidget("##Albedo", emitter->particleTexture);
 
 
                     // Restore default state
@@ -2516,7 +2697,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component", "UI Text Component", "UI Toggle Component", "UI Button Component", "UI Slider Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component", "Sprite Component", "UI Image Component", "UI Text Component", "UI Toggle Component", "UI Button Component", "UI Slider Component" };
 
             static int item_current = 1;
 
@@ -2633,13 +2814,7 @@ namespace Coffee
                 {
                     if (!entity.HasComponent<ParticlesSystemComponent>())
                     {
-
                         entity.AddComponent<ParticlesSystemComponent>();
-                        /*if (!entity.HasComponent<MaterialComponent>())
-                         {
-                             entity.AddComponent<MaterialComponent>(Material::Create("Default Particle Material"));
-                             
-                         }*/
                         ImGui::CloseCurrentPopup();
                     }
                 }  
@@ -2742,6 +2917,13 @@ namespace Coffee
                     }
                     ImGui::CloseCurrentPopup();
                 }
+                else if (items[item_current] == "Sprite Component")
+                {
+                    if (!entity.HasComponent<SpriteComponent>())
+                    {
+                        entity.AddComponent<SpriteComponent>();
+                    }
+                }
                 else
                 {
                     ImGui::CloseCurrentPopup();
@@ -2834,7 +3016,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = {"Empty", "Camera", "Primitive", "Light", "Particle System"};
+            std::string items[] = {"Empty", "Camera", "Primitive", "Light", "Particle System", "Sprite2D"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -2900,6 +3082,13 @@ namespace Coffee
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
+                else if (items[item_current] == "Sprite2D")
+                {
+                    Entity e = m_Context->CreateEntity("Sprite2D");
+                    e.AddComponent<SpriteComponent>();
+                    SetSelectedEntity(e);
+                    ImGui::CloseCurrentPopup();
+                }
                 else
                 {
                     ImGui::CloseCurrentPopup();
@@ -2944,5 +3133,24 @@ namespace Coffee
         }
         
         return false;
+    }
+    
+    void SceneTreePanel::CreatePrefab(Entity entity)
+    {
+        if (!entity)
+            return;
+            
+        FileDialogArgs args;
+        args.Filters = {{"Prefab", "prefab"}};
+        args.DefaultName = entity.GetComponent<TagComponent>().Tag + ".prefab";
+        const std::filesystem::path& path = FileDialog::SaveFile(args);
+        
+        if (path.empty())
+            return;
+
+        const Ref<Prefab> prefab = Prefab::Create(entity);
+        prefab->Save(path);
+        
+        COFFEE_CORE_INFO("Created prefab: {0}", path.string());
     }
 } // namespace Coffee
