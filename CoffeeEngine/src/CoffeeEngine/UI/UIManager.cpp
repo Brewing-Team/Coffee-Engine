@@ -25,6 +25,8 @@ namespace Coffee {
         {
             entt::entity entity = item.Entity;
 
+            if (!registry.any_of<ActiveComponent>(entity)) continue;
+
             switch (item.ComponentType) {
             case UIComponentType::Image:
                 RenderUIImage(registry, entity);
