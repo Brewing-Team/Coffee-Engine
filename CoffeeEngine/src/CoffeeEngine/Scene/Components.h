@@ -1010,8 +1010,8 @@
 
     struct UIComponent
     {
-        RectAnchor Anchor;
-        int Layer = 0;
+        RectAnchor Anchor; ///< The anchor of the UI component.
+        int Layer = 0; ///< The layer of the UI component.
 
         UIComponent() { UIManager::MarkForSorting(); }
         ~UIComponent() { UIManager::MarkForSorting(); }
@@ -1033,8 +1033,8 @@
 
     struct UIImageComponent : public UIComponent
     {
-        Ref<Texture2D> Texture;
-        glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
+        Ref<Texture2D> Texture; ///< The texture of the image.
+        glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f }; ///< The color.
 
         UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
 
@@ -1060,13 +1060,13 @@
     {
         UITextComponent() { Text = "Text"; }
 
-        std::string Text;
-        Ref<Font> UIFont;
-        std::filesystem::path FontPath;
-        glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
-        float Kerning = 0.0f;
-        float LineSpacing = 0.0f;
-        float FontSize = 16.0f;
+        std::string Text; ///< The text.
+        Ref<Font> UIFont; ///< The font.
+        std::filesystem::path FontPath; ///< The font path.
+        glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f }; ///< The color.
+        float Kerning = 0.0f; ///< The kerning.
+        float LineSpacing = 0.0f; ///< The line spacing.
+        float FontSize = 16.0f; ///< The font size.
 
         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
@@ -1103,9 +1103,9 @@
              OffTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
          }
 
-         bool Value = false;
-         Ref<Texture2D> OnTexture;
-         Ref<Texture2D> OffTexture;
+         bool Value = false; ///< The value of the toggle.
+         Ref<Texture2D> OnTexture; ///< The texture when the toggle is on.
+         Ref<Texture2D> OffTexture; ///< The texture when the toggle is off.
 
          template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
@@ -1148,18 +1148,18 @@
             Disabled
         };
 
-         State CurrentState = State::Normal;
-         bool Interactable = true;
+         State CurrentState = State::Normal; ///< The current state of the button.
+         bool Interactable = true; ///< Flag to indicate if the button is interactable.
 
-         Ref<Texture2D> NormalTexture;
-         Ref<Texture2D> HoverTexture;
-         Ref<Texture2D> PressedTexture;
-         Ref<Texture2D> DisabledTexture;
+         Ref<Texture2D> NormalTexture; ///< The texture when the button is normal.
+         Ref<Texture2D> HoverTexture; ///< The texture when the button is hovered.
+         Ref<Texture2D> PressedTexture; ///< The texture when the button is pressed.
+         Ref<Texture2D> DisabledTexture; ///< The texture when the button is disabled.
 
-         glm::vec4 NormalColor{1.0f};
-         glm::vec4 HoverColor{1.0f};
-         glm::vec4 PressedColor{1.0f};
-         glm::vec4 DisabledColor{1.0f};
+         glm::vec4 NormalColor{1.0f}; ///< The color when the button is normal.
+         glm::vec4 HoverColor{1.0f}; ///< The color when the button is hovered.
+         glm::vec4 PressedColor{1.0f}; ///< The color when the button is pressed.
+         glm::vec4 DisabledColor{1.0f}; ///< The color when the button is disabled.
 
          template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
@@ -1212,12 +1212,12 @@
              HandleScale = {1.0f, 1.0f};
          }
 
-         float Value = 0.0f;
-         float MinValue = 0.0f;
-         float MaxValue = 100.0f;
-         glm::vec2 HandleScale;
-         Ref<Texture2D> BackgroundTexture;
-         Ref<Texture2D> HandleTexture;
+         float Value = 0.0f; ///< The value of the slider.
+         float MinValue = 0.0f; ///< The minimum value of the slider.
+         float MaxValue = 100.0f; ///< The maximum value of the slider.
+         glm::vec2 HandleScale; ///< The scale of the handle.
+         Ref<Texture2D> BackgroundTexture; ///< The texture of the background.
+         Ref<Texture2D> HandleTexture; ///< The texture of the handle.
 
          template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
@@ -1265,6 +1265,11 @@
  CEREAL_CLASS_VERSION(Coffee::NavMeshComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::NavigationAgentComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::ParticlesSystemComponent, 0);
-
+ CEREAL_CLASS_VERSION(Coffee::UIComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UIImageComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UITextComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UIToggleComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UIButtonComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UISliderComponent, 0);
  
  /** @} */
