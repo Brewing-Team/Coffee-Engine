@@ -213,6 +213,8 @@ namespace Coffee {
         Ref<Texture2D> currentTexture = nullptr;
         glm::vec4 currentColor{1.0f};
 
+        button.CurrentState = button.Interactable ? UIButtonComponent::State::Normal : UIButtonComponent::State::Disabled;
+
         switch (button.CurrentState)
         {
             case UIButtonComponent::State::Normal:
