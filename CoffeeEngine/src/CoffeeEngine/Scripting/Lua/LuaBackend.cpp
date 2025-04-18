@@ -659,6 +659,16 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
                 } else if (componentName == "AnimatorComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AnimatorComponent>()));
+                } else if (componentName == "UIImageComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
+                } else if (componentName == "UITextComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UITextComponent>()));
+                } else if (componentName == "UIToggleComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UIToggleComponent>()));
+                } else if (componentName == "UIButtonComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UIButtonComponent>()));
+                } else if (componentName == "UISliderComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UISliderComponent>()));
                 }
 
                 return sol::nil;
@@ -688,6 +698,16 @@ namespace Coffee {
                     return self->HasComponent<AnimatorComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     return self->HasComponent<AudioSourceComponent>();
+                } else if (componentName == "UIImageComponent") {
+                    return self->HasComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    return self->HasComponent<UITextComponent>();
+                } else if (componentName == "UIToggleComponent") {
+                    return self->HasComponent<UIToggleComponent>();
+                } else if (componentName == "UIButtonComponent") {
+                    return self->HasComponent<UIButtonComponent>();
+                } else if (componentName == "UISliderComponent") {
+                    return self->HasComponent<UISliderComponent>();
                 }
                 return false;
             },
@@ -832,6 +852,45 @@ namespace Coffee {
          "play", &AudioSourceComponent::Play,
          "pause", &AudioSourceComponent::Stop);
 
+        luaState.new_usertype<UIImageComponent>("UIImageComponent", sol::constructors<UIImageComponent()>(),
+            "set_color", [](UIImageComponent& self, const glm::vec4& color) { self.Color = color; }
+        );
+
+        luaState.new_usertype<UITextComponent>("UITextComponent",
+            "set_text", [](UITextComponent& self, const std::string& text) { self.Text = text; },
+            "set_color", [](UITextComponent& self, const glm::vec4& color) { self.Color = color; },
+            "kerning", &UITextComponent::Kerning,
+            "line_spacing", &UITextComponent::LineSpacing,
+            "font_size", &UITextComponent::FontSize
+        );
+
+        luaState.new_usertype<UIToggleComponent>("UIToggleComponent",
+            "value", &UIToggleComponent::Value
+        );
+
+        luaState.new_enum<UIButtonComponent::State>("State",
+        {
+            {"Normal", UIButtonComponent::State::Normal},
+            {"Hover", UIButtonComponent::State::Hover},
+            {"Pressed", UIButtonComponent::State::Pressed},
+            {"Disabled", UIButtonComponent::State::Disabled}
+        });
+
+        luaState.new_usertype<UIButtonComponent>("UIButtonComponent",
+            "interactable", &UIButtonComponent::Interactable,
+            "state", &UIButtonComponent::CurrentState,
+            "set_normal_color", [](UIButtonComponent& self, const glm::vec4& color) { self.NormalColor = color; },
+            "set_hover_color", [](UIButtonComponent& self, const glm::vec4& color) { self.HoverColor = color; },
+            "set_pressed_color", [](UIButtonComponent& self, const glm::vec4& color) { self.PressedColor = color; },
+            "set_disabled_color", [](UIButtonComponent& self, const glm::vec4& color) { self.DisabledColor = color; }
+        );
+
+        luaState.new_usertype<UISliderComponent>("UISliderComponent",
+            "value", &UISliderComponent::Value,
+            "min_value", &UISliderComponent::MinValue,
+            "max_value", &UISliderComponent::MaxValue,
+            "handle_scale", &UISliderComponent::HandleScale
+        );
 
         # pragma endregion
 

@@ -84,9 +84,10 @@ namespace Coffee {
 			glm::vec4 Color{ 1.0f };
 			float Kerning = 0.0f;
 			float LineSpacing = 0.0f;
+            float Size = 16.0f;
 		};
 
-        static void DrawText(const std::string& text, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, RenderMode mode, uint32_t entityID = 4294967295);
+        static void DrawTextString(const std::string& text, Ref<Font> font, const glm::mat4& transform, const TextParams& textParams, RenderMode mode, uint32_t entityID = 4294967295);
     private:
         static Batch& GetBatch(RenderMode mode);
         static void NextBatch(RenderMode mode);

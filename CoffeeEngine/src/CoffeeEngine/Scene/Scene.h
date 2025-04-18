@@ -172,7 +172,12 @@ namespace Coffee {
             .template get<ParticlesSystemComponent>(archive)
             .template get<ActiveComponent>(archive)
             .template get<StaticComponent>(archive)
-            .template get<SpriteComponent>(archive);
+            .template get<SpriteComponent>(archive)
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive)
+            .template get<UISliderComponent>(archive);
          }
 
         /**
@@ -227,9 +232,13 @@ namespace Coffee {
                     .template get<ParticlesSystemComponent>(archive)
                     .template get<ActiveComponent>(archive)
                     .template get<StaticComponent>(archive)
-                    .template get<SpriteComponent>(archive);
+                    .template get<SpriteComponent>(archive)
+                    .template get<UIImageComponent>(archive)
+                    .template get<UITextComponent>(archive)
+                    .template get<UIToggleComponent>(archive)
+                    .template get<UIButtonComponent>(archive)
+                    .template get<UISliderComponent>(archive);
             }
-            
 
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
@@ -241,8 +250,8 @@ namespace Coffee {
             TagComponent, TransformComponent, HierarchyComponent, CameraComponent, \
             MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, \
             ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, \
-            ParticlesSystemComponent, AnimatorComponent, ActiveComponent, StaticComponent, SpriteComponent
-
+            ParticlesSystemComponent, AnimatorComponent, ActiveComponent, StaticComponent, SpriteComponent, \
+            UIComponent, UIImageComponent, UITextComponent, UIToggleComponent, UIButtonComponent, UISliderComponent
 
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;

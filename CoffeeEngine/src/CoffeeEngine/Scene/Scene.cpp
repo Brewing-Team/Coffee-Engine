@@ -21,6 +21,7 @@
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
+#include "CoffeeEngine/UI/UIManager.h"
 #include "PrimitiveMesh.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
@@ -465,6 +466,8 @@ namespace Coffee {
 
 
         m_PhysicsWorld.drawCollisionShapes();
+
+        UIManager::UpdateUI(m_Registry);
     }
 
 
@@ -631,6 +634,8 @@ namespace Coffee {
 
             
         }
+
+        UIManager::UpdateUI(m_Registry);
     }
 
     void Scene::OnEvent(Event& e)
