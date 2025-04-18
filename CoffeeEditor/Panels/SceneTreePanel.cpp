@@ -3196,7 +3196,9 @@ namespace Coffee
         if (entity.HasComponent<UIImageComponent>())
         {
             auto& imageComponent = entity.GetComponent<UIImageComponent>();
-            if (ImGui::CollapsingHeader("UI Image", ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Image", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 if (ImGui::Selectable("Texture"))
                 {
@@ -3207,13 +3209,22 @@ namespace Coffee
                         imageComponent.SetTexture(texture);
                     }
                 }
+
+                ImGui::ColorEdit4("Color", glm::value_ptr(imageComponent.Color));
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<UIImageComponent>();
             }
         }
 
         if (entity.HasComponent<UITextComponent>())
         {
             auto& textComponent = entity.GetComponent<UITextComponent>();
-            if (ImGui::CollapsingHeader("UI Text", ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Text", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 char buffer[256] = {};
                 strncpy_s(buffer, textComponent.Text.c_str(), sizeof(buffer));
@@ -3223,17 +3234,24 @@ namespace Coffee
                     textComponent.Text = std::string(buffer);
                 }
 
-                ImGui::DragFloat("Size", &entity.GetComponent<UITextComponent>().FontSize, 0.1f, 0.0f, 100.0f);
-                ImGui::DragFloat("Kerning", &entity.GetComponent<UITextComponent>().Kerning, 0.1f, 0.0f, 100.0f);
-                ImGui::DragFloat("Line Spacing", &entity.GetComponent<UITextComponent>().LineSpacing, 0.1f, 0.0f, 100.0f);
-                ImGui::ColorEdit4("Color", glm::value_ptr(entity.GetComponent<UITextComponent>().Color));
+                ImGui::DragFloat("Size", &textComponent.FontSize, 0.1f, 0.0f, 100.0f);
+                ImGui::DragFloat("Kerning", &textComponent.Kerning, 0.1f, 0.0f, 100.0f);
+                ImGui::DragFloat("Line Spacing", &textComponent.LineSpacing, 0.1f, 0.0f, 100.0f);
+                ImGui::ColorEdit4("Color", glm::value_ptr(textComponent.Color));
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<UITextComponent>();
             }
         }
 
         if (entity.HasComponent<UIToggleComponent>())
         {
             auto& toggleComponent = entity.GetComponent<UIToggleComponent>();
-            if (ImGui::CollapsingHeader("Toggle", ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("Toggle", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Checkbox("Value", &toggleComponent.Value);
 
@@ -3257,12 +3275,19 @@ namespace Coffee
                     }
                 }
             }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<UIToggleComponent>();
+            }
         }
 
         if (entity.HasComponent<UIButtonComponent>())
         {
             auto& buttonComponent = entity.GetComponent<UIButtonComponent>();
-            if (ImGui::CollapsingHeader("UI Button", ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Button", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 if (ImGui::Checkbox("Interactable", &buttonComponent.Interactable))
                 {
@@ -3324,12 +3349,19 @@ namespace Coffee
                 const char* stateNames[] = { "Normal", "Hover", "Pressed", "Disabled" };
                 ImGui::Text("Current State: %s", stateNames[static_cast<int>(buttonComponent.CurrentState)]);
             }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<UIButtonComponent>();
+            }
         }
 
         if (entity.HasComponent<UISliderComponent>())
         {
             auto& sliderComponent = entity.GetComponent<UISliderComponent>();
-            if (ImGui::CollapsingHeader("UI Slider", ImGuiTreeNodeFlags_DefaultOpen))
+            bool isCollapsingHeaderOpen = true;
+
+            if (ImGui::CollapsingHeader("UI Slider", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::DragFloat("Value", &sliderComponent.Value, 0.1f, sliderComponent.MinValue, sliderComponent.MaxValue);
                 ImGui::DragFloat("Min Value", &sliderComponent.MinValue, 0.1f, 0.0f, sliderComponent.MaxValue);
@@ -3358,6 +3390,11 @@ namespace Coffee
                         sliderComponent.HandleTexture = texture;
                     }
                 }
+            }
+
+            if (!isCollapsingHeaderOpen)
+            {
+                entity.RemoveComponent<UISliderComponent>();
             }
         }
 
@@ -3570,15 +3607,39 @@ namespace Coffee
                 {
                     if (!entity.HasComponent<SpriteComponent>())
                     {
-                        entity.AddComponent<SpriteComponent>();
+                        entity.AddComponent<UIImageComponent>();
                     }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Text Component")
+                {
+                    if (!entity.HasComponent<UITextComponent>())
+                    {
+                        entity.AddComponent<UITextComponent>();
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Toggle Component")
+                {
+                    if (!entity.HasComponent<UIToggleComponent>())
+                    {
+                        entity.AddComponent<UIToggleComponent>();
+                    }
+                    ImGui::CloseCurrentPopup();
+                }
+                else if (items[item_current] == "UI Button Component")
+                {
+                    if (!entity.HasComponent<UIButtonComponent>())
+                    {
+                        entity.AddComponent<UIButtonComponent>();
+                    }
+                    ImGui::CloseCurrentPopup();
                 }
                 else if (items[item_current] == "UI Slider Component")
                 {
                     if (!entity.HasComponent<UISliderComponent>())
                     {
                         entity.AddComponent<UISliderComponent>();
-                        UIManager::MarkForSorting();
                     }
                     ImGui::CloseCurrentPopup();
                 }

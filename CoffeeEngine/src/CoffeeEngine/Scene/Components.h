@@ -1061,7 +1061,8 @@
         RectAnchor Anchor;
         int Layer = 0;
 
-        UIComponent() = default;
+        UIComponent() { UIManager::MarkForSorting(); }
+        ~UIComponent() { UIManager::MarkForSorting(); }
 
         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
@@ -1081,6 +1082,7 @@
     struct UIImageComponent : public UIComponent
     {
         Ref<Texture2D> Texture;
+        glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
 
         UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
 
