@@ -2390,10 +2390,7 @@ namespace Coffee
 
             if (ImGui::CollapsingHeader("UI Button", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                if (ImGui::Checkbox("Interactable", &buttonComponent.Interactable))
-                {
-                    buttonComponent.CurrentState = buttonComponent.Interactable ? UIButtonComponent::State::Normal : UIButtonComponent::State::Disabled;
-                }
+                ImGui::Checkbox("Interactable", &buttonComponent.Interactable);
 
                 if (ImGui::Selectable("Normal Texture"))
                 {
