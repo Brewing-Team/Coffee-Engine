@@ -619,6 +619,13 @@ namespace Coffee
                     if (ImGui::DragInt("Layer", &uiButtonComponent.Layer, 1.0f, 0.0f, 100.0f))
                         UIManager::MarkForSorting();
                 }
+                else if (entity.HasComponent<UISliderComponent>())
+                {
+                    auto& uiSliderComponent = entity.GetComponent<UISliderComponent>();
+                    DrawUITransform(transformComponent, uiSliderComponent.Anchor, entity);
+                    if (ImGui::DragInt("Layer", &uiSliderComponent.Layer, 1.0f, 0.0f, 100.0f))
+                        UIManager::MarkForSorting();
+                }
                 else
                 {
                     DrawTransform(transformComponent);
@@ -3319,6 +3326,41 @@ namespace Coffee
             }
         }
 
+        if (entity.HasComponent<UISliderComponent>())
+        {
+            auto& sliderComponent = entity.GetComponent<UISliderComponent>();
+            if (ImGui::CollapsingHeader("UI Slider", ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::DragFloat("Value", &sliderComponent.Value, 0.1f, sliderComponent.MinValue, sliderComponent.MaxValue);
+                ImGui::DragFloat("Min Value", &sliderComponent.MinValue, 0.1f, 0.0f, sliderComponent.MaxValue);
+                ImGui::DragFloat("Max Value", &sliderComponent.MaxValue, 0.1f, sliderComponent.MinValue, 100.0f);
+
+                ImGui::Text("Handle Size");
+                ImGui::DragFloat("##HandleSizeX", &sliderComponent.HandleScale.x, 0.1f, 0.1f, 5.0f);
+                ImGui::DragFloat("##HandleSizeY", &sliderComponent.HandleScale.y, 0.1f, 0.1f, 5.0f);
+
+                if (ImGui::Selectable("Background Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        sliderComponent.BackgroundTexture = texture;
+                    }
+                }
+
+                if (ImGui::Selectable("Handle Texture"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        Ref<Texture2D> texture = Texture2D::Load(path);
+                        sliderComponent.HandleTexture = texture;
+                    }
+                }
+            }
+        }
+
         ImGui::Separator();
 
         ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -3339,7 +3381,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component", "Sprite Component" };
+            std::string items[] = { "Tag Component", "Transform Component", "Mesh Component", "Material Component", "Light Component", "Camera Component", "Audio Source Component", "Audio Listener Component", "Audio Zone Component", "Lua Script Component", "Rigidbody Component", "Particles System Component", "NavMesh Component", "Navigation Agent Component" , "UI Image Component", "UI Text Component", "UI Toggle Component", "UI Button Component", "UI Slider Component" };
 
             static int item_current = 1;
 
@@ -3530,6 +3572,15 @@ namespace Coffee
                     {
                         entity.AddComponent<SpriteComponent>();
                     }
+                }
+                else if (items[item_current] == "UI Slider Component")
+                {
+                    if (!entity.HasComponent<UISliderComponent>())
+                    {
+                        entity.AddComponent<UISliderComponent>();
+                        UIManager::MarkForSorting();
+                    }
+                    ImGui::CloseCurrentPopup();
                 }
                 else
                 {

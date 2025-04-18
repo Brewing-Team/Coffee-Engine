@@ -38,6 +38,9 @@ namespace Coffee {
             case UIComponentType::Button:
                 RenderUIButton(registry, entity);
                 break;
+            case UIComponentType::Slider:
+                RenderUISlider(registry, entity);
+                break;
             }
         }
     }
@@ -71,6 +74,7 @@ namespace Coffee {
         AddUIItems<UITextComponent, UIComponentType::Text>(registry, s_SortedUIItems);
         AddUIItems<UIToggleComponent, UIComponentType::Toggle>(registry, s_SortedUIItems);
         AddUIItems<UIButtonComponent, UIComponentType::Button>(registry, s_SortedUIItems);
+        AddUIItems<UISliderComponent, UIComponentType::Slider>(registry, s_SortedUIItems);
 
         std::sort(s_SortedUIItems.begin(), s_SortedUIItems.end(), [&registry](const UIRenderItem& a, const UIRenderItem& b) {
             if (a.Layer != b.Layer)
@@ -233,6 +237,44 @@ namespace Coffee {
             Renderer2D::DrawQuad(worldTransform, currentTexture, 1.0f, currentColor, Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
+    void UIManager::RenderUISlider(entt::registry& registry, entt::entity entity)
+    {
+        auto& sliderComponent = registry.get<UISliderComponent>(entity);
+        auto& transformComponent = registry.get<TransformComponent>(entity);
+
+        auto anchored = CalculateAnchoredTransform(registry, entity, sliderComponent.Anchor, WindowSize);
+
+        transformComponent.SetLocalPosition(glm::vec3(anchored.Position, 0.0f));
+        transformComponent.SetLocalScale(glm::vec3(anchored.Size.x, anchored.Size.y, 1.0f));
+
+        float rotation = transformComponent.GetLocalRotation().z;
+
+        float normalizedValue = (sliderComponent.Value - sliderComponent.MinValue) / (sliderComponent.MaxValue - sliderComponent.MinValue);
+        normalizedValue = glm::clamp(normalizedValue, 0.0f, 1.0f);
+
+        glm::mat4 backgroundTransform = glm::mat4(1.0f);
+        backgroundTransform = glm::translate(backgroundTransform, glm::vec3(anchored.Position, 0.0f));
+        backgroundTransform = glm::rotate(backgroundTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        backgroundTransform = glm::scale(backgroundTransform, glm::vec3(anchored.Size.x, -anchored.Size.y, 1.0f));
+
+        if (sliderComponent.BackgroundTexture)
+            Renderer2D::DrawQuad(backgroundTransform, sliderComponent.BackgroundTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
+
+        float handlePosX = anchored.Position.x - (anchored.Size.x * 0.5f) + (normalizedValue * anchored.Size.x);
+        float handlePosY = anchored.Position.y;
+
+        float baseHandleSize = anchored.Size.y;
+        glm::vec2 scaledHandleSize = baseHandleSize * sliderComponent.HandleScale;
+
+        glm::mat4 handleTransform = glm::mat4(1.0f);
+        handleTransform = glm::translate(handleTransform, glm::vec3(handlePosX, handlePosY, 0.0f));
+        handleTransform = glm::rotate(handleTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+        handleTransform = glm::scale(handleTransform, glm::vec3(scaledHandleSize.x, -scaledHandleSize.y, 1.0f));
+
+        if (sliderComponent.HandleTexture)
+            Renderer2D::DrawQuad(handleTransform, sliderComponent.HandleTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
+    }
+
     glm::vec2 UIManager::GetParentSize(entt::registry& registry, entt::entity parentEntity)
     {
         if (parentEntity == entt::null)
@@ -259,6 +301,12 @@ namespace Coffee {
         else if (registry.any_of<UIToggleComponent>(parentEntity))
         {
             auto& parentAnchor = registry.get<UIToggleComponent>(parentEntity).Anchor;
+            glm::vec4 parentRect = parentAnchor.CalculateRect(WindowSize);
+            return glm::vec2(parentRect.z, parentRect.w);
+        }
+        else if (registry.any_of<UISliderComponent>(parentEntity))
+        {
+            auto& parentAnchor = registry.get<UISliderComponent>(parentEntity).Anchor;
             glm::vec4 parentRect = parentAnchor.CalculateRect(WindowSize);
             return glm::vec2(parentRect.z, parentRect.w);
         }

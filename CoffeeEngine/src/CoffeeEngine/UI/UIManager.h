@@ -12,7 +12,8 @@ namespace Coffee {
             Image,
             Text,
             Toggle,
-            Button
+            Button,
+            Slider
         };
 
         struct UIRenderItem {
@@ -43,6 +44,7 @@ namespace Coffee {
         static void RenderUIText(entt::registry& registry, entt::entity entity);
         static void RenderUIToggle(entt::registry& registry, entt::entity entity);
         static void RenderUIButton(entt::registry& registry, entt::entity entity);
+        static void RenderUISlider(entt::registry& registry, entt::entity entity);
 
         static AnchoredTransform CalculateAnchoredTransform(entt::registry& registry, entt::entity entity, const RectAnchor& anchor, const glm::vec2& windowSize);
     public:
