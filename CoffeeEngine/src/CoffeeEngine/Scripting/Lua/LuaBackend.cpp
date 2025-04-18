@@ -12,6 +12,7 @@
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/Prefab.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
+#include "CoffeeEngine/Scripting/GameSaver.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include <fstream>
 #include <lua.h>
@@ -891,6 +892,42 @@ namespace Coffee {
             "max_value", &UISliderComponent::MaxValue,
             "handle_scale", &UISliderComponent::HandleScale
         );
+
+        luaState.set_function("save_progress", [](const std::string& key, const sol::object& value) {
+            if (value.is<int>()) {
+                GameSaver::GetInstance().SaveVariable(key, value.as<int>());
+            } else if (value.is<float>()) {
+                GameSaver::GetInstance().SaveVariable(key, value.as<float>());
+            } else if (value.is<bool>()) {
+                GameSaver::GetInstance().SaveVariable(key, value.as<bool>());
+            }
+            GameSaver::GetInstance().SaveToFile();
+        });
+
+        luaState.set_function("load_progress", [this](const std::string& key, sol::object defaultValue) -> sol::object {
+            GameSaver::GetInstance().LoadFromFile();
+
+            GameSaver::SaveValue value;
+            if (defaultValue.is<int>()) {
+                value = GameSaver::GetInstance().LoadVariable(key, defaultValue.as<int>());
+            } else if (defaultValue.is<float>()) {
+                value = GameSaver::GetInstance().LoadVariable(key, defaultValue.as<float>());
+            } else if (defaultValue.is<bool>()) {
+                value = GameSaver::GetInstance().LoadVariable(key, defaultValue.as<bool>());
+            } else {
+                return defaultValue;
+            }
+
+            if (std::holds_alternative<int>(value)) {
+                return sol::make_object(luaState, std::get<int>(value));
+            } else if (std::holds_alternative<float>(value)) {
+                return sol::make_object(luaState, std::get<float>(value));
+            } else if (std::holds_alternative<bool>(value)) {
+                return sol::make_object(luaState, std::get<bool>(value));
+            }
+
+            return defaultValue;
+        });
 
         # pragma endregion
 
