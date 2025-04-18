@@ -48,6 +48,12 @@ namespace Coffee {
         CopyComponentToPrefab<NavMeshComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<NavigationAgentComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<SpriteComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<UIImageComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<UITextComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<UIToggleComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<UIButtonComponent>(sourceEntity, destEntity);
+        CopyComponentToPrefab<UISliderComponent>(sourceEntity, destEntity);
+
         
         // Copy empty components (which don't need values)
         CopyEmptyComponentToPrefab<StaticComponent>(sourceEntity, destEntity);
@@ -188,6 +194,11 @@ namespace Coffee {
         CopyComponentToScene<NavigationAgentComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<NavMeshComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<SpriteComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<UIImageComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<UITextComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<UIToggleComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<UIButtonComponent>(scene, prefabEntity, entity);
+        CopyComponentToScene<UISliderComponent>(scene, prefabEntity, entity);
         
         // Copy empty components
         CopyEmptyComponentToScene<StaticComponent>(scene, prefabEntity, entity);
