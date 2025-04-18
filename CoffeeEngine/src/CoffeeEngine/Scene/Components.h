@@ -1061,7 +1061,7 @@
         UITextComponent() { Text = "Text"; }
 
         std::string Text;
-        Ref<Font> Font;
+        Ref<Font> UIFont;
         std::filesystem::path FontPath;
         glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f };
         float Kerning = 0.0f;
@@ -1088,9 +1088,9 @@
                     cereal::make_nvp("LineSpacing", LineSpacing),
                     cereal::make_nvp("FontSize", FontSize));
             if (!FontPath.empty())
-                Font = CreateRef<Coffee::Font>(FontPath);
+                UIFont = CreateRef<Coffee::Font>(FontPath);
             else
-                Font = Font::GetDefault();
+                UIFont = Font::GetDefault();
             UIComponent::load(archive, version);
         }
     };

@@ -49,7 +49,7 @@ namespace Coffee {
     void AddUIItems(entt::registry& registry, std::vector<UIManager::UIRenderItem>& items) {
         auto view = registry.view<T, TransformComponent>();
         for (auto entity : view) {
-            auto& uiComponent = view.get<T>(entity);
+            auto& uiComponent = view.template get<T>(entity);
 
             UIManager::UIRenderItem item;
             item.Entity = entity;
@@ -148,8 +148,8 @@ namespace Coffee {
         auto& uiTextComponent = registry.get<UITextComponent>(entity);
         auto& transformComponent = registry.get<TransformComponent>(entity);
 
-        if (!uiTextComponent.Font)
-            uiTextComponent.Font = Font::GetDefault();
+        if (!uiTextComponent.UIFont)
+            uiTextComponent.UIFont = Font::GetDefault();
 
         auto anchored = CalculateAnchoredTransform(registry, entity, uiTextComponent.Anchor, WindowSize);
 
@@ -169,7 +169,7 @@ namespace Coffee {
         textParams.LineSpacing = uiTextComponent.LineSpacing;
         textParams.Size = uiTextComponent.FontSize;
 
-        Renderer2D::DrawTextString(uiTextComponent.Text, uiTextComponent.Font, textTransform, textParams, Renderer2D::RenderMode::Screen, (uint32_t)entity);
+        Renderer2D::DrawTextString(uiTextComponent.Text, uiTextComponent.UIFont, textTransform, textParams, Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
     void UIManager::RenderUIToggle(entt::registry& registry, entt::entity entity)
