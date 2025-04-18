@@ -678,6 +678,21 @@ namespace Coffee {
 
         }
 
+        auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
+        for (auto& entity : spriteView)
+        {
+            auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
+            auto& transformComponent = spriteView.get<TransformComponent>(entity);
+
+            if (spriteComponent.texture) {
+                Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), spriteComponent.texture,
+                                     spriteComponent.tilingFactor, spriteComponent.tintColor,
+                                     Renderer2D::RenderMode::World);
+            }
+
+            
+        }
+
         UIManager::UpdateUI(m_Registry);
     }
 
