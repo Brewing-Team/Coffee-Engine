@@ -33,11 +33,11 @@ namespace Coffee {
 
     struct RectAnchor
     {
-        glm::vec2 AnchorMin = { 0.0f, 0.0f };
-        glm::vec2 AnchorMax = { 0.0f, 0.0f };
+        glm::vec2 AnchorMin = { 0.5f, 0.5f };
+        glm::vec2 AnchorMax = { 0.5f, 0.5f };
 
-        glm::vec2 OffsetMin = { 0.0f, 0.0f };
-        glm::vec2 OffsetMax = { 0.0f, 0.0f };
+        glm::vec2 OffsetMin = { -50.0f, -50.0f };
+        glm::vec2 OffsetMax = { 50.0f, 50.0f };
 
         void SetAnchorPreset(AnchorPreset preset, const glm::vec4& currentRect, const glm::vec2& parentSize, bool preservePosition);
 
