@@ -175,7 +175,8 @@ namespace Coffee {
             .template get<UIImageComponent>(archive)
             .template get<UITextComponent>(archive)
             .template get<UIToggleComponent>(archive)
-            .template get<UIButtonComponent>(archive);
+            .template get<UIButtonComponent>(archive)
+            .template get<UISliderComponent>(archive);
          }
 
         /**
@@ -208,7 +209,8 @@ namespace Coffee {
             .template get<UIImageComponent>(archive)
             .template get<UITextComponent>(archive)
             .template get<UIToggleComponent>(archive)
-            .template get<UIButtonComponent>(archive);
+            .template get<UIButtonComponent>(archive)
+            .template get<UISliderComponent>(archive);
 
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());

@@ -1201,6 +1201,52 @@
          }
      };
 
+     struct UISliderComponent : public UIComponent
+     {
+         UISliderComponent()
+         {
+             BackgroundTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             HandleTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             HandleScale = {1.0f, 1.0f};
+         }
+
+         float Value = 0.0f;
+         float MinValue = 0.0f;
+         float MaxValue = 100.0f;
+         glm::vec2 HandleScale;
+         Ref<Texture2D> BackgroundTexture;
+         Ref<Texture2D> HandleTexture;
+
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+         {
+             archive(cereal::make_nvp("Value", Value),
+                     cereal::make_nvp("MinValue", MinValue),
+                     cereal::make_nvp("MaxValue", MaxValue),
+                     cereal::make_nvp("HandleScale", HandleScale),
+                     cereal::make_nvp("BackgroundTextureUUID", BackgroundTexture ? BackgroundTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("HandleTextureUUID", HandleTexture ? HandleTexture->GetUUID() : UUID(0)));
+             UIComponent::save(archive, version);
+         }
+
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
+         {
+             UUID BackgroundTextureUUID;
+             UUID HandleTextureUUID;
+
+             archive(cereal::make_nvp("Value", Value),
+                     cereal::make_nvp("MinValue", MinValue),
+                     cereal::make_nvp("MaxValue", MaxValue),
+                     cereal::make_nvp("HandleScale", HandleScale),
+                     cereal::make_nvp("BackgroundTextureUUID", BackgroundTextureUUID),
+                     cereal::make_nvp("HandleTextureUUID", HandleTextureUUID));
+             if (BackgroundTextureUUID != UUID(0))
+                 BackgroundTexture = ResourceLoader::GetResource<Texture2D>(BackgroundTextureUUID);
+             if (HandleTextureUUID != UUID(0))
+                 HandleTexture = ResourceLoader::GetResource<Texture2D>(HandleTextureUUID);
+             UIComponent::load(archive, version);
+         }
+     };
+
  } // namespace Coffee
  CEREAL_CLASS_VERSION(Coffee::TagComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::TransformComponent, 0);
