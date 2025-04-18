@@ -603,6 +603,8 @@ namespace Coffee {
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
 
         }
+
+        UIManager::UpdateUI(m_Registry);
     }
 
     void Scene::OnEvent(Event& e)
