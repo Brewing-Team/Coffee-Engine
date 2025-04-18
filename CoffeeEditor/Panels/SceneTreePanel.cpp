@@ -378,11 +378,10 @@ namespace Coffee
                 {
                     ImGui::TableNextColumn();
 
-                    char buttonId[16];
-                    sprintf_s(buttonId, "##anchor%d%d", row, col);
+                    std::string buttonIdStr = "##anchor" + std::to_string(row) + std::to_string(col);
 
                     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
-                    if (ImGui::Button(buttonId, ImVec2(24, 24)))
+                    if (ImGui::Button(buttonIdStr.c_str(), ImVec2(24, 24)))
                     {
                         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
 
@@ -3227,7 +3226,8 @@ namespace Coffee
             if (ImGui::CollapsingHeader("UI Text", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 char buffer[256] = {};
-                strncpy_s(buffer, textComponent.Text.c_str(), sizeof(buffer));
+
+                strncpy(buffer, textComponent.Text.c_str(), sizeof(buffer));
 
                 if (ImGui::InputTextMultiline("##Text", buffer, sizeof(buffer)))
                 {
@@ -3324,7 +3324,7 @@ namespace Coffee
                     }
                 }
 
-                if (ImGui::Selectable("Dissabled Texture"))
+                if (ImGui::Selectable("Disabled Texture"))
                 {
                     std::string path = FileDialog::OpenFile({}).string();
                     if (!path.empty())
