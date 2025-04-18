@@ -82,7 +82,12 @@ namespace Coffee {
                 .template get<AudioZoneComponent>(archive)
                 .template get<NavMeshComponent>(archive)
                 .template get<NavigationAgentComponent>(archive)
-                .template get<SpriteComponent>(archive);
+                .template get<SpriteComponent>(archive)
+                .template get<UIImageComponent>(archive)
+                .template get<UITextComponent>(archive)
+                .template get<UIToggleComponent>(archive)
+                .template get<UIButtonComponent>(archive)
+                .template get<UISliderComponent>(archive);
         }
         
         template<class Archive>
@@ -110,7 +115,12 @@ namespace Coffee {
                 .template get<AudioZoneComponent>(archive)
                 .template get<NavMeshComponent>(archive)
                 .template get<NavigationAgentComponent>(archive)
-                .template get<SpriteComponent>(archive);
+                .template get<SpriteComponent>(archive)
+                .template get<UIImageComponent>(archive)
+                .template get<UITextComponent>(archive)
+                .template get<UIToggleComponent>(archive)
+                .template get<UIButtonComponent>(archive)
+                .template get<UISliderComponent>(archive);
 
             SceneManager::GetActiveScene()->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
 
