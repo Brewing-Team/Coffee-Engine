@@ -49,6 +49,8 @@ namespace Coffee {
 		glCullFace(GL_BACK);
 
 		glDepthFunc(GL_LEQUAL);
+
+		glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
     }
 
 	void RendererAPI::SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
