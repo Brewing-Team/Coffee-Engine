@@ -1589,8 +1589,7 @@ namespace Coffee
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                // ImGui::Text("Script Path: ");
-                // ImGui::Text(scriptComponent.script->GetPath().c_str());
+                ImGui::Text(scriptComponent.script->GetPath().filename().c_str());
 
                 // Get the exposed variables
                 auto& exposedVariables = scriptComponent.script->GetExportedVariables();
