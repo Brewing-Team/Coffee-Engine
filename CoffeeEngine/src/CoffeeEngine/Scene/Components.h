@@ -20,6 +20,9 @@
  #include "CoffeeEngine/Navigation/NavMesh.h"
  #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
  #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
+ #include "CoffeeEngine/UI/UIAnchor.h"
+ #include "CoffeeEngine/UI/UIManager.h"
+ #include "CoffeeEngine//Renderer/Font.h"
 
  #include <cereal/cereal.hpp>
  #include <cereal/access.hpp>
@@ -66,8 +69,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("Tag", Tag));
          }
@@ -80,17 +82,68 @@
      struct TransformComponent
      {
      private:
-         glm::mat4 worldMatrix = glm::mat4(1.0f); ///< The world transformation matrix.
-     public:
          glm::vec3 Position = { 0.0f, 0.0f, 0.0f }; ///< The position vector.
          glm::vec3 Rotation = { 0.0f, 0.0f, 0.0f }; ///< The rotation vector.
          glm::vec3 Scale = { 1.0f, 1.0f, 1.0f }; ///< The scale vector.
- 
+
+         glm::mat4 worldMatrix = glm::mat4(1.0f); ///< The world transformation matrix.
+         bool isDirty = true; ///< Flag to indicate if the transform is dirty.
+     public:
          TransformComponent() = default;
          TransformComponent(const TransformComponent&) = default;
          TransformComponent(const glm::vec3& position)
              : Position(position) {}
  
+        void SetLocalPosition(const glm::vec3& position)
+        {
+            Position = position;
+            isDirty = true; // Mark the transform as dirty
+        } 
+        
+        void SetLocalRotation(const glm::vec3& rotation)
+        {
+            Rotation = rotation;
+            isDirty = true; // Mark the transform as dirty
+        }
+
+        void SetLocalScale(const glm::vec3& scale)
+        {
+            Scale = scale;
+            isDirty = true; // Mark the transform as dirty
+        }
+
+        /**
+        * @brief Gets the local position vector.
+        * @return The local position vector.
+        */
+        glm::vec3& GetLocalPosition() { return Position; }
+        glm::vec3& GetLocalRotation() { return Rotation; }
+        glm::vec3& GetLocalScale() { return Scale; }
+
+        void SetWorldPosition(const glm::vec3& position)
+        {
+            Position = position;
+            SetWorldTransform(glm::translate(glm::mat4(1.0f), Position) * 
+                                        glm::toMat4(glm::quat(glm::radians(Rotation))) * 
+                                        glm::scale(glm::mat4(1.0f), Scale));
+        }
+
+        void SetWorldRotation(const glm::vec3& rotation)
+        {
+            Rotation = rotation;
+            SetWorldTransform(glm::translate(glm::mat4(1.0f), Position) * 
+                                        glm::toMat4(glm::quat(glm::radians(Rotation))) * 
+                                        glm::scale(glm::mat4(1.0f), Scale));
+        }
+
+        void SetWorldScale(const glm::vec3& scale)
+        {
+            Scale = scale;
+            SetWorldTransform(glm::translate(glm::mat4(1.0f), Position) * 
+                                        glm::toMat4(glm::quat(glm::radians(Rotation))) * 
+                                        glm::scale(glm::mat4(1.0f), Scale));
+        }
+    
          /**
           * @brief Gets the local transformation matrix.
           * @return The local transformation matrix.
@@ -116,6 +169,7 @@
  
              glm::decompose(transform, Scale, orientation, Position, skew, perspective);
              Rotation = glm::degrees(glm::eulerAngles(orientation));
+             isDirty = true; // Mark the transform as dirty
          }
  
          /**
@@ -134,6 +188,15 @@
          void SetWorldTransform(const glm::mat4& transform)
          {
              worldMatrix = transform * GetLocalTransform();
+             isDirty = false; // Mark the transform as clean
+         }
+
+         void MarkDirty() {
+            isDirty = true; // Mark the transform as dirty
+         }
+    
+         bool IsDirty() const {
+            return isDirty; // Check if the transform is dirty
          }
  
          /**
@@ -141,8 +204,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("Position", Position), cereal::make_nvp("Rotation", Rotation), cereal::make_nvp("Scale", Scale));
          }
@@ -164,8 +226,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("Camera", Camera));
          }
@@ -286,8 +347,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, const std::uint32_t& version) const
          {
              archive(cereal::make_nvp("BlendDuration", BlendDuration),
                      cereal::make_nvp("AnimationSpeed", AnimationSpeed),
@@ -307,21 +367,19 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to deserialize from.
           */
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, const std::uint32_t& version)
          {
-             archive(cereal::make_nvp("BlendDuration", BlendDuration),
-                     cereal::make_nvp("AnimationSpeed", AnimationSpeed),
-                     cereal::make_nvp("Loop", Loop),
-                     cereal::make_nvp("ModelUUID", modelUUID),
-                     cereal::make_nvp("AnimatorUUID", animatorUUID),
-                     cereal::make_nvp("UpperAnimation", UpperAnimation),
-                     cereal::make_nvp("LowerAnimation", LowerAnimation),
-                     cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
-                     cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
-                     cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
-                     cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
-
+             
+            archive(cereal::make_nvp("BlendDuration", BlendDuration),
+                cereal::make_nvp("AnimationSpeed", AnimationSpeed), cereal::make_nvp("Loop", Loop),
+                cereal::make_nvp("ModelUUID", modelUUID), cereal::make_nvp("AnimatorUUID", animatorUUID),
+                cereal::make_nvp("UpperAnimation", UpperAnimation),
+                cereal::make_nvp("LowerAnimation", LowerAnimation),
+                cereal::make_nvp("PartialBlendThreshold", PartialBlendThreshold),
+                cereal::make_nvp("UpperBodyWeight", UpperBodyWeight),
+                cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
+                cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
+          
              AnimationSystem::LoadAnimator(this);
          }
  
@@ -342,6 +400,9 @@
 
          Ref<AnimationLayer> UpperAnimation; ///< Animation layer for upper body animations.
          Ref<AnimationLayer> LowerAnimation; ///< Animation layer for lower body animations.
+
+         bool NeedsUpdate = true; ///< Flag to indicate if the animator needs an update.
+
      private:
          Ref<Skeleton> m_Skeleton; ///< The skeleton reference.
          Ref<AnimationController> m_AnimationController; ///< The animation controller reference.
@@ -383,8 +444,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              archive(cereal::make_nvp("Mesh", mesh->GetUUID()),
                      cereal::make_nvp("AnimatorUUID", animatorUUID));
@@ -393,8 +453,7 @@
                  animator->animatorUUID = animatorUUID;
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              UUID meshUUID;
              archive(cereal::make_nvp("Mesh", meshUUID),
@@ -427,15 +486,13 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
             ResourceSaver::SaveToCache<Material>(material->GetUUID(), material);
             archive(cereal::make_nvp("Material", material->GetUUID()));
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              UUID materialUUID;
              archive(cereal::make_nvp("Material", materialUUID));
@@ -482,8 +539,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void serialize(Archive& archive)
+         template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction), cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range), cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity), cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
          }
@@ -553,8 +609,7 @@
          void Stop() { Audio::StopEvent(*this); }
  
  
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              archive(cereal::make_nvp("GameObjectID", gameObjectID),
                      cereal::make_nvp("AudioBank", audioBank),
@@ -567,8 +622,7 @@
              );
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("GameObjectID", gameObjectID),
                      cereal::make_nvp("AudioBank", audioBank),
@@ -609,16 +663,14 @@
              return *this;
          }
  
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              archive(cereal::make_nvp("GameObjectID", gameObjectID),
                      cereal::make_nvp("Transform", transform)
              );
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("GameObjectID", gameObjectID),
                      cereal::make_nvp("Transform", transform)
@@ -654,8 +706,7 @@
              return *this;
          }
  
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              archive(cereal::make_nvp("ZoneID", zoneID),
                      cereal::make_nvp("AudioBusName", audioBusName),
@@ -664,8 +715,7 @@
              );
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              archive(cereal::make_nvp("ZoneID", zoneID),
                      cereal::make_nvp("AudioBusName", audioBusName),
@@ -702,8 +752,7 @@
           * @tparam Archive The type of the archive.
           * @param archive The archive to serialize to.
           */
-         template<class Archive>
-         void save(Archive& archive) const
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
          {
              std::filesystem::path relativePath;
              if (Project::GetActive())
@@ -718,8 +767,7 @@
              archive(cereal::make_nvp("ScriptPath", relativePath.generic_string()), cereal::make_nvp("Language", ScriptingLanguage::Lua));
          }
  
-         template<class Archive>
-         void load(Archive& archive)
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
          {
              std::string relativePath;
              ScriptingLanguage language;
@@ -784,8 +832,8 @@
          private:
              friend class cereal::access;
  
-             template<class Archive>
-             void save(Archive& archive) const {
+             template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+             {
                  if (rb) {
                      archive(
                          cereal::make_nvp("RigidBody", true),
@@ -796,8 +844,8 @@
                  }
              }
  
-             template<class Archive>
-             void load(Archive& archive) {
+             template<class Archive> void load(Archive& archive, std::uint32_t const version)
+             {
                  bool hasRigidBody;
                  archive(cereal::make_nvp("RigidBody", hasRigidBody));
                  
@@ -830,12 +878,12 @@
 
 
         public:
-        template <class Archive> void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::make_nvp("ParticleEmitter", m_Particles));
         }
 
-        template <class Archive> void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
         }
@@ -871,14 +919,12 @@
          */
         void SetNavMeshUUID(const UUID& navMeshUUID) { m_NavMeshUUID = navMeshUUID; }
 
-        template<class Archive>
-        void save(Archive& archive) const
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
         }
 
-        template<class Archive>
-        void load(Archive& archive)
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::make_nvp("NavMesh", m_NavMesh), cereal::make_nvp("NavMeshUUID", m_NavMeshUUID));
         }
@@ -925,14 +971,12 @@
          */
         void SetNavMeshComponent(const Ref<NavMeshComponent>& navMeshComponent) { m_NavMeshComponent = navMeshComponent; }
 
-        template<class Archive>
-        void save(Archive& archive) const
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
         }
 
-        template<class Archive>
-        void load(Archive& archive)
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::make_nvp("NavMeshComponent", m_NavMeshComponent));
 
@@ -944,16 +988,60 @@
         Ref<NavMeshComponent> m_NavMeshComponent = nullptr; ///< The navigation mesh component.
     };
 
+
+     struct SpriteComponent
+    {
+        Ref<Texture2D> texture;                 ///< The zone ID.
+        glm::vec4 tintColor = glm::vec4(1);
+        bool flipX = false;
+        bool flipY = false;
+        float tilingFactor = 1;
+
+        SpriteComponent(){ texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); };
+
+        SpriteComponent(const SpriteComponent& other) { *this = other; }
+
+        SpriteComponent& operator=(const SpriteComponent& other)
+        {
+            if (this != &other)
+            {
+                texture = other.texture;
+                tintColor = other.tintColor;
+                flipX = other.flipX;
+                flipY = other.flipY;
+                tilingFactor = other.tilingFactor;
+            }
+            return *this;
+        }
+
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("TextureUUID", texture->GetUUID()));
+            archive(cereal::make_nvp("TintColor", tintColor));
+            archive(cereal::make_nvp("FlipX", flipX));
+            archive(cereal::make_nvp("FlipY", flipY));
+            archive(cereal::make_nvp("TilingFactor", tilingFactor));
+        }
+
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::make_nvp("TextureUUID", texture->GetUUID()));
+            archive(cereal::make_nvp("TintColor", tintColor));
+            archive(cereal::make_nvp("FlipX", flipX));
+            archive(cereal::make_nvp("FlipY", flipY));
+            archive(cereal::make_nvp("TilingFactor", tilingFactor));
+        }
+    };
+
+
     struct ActiveComponent
     {
         ActiveComponent() = default;
         ActiveComponent(const ActiveComponent&) = default;
 
-        template<class Archive>
-        void save (Archive& archive) const {}
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const {}
 
-        template<class Archive>
-        void load (Archive& archive) {}
+        template<class Archive> void load(Archive& archive, std::uint32_t const version) {}
     };
 
     struct StaticComponent
@@ -961,12 +1049,273 @@
         StaticComponent() = default;
         StaticComponent(const StaticComponent&) = default;
 
-        template<class Archive>
-        void save (Archive& archive) const {}
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const {}
 
-        template<class Archive>
-        void load (Archive& archive) {}
+        template<class Archive> void load(Archive& archive, std::uint32_t const version) {}
     };
- }
+
+    struct UIComponent
+    {
+        RectAnchor Anchor; ///< The anchor of the UI component.
+        int Layer = 0; ///< The layer of the UI component.
+
+        UIComponent() { UIManager::MarkForSorting(); }
+        ~UIComponent() { UIManager::MarkForSorting(); }
+
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("Anchor", Anchor),
+                    cereal::make_nvp("Layer", Layer));
+        }
+
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::make_nvp("Anchor", Anchor),
+                    cereal::make_nvp("Layer", Layer));
+
+            UIManager::MarkForSorting();
+        }
+    };
+
+    struct UIImageComponent : public UIComponent
+    {
+        Ref<Texture2D> Texture; ///< The texture of the image.
+        glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f }; ///< The color.
+
+        UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
+
+        void SetTexture(const Ref<Texture2D>& texture) { Texture = texture; }
+
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("TextureUUID", Texture ? Texture->GetUUID() : UUID(0)));
+            UIComponent::save(archive, version);
+        }
+
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            UUID textureUUID;
+            archive(cereal::make_nvp("TextureUUID", textureUUID));
+            if (textureUUID != UUID(0))
+                Texture = ResourceLoader::GetResource<Texture2D>(textureUUID);
+            UIComponent::load(archive, version);
+        }
+    };
+
+    struct UITextComponent : public UIComponent
+    {
+        UITextComponent() { Text = "Text"; }
+
+        std::string Text; ///< The text.
+        Ref<Font> UIFont; ///< The font.
+        std::filesystem::path FontPath; ///< The font path.
+        glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f }; ///< The color.
+        float Kerning = 0.0f; ///< The kerning.
+        float LineSpacing = 0.0f; ///< The line spacing.
+        float FontSize = 16.0f; ///< The font size.
+
+        template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::make_nvp("Text", Text),
+                    cereal::make_nvp("FontPath", FontPath.generic_string()),
+                    cereal::make_nvp("Color", Color),
+                    cereal::make_nvp("Kerning", Kerning),
+                    cereal::make_nvp("LineSpacing", LineSpacing),
+                    cereal::make_nvp("FontSize", FontSize));
+            UIComponent::save(archive, version);
+        }
+
+        template<class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::make_nvp("Text", Text),
+                    cereal::make_nvp("FontPath", FontPath.generic_string()),
+                    cereal::make_nvp("Color", Color),
+                    cereal::make_nvp("Kerning", Kerning),
+                    cereal::make_nvp("LineSpacing", LineSpacing),
+                    cereal::make_nvp("FontSize", FontSize));
+            if (!FontPath.empty())
+                UIFont = CreateRef<Coffee::Font>(FontPath);
+            else
+                UIFont = Font::GetDefault();
+            UIComponent::load(archive, version);
+        }
+    };
+
+     struct UIToggleComponent : public UIComponent
+     {
+         UIToggleComponent()
+         {
+             OnTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             OffTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+         }
+
+         bool Value = false; ///< The value of the toggle.
+         Ref<Texture2D> OnTexture; ///< The texture when the toggle is on.
+         Ref<Texture2D> OffTexture; ///< The texture when the toggle is off.
+
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+         {
+             archive(cereal::make_nvp("Value", Value),
+                     cereal::make_nvp("OnTextureUUID", OnTexture ? OnTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("OffTextureUUID", OffTexture ? OffTexture->GetUUID() : UUID(0)));
+             UIComponent::save(archive, version);
+         }
+
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
+         {
+             UUID onTextureUUID;
+             UUID offTextureUUID;
+             archive(cereal::make_nvp("Value", Value),
+                     cereal::make_nvp("OnTextureUUID", onTextureUUID),
+                     cereal::make_nvp("OffTextureUUID", offTextureUUID));
+             if (onTextureUUID != UUID(0))
+                 OnTexture = ResourceLoader::GetResource<Texture2D>(onTextureUUID);
+             if (offTextureUUID != UUID(0))
+                 OffTexture = ResourceLoader::GetResource<Texture2D>(offTextureUUID);
+             UIComponent::load(archive, version);
+         }
+     };
+
+     struct UIButtonComponent : public UIComponent
+     {
+         UIButtonComponent()
+         {
+             NormalTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             HoverTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             PressedTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             DisabledTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+         }
+
+        enum class State
+        {
+            Normal,
+            Hover,
+            Pressed,
+            Disabled
+        };
+
+         State CurrentState = State::Normal; ///< The current state of the button.
+         bool Interactable = true; ///< Flag to indicate if the button is interactable.
+
+         Ref<Texture2D> NormalTexture; ///< The texture when the button is normal.
+         Ref<Texture2D> HoverTexture; ///< The texture when the button is hovered.
+         Ref<Texture2D> PressedTexture; ///< The texture when the button is pressed.
+         Ref<Texture2D> DisabledTexture; ///< The texture when the button is disabled.
+
+         glm::vec4 NormalColor{1.0f}; ///< The color when the button is normal.
+         glm::vec4 HoverColor{1.0f}; ///< The color when the button is hovered.
+         glm::vec4 PressedColor{1.0f}; ///< The color when the button is pressed.
+         glm::vec4 DisabledColor{1.0f}; ///< The color when the button is disabled.
+
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+         {
+             archive(cereal::make_nvp("Interactable", Interactable),
+                     cereal::make_nvp("NormalTextureUUID", NormalTexture ? NormalTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("HoverTextureUUID", HoverTexture ? HoverTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("PressedTextureUUID", PressedTexture ? PressedTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("DisabledTextureUUID", DisabledTexture ? DisabledTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("NormalColor", NormalColor),
+                     cereal::make_nvp("HoverColor", HoverColor),
+                     cereal::make_nvp("PressedColor", PressedColor),
+                     cereal::make_nvp("DisabledColor", DisabledColor));
+             UIComponent::save(archive, version);
+         }
+
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
+         {
+             UUID NormalTextureUUID;
+             UUID HoverTextureUUID;
+             UUID PressedTextureUUID;
+             UUID DisabledTextureUUID;
+
+             archive(cereal::make_nvp("Interactable", Interactable),
+                     cereal::make_nvp("NormalTextureUUID", NormalTextureUUID),
+                     cereal::make_nvp("HoverTextureUUID", HoverTextureUUID),
+                     cereal::make_nvp("PressedTextureUUID", PressedTextureUUID),
+                     cereal::make_nvp("DisabledTextureUUID", DisabledTextureUUID),
+                     cereal::make_nvp("NormalColor", NormalColor),
+                     cereal::make_nvp("HoverColor", HoverColor),
+                     cereal::make_nvp("PressedColor", PressedColor),
+                     cereal::make_nvp("DisabledColor", DisabledColor));
+             if (NormalTextureUUID != UUID(0))
+                 NormalTexture = ResourceLoader::GetResource<Texture2D>(NormalTextureUUID);
+             if (HoverTextureUUID != UUID(0))
+                 HoverTexture = ResourceLoader::GetResource<Texture2D>(HoverTextureUUID);
+             if (PressedTextureUUID != UUID(0))
+                 PressedTexture = ResourceLoader::GetResource<Texture2D>(PressedTextureUUID);
+             if (DisabledTextureUUID != UUID(0))
+                 DisabledTexture = ResourceLoader::GetResource<Texture2D>(DisabledTextureUUID);
+             UIComponent::load(archive, version);
+         }
+     };
+
+     struct UISliderComponent : public UIComponent
+     {
+         UISliderComponent()
+         {
+             BackgroundTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             HandleTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+             HandleScale = {1.0f, 1.0f};
+         }
+
+         float Value = 0.0f; ///< The value of the slider.
+         float MinValue = 0.0f; ///< The minimum value of the slider.
+         float MaxValue = 100.0f; ///< The maximum value of the slider.
+         glm::vec2 HandleScale; ///< The scale of the handle.
+         Ref<Texture2D> BackgroundTexture; ///< The texture of the background.
+         Ref<Texture2D> HandleTexture; ///< The texture of the handle.
+
+         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
+         {
+             archive(cereal::make_nvp("Value", Value),
+                     cereal::make_nvp("MinValue", MinValue),
+                     cereal::make_nvp("MaxValue", MaxValue),
+                     cereal::make_nvp("HandleScale", HandleScale),
+                     cereal::make_nvp("BackgroundTextureUUID", BackgroundTexture ? BackgroundTexture->GetUUID() : UUID(0)),
+                     cereal::make_nvp("HandleTextureUUID", HandleTexture ? HandleTexture->GetUUID() : UUID(0)));
+             UIComponent::save(archive, version);
+         }
+
+         template<class Archive> void load(Archive& archive, std::uint32_t const version)
+         {
+             UUID BackgroundTextureUUID;
+             UUID HandleTextureUUID;
+
+             archive(cereal::make_nvp("Value", Value),
+                     cereal::make_nvp("MinValue", MinValue),
+                     cereal::make_nvp("MaxValue", MaxValue),
+                     cereal::make_nvp("HandleScale", HandleScale),
+                     cereal::make_nvp("BackgroundTextureUUID", BackgroundTextureUUID),
+                     cereal::make_nvp("HandleTextureUUID", HandleTextureUUID));
+             if (BackgroundTextureUUID != UUID(0))
+                 BackgroundTexture = ResourceLoader::GetResource<Texture2D>(BackgroundTextureUUID);
+             if (HandleTextureUUID != UUID(0))
+                 HandleTexture = ResourceLoader::GetResource<Texture2D>(HandleTextureUUID);
+             UIComponent::load(archive, version);
+         }
+     };
+
+ } // namespace Coffee
+ CEREAL_CLASS_VERSION(Coffee::TagComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::TransformComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::CameraComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AnimatorComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::MeshComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::MaterialComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::LightComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioSourceComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioListenerComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::AudioZoneComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::ScriptComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::RigidbodyComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::NavMeshComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::NavigationAgentComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::ParticlesSystemComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UIComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UIImageComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UITextComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UIToggleComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UIButtonComponent, 0);
+ CEREAL_CLASS_VERSION(Coffee::UISliderComponent, 0);
  
  /** @} */

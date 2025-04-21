@@ -34,6 +34,7 @@ namespace Coffee {
         Skeleton, ///< Skeleton resource type
         Animation, ///< Animation resource type
         AnimationController, ///< AnimationController resource type
+        Prefab, ///< Prefab resource type
     };
 
     /**
@@ -67,6 +68,8 @@ namespace Coffee {
          */
         const std::filesystem::path& GetPath() { COFFEE_CORE_ASSERT(m_FilePath.empty(), "This Texture does not exist on disk!"); return m_FilePath; }
 
+        void SetPath(const std::filesystem::path& path) { m_FilePath = path; }
+
         /**
          * @brief Sets the name of the mesh.
          * @param name The name of the mesh.
@@ -99,8 +102,7 @@ namespace Coffee {
          * @tparam Archive The type of the archive.
          * @param archive The archive to save the resource to.
          */
-        template <class Archive>
-        void save(Archive& archive) const
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
             int typeInt = static_cast<int>(m_Type);
             archive(m_Name, m_FilePath, typeInt, m_UUID);
@@ -111,8 +113,7 @@ namespace Coffee {
          * @tparam Archive The type of the archive.
          * @param archive The archive to load the resource from.
          */
-        template <class Archive>
-        void load(Archive& archive)
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             int typeInt;
             archive(m_Name, m_FilePath, typeInt, m_UUID);

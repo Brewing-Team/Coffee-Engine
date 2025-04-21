@@ -111,19 +111,22 @@ namespace Coffee {
     void HierarchyComponent::Reparent(entt::registry& registry, entt::entity entity, entt::entity parent)
     {
         ZoneScoped;
-        
+    
         auto hierarchyComponent = registry.try_get<HierarchyComponent>(entity);
-
+    
         HierarchyComponent::OnDestroy(registry, entity);
-
+    
         hierarchyComponent->m_Parent = entt::null;
         hierarchyComponent->m_Next = entt::null;
         hierarchyComponent->m_Prev = entt::null;
-
-        if(parent != entt::null)
-        {
+    
+        if (parent != entt::null) {
             hierarchyComponent->m_Parent = parent;
             HierarchyComponent::OnConstruct(registry, entity);
+    
+            // Mark the entity and its children as dirty
+            auto& transformComponent = registry.get<TransformComponent>(entity);
+            transformComponent.MarkDirty();
         }
     }
 
@@ -138,13 +141,11 @@ namespace Coffee {
     void SceneTree::Update()
     {
         auto& registry = m_Context->m_Registry;
-        auto view = registry.view<HierarchyComponent>();
-        for(auto entity : view)
-        {
-            const auto hierarchy = registry.get<HierarchyComponent>(entity);
-
-            if(hierarchy.m_Parent == entt::null)
-            {
+        auto view = registry.view<TransformComponent>();
+        for (auto entity : view) {
+            const auto transform = registry.get<TransformComponent>(entity);
+    
+            if (transform.IsDirty()) {
                 UpdateTransform(entity);
             }
         }
@@ -153,28 +154,25 @@ namespace Coffee {
     void SceneTree::UpdateTransform(entt::entity entity)
     {
         auto& registry = m_Context->m_Registry;
-        
+    
         auto& hierarchyComponent = registry.get<HierarchyComponent>(entity);
         auto& transformComponent = registry.get<TransformComponent>(entity);
-
+    
         // Update the world transform of the entity
-
-        if(hierarchyComponent.m_Parent != entt::null)
+        if (hierarchyComponent.m_Parent != entt::null)
         {
             auto& parentTransformComponent = registry.get<TransformComponent>(hierarchyComponent.m_Parent);
-
+            
             transformComponent.SetWorldTransform(parentTransformComponent.GetWorldTransform());
-        }
+        } 
         else
         {
             transformComponent.SetWorldTransform(glm::mat4(1.0f));
         }
-
+    
         // Recursively update all the children
-
         entt::entity child = hierarchyComponent.m_First;
-        while(child != entt::null)
-        {
+        while (child != entt::null) {
             UpdateTransform(child);
             child = registry.get<HierarchyComponent>(child).m_Next;
         }

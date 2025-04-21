@@ -21,6 +21,7 @@
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
+#include "CoffeeEngine/UI/UIManager.h"
 #include "PrimitiveMesh.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
@@ -64,6 +65,24 @@ namespace Coffee {
     }
 
     template <>
+    void CopyComponentIfExists<ActiveComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        // ActiveComponent is empty, just place it
+        if (!registry.all_of<ActiveComponent>(destinyEntity)) {
+            registry.emplace<ActiveComponent>(destinyEntity);
+        }
+    }
+
+    template <>
+    void CopyComponentIfExists<StaticComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
+    {
+        // StaticComponent is empty, just place it
+        if (!registry.all_of<StaticComponent>(destinyEntity)) {
+            registry.emplace<StaticComponent>(destinyEntity);
+        }
+    }
+
+    template <>
     void CopyComponentIfExists<HierarchyComponent>(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
     {
         // We don't need to copy the hierarchy component directly
@@ -82,18 +101,7 @@ namespace Coffee {
         {
             const auto& srcComponent = registry.get<AnimatorComponent>(sourceEntity);
 
-            AnimatorComponent newComponent;
-
-            newComponent.Loop = srcComponent.Loop;
-            newComponent.BlendDuration = srcComponent.BlendDuration;
-            newComponent.AnimationSpeed = srcComponent.AnimationSpeed;
-            newComponent.modelUUID = srcComponent.modelUUID;
-            newComponent.animatorUUID = srcComponent.animatorUUID;
-            newComponent.UpperBodyRootJoint = srcComponent.UpperBodyRootJoint;
-            newComponent.PartialBlendOutput = srcComponent.PartialBlendOutput;
-            newComponent.UpperBodyWeight = srcComponent.UpperBodyWeight;
-            newComponent.LowerBodyWeight = srcComponent.LowerBodyWeight;
-            newComponent.PartialBlendThreshold = srcComponent.PartialBlendThreshold;
+            AnimatorComponent newComponent = srcComponent;
 
             newComponent.UpperAnimation = CreateRef<AnimationLayer>(*srcComponent.UpperAnimation);
             newComponent.LowerAnimation = CreateRef<AnimationLayer>(*srcComponent.LowerAnimation);
@@ -166,8 +174,8 @@ namespace Coffee {
 
                 if (registry.all_of<TransformComponent>(destinyEntity)) {
                     auto& transform = registry.get<TransformComponent>(destinyEntity);
-                    newComponent.rb->SetPosition(transform.Position);
-                    newComponent.rb->SetRotation(transform.Rotation);
+                    newComponent.rb->SetPosition(transform.GetLocalPosition());
+                    newComponent.rb->SetRotation(transform.GetLocalRotation());
                 }
             }
             catch (const std::exception& e) {
@@ -224,17 +232,21 @@ namespace Coffee {
 
         Entity duplicatedEntity = DuplicateEntityRecursive(entity);
 
+        if (s_AnimatorComponents.empty())
+            return duplicatedEntity;
+
         for (auto mesh : s_MeshComponents)
         {
             auto it = s_UUIDMap.find(mesh->animator->animatorUUID);
             if (it != s_UUIDMap.end())
             {
-                for (auto& animator : s_AnimatorComponents)
+                for (const auto& animator : s_AnimatorComponents)
                 {
-                    if (animator->animatorUUID == s_UUIDMap[mesh->animator->animatorUUID])
+                    if (animator->animatorUUID == it->second)
                     {
                         mesh->animatorUUID = animator->animatorUUID;
                         mesh->animator = animator;
+                        break;
                     }
                 }
             }
@@ -372,8 +384,8 @@ namespace Coffee {
         for (auto entity : viewRigidbody) {
             auto [rb, transform] = viewRigidbody.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
-                rb.rb->SetPosition(transform.Position);
-                rb.rb->SetRotation(transform.Rotation);
+                rb.rb->SetPosition(transform.GetLocalPosition());
+                rb.rb->SetRotation(transform.GetLocalRotation());
             }
         }
 
@@ -382,7 +394,11 @@ namespace Coffee {
         for (auto& entity : animatorView)
         {
             AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
-            AnimationSystem::Update(dt, animatorComponent);
+            if (animatorComponent->NeedsUpdate)
+            {
+                AnimationSystem::Update(dt, animatorComponent);
+                animatorComponent->NeedsUpdate = false;
+            }
         }
 
         UpdateAudioComponentsPositions();
@@ -428,21 +444,30 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
-            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-
-            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
-            {
-                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }
-
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
             particlesSystemComponent.GetParticleEmitter()->DrawDebug();
         }
 
+        auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
+        for (auto& entity : spriteView)
+        {
+            auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
+            auto& transformComponent = spriteView.get<TransformComponent>(entity);
+
+            if (spriteComponent.texture)
+            {
+                Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), spriteComponent.texture,
+                                     spriteComponent.tilingFactor, spriteComponent.tintColor,
+                                     Renderer2D::RenderMode::World);
+            }
+        }
+
+
         m_PhysicsWorld.drawCollisionShapes();
+
+        UIManager::UpdateUI(m_Registry);
     }
 
 
@@ -501,8 +526,8 @@ namespace Coffee {
         for (auto entity : viewPhysics) {
             auto [rb, transform] = viewPhysics.get<RigidbodyComponent, TransformComponent>(entity);
             if (rb.rb) {
-                transform.Position = rb.rb->GetPosition();
-                transform.Rotation = rb.rb->GetRotation();
+                transform.SetLocalPosition(rb.rb->GetPosition());
+                transform.SetLocalRotation(rb.rb->GetRotation());
             }
         }
 
@@ -555,6 +580,7 @@ namespace Coffee {
         // Loop through each entity with the specified components
         for (auto& entity : view)
         {
+
             // Get the ModelComponent and TransformComponent for the current entity
             auto& meshComponent = view.get<MeshComponent>(entity);
             auto& transformComponent = view.get<TransformComponent>(entity);
@@ -566,6 +592,21 @@ namespace Coffee {
             Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
         }
 
+        //Get all entities with LightComponent and TransformComponent
+        auto lightView = m_Registry.view<ActiveComponent, LightComponent, TransformComponent>();
+
+        //Loop through each entity with the specified components
+        for(auto& entity : lightView)
+        {
+            auto& lightComponent = lightView.get<LightComponent>(entity);
+            auto& transformComponent = lightView.get<TransformComponent>(entity);
+
+            lightComponent.Position = transformComponent.GetWorldTransform()[3];
+            lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
+
+            Renderer3D::Submit(lightComponent);
+        }
+
         // Get all entities with ParticlesSystemComponent and TransformComponent
         auto particleSystemView = m_Registry.view<ActiveComponent, ParticlesSystemComponent, TransformComponent>();
         for (auto& entity : particleSystemView)
@@ -573,20 +614,28 @@ namespace Coffee {
             auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
             auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
 
-
-            auto materialComponent = m_Registry.try_get<MaterialComponent>(entity);
-            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
-
-            if (!particlesSystemComponent.GetParticleEmitter()->particleMaterial && material)
-            {
-                particlesSystemComponent.GetParticleEmitter()->particleMaterial = material;
-            }
-
             particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
             particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(cameraTransform);
             particlesSystemComponent.GetParticleEmitter()->Update(dt);
 
         }
+
+        auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
+        for (auto& entity : spriteView)
+        {
+            auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
+            auto& transformComponent = spriteView.get<TransformComponent>(entity);
+
+            if (spriteComponent.texture) {
+                Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), spriteComponent.texture,
+                                     spriteComponent.tilingFactor, spriteComponent.tintColor,
+                                     Renderer2D::RenderMode::World);
+            }
+
+            
+        }
+
+        UIManager::UpdateUI(m_Registry);
     }
 
     void Scene::OnEvent(Event& e)
@@ -640,8 +689,8 @@ namespace Coffee {
             if (rb.rb && rb.rb->GetNativeBody())
             {
                 // Set initial transform
-                rb.rb->SetPosition(transform.Position);
-                rb.rb->SetRotation(transform.Rotation);
+                rb.rb->SetPosition(transform.GetLocalPosition());
+                rb.rb->SetRotation(transform.GetLocalRotation());
 
                 // Add to physics world
                 scene->m_PhysicsWorld.addRigidBody(rb.rb->GetNativeBody());

@@ -10,7 +10,9 @@
 
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/Prefab.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
+#include "CoffeeEngine/Scripting/GameSaver.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include <fstream>
 #include <lua.h>
@@ -360,28 +362,29 @@ namespace Coffee {
 
     void BindInputActionsToLua(sol::state& lua, sol::table& inputTable)
     {
-        // Actions
-        std::vector<std::pair<std::string, InputAction>> actionCodes = {
-            {"UiMoveHorizontal", ActionsEnum::UiMoveHorizontal},
-            {"UiMoveVertical", ActionsEnum::UiMoveVertical},
-            {"Confirm", ActionsEnum::Confirm},
-            {"Cancel",  ActionsEnum::Cancel},
-            {"MoveHorizontal", ActionsEnum::MoveHorizontal},
-            {"MoveVertical", ActionsEnum::MoveVertical},
-            {"AimHorizontal", ActionsEnum::AimHorizontal},
-            {"AimVertical", ActionsEnum::AimVertical},
-            {"Shoot", ActionsEnum::Shoot},
-            {"Melee", ActionsEnum::Melee},
-            {"Interact",  ActionsEnum::Interact},
-            {"Dash", ActionsEnum::Dash},
-            {"Cover", ActionsEnum::Cover},
-            {"Skill1", ActionsEnum::Skill1},
-            {"Skill2", ActionsEnum::Skill2},
-            {"Skill3", ActionsEnum::Skill3},
-            {"Injector",ActionsEnum::Injector},
-            {"Grenade", ActionsEnum::Grenade},
-            {"Map", ActionsEnum::Map},
-            {"Pause", ActionsEnum::Pause}
+        // DEPRECATED - Temporary conversion table for default input map
+        // Old actions - Old identifiers -> New identifiers
+        std::vector<std::pair<std::string, std::string>> actionCodes = {
+            {"UiMoveHorizontal", "UiX"},
+            {"UiMoveVertical", "UiY"},
+            {"Confirm", "Cancel"},
+            {"Cancel",  "Confirm"},
+            {"MoveHorizontal", "MoveX"},
+            {"MoveVertical", "MoveY"},
+            {"AimHorizontal", "AimX"},
+            {"AimVertical", "AimY"},
+            {"Shoot", "Shoot"},
+            {"Melee", "Melee"},
+            {"Interact",  "Interact"},
+            {"Dash", "Dash"},
+            {"Cover", "Cover"},
+            {"Skill1", "Skill1"},
+            {"Skill2", "Skill2"},
+            {"Skill3", "Skill3"},
+            {"Injector","Injector"},
+            {"Grenade", "Grenade"},
+            {"Map", "Map"},
+            {"Pause", "Pause"}
         };
 
         sol::table actionCodeTable = lua.create_table();
@@ -478,15 +481,15 @@ namespace Coffee {
             Input::SetMouseGrabbed(grabbed);
         });
 
-        inputTable.set_function("get_axis", [](InputAction action) {
+        inputTable.set_function("get_axis", [](const std::string& action) {
             return Input::GetBinding(action).AsAxis(false);
         });
 
-        inputTable.set_function("get_direction",[](InputAction action) {
+        inputTable.set_function("get_direction",[](const std::string& action) {
             return Input::GetBinding(action).AsAxis(true);
         });
 
-        inputTable.set_function("get_button", [](InputAction action) {
+        inputTable.set_function("get_button", [](const std::string& action) {
             return Input::GetBinding(action).AsButton();
         });
 
@@ -754,6 +757,16 @@ namespace Coffee {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AudioSourceComponent>()));
                 } else if (componentName == "AnimatorComponent") {
                     return sol::make_object(luaState, std::ref(self->GetComponent<AnimatorComponent>()));
+                } else if (componentName == "UIImageComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UIImageComponent>()));
+                } else if (componentName == "UITextComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UITextComponent>()));
+                } else if (componentName == "UIToggleComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UIToggleComponent>()));
+                } else if (componentName == "UIButtonComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UIButtonComponent>()));
+                } else if (componentName == "UISliderComponent") {
+                    return sol::make_object(luaState, std::ref(self->GetComponent<UISliderComponent>()));
                 }
 
                 return sol::nil;
@@ -783,6 +796,16 @@ namespace Coffee {
                     return self->HasComponent<AnimatorComponent>();
                 } else if (componentName == "AudioSourceComponent") {
                     return self->HasComponent<AudioSourceComponent>();
+                } else if (componentName == "UIImageComponent") {
+                    return self->HasComponent<UIImageComponent>();
+                } else if (componentName == "UITextComponent") {
+                    return self->HasComponent<UITextComponent>();
+                } else if (componentName == "UIToggleComponent") {
+                    return self->HasComponent<UIToggleComponent>();
+                } else if (componentName == "UIButtonComponent") {
+                    return self->HasComponent<UIButtonComponent>();
+                } else if (componentName == "UISliderComponent") {
+                    return self->HasComponent<UISliderComponent>();
                 }
                 return false;
             },
@@ -829,9 +852,9 @@ namespace Coffee {
 
         luaState.new_usertype<TransformComponent>("TransformComponent",
             sol::constructors<TransformComponent(), TransformComponent(const glm::vec3&)>(),
-            "position", &TransformComponent::Position,
-            "rotation", &TransformComponent::Rotation,
-            "scale", &TransformComponent::Scale,
+            "position", sol::property(&TransformComponent::GetLocalPosition, &TransformComponent::SetLocalPosition),
+            "rotation", sol::property(&TransformComponent::GetLocalRotation, &TransformComponent::SetLocalRotation),
+            "scale", sol::property(&TransformComponent::GetLocalScale, &TransformComponent::SetLocalScale),
             "get_local_transform", &TransformComponent::GetLocalTransform,
             "set_local_transform", &TransformComponent::SetLocalTransform,
             "get_world_transform", &TransformComponent::GetWorldTransform,
@@ -927,6 +950,81 @@ namespace Coffee {
          "play", &AudioSourceComponent::Play,
          "pause", &AudioSourceComponent::Stop);
 
+        luaState.new_usertype<UIImageComponent>("UIImageComponent", sol::constructors<UIImageComponent()>(),
+            "set_color", [](UIImageComponent& self, const glm::vec4& color) { self.Color = color; }
+        );
+
+        luaState.new_usertype<UITextComponent>("UITextComponent",
+            "set_text", [](UITextComponent& self, const std::string& text) { self.Text = text; },
+            "set_color", [](UITextComponent& self, const glm::vec4& color) { self.Color = color; },
+            "kerning", &UITextComponent::Kerning,
+            "line_spacing", &UITextComponent::LineSpacing,
+            "font_size", &UITextComponent::FontSize
+        );
+
+        luaState.new_usertype<UIToggleComponent>("UIToggleComponent",
+            "value", &UIToggleComponent::Value
+        );
+
+        luaState.new_enum<UIButtonComponent::State>("State",
+        {
+            {"Normal", UIButtonComponent::State::Normal},
+            {"Hover", UIButtonComponent::State::Hover},
+            {"Pressed", UIButtonComponent::State::Pressed},
+            {"Disabled", UIButtonComponent::State::Disabled}
+        });
+
+        luaState.new_usertype<UIButtonComponent>("UIButtonComponent",
+            "interactable", &UIButtonComponent::Interactable,
+            "state", &UIButtonComponent::CurrentState,
+            "set_normal_color", [](UIButtonComponent& self, const glm::vec4& color) { self.NormalColor = color; },
+            "set_hover_color", [](UIButtonComponent& self, const glm::vec4& color) { self.HoverColor = color; },
+            "set_pressed_color", [](UIButtonComponent& self, const glm::vec4& color) { self.PressedColor = color; },
+            "set_disabled_color", [](UIButtonComponent& self, const glm::vec4& color) { self.DisabledColor = color; }
+        );
+
+        luaState.new_usertype<UISliderComponent>("UISliderComponent",
+            "value", &UISliderComponent::Value,
+            "min_value", &UISliderComponent::MinValue,
+            "max_value", &UISliderComponent::MaxValue,
+            "handle_scale", &UISliderComponent::HandleScale
+        );
+
+        luaState.set_function("save_progress", [](const std::string& key, const sol::object& value) {
+            if (value.is<int>()) {
+                GameSaver::GetInstance().SaveVariable(key, value.as<int>());
+            } else if (value.is<float>()) {
+                GameSaver::GetInstance().SaveVariable(key, value.as<float>());
+            } else if (value.is<bool>()) {
+                GameSaver::GetInstance().SaveVariable(key, value.as<bool>());
+            }
+            GameSaver::GetInstance().SaveToFile();
+        });
+
+        luaState.set_function("load_progress", [this](const std::string& key, sol::object defaultValue) -> sol::object {
+            GameSaver::GetInstance().LoadFromFile();
+
+            GameSaver::SaveValue value;
+            if (defaultValue.is<int>()) {
+                value = GameSaver::GetInstance().LoadVariable(key, defaultValue.as<int>());
+            } else if (defaultValue.is<float>()) {
+                value = GameSaver::GetInstance().LoadVariable(key, defaultValue.as<float>());
+            } else if (defaultValue.is<bool>()) {
+                value = GameSaver::GetInstance().LoadVariable(key, defaultValue.as<bool>());
+            } else {
+                return defaultValue;
+            }
+
+            if (std::holds_alternative<int>(value)) {
+                return sol::make_object(luaState, std::get<int>(value));
+            } else if (std::holds_alternative<float>(value)) {
+                return sol::make_object(luaState, std::get<float>(value));
+            } else if (std::holds_alternative<bool>(value)) {
+                return sol::make_object(luaState, std::get<bool>(value));
+            }
+
+            return defaultValue;
+        });
 
         # pragma endregion
 
@@ -1145,6 +1243,33 @@ namespace Coffee {
 
             scene->GetPhysicsWorld().DebugDrawRaycast(origin, direction, maxDistance, rColor, hColor);
         };
+
+        # pragma endregion
+        
+        # pragma region Prefab Functions
+        // Helper function to load and instantiate a prefab in one call
+        luaState.set_function("instantiate_prefab", [](const std::string& path, sol::optional<glm::mat4> transform) -> Entity {
+            auto scene = SceneManager::GetActiveScene().get();
+            if (!scene) {
+                COFFEE_CORE_ERROR("Cannot instantiate prefab: no active scene");
+                return Entity();
+            }
+            
+            // Resolve the path (relative to project directory if not absolute)
+            std::string resolvedPath = path;
+            if (!path.empty() && path[0] != '/') {
+                auto projectDir = Project::GetActive()->GetProjectDirectory();
+                resolvedPath = (projectDir / path).string();
+            }
+            
+            auto prefab = Prefab::Load(resolvedPath);
+            if (!prefab) {
+                COFFEE_CORE_ERROR("Failed to load prefab: {0} (resolved to {1})", path, resolvedPath);
+                return Entity();
+            }
+            
+            return prefab->Instantiate(scene, transform.value_or(glm::mat4(1.0f)));
+        });
 
         # pragma endregion
     }
