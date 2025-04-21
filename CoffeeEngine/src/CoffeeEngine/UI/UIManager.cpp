@@ -142,7 +142,7 @@ namespace Coffee {
         worldTransform = glm::rotate(worldTransform, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
         worldTransform = glm::scale(worldTransform, glm::vec3(anchored.Size.x, -anchored.Size.y, 1.0f));
 
-        Renderer2D::DrawQuad(worldTransform, uiImageComponent.Texture, 1.0f, uiImageComponent.Color, Renderer2D::RenderMode::Screen, (uint32_t)entity, uiImageComponent.UVRect);
+        Renderer2D::DrawQuad(worldTransform, uiImageComponent.Texture, 1.0f, uiImageComponent.Color, Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
     void UIManager::RenderUIText(entt::registry& registry, entt::entity entity)
@@ -215,11 +215,9 @@ namespace Coffee {
         Ref<Texture2D> currentTexture = nullptr;
         glm::vec4 currentColor{1.0f};
 
-        UIButtonComponent::State state = button.CurrentState;
+        button.CurrentState = button.Interactable ? UIButtonComponent::State::Normal : UIButtonComponent::State::Disabled;
 
-        state = button.Interactable ? button.CurrentState : UIButtonComponent::State::Disabled;
-
-        switch (state)
+        switch (button.CurrentState)
         {
             case UIButtonComponent::State::Normal:
                 currentTexture = button.NormalTexture;

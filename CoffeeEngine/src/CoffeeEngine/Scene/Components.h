@@ -1083,7 +1083,6 @@
     {
         Ref<Texture2D> Texture; ///< The texture of the image.
         glm::vec4 Color = { 1.0f, 1.0f, 1.0f, 1.0f }; ///< The color.
-        glm::vec4 UVRect = { 0.0f, 0.0f, 1.0f, 1.0f }; ///< The UV rectangle.
 
         UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
 
@@ -1091,9 +1090,7 @@
 
         template<class Archive> void save(Archive& archive, std::uint32_t const version) const
         {
-            archive(cereal::make_nvp("TextureUUID", Texture ? Texture->GetUUID() : UUID(0)),
-                    cereal::make_nvp("Color", Color),
-                    cereal::make_nvp("UVRect", UVRect));
+            archive(cereal::make_nvp("TextureUUID", Texture ? Texture->GetUUID() : UUID(0)));
             UIComponent::save(archive, version);
         }
 
@@ -1101,11 +1098,6 @@
         {
             UUID textureUUID;
             archive(cereal::make_nvp("TextureUUID", textureUUID));
-            if (version >= 1)
-            {
-                archive(cereal::make_nvp("Color", Color),
-                        cereal::make_nvp("UVRect", UVRect));
-            }
             if (textureUUID != UUID(0))
                 Texture = ResourceLoader::GetResource<Texture2D>(textureUUID);
             UIComponent::load(archive, version);
@@ -1322,7 +1314,7 @@
  CEREAL_CLASS_VERSION(Coffee::NavigationAgentComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::ParticlesSystemComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::UIComponent, 0);
- CEREAL_CLASS_VERSION(Coffee::UIImageComponent, 1);
+ CEREAL_CLASS_VERSION(Coffee::UIImageComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::UITextComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::UIToggleComponent, 0);
  CEREAL_CLASS_VERSION(Coffee::UIButtonComponent, 0);

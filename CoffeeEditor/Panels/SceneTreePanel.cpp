@@ -3210,8 +3210,6 @@ namespace Coffee
                 }
 
                 ImGui::ColorEdit4("Color", glm::value_ptr(imageComponent.Color));
-
-                ImGui::DragFloat4("UVRect", glm::value_ptr(imageComponent.UVRect), 0.01f, 0.0f, 1.0f);
             }
 
             if (!isCollapsingHeaderOpen)
@@ -3605,46 +3603,6 @@ namespace Coffee
                 else if (items[item_current] == "UI Image Component")
                 {
                     if (!entity.HasComponent<UIImageComponent>())
-                    {
-                        entity.AddComponent<UIImageComponent>();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Text Component")
-                {
-                    if (!entity.HasComponent<UITextComponent>())
-                    {
-                        entity.AddComponent<UITextComponent>();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Toggle Component")
-                {
-                    if (!entity.HasComponent<UIToggleComponent>())
-                    {
-                        entity.AddComponent<UIToggleComponent>();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Button Component")
-                {
-                    if (!entity.HasComponent<UIButtonComponent>())
-                    {
-                        entity.AddComponent<UIButtonComponent>();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Slider Component")
-                {
-                    if (!entity.HasComponent<UISliderComponent>())
-                    {
-                        entity.AddComponent<UISliderComponent>();
-                    }
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "Sprite Component")
-                {
-                    if (!entity.HasComponent<SpriteComponent>())
                     {
                         entity.AddComponent<UIImageComponent>();
                     }

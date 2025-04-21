@@ -256,9 +256,7 @@ namespace Coffee {
 
         ImGui::PushID("ProjectSettings");
 
-        ImGui::SetNextWindowSizeConstraints(ImVec2(100,0), ImVec2(100,INT_MAX));
-        ImGui::BeginChild("Module List");
-        if (ImGui::TreeNodeEx("Project", ImGuiTreeNodeFlags_Leaf))
+        if (ImGui::TreeNodeEx("Project", ImGuiTreeNodeFlags_Leaf, ""))
         {
             if (ImGui::IsItemClicked())
                 m_VisiblePanels = PanelDisplayEnum::General;
@@ -270,8 +268,6 @@ namespace Coffee {
                 m_VisiblePanels = PanelDisplayEnum::Input;
             ImGui::TreePop();
         }
-
-        ImGui::EndChild();
 
         ImGui::SameLine();
         ImGui::Separator();
