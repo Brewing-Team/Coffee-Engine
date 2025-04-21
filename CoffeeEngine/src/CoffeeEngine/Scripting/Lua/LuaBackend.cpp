@@ -1105,6 +1105,9 @@ namespace Coffee {
             ),
             "change_scene_async", [](const std::string& scenePath) {
                 SceneManager::ChangeSceneAsync(scenePath);
+            },
+            "get_scene_name", []() {
+                return SceneManager::GetSceneName();
             }
         );
         
