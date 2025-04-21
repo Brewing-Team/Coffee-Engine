@@ -23,6 +23,7 @@
 #include <IconsLucide.h>
 
 #include <CoffeeEngine/Scripting/Script.h>
+#include <SDL3/SDL_misc.h>
 #include <array>
 #include <cstdint>
 #include <cstring>
@@ -1590,6 +1591,11 @@ namespace Coffee
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
                 ImGui::Text(scriptComponent.script->GetPath().filename().c_str());
+
+                if (ImGui::Button("Open in Editor"))
+                {
+                    SDL_OpenURL(("file://" + std::filesystem::absolute(scriptComponent.script->GetPath()).string()).c_str());
+                }
 
                 // Get the exposed variables
                 auto& exposedVariables = scriptComponent.script->GetExportedVariables();
