@@ -1,5 +1,6 @@
 #include "LuaBackend.h"
 
+#include "Bindings/LuaLog.h"
 #include "Bindings/LuaMath.h"
 #include "Bindings/LuaPhysics.h"
 #include "Bindings/LuaPrefab.h"
@@ -419,23 +420,7 @@ namespace Coffee {
 
         dafaultPackagePath = luaState["package"]["path"];
 
-        # pragma region Bind Log Functions
-        luaState.set_function("log", [](const std::string& message) {
-            COFFEE_CORE_INFO("{0}", message);
-        });
-
-        luaState.set_function("log_warning", [](const std::string& message) {
-            COFFEE_CORE_WARN("{0}", message);
-        });
-
-        luaState.set_function("log_error", [](const std::string& message) {
-            COFFEE_CORE_ERROR("{0}", message);
-        });
-
-        luaState.set_function("log_critical", [](const std::string& message) {
-            COFFEE_CORE_CRITICAL("{0}", message);
-        });
-        # pragma endregion
+        RegisterLogBindings(luaState);
 
         # pragma region Bind Input Functions
         sol::table inputTable = luaState.create_table();
