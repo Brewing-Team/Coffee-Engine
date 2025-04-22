@@ -711,27 +711,6 @@ namespace Coffee {
         #pragma region Bind Entity Functions
         luaState.new_usertype<Entity>("Entity",
             sol::constructors<Entity(), Entity(entt::entity, Scene*)>(),
-            "add_component", [](Entity* self, const std::string& componentName) {
-                if (componentName == "TagComponent") {
-                    self->AddComponent<TagComponent>();
-                } else if (componentName == "TransformComponent") {
-                    self->AddComponent<TransformComponent>();
-                } else if (componentName == "CameraComponent") {
-                    self->AddComponent<CameraComponent>();
-                } else if (componentName == "MeshComponent") {
-                    self->AddComponent<MeshComponent>();
-                } else if (componentName == "MaterialComponent") {
-                    self->AddComponent<MaterialComponent>();
-                } else if (componentName == "LightComponent") {
-                    self->AddComponent<LightComponent>();
-                } else if (componentName == "ScriptComponent") {
-                    self->AddComponent<ScriptComponent>();
-                }else if (componentName == "ParticlesSystemComponent"){
-                    self->AddComponent<ParticlesSystemComponent>();
-                } else if (componentName == "AudioSourceComponent") {
-                    self->AddComponent<AudioSourceComponent>();
-                }
-            },
             "get_component", [this](Entity* self, const std::string& componentName) -> sol::object {
                 if (componentName == "TagComponent") {
                     if (auto* component = self->TryGetComponent<TagComponent>())
