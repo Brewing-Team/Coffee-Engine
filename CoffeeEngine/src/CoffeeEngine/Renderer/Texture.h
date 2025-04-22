@@ -172,7 +172,7 @@ namespace Coffee {
         void GeneratePrefilteredMap();
         void GenerateBRDFLUT();
 
-        friend class cereal::access;
+/*         friend class cereal::access;
 
         template<class Archive>
         void save(Archive& archive) const
@@ -189,7 +189,7 @@ namespace Coffee {
         template <class Archive>
         static void load_and_construct(Archive& data, cereal::construct<Cubemap>& construct)
         {
-            construct();
+             construct();
 
             data(construct->m_Properties, /* construct->m_Data, */ construct->m_HDRData, construct->m_Width, construct->m_Height,
                  cereal::base_class<Texture>(construct.ptr()));
@@ -201,9 +201,9 @@ namespace Coffee {
             }
             else
             {
-                /* construct->LoadHDRFromData(construct->m_HDRData); */
-            }
-        }
+                construct->LoadHDRFromData(construct->m_HDRData);
+            } 
+        } */
 
     private:
         TextureProperties m_Properties;
