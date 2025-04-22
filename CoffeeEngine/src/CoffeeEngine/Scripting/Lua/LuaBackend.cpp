@@ -3,6 +3,7 @@
 #include "Bindings/LuaMath.h"
 #include "Bindings/LuaPhysics.h"
 #include "Bindings/LuaPrefab.h"
+#include "Bindings/LuaScene.h"
 #include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
@@ -916,46 +917,8 @@ namespace Coffee {
 
         # pragma endregion
 
-        # pragma region Bind Scene Functions
 
-        luaState.new_usertype<Scene>("Scene",
-            "create_entity", &Scene::CreateEntity,
-            "destroy_entity", &Scene::DestroyEntity,
-            "duplicate_entity", &Scene::Duplicate,
-            "get_entity_by_name", &Scene::GetEntityByName,
-            "get_all_entities", &Scene::GetAllEntities
-        );
-
-        luaState.new_usertype<SceneManager>("SceneManager",
-            "preload_scene", [](const std::string& scenePath) {
-                return SceneManager::PreloadScene(scenePath);
-            },
-            "preload_scene_async", [](const std::string& scenePath) {
-                return SceneManager::PreloadSceneAsync(scenePath);
-            },
-            "change_scene", sol::overload(
-                [](const std::string& scenePath) {
-                    AudioZone::RemoveAllReverbZones();
-                    Audio::UnregisterAllGameObjects();
-                    SceneManager::ChangeScene(scenePath);
-                },
-                [](const Ref<Scene>& scene) {
-                    AudioZone::RemoveAllReverbZones();
-                    Audio::UnregisterAllGameObjects();
-                    SceneManager::ChangeScene(scene);
-                }
-            ),
-            "change_scene_async", [](const std::string& scenePath) {
-                SceneManager::ChangeSceneAsync(scenePath);
-            },
-            "get_scene_name", []() {
-                return SceneManager::GetSceneName();
-            }
-        );
-        
-
-        # pragma endregion
-
+        RegisterSceneBindings(luaState);
         RegisterPhysicsBindings(luaState);
         RegisterPrefabBindings(luaState);
     }
