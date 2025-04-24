@@ -1175,9 +1175,9 @@
                     cereal::make_nvp("FontSize", FontSize),
                     cereal::make_nvp("Alignment", Alignment));
 
-            if (!relativePath.empty())
-            {
-                FontPath = Project::GetActive()->GetProjectDirectory() / relativePath;
+            FontPath = Project::GetActive()->GetProjectDirectory() / relativePath;
+
+            if (!FontPath.empty())
                 UIFont = CreateRef<Coffee::Font>(FontPath);
             }
             else
