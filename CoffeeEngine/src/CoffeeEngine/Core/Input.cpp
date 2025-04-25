@@ -148,19 +148,10 @@ namespace Coffee {
         return m_BindingsMap;
     }
 
-    void Input::SendRumble(uint16_t lowFreqPower, uint16_t highFreqPower, uint32_t duration)
+    void Input::SendRumble(float leftPower, float rightPower, float duration)
     {
         if (auto g = m_Gamepads[0]->GetGamepad())
-        {
-            if (!SDL_RumbleGamepad(g,lowFreqPower, highFreqPower, duration))
-            {
-                COFFEE_WARN("Rumble failed: {0}", SDL_GetError());
-            }
-            else
-            {
-                COFFEE_INFO("Rumble enabled for {0} milliseconds, with leftPower {1} and rightPower {2}", duration, lowFreqPower, highFreqPower);
-            }
-        }
+            SDL_RumbleGamepad(g,leftPower, rightPower, duration);
     }
 
     const char* Input::GetKeyLabel(KeyCode key)
