@@ -91,9 +91,6 @@ namespace Coffee {
         template <class Archive> void load(Archive& archive, const std::uint32_t& version)
         {
 
-
-            printf("Loaded version Collider %d", version);
-
             int shapeType;
             archive(cereal::make_nvp("ShapeType", shapeType));
             if(version >= 0) archive(cereal::make_nvp("Offset", m_Offset));
