@@ -1,5 +1,6 @@
 #include "LuaBackend.h"
 
+#include "Bindings/LuaApplication.h"
 #include "Bindings/LuaComponents.h"
 #include "Bindings/LuaEntity.h"
 #include "Bindings/LuaInput.h"
@@ -39,6 +40,7 @@ namespace Coffee {
         RegisterSceneBindings(luaState);
         RegisterPhysicsBindings(luaState);
         RegisterPrefabBindings(luaState);
+        RegisterApplicationBindings(luaState);
     }
 
     Ref<Script> LuaBackend::CreateScript(const std::filesystem::path& path) {
