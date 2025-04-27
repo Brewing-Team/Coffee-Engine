@@ -121,6 +121,18 @@ namespace Coffee {
                                         glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
             }
+            case CONE_SHAPE_PROXYTYPE: {
+                const btConeShape* coneShape = static_cast<const btConeShape*>(shape);
+                if (!coneShape)
+                    continue;
+            
+                const float radius = coneShape->getRadius() + margin;
+                const float height = coneShape->getHeight() + margin;
+            
+                Renderer2D::DrawCone(position, orientation, radius, height,
+                                     glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                break;
+            }
             default:
                 continue;
             }
