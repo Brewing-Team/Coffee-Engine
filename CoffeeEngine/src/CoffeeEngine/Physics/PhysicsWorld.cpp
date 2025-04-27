@@ -134,6 +134,19 @@ namespace Coffee {
                                      glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
             }
+            case CYLINDER_SHAPE_PROXYTYPE: {
+                const btCylinderShape* cylinderShape = static_cast<const btCylinderShape*>(shape);
+                if (!cylinderShape)
+                    continue;
+            
+                const btVector3 halfExtents = cylinderShape->getHalfExtentsWithoutMargin();
+                float radius = halfExtents.x() + margin; // x and z are equal for Y-axis cylinder
+                float height = (halfExtents.y() + margin) * 2.0f;
+            
+                Renderer2D::DrawCylinder(position, orientation, radius, height,
+                                         glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                break;
+            }
             default:
                 continue;
             }
