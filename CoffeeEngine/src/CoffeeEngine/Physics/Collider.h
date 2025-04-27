@@ -50,7 +50,7 @@ namespace Coffee {
                     case BOX_SHAPE_PROXYTYPE: {
                         auto* boxShape = static_cast<btBoxShape*>(shape);
                         btVector3 halfExtents = boxShape->getHalfExtentsWithoutMargin();
-                        glm::vec3 size(halfExtents.x() * 2.0f, halfExtents.y() * 2.0f, halfExtents.z() * 2.0f);
+                        glm::vec3 size(halfExtents.x(), halfExtents.y(), halfExtents.z());
                         archive(cereal::make_nvp("Size", size));
                         break;
                     }
@@ -107,7 +107,7 @@ namespace Coffee {
                 case BOX_SHAPE_PROXYTYPE: {
                     glm::vec3 size;
                     archive(cereal::make_nvp("Size", size));
-                    m_Shape = new btBoxShape(btVector3(size.x * 0.5f, size.y * 0.5f, size.z * 0.5f));
+                    m_Shape = new btBoxShape(btVector3(size.x, size.y, size.z));
                     break;
                 }
                 case SPHERE_SHAPE_PROXYTYPE: {
@@ -120,7 +120,7 @@ namespace Coffee {
                     float radius, height;
                     archive(cereal::make_nvp("Radius", radius));
                     archive(cereal::make_nvp("Height", height));
-                    m_Shape = new btCapsuleShape(radius, height * 0.5f);
+                    m_Shape = new btCapsuleShape(radius, height);
                     break;
                 }
                 case CONE_SHAPE_PROXYTYPE: {
@@ -134,7 +134,7 @@ namespace Coffee {
                     float radius, height;
                     archive(cereal::make_nvp("Radius", radius));
                     archive(cereal::make_nvp("Height", height));
-                    m_Shape = new btCylinderShape(btVector3(radius, height * 0.5f, radius));
+                    m_Shape = new btCylinderShape(btVector3(radius, height, radius));
                     break;
                 }
             }
@@ -174,6 +174,12 @@ namespace Coffee {
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::base_class<Collider>(this));
+
+            if (m_Shape && m_Shape->getShapeType() == BOX_SHAPE_PROXYTYPE) {
+                const auto boxShape = dynamic_cast<btBoxShape*>(m_Shape);
+                const btVector3 halfExtents = boxShape->getHalfExtentsWithoutMargin();
+                m_Size = glm::vec3(halfExtents.x() * 2.0f, halfExtents.y() * 2.0f, halfExtents.z() * 2.0f);
+            }
         }
     };
 
@@ -211,6 +217,11 @@ namespace Coffee {
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::base_class<Collider>(this));
+
+            if (m_Shape && m_Shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
+                const auto sphereShape = dynamic_cast<btSphereShape*>(m_Shape);
+                m_Radius = sphereShape->getRadius();
+            }
         }
     };
 
@@ -267,6 +278,12 @@ namespace Coffee {
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::base_class<Collider>(this));
+
+            if (m_Shape && m_Shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
+                const auto* capsuleShape = dynamic_cast<btCapsuleShape*>(m_Shape);
+                m_Radius = capsuleShape->getRadius();
+                m_Height = capsuleShape->getHalfHeight() * 2.0f;
+            }
         }
     };
 
@@ -325,6 +342,12 @@ namespace Coffee {
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::base_class<Collider>(this));
+
+            if (m_Shape && m_Shape->getShapeType() == CONE_SHAPE_PROXYTYPE) {
+                const auto coneShape = dynamic_cast<btConeShape*>(m_Shape);
+                m_Radius = coneShape->getRadius();
+                m_Height = coneShape->getHeight();
+            }
         }
     };
 
@@ -383,6 +406,12 @@ namespace Coffee {
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
             archive(cereal::base_class<Collider>(this));
+
+            if (m_Shape && m_Shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE) {
+                const auto cylinderShape = dynamic_cast<btCylinderShape*>(m_Shape);
+                m_Radius = cylinderShape->getRadius();
+                m_Height = cylinderShape->getHalfExtentsWithoutMargin().y() * 2.0f;
+            }
         }
     };
 
