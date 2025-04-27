@@ -66,6 +66,14 @@ namespace Coffee {
                         archive(cereal::make_nvp("Height", height));
                         break;
                     }
+                    case CONE_SHAPE_PROXYTYPE: {
+                        auto* coneShape = static_cast<btConeShape*>(shape);
+                        float radius = coneShape->getRadius();
+                        float height = coneShape->getHeight();
+                        archive(cereal::make_nvp("Radius", radius));
+                        archive(cereal::make_nvp("Height", height));
+                        break;
+                    }
                 }
             }
         }
@@ -103,6 +111,13 @@ namespace Coffee {
                     archive(cereal::make_nvp("Radius", radius));
                     archive(cereal::make_nvp("Height", height));
                     m_Shape = new btCapsuleShape(radius, height * 0.5f);
+                    break;
+                }
+                case CONE_SHAPE_PROXYTYPE: {
+                    float radius, height;
+                    archive(cereal::make_nvp("Radius", radius));
+                    archive(cereal::make_nvp("Height", height));
+                    m_Shape = new btConeShape(radius, height);
                     break;
                 }
             }
@@ -238,15 +253,76 @@ namespace Coffee {
         }
     };
 
+    class ConeCollider : public Collider
+    {
+    public:
+        ConeCollider(float radius = 0.5f, float height = 1.0f)
+        {
+            m_Radius = radius;
+            m_Height = height;
+            m_Shape = new btConeShape(radius, height);
+        }
+    
+        float GetRadius() const { return m_Radius; }
+        float GetHeight() const { return m_Height; }
+    
+        void ResizeToFitAABB(const AABB& aabb) override {
+            glm::vec3 size = aabb.max - aabb.min;
+    
+            // Find the longest axis for the cone direction
+            float maxAxis = glm::max(size.x, glm::max(size.y, size.z));
+    
+            // Set height to longest dimension, radius to half of the average of the other two dimensions
+            if (maxAxis == size.y) {
+                // Y-axis oriented cone
+                m_Height = size.y;
+                m_Radius = (size.x + size.z) / 4.0f;
+            } else if (maxAxis == size.x) {
+                // X-axis oriented cone
+                m_Height = size.x;
+                m_Radius = (size.y + size.z) / 4.0f;
+            } else {
+                // Z-axis oriented cone
+                m_Height = size.z;
+                m_Radius = (size.x + size.y) / 4.0f;
+            }
+    
+            // Update the shape with the new dimensions
+            if (m_Shape) {
+                delete m_Shape;
+            }
+            m_Shape = new btConeShape(m_Radius, m_Height);
+        }
+    
+    private:
+        float m_Radius;
+        float m_Height;
+    
+        friend class cereal::access;
+    
+        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
+        {
+            archive(cereal::base_class<Collider>(this));
+        }
+    
+        template <class Archive> void load(Archive& archive, std::uint32_t const version)
+        {
+            archive(cereal::base_class<Collider>(this));
+        }
+    };
+
 } // namespace Coffee
 
 CEREAL_REGISTER_TYPE(Coffee::BoxCollider)
 CEREAL_REGISTER_TYPE(Coffee::SphereCollider)
 CEREAL_REGISTER_TYPE(Coffee::CapsuleCollider)
+CEREAL_REGISTER_TYPE(Coffee::ConeCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::BoxCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::SphereCollider)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::CapsuleCollider)
-CEREAL_CLASS_VERSION(Coffee::Collider, 0);
-CEREAL_CLASS_VERSION(Coffee::BoxCollider, 0);
-CEREAL_CLASS_VERSION(Coffee::SphereCollider, 0);
-CEREAL_CLASS_VERSION(Coffee::CapsuleCollider, 0);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Collider, Coffee::ConeCollider)
+CEREAL_CLASS_VERSION(Coffee::Collider, 0)
+CEREAL_CLASS_VERSION(Coffee::BoxCollider, 0)
+CEREAL_CLASS_VERSION(Coffee::SphereCollider, 0)
+CEREAL_CLASS_VERSION(Coffee::CapsuleCollider, 0)
+CEREAL_CLASS_VERSION(Coffee::ConeCollider, 0)

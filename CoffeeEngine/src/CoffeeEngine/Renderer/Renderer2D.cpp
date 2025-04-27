@@ -789,13 +789,11 @@ namespace Coffee {
         glm::vec3 bottomPoints[25];
         
         float halfHeight = height * 0.5f;
-        
         for (int i = 0; i <= segments; i++)
         {
             float angle = i * angleStep;
             float x = radius * cos(angle);
             float z = radius * sin(angle);
-            
             glm::vec3 localTop(x, halfHeight, z);
             glm::vec3 localBottom(x, -halfHeight, z);
             
@@ -815,6 +813,70 @@ namespace Coffee {
             if (i % 4 == 0) {
                 DrawLine(topPoints[i], bottomPoints[i], color);
             }
+        }
+    }
+
+    void Renderer2D::DrawCone(glm::vec3 position, glm::quat rotation, float radius, float height, glm::vec4 color)
+    {
+        Batch& batch = GetBatch(RenderMode::World);
+
+        if(batch.LineIndexCount >= Batch::MaxIndices)
+        {
+            NextBatch(RenderMode::World);
+            batch = GetBatch(RenderMode::World);
+        }
+
+        glm::vec3 entityIDVec3 = glm::vec3(1.0f, 1.0f, 1.0f);
+    
+        // Calculate the apex position (top of the cone)
+        glm::vec3 upVector = rotation * glm::vec3(0.0f, 1.0f, 0.0f);
+        glm::vec3 apex = position + upVector * height;
+        
+        // Draw base circle
+        const uint32_t segments = 24;
+        const float angleStep = 2.0f * glm::pi<float>() / segments;
+        
+        glm::vec3 basePoints[25]; // One extra for connecting back to the start
+        
+        // Calculate points around the base circle
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = i * angleStep;
+            float x = radius * cos(angle);
+            float z = radius * sin(angle);
+            
+            glm::vec3 localPoint(x, 0.0f, z);
+            glm::vec3 worldPoint = position + rotation * localPoint;
+            
+            basePoints[i] = worldPoint;
+        }
+        
+        // Draw the base circle
+        for (int i = 0; i < segments; i++)
+        {
+            if(batch.LineIndexCount >= Batch::MaxIndices)
+            {
+                NextBatch(RenderMode::World);
+                batch = GetBatch(RenderMode::World);
+            }
+            
+            batch.LineVertices.push_back({basePoints[i], color, entityIDVec3});
+            batch.LineVertices.push_back({basePoints[i + 1], color, entityIDVec3});
+            batch.LineIndexCount += 2;
+        }
+        
+        // Draw lines from the base to the apex (every few segments for clarity)
+        for (int i = 0; i < segments; i += 3)
+        {
+            if(batch.LineIndexCount >= Batch::MaxIndices)
+            {
+                NextBatch(RenderMode::World);
+                batch = GetBatch(RenderMode::World);
+            }
+            
+            batch.LineVertices.push_back({basePoints[i], color, entityIDVec3});
+            batch.LineVertices.push_back({apex, color, entityIDVec3});
+            batch.LineIndexCount += 2;
         }
     }
 

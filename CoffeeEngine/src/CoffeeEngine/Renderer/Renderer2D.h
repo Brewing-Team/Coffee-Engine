@@ -77,8 +77,11 @@ namespace Coffee {
 
         static void DrawCapsule(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color = glm::vec4(1.0f));
         
-        static void DrawCylinder(const glm::vec3& position, const glm::quat& rotation, float radius, float height, const glm::vec4& color = glm::vec4(1.0f));
-        
+        static void DrawCylinder(const glm::vec3& position, const glm::quat& rotation, float radius, float height,
+                                 const glm::vec4& color = glm::vec4(1.0f));
+
+        static void DrawCone(glm::vec3 vec, glm::quat qua, float radius, float height, glm::vec4 vec4);
+
         struct TextParams
 		{
 			glm::vec4 Color{ 1.0f };
