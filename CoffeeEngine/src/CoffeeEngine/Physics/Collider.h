@@ -96,7 +96,7 @@ namespace Coffee {
 
             int shapeType;
             archive(cereal::make_nvp("ShapeType", shapeType));
-            if(version >= 2) archive(cereal::make_nvp("Offset", m_Offset));
+            if(version >= 0) archive(cereal::make_nvp("Offset", m_Offset));
 
             if (m_Shape) {
                 delete m_Shape;
