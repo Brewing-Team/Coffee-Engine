@@ -94,11 +94,180 @@ void Coffee::RegisterPhysicsBindings(sol::state& luaState)
         "set_angular_drag", &RigidBody::SetAngularDrag,
 
         // Utility
-        "get_is_trigger", &RigidBody::GetIsTrigger
+        "get_is_trigger", &RigidBody::GetIsTrigger,
+
+        // Add a function to get the collider
+        "get_collider", &RigidBody::GetCollider,
+
+        // Add a function to get the collider type
+        "get_collider_type", [](const RigidBody& self) -> std::string {
+            auto collider = self.GetCollider();
+            if (!collider) return "None";
+
+            if (std::dynamic_pointer_cast<BoxCollider>(collider)) return "Box";
+            if (std::dynamic_pointer_cast<SphereCollider>(collider)) return "Sphere";
+            if (std::dynamic_pointer_cast<CapsuleCollider>(collider)) return "Capsule";
+
+            return "Unknown";
+        }
     );
 
     // Add Collider usertype bindings
-    luaState.new_usertype<Collider>("Collider");
+    luaState.new_usertype<Collider>("Collider",
+        // Add the following functions to the Collider binding
+        "set_box_size", [](const Collider& self, const glm::vec3& size) {
+            Ref<BoxCollider> boxCollider = CreateRef<BoxCollider>(size);
+
+            // Get the scene
+            auto scene = SceneManager::GetActiveScene();
+
+            // Find the entity with this collider
+            Entity entity;
+
+            // Get a view of entities with RigidbodyComponent
+            const auto view = scene->GetAllEntitiesWithComponents<RigidbodyComponent>();
+            bool found = false;
+
+            // Iteration with early termination
+            for (const auto entityID : view) {
+                Entity e(entityID, scene.get());
+                if (const auto& rb = e.GetComponent<RigidbodyComponent>(); rb.rb && rb.rb->GetCollider().get() == &self) {
+                    entity = e;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) return;  // No matching entity found
+
+            auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
+
+            // Store current rigidbody properties
+            const RigidBody::Properties props = rbComponent.rb->GetProperties();
+            const glm::vec3 position = rbComponent.rb->GetPosition();
+            const glm::vec3 rotation = rbComponent.rb->GetRotation();
+            const glm::vec3 velocity = rbComponent.rb->GetVelocity();
+
+            // Remove from physics world
+            scene->GetPhysicsWorld().removeRigidBody(rbComponent.rb->GetNativeBody());;
+
+            // Create new box collider with updated size
+            const Ref<Collider> newCollider = CreateRef<BoxCollider>(size);
+
+            // Create new rigidbody with new collider
+            rbComponent.rb = RigidBody::Create(props, newCollider);
+            rbComponent.rb->SetPosition(position);
+            rbComponent.rb->SetRotation(rotation);
+            rbComponent.rb->SetVelocity(velocity);
+
+            // Add back to physics world
+            scene->GetPhysicsWorld().addRigidBody(rbComponent.rb->GetNativeBody());
+            rbComponent.rb->GetNativeBody()->setUserPointer(
+                reinterpret_cast<void*>(static_cast<uintptr_t>(static_cast<entt::entity>(entity))));
+        },
+
+        "set_sphere_radius", [](Collider& self, float radius) {
+            Ref<SphereCollider> boxCollider = CreateRef<SphereCollider>(radius);
+
+            // Get the scene
+            auto scene = SceneManager::GetActiveScene();
+
+            // Find the entity with this collider
+            Entity entity;
+
+            // Get a view of entities with RigidbodyComponent
+            const auto view = scene->GetAllEntitiesWithComponents<RigidbodyComponent>();
+            bool found = false;
+
+            // Iteration with early termination
+            for (const auto entityID : view) {
+                Entity e(entityID, scene.get());
+                if (const auto& rb = e.GetComponent<RigidbodyComponent>(); rb.rb && rb.rb->GetCollider().get() == &self) {
+                    entity = e;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) return;  // No matching entity found
+
+            auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
+
+            // Store current rigidbody properties
+            const RigidBody::Properties props = rbComponent.rb->GetProperties();
+            const glm::vec3 position = rbComponent.rb->GetPosition();
+            const glm::vec3 rotation = rbComponent.rb->GetRotation();
+            const glm::vec3 velocity = rbComponent.rb->GetVelocity();
+
+            // Remove from physics world
+            scene->GetPhysicsWorld().removeRigidBody(rbComponent.rb->GetNativeBody());;
+
+            // Create new box collider with updated size
+            const Ref<SphereCollider> newCollider = CreateRef<SphereCollider>(radius);
+
+            // Create new rigidbody with new collider
+            rbComponent.rb = RigidBody::Create(props, newCollider);
+            rbComponent.rb->SetPosition(position);
+            rbComponent.rb->SetRotation(rotation);
+            rbComponent.rb->SetVelocity(velocity);
+
+            // Add back to physics world
+            scene->GetPhysicsWorld().addRigidBody(rbComponent.rb->GetNativeBody());
+            rbComponent.rb->GetNativeBody()->setUserPointer(
+                reinterpret_cast<void*>(static_cast<uintptr_t>(static_cast<entt::entity>(entity))));
+        },
+
+        "set_capsule_dimensions", [](Collider& self, float radius, float height) {
+            Ref<CapsuleCollider> boxCollider = CreateRef<CapsuleCollider>(radius, height);
+
+            // Get the scene
+            auto scene = SceneManager::GetActiveScene();
+
+            // Find the entity with this collider
+            Entity entity;
+
+            // Get a view of entities with RigidbodyComponent
+            const auto view = scene->GetAllEntitiesWithComponents<RigidbodyComponent>();
+            bool found = false;
+
+            // Iteration with early termination
+            for (const auto entityID : view) {
+                Entity e(entityID, scene.get());
+                if (const auto& rb = e.GetComponent<RigidbodyComponent>(); rb.rb && rb.rb->GetCollider().get() == &self) {
+                    entity = e;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) return;  // No matching entity found
+
+            auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
+
+            // Store current rigidbody properties
+            const RigidBody::Properties props = rbComponent.rb->GetProperties();
+            const glm::vec3 position = rbComponent.rb->GetPosition();
+            const glm::vec3 rotation = rbComponent.rb->GetRotation();
+            const glm::vec3 velocity = rbComponent.rb->GetVelocity();
+
+            // Remove from physics world
+            scene->GetPhysicsWorld().removeRigidBody(rbComponent.rb->GetNativeBody());;
+
+            // Create new box collider with updated size
+            const Ref<CapsuleCollider> newCollider = CreateRef<CapsuleCollider>(radius, height);
+
+            // Create new rigidbody with new collider
+            rbComponent.rb = RigidBody::Create(props, newCollider);
+            rbComponent.rb->SetPosition(position);
+            rbComponent.rb->SetRotation(rotation);
+            rbComponent.rb->SetVelocity(velocity);
+
+            // Add back to physics world
+            scene->GetPhysicsWorld().addRigidBody(rbComponent.rb->GetNativeBody());
+            rbComponent.rb->GetNativeBody()->setUserPointer(
+                reinterpret_cast<void*>(static_cast<uintptr_t>(static_cast<entt::entity>(entity))));
+        }
+    );
 
     luaState.new_usertype<BoxCollider>("BoxCollider",
         sol::constructors<BoxCollider(), BoxCollider(const glm::vec3&)>(),
