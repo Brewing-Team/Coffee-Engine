@@ -108,6 +108,7 @@ void Coffee::RegisterPhysicsBindings(sol::state& luaState)
             if (std::dynamic_pointer_cast<SphereCollider>(collider)) return "Sphere";
             if (std::dynamic_pointer_cast<CapsuleCollider>(collider)) return "Capsule";
             if (std::dynamic_pointer_cast<ConeCollider>(collider)) return "Cone";
+            if (std::dynamic_pointer_cast<CylinderCollider>(collider)) return "Cylinder";
 
             return "Unknown";
         }
@@ -315,6 +316,54 @@ void Coffee::RegisterPhysicsBindings(sol::state& luaState)
             scene->GetPhysicsWorld().addRigidBody(rbComponent.rb->GetNativeBody());
             rbComponent.rb->GetNativeBody()->setUserPointer(
                 reinterpret_cast<void*>(static_cast<uintptr_t>(static_cast<entt::entity>(entity))));
+        },
+        "set_cylinder_dimensions", [](Collider& self, float radius, float height) {
+            // Get the scene
+            auto scene = SceneManager::GetActiveScene();
+
+            // Find the entity with this collider
+            Entity entity;
+
+            // Get a view of entities with RigidbodyComponent
+            const auto view = scene->GetAllEntitiesWithComponents<RigidbodyComponent>();
+            bool found = false;
+
+            // Iteration with early termination
+            for (const auto entityID : view) {
+                Entity e(entityID, scene.get());
+                if (const auto& rb = e.GetComponent<RigidbodyComponent>(); rb.rb && rb.rb->GetCollider().get() == &self) {
+                    entity = e;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found) return;  // No matching entity found
+
+            auto& rbComponent = entity.GetComponent<RigidbodyComponent>();
+
+            // Store current rigidbody properties
+            const RigidBody::Properties props = rbComponent.rb->GetProperties();
+            const glm::vec3 position = rbComponent.rb->GetPosition();
+            const glm::vec3 rotation = rbComponent.rb->GetRotation();
+            const glm::vec3 velocity = rbComponent.rb->GetVelocity();
+
+            // Remove from physics world
+            scene->GetPhysicsWorld().removeRigidBody(rbComponent.rb->GetNativeBody());
+
+            // Create new cylinder collider with updated dimensions
+            const Ref<CylinderCollider> newCollider = CreateRef<CylinderCollider>(radius, height);
+
+            // Create new rigidbody with new collider
+            rbComponent.rb = RigidBody::Create(props, newCollider);
+            rbComponent.rb->SetPosition(position);
+            rbComponent.rb->SetRotation(rotation);
+            rbComponent.rb->SetVelocity(velocity);
+
+            // Add back to physics world
+            scene->GetPhysicsWorld().addRigidBody(rbComponent.rb->GetNativeBody());
+            rbComponent.rb->GetNativeBody()->setUserPointer(
+                reinterpret_cast<void*>(static_cast<uintptr_t>(static_cast<entt::entity>(entity))));
         }
     );
 
@@ -338,6 +387,11 @@ void Coffee::RegisterPhysicsBindings(sol::state& luaState)
         sol::base_classes, sol::bases<Collider>()
     );
 
+    luaState.new_usertype<CylinderCollider>("CylinderCollider",
+        sol::constructors<CylinderCollider(), CylinderCollider(float, float)>(),
+        sol::base_classes, sol::bases<Collider>()
+    );
+
     // Helper functions for creating colliders and rigidbodies
     luaState.set_function("create_box_collider", [](const glm::vec3& size) {
         return CreateRef<BoxCollider>(size);
@@ -353,6 +407,10 @@ void Coffee::RegisterPhysicsBindings(sol::state& luaState)
 
     luaState.set_function("create_cone_collider", [](float radius, float height) {
         return CreateRef<ConeCollider>(radius, height);
+    });
+
+    luaState.set_function("create_cylinder_collider", [](float radius, float height) {
+        return CreateRef<CylinderCollider>(radius, height);
     });
 
     luaState.set_function("create_rigidbody", [](const RigidBody::Properties& props, const Ref<Collider>& collider) {

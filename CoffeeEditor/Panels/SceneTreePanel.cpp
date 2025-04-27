@@ -1223,7 +1223,7 @@ namespace Coffee
                     ImGui::Text("Collider");
                     
                     Ref<Collider> currentCollider = rbComponent.rb->GetCollider();
-                    int colliderType = -1; // -1: Unknown, 0: Box, 1: Sphere, 2: Capsule, 3: Cone
+                    int colliderType = -1; // -1: Unknown, 0: Box, 1: Sphere, 2: Capsule, 3: Cone, 4: Cylinder
                     
                     if (currentCollider) {
                         if (std::dynamic_pointer_cast<BoxCollider>(currentCollider)) {
@@ -1234,13 +1234,15 @@ namespace Coffee
                             colliderType = 2;
                         } else if (std::dynamic_pointer_cast<ConeCollider>(currentCollider)) {
                             colliderType = 3;
+                        } else if (std::dynamic_pointer_cast<CylinderCollider>(currentCollider)) {
+                            colliderType = 4;
                         }
                     }
                     
-                    static const char* colliderTypeNames[] = { "Box", "Sphere", "Capsule", "Cone" };
+                    static const char* colliderTypeNames[] = { "Box", "Sphere", "Capsule", "Cone", "Cylinder" };
                     int newColliderType = colliderType;
                     
-                    if (ImGui::Combo("Type##ColliderType", &newColliderType, colliderTypeNames, 4)) {
+                    if (ImGui::Combo("Type##ColliderType", &newColliderType, colliderTypeNames, 5)) {
                         // User selected a new collider type
                         Ref<Collider> newCollider;
                         
@@ -1280,6 +1282,16 @@ namespace Coffee
                                     height = coneCollider->GetHeight();
                                 }
                                 newCollider = CreateRef<ConeCollider>(radius, height);
+                                break;
+                            }
+                            case 4: { // Cylinder
+                                float radius = 0.5f;
+                                float height = 1.0f;
+                                if (auto cylinderCollider = std::dynamic_pointer_cast<CylinderCollider>(currentCollider)) {
+                                    radius = cylinderCollider->GetRadius();
+                                    height = cylinderCollider->GetHeight();
+                                }
+                                newCollider = CreateRef<CylinderCollider>(radius, height);
                                 break;
                             }
                         }
@@ -1438,6 +1450,45 @@ namespace Coffee
                                     if (radiusChanged || heightChanged) {
                                         // Create new cone collider with updated parameters
                                         Ref<Collider> newCollider = CreateRef<ConeCollider>(radius, height);
+                                        
+                                        // Store current rigidbody properties
+                                        RigidBody::Properties props = rbComponent.rb->GetProperties();
+                                        glm::vec3 position = rbComponent.rb->GetPosition();
+                                        glm::vec3 rotation = rbComponent.rb->GetRotation();
+                                        glm::vec3 velocity = rbComponent.rb->GetVelocity();
+                                        
+                                        // Remove from physics world
+                                        m_Context->m_PhysicsWorld.removeRigidBody(rbComponent.rb->GetNativeBody());
+                                        
+                                        // Create new rigidbody with new collider
+                                        rbComponent.rb = RigidBody::Create(props, newCollider);
+                                        rbComponent.rb->SetPosition(position);
+                                        rbComponent.rb->SetRotation(rotation);
+                                        rbComponent.rb->SetVelocity(velocity);
+                                        
+                                        // Add back to physics world
+                                        m_Context->m_PhysicsWorld.addRigidBody(rbComponent.rb->GetNativeBody());
+                                        rbComponent.rb->GetNativeBody()->setUserPointer(
+                                            reinterpret_cast<void*>(static_cast<uintptr_t>((entt::entity)entity)));
+                                    }
+                                }
+                                break;
+                            }
+                            case 4: { // Cylinder collider properties
+                                auto cylinderCollider = std::dynamic_pointer_cast<CylinderCollider>(currentCollider);
+                                if (cylinderCollider) {
+                                    float radius = cylinderCollider->GetRadius();
+                                    float height = cylinderCollider->GetHeight();
+                                    
+                                    ImGui::Text("Radius");
+                                    bool radiusChanged = ImGui::DragFloat("##CylinderRadius", &radius, 0.1f, 0.01f, 100.0f);
+                                    
+                                    ImGui::Text("Height");
+                                    bool heightChanged = ImGui::DragFloat("##CylinderHeight", &height, 0.1f, 0.01f, 100.0f);
+                                    
+                                    if (radiusChanged || heightChanged) {
+                                        // Create new cylinder collider with updated parameters
+                                        Ref<Collider> newCollider = CreateRef<CylinderCollider>(radius, height);
                                         
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
