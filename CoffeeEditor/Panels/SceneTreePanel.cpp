@@ -3363,6 +3363,19 @@ namespace Coffee
                     textComponent.Text = std::string(buffer);
                 }
 
+                if (ImGui::Selectable("Font"))
+                {
+                    std::string path = FileDialog::OpenFile({}).string();
+                    if (!path.empty())
+                    {
+                        textComponent.FontPath = path;
+                        textComponent.UIFont = CreateRef<Font>(path);
+                    }
+                }
+
+                const char* alignmentNames[] = {"Left", "Center", "Right"};
+                ImGui::Combo("TextAlignment", reinterpret_cast<int*>(&textComponent.Alignment), alignmentNames, IM_ARRAYSIZE(alignmentNames));
+
                 ImGui::DragFloat("Size", &textComponent.FontSize, 0.1f, 0.0f, 100.0f);
                 ImGui::DragFloat("Kerning", &textComponent.Kerning, 0.1f, 0.0f, 100.0f);
                 ImGui::DragFloat("Line Spacing", &textComponent.LineSpacing, 0.1f, 0.0f, 100.0f);
