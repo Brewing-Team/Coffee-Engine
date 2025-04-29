@@ -1172,8 +1172,7 @@
                     cereal::make_nvp("Color", Color),
                     cereal::make_nvp("Kerning", Kerning),
                     cereal::make_nvp("LineSpacing", LineSpacing),
-                    cereal::make_nvp("FontSize", FontSize),
-                    cereal::make_nvp("Alignment", Alignment));
+                    cereal::make_nvp("FontSize", FontSize));
 
             if (!relativePath.empty())
             {
