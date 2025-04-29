@@ -176,7 +176,7 @@ namespace Coffee {
             archive(cereal::base_class<Collider>(this));
 
             if (m_Shape && m_Shape->getShapeType() == BOX_SHAPE_PROXYTYPE) {
-                const auto boxShape = dynamic_cast<btBoxShape*>(m_Shape);
+                const auto* boxShape = static_cast<btBoxShape*>(m_Shape);
                 const btVector3 halfExtents = boxShape->getHalfExtentsWithoutMargin();
                 m_Size = glm::vec3(halfExtents.x() * 2.0f, halfExtents.y() * 2.0f, halfExtents.z() * 2.0f);
             }
@@ -219,7 +219,7 @@ namespace Coffee {
             archive(cereal::base_class<Collider>(this));
 
             if (m_Shape && m_Shape->getShapeType() == SPHERE_SHAPE_PROXYTYPE) {
-                const auto sphereShape = dynamic_cast<btSphereShape*>(m_Shape);
+                const auto* sphereShape = static_cast<btSphereShape*>(m_Shape);
                 m_Radius = sphereShape->getRadius();
             }
         }
@@ -280,7 +280,7 @@ namespace Coffee {
             archive(cereal::base_class<Collider>(this));
 
             if (m_Shape && m_Shape->getShapeType() == CAPSULE_SHAPE_PROXYTYPE) {
-                const auto* capsuleShape = dynamic_cast<btCapsuleShape*>(m_Shape);
+                const auto* capsuleShape = static_cast<btCapsuleShape*>(m_Shape);
                 m_Radius = capsuleShape->getRadius();
                 m_Height = capsuleShape->getHalfHeight() * 2.0f;
             }
@@ -344,7 +344,7 @@ namespace Coffee {
             archive(cereal::base_class<Collider>(this));
 
             if (m_Shape && m_Shape->getShapeType() == CONE_SHAPE_PROXYTYPE) {
-                const auto coneShape = dynamic_cast<btConeShape*>(m_Shape);
+                const auto* coneShape = static_cast<btConeShape*>(m_Shape);
                 m_Radius = coneShape->getRadius();
                 m_Height = coneShape->getHeight();
             }
@@ -408,7 +408,7 @@ namespace Coffee {
             archive(cereal::base_class<Collider>(this));
 
             if (m_Shape && m_Shape->getShapeType() == CYLINDER_SHAPE_PROXYTYPE) {
-                const auto cylinderShape = dynamic_cast<btCylinderShape*>(m_Shape);
+                const auto* cylinderShape = static_cast<btCylinderShape*>(m_Shape);
                 m_Radius = cylinderShape->getRadius();
                 m_Height = cylinderShape->getHalfExtentsWithoutMargin().y() * 2.0f;
             }
