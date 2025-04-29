@@ -1400,6 +1400,8 @@ namespace Coffee
                                     if (ImGui::DragFloat3("##BoxSize", glm::value_ptr(size), 0.1f, 0.01f, 100.0f)) {
                                         // Create new box collider with updated size
                                         Ref<BoxCollider> newCollider = CreateRef<BoxCollider>(size);
+
+                                        newCollider->setOffset(currentCollider->getOffset());
                                         
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
@@ -1433,6 +1435,8 @@ namespace Coffee
                                     if (ImGui::DragFloat("##SphereRadius", &radius, 0.1f, 0.01f, 100.0f)) {
                                         // Create new sphere collider with updated radius
                                         Ref<Collider> newCollider = CreateRef<SphereCollider>(radius);
+
+                                        newCollider->setOffset(currentCollider->getOffset());
                                         
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
@@ -1480,6 +1484,8 @@ namespace Coffee
                                         
                                         // Create new capsule collider with updated parameters
                                         Ref<Collider> newCollider = CreateRef<CapsuleCollider>(radius, cylinderHeight);
+
+                                        newCollider->setOffset(currentCollider->getOffset());
                                         
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
@@ -1519,6 +1525,8 @@ namespace Coffee
                                     if (radiusChanged || heightChanged) {
                                         // Create new cone collider with updated parameters
                                         Ref<Collider> newCollider = CreateRef<ConeCollider>(radius, height);
+
+                                        newCollider->setOffset(currentCollider->getOffset());
                                         
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
@@ -1558,6 +1566,8 @@ namespace Coffee
                                     if (radiusChanged || heightChanged) {
                                         // Create new cylinder collider with updated parameters
                                         Ref<Collider> newCollider = CreateRef<CylinderCollider>(radius, height);
+
+                                        newCollider->setOffset(currentCollider->getOffset());
                                         
                                         // Store current rigidbody properties
                                         RigidBody::Properties props = rbComponent.rb->GetProperties();
