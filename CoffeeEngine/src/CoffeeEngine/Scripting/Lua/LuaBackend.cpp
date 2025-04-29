@@ -1,6 +1,7 @@
 #include "LuaBackend.h"
 
 #include "Bindings/LuaApplication.h"
+#include "Bindings/LuaAudio.h"
 #include "Bindings/LuaComponents.h"
 #include "Bindings/LuaEntity.h"
 #include "Bindings/LuaInput.h"
@@ -41,6 +42,7 @@ namespace Coffee {
         RegisterPhysicsBindings(luaState);
         RegisterPrefabBindings(luaState);
         RegisterApplicationBindings(luaState);
+        RegisterAudioBindings(luaState);
     }
 
     Ref<Script> LuaBackend::CreateScript(const std::filesystem::path& path) {
