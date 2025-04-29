@@ -1702,7 +1702,7 @@ namespace Coffee
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Script", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                ImGui::Text(scriptComponent.script->GetPath().filename().c_str());
+                ImGui::Text(scriptComponent.script->GetPath().filename().string().c_str());
 
                 if (ImGui::Button("Open in Editor"))
                 {
