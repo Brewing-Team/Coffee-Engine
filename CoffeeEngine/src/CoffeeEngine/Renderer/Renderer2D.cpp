@@ -898,115 +898,163 @@ namespace Coffee {
         // TODO: Skip to the next batch if the font is different
         batch.FontAtlasTexture = fontAtlas;
 
-        double x = 0.0;
-		double fsScale = textParams.Size / (metrics.ascenderY - metrics.descenderY);
+        double fsScale = textParams.Size / (metrics.ascenderY - metrics.descenderY);
+        const float spaceGlyphAdvance = fontGeometry.getGlyph(' ')->getAdvance();
+
+        std::vector<std::string> lines;
+        std::string currentLine;
+
+        for (size_t i = 0; i < text.size(); i++) {
+            if (text[i] == '\n') {
+                lines.push_back(currentLine);
+                currentLine.clear();
+            } else if (text[i] != '\r') {
+                currentLine += text[i];
+            }
+        }
+
+        if (!currentLine.empty())
+            lines.push_back(currentLine);
+
+        if (lines.empty())
+            lines.push_back("");
+
 		double y = 0.0;
 
-		const float spaceGlyphAdvance = fontGeometry.getGlyph(' ')->getAdvance();
+		for (const auto& line : lines) {
+            double lineWidth = 0.0;
 
-        for (size_t i = 0; i < text.size(); i++)
-		{
-			char character = text[i];
-			if (character == '\r')
-				continue;
+            if (textParams.Alignment != TextAlignment::Left) {
+                for (size_t i = 0; i < line.size(); i++) {
+                    char character = line[i];
 
-			if (character == '\n')
-			{
-				x = 0;
-				y -= fsScale * metrics.lineHeight + textParams.LineSpacing;
-				continue;
-			}
+                    if (character == ' ') {
+                        lineWidth += fsScale * spaceGlyphAdvance + textParams.Kerning;
+                        continue;
+                    }
 
-			if (character == ' ')
-			{
-				float advance = spaceGlyphAdvance;
-				if (i < text.size() - 1)
-				{
-					char nextCharacter = text[i + 1];
-					double dAdvance;
-					fontGeometry.getAdvance(dAdvance, character, nextCharacter);
-					advance = (float)dAdvance;
-				}
+                    if (character == '\t') {
+                        lineWidth += 4.0f * (fsScale * spaceGlyphAdvance + textParams.Kerning);
+                        continue;
+                    }
 
-				x += fsScale * advance + textParams.Kerning;
-				continue;
-			}
+                    auto glyph = fontGeometry.getGlyph(character);
+                    if (!glyph)
+                        glyph = fontGeometry.getGlyph('?');
+                    if (!glyph)
+                        continue;
 
-			if (character == '\t')
-			{
-				x += 4.0f * (fsScale * spaceGlyphAdvance + textParams.Kerning);
-				continue;
-			}
+                    double advance = glyph->getAdvance();
+                    if (i < line.size() - 1) {
+                        char nextCharacter = line[i + 1];
+                        fontGeometry.getAdvance(advance, character, nextCharacter);
+                    }
 
-			auto glyph = fontGeometry.getGlyph(character);
-			if (!glyph)
-				glyph = fontGeometry.getGlyph('?');
-			if (!glyph)
-				return;
+                    lineWidth += fsScale * advance + textParams.Kerning;
+                }
 
-			double al, ab, ar, at;
-			glyph->getQuadAtlasBounds(al, ab, ar, at);
-			glm::vec2 texCoordMin((float)al, (float)ab);
-			glm::vec2 texCoordMax((float)ar, (float)at);
+                if (!line.empty())
+                    lineWidth -= textParams.Kerning;
+            }
 
-			double pl, pb, pr, pt;
-			glyph->getQuadPlaneBounds(pl, pb, pr, pt);
-			glm::vec2 quadMin((float)pl, (float)pb);
-			glm::vec2 quadMax((float)pr, (float)pt);
+            double x = 0.0;
+            if (textParams.Alignment == TextAlignment::Center)
+                x = -lineWidth / 2.0;
+            else if (textParams.Alignment == TextAlignment::Right)
+                x = -lineWidth;
 
-			quadMin *= fsScale, quadMax *= fsScale;
-			quadMin += glm::vec2(x, y);
-			quadMax += glm::vec2(x, y);
+            for (size_t i = 0; i < line.size(); i++) {
+                char character = line[i];
 
-			float texelWidth = 1.0f / fontAtlas->GetWidth();
-			float texelHeight = 1.0f / fontAtlas->GetHeight();
-			texCoordMin *= glm::vec2(texelWidth, texelHeight);
-			texCoordMax *= glm::vec2(texelWidth, texelHeight);
+                if (character == ' ') {
+                    float advance = spaceGlyphAdvance;
+                    if (i < line.size() - 1) {
+                        char nextCharacter = line[i + 1];
+                        double dAdvance;
+                        fontGeometry.getAdvance(dAdvance, character, nextCharacter);
+                        advance = (float)dAdvance;
+                    }
 
-            // Convert entityID to vec3
-            uint32_t r = (entityID & 0x000000FF) >> 0;
-            uint32_t g = (entityID & 0x0000FF00) >> 8;
-            uint32_t b = (entityID & 0x00FF0000) >> 16;
-            glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
+                    x += fsScale * advance + textParams.Kerning;
+                    continue;
+                }
 
-            batch.TextVertices.push_back({
-                transform * glm::vec4(quadMin, 0.0f, 1.0f),
-                textParams.Color,
-                texCoordMin,
-                entityIDVec3
-            });
-            
-            batch.TextVertices.push_back({
-                transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f),
-                textParams.Color,
-                { texCoordMin.x, texCoordMax.y },
-                entityIDVec3
-            });
-            
-            batch.TextVertices.push_back({
-                transform * glm::vec4(quadMax, 0.0f, 1.0f),
-                textParams.Color,
-                texCoordMax,
-                entityIDVec3
-            });
-            
-            batch.TextVertices.push_back({
-                transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f),
-                textParams.Color,
-                { texCoordMax.x, texCoordMin.y },
-                entityIDVec3
-            });
-            
-            batch.TextIndexCount += 6;
+                if (character == '\t') {
+                    x += 4.0f * (fsScale * spaceGlyphAdvance + textParams.Kerning);
+                    continue;
+                }
 
-            if (i < text.size() - 1)
-			{
-				double advance = glyph->getAdvance();
-				char nextCharacter = text[i + 1];
-				fontGeometry.getAdvance(advance, character, nextCharacter);
+                auto glyph = fontGeometry.getGlyph(character);
+                if (!glyph)
+                    glyph = fontGeometry.getGlyph('?');
+                if (!glyph)
+                    continue;
 
-				x += fsScale * advance + textParams.Kerning;
-			}
+                double al, ab, ar, at;
+                glyph->getQuadAtlasBounds(al, ab, ar, at);
+                glm::vec2 texCoordMin((float)al, (float)ab);
+                glm::vec2 texCoordMax((float)ar, (float)at);
+
+                double pl, pb, pr, pt;
+                glyph->getQuadPlaneBounds(pl, pb, pr, pt);
+                glm::vec2 quadMin((float)pl, (float)pb);
+                glm::vec2 quadMax((float)pr, (float)pt);
+
+                quadMin *= fsScale, quadMax *= fsScale;
+                quadMin += glm::vec2(x, y);
+                quadMax += glm::vec2(x, y);
+
+                float texelWidth = 1.0f / fontAtlas->GetWidth();
+                float texelHeight = 1.0f / fontAtlas->GetHeight();
+                texCoordMin *= glm::vec2(texelWidth, texelHeight);
+                texCoordMax *= glm::vec2(texelWidth, texelHeight);
+
+                // Convert entityID to vec3
+                uint32_t r = (entityID & 0x000000FF) >> 0;
+                uint32_t g = (entityID & 0x0000FF00) >> 8;
+                uint32_t b = (entityID & 0x00FF0000) >> 16;
+                glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
+
+                batch.TextVertices.push_back({
+                    transform * glm::vec4(quadMin, 0.0f, 1.0f),
+                    textParams.Color,
+                    texCoordMin,
+                    entityIDVec3
+                });
+
+                batch.TextVertices.push_back({
+                    transform * glm::vec4(quadMin.x, quadMax.y, 0.0f, 1.0f),
+                    textParams.Color,
+                    { texCoordMin.x, texCoordMax.y },
+                    entityIDVec3
+                });
+
+                batch.TextVertices.push_back({
+                    transform * glm::vec4(quadMax, 0.0f, 1.0f),
+                    textParams.Color,
+                    texCoordMax,
+                    entityIDVec3
+                });
+
+                batch.TextVertices.push_back({
+                    transform * glm::vec4(quadMax.x, quadMin.y, 0.0f, 1.0f),
+                    textParams.Color,
+                    { texCoordMax.x, texCoordMin.y },
+                    entityIDVec3
+                });
+
+                batch.TextIndexCount += 6;
+
+                if (i < line.size() - 1) {
+                    double advance = glyph->getAdvance();
+                    char nextCharacter = line[i + 1];
+                    fontGeometry.getAdvance(advance, character, nextCharacter);
+
+                    x += fsScale * advance + textParams.Kerning;
+                }
+            }
+
+            y -= fsScale * metrics.lineHeight + textParams.LineSpacing;
         }
     }
 
