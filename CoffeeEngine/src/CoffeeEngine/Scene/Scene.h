@@ -187,6 +187,8 @@ namespace Coffee {
          */
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
+            HierarchyComponent::LoadingScene = true;
+
             if (version == 0)
             {
                 entt::snapshot_loader{m_Registry}
@@ -240,7 +242,7 @@ namespace Coffee {
                     .template get<UISliderComponent>(archive);
             }
 
-             HierarchyComponent::LoadingScene = false;
+            HierarchyComponent::LoadingScene = false;
 
             AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
         }

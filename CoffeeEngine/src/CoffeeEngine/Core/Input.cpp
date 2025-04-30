@@ -162,10 +162,6 @@ namespace Coffee {
             {
                 COFFEE_WARN("Rumble failed: {0}", SDL_GetError());
             }
-            else
-            {
-                COFFEE_INFO("Rumble enabled for {0} milliseconds, with leftPower {1} and rightPower {2}", duration, lowFreqPower, highFreqPower);
-            }
         }
     }
 

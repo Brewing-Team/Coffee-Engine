@@ -55,8 +55,7 @@ namespace Coffee {
         static constexpr int MAX_DIRECTIONAL_SHADOWS = 4;
         Ref<Texture2D> DirectionalShadowMapTextures[4];
 
-        std::vector<RenderCommand> opaqueRenderQueue; ///< Opaque render queue.
-        std::vector<RenderCommand> transparentRenderQueue; ///< Transparent render queue.
+        std::vector<RenderCommand> renderQueue; ///< Render queue.
     };
 
     /**

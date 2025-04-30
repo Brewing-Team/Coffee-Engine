@@ -26,6 +26,11 @@ namespace Coffee {
 
         BeginHorizontalChild("Input", flags);
         ImGui::Text("Input Settings");
+        ImGui::SameLine();
+        if (ImGui::Button("Save Inputs"))
+        {
+            Input::Save();
+        }
 
 #pragma region InputMap
         auto& bindings = Input::GetAllBindings();

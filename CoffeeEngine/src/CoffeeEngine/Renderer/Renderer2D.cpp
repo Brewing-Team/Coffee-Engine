@@ -895,13 +895,6 @@ namespace Coffee {
         const auto& metrics = fontGeometry.getMetrics();
         Ref<Texture2D> fontAtlas = font->GetAtlasTexture();
 
-        if (batch.FontAtlasTexture != fontAtlas)
-        {
-            NextBatch(mode);
-            batch = GetBatch(mode);
-            batch.FontAtlasTexture = fontAtlas;
-        }
-
         double fsScale = textParams.Size / (metrics.ascenderY - metrics.descenderY);
         const float spaceGlyphAdvance = fontGeometry.getGlyph(' ')->getAdvance();
 
