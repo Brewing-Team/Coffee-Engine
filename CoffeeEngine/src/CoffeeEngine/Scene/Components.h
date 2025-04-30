@@ -1031,6 +1031,9 @@
 
         SpriteComponent(const SpriteComponent& other) { *this = other; }
 
+        void SetTintColor(glm::vec4 newTint) { tintColor = newTint; }
+        glm::vec4 GetTintColor() { return tintColor; }
+        
         SpriteComponent& operator=(const SpriteComponent& other)
         {
             if (this != &other)
@@ -1055,11 +1058,18 @@
 
         template <class Archive> void load(Archive& archive, std::uint32_t const version)
         {
-            archive(cereal::make_nvp("TextureUUID", texture->GetUUID()));
+            UUID textureUUID;
+            
+            archive(cereal::make_nvp("TextureUUID", textureUUID));
             archive(cereal::make_nvp("TintColor", tintColor));
             archive(cereal::make_nvp("FlipX", flipX));
             archive(cereal::make_nvp("FlipY", flipY));
             archive(cereal::make_nvp("TilingFactor", tilingFactor));
+
+            if (textureUUID)
+            {
+                texture = ResourceLoader::GetResource<Texture2D>(textureUUID);
+            }
         }
     };
 
