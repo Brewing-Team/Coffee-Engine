@@ -185,7 +185,8 @@ namespace Coffee {
 
                     Entity hoveredEntity = entityID == 16777215 ? Entity() : Entity((entt::entity)entityID, SceneManager::GetActiveScene().get());
 
-                    m_SceneTreePanel.SetSelectedEntity(hoveredEntity);
+                    if (hoveredEntity.IsValid())
+                        m_SceneTreePanel.SetSelectedEntity(hoveredEntity);
                 }
             }
         }
