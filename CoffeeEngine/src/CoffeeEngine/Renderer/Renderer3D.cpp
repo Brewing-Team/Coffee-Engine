@@ -317,7 +317,7 @@ namespace Coffee {
         const Ref<Framebuffer>& forwardBuffer = target.GetFramebuffer("Forward");
 
         forwardBuffer->Bind();
-        forwardBuffer->SetDrawBuffers({0});
+        forwardBuffer->SetDrawBuffers({0, 1});
 
         RendererAPI::SetDepthMask(false);
         s_EnvironmentMap->Bind(0);
