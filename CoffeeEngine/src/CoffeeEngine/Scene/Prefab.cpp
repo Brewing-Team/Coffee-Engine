@@ -1,8 +1,9 @@
 #include "Prefab.h"
 
-#include "SceneManager.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Scripting/Lua/LuaScript.h"
+#include "SceneManager.h"
 
 namespace Coffee {
 
@@ -181,13 +182,27 @@ namespace Coffee {
             entity.AddComponent<AnimatorComponent>(newAnimatorComp);
             Scene::s_AnimatorComponents.push_back(&entity.GetComponent<AnimatorComponent>());
         }
+
+        if (m_Registry.all_of<ScriptComponent>(prefabEntity))
+        {
+            const auto& scriptComp = m_Registry.get<ScriptComponent>(prefabEntity);
+            std::filesystem::path scriptPath = scriptComp.script->GetPath();
+            ScriptComponent newScriptComp;
+            newScriptComp.script = ScriptManager::CreateScript(scriptPath, ScriptingLanguage::Lua);
+            entity.AddComponent<ScriptComponent>(newScriptComp);
+            
+            // Initialize the script
+            std::dynamic_pointer_cast<LuaScript>(newScriptComp.script)->SetVariable("self", entity);
+            std::dynamic_pointer_cast<LuaScript>(newScriptComp.script)->SetVariable("current_scene", scene);
+            newScriptComp.script->OnReady();
+
+        }
         
         // Copy standard components
         CopyComponentToScene<MaterialComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<LightComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<RigidbodyComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<ParticlesSystemComponent>(scene, prefabEntity, entity);
-        CopyComponentToScene<ScriptComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<AudioSourceComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<AudioListenerComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<AudioZoneComponent>(scene, prefabEntity, entity);
