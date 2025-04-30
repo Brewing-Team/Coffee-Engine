@@ -721,12 +721,12 @@ namespace Coffee {
         Renderer2D::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);
         Renderer2D::DrawLine({0.0f, 0.0f, -1000.0f}, {0.0f, 0.0f, 1000.0f}, {0.153f, 0.525f, 0.918f, 1.0f}, 2);
 
-        static Ref<Mesh> gridPlaneDown = PrimitiveMesh::CreatePlane({1000.0f, 1000.0f});
+/*         static Ref<Mesh> gridPlaneDown = PrimitiveMesh::CreatePlane({1000.0f, 1000.0f});
         static Ref<Mesh> gridPlaneUp = PrimitiveMesh::CreatePlane({1000.0f, -1000.0f}); // FIXME this is a hack to avoid the grid not beeing rendered due to backface culling
         static Ref<Shader> gridShader = Shader::Create("assets/shaders/SimpleGridShader.glsl");
 
         Renderer3D::Submit(gridShader, gridPlaneUp->GetVertexArray());
-        Renderer3D::Submit(gridShader, gridPlaneDown->GetVertexArray());
+        Renderer3D::Submit(gridShader, gridPlaneDown->GetVertexArray()); */
     }
 
     void EditorLayer::ResizeViewport(float width, float height)
