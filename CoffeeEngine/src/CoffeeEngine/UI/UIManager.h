@@ -73,6 +73,12 @@ namespace Coffee {
         static bool HasTransformChanged(entt::entity entity, const AnchoredTransform& newTransform);
 
         /**
+         * @brief Marks all child entities of a given parent entity for update.
+         * @param parentEntity The parent entity whose children need to be marked.
+         */
+        static void MarkChildrenForUpdate(entt::entity parentEntity);
+
+        /**
          * @brief Sorts the UI elements in the registry based on their layers and hierarchy.
          * @param registry The entity registry containing UI elements.
          */

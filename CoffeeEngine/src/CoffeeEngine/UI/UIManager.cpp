@@ -417,12 +417,25 @@ namespace Coffee {
         return result;
     }
 
+    void UIManager::MarkChildrenForUpdate(entt::entity parentEntity)
+    {
+        for (const auto& item : s_SortedUIItems)
+        {
+            if (item.Parent == parentEntity)
+            {
+                s_LastTransforms.erase(item.Entity);
+                MarkChildrenForUpdate(item.Entity);
+            }
+        }
+    }
+
     bool UIManager::HasTransformChanged(entt::entity entity, const AnchoredTransform& newTransform)
     {
         auto it = s_LastTransforms.find(entity);
         if (it == s_LastTransforms.end())
         {
             s_LastTransforms[entity] = newTransform;
+            MarkChildrenForUpdate(entity);
             return true;
         }
 
@@ -433,7 +446,10 @@ namespace Coffee {
                       !glm::epsilonEqual(lastTransform.Size.y, newTransform.Size.y, 0.001f);
 
         if (changed)
+        {
             s_LastTransforms[entity] = newTransform;
+            MarkChildrenForUpdate(entity);
+        }
 
         return changed;
     }
