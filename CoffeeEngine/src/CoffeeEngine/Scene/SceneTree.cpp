@@ -115,6 +115,19 @@ namespace Coffee {
         ZoneScoped;
     
         auto hierarchyComponent = registry.try_get<HierarchyComponent>(entity);
+
+        //Prevent making a parent into a child of one of its own children
+        HierarchyComponent* h = registry.try_get<HierarchyComponent>(parent);
+        while (h != nullptr)
+        {
+            // if one of the parents iterated through is equal to the entity being re-parented, abort
+            if (h->m_Parent == entity)
+            {
+                return;
+            }
+            // Get next parent up the chain and keep iterating
+            h = registry.try_get<HierarchyComponent>(h->m_Parent);
+        }
     
         HierarchyComponent::OnDestroy(registry, entity);
     
