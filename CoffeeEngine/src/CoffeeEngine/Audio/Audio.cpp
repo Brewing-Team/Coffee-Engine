@@ -203,8 +203,9 @@ namespace Coffee
     {
         std::filesystem::path audioPath = Project::GetAudioDirectory();
 
+        std::filesystem::path projectPath = Project::GetProjectDirectory() / "";
         // Don't try to load
-        if (Project::GetProjectDirectory() == audioPath)
+        if (projectPath.compare(audioPath) == 0)
         {
             COFFEE_CORE_WARN("Audio folder path not defined in project");
             return;
