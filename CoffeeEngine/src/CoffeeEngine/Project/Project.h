@@ -65,6 +65,8 @@ namespace Coffee {
          */
         static std::filesystem::path GetCacheDirectory() { return s_ActiveProject->GetProjectDirectory() / s_ActiveProject->m_CacheDirectory; }
 
+        static std::filesystem::path GetAudioDirectory() { return s_ActiveProject->GetProjectDirectory() / s_ActiveProject->m_AudioFolderPath; }
+
         /**
          * @brief Serializes the project data.
          * @tparam Archive The type of the archive.
@@ -75,6 +77,15 @@ namespace Coffee {
             archive(cereal::make_nvp("Name", m_Name),
                     cereal::make_nvp("StartScene",m_StartScenePath.string()),
                     cereal::make_nvp("CacheDirectory", m_CacheDirectory));
+
+            if (version >= 1)
+            {
+                archive(cereal::make_nvp("AudioDirectory", m_AudioFolderPath));
+            }
+            else
+            {
+                m_AudioFolderPath = "";
+            }
         }
 
     private:
@@ -83,9 +94,11 @@ namespace Coffee {
         std::filesystem::path m_CacheDirectory; ///< The directory of the project cache.
 
         std::filesystem::path m_StartScenePath; ///< The path to the start scene.
+        std::filesystem::path m_AudioFolderPath; ///< The path to the audio folder
 
         inline static Ref<Project> s_ActiveProject; ///< The active project.
     };
 
     /** @} */
 }
+CEREAL_CLASS_VERSION(Coffee::Project, 1)

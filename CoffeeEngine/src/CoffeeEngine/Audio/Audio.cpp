@@ -39,9 +39,7 @@ namespace Coffee
         if (!InitializeCommunicationModule())
             return;
 
-        g_lowLevelIO->SetBasePath(AKTEXT("assets/audio/Wwise Project/GeneratedSoundBanks/Windows"));
-
-        LoadAudioBanks();
+        OnProjectUnload(); // Load default sound banks
 
         AudioZone::SearchAvailableBusChannels();
     }
@@ -200,6 +198,31 @@ namespace Coffee
         volume = std::max(0.0f, std::min(1.0f, volume));
         std::string rtpcName = std::string(busName) + "Bus_Volume";
         AK::SoundEngine::SetRTPCValue(rtpcName.c_str(), volume * 100.0f);
+    }
+    void Audio::OnProjectLoad()
+    {
+        std::filesystem::path audioPath = Project::GetAudioDirectory();
+
+        // Don't try to load
+        if (Project::GetProjectDirectory() == audioPath)
+        {
+            COFFEE_CORE_WARN("Audio folder path not defined in project");
+            return;
+        }
+
+        g_lowLevelIO->SetBasePath(audioPath.wstring().c_str());
+
+        LoadAudioBanks();
+
+        COFFEE_CORE_INFO("Project audio banks loaded successfully");
+    }
+    void Audio::OnProjectUnload()
+    {
+        g_lowLevelIO->SetBasePath(DefaultAudioPath);
+
+        LoadAudioBanks();
+
+        COFFEE_CORE_INFO("Default audio banks loaded successfully");
     }
 
     void Audio::ProcessAudio()
