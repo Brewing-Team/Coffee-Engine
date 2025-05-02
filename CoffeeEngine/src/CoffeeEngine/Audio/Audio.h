@@ -44,6 +44,8 @@ namespace Coffee {
     {
     public:
 
+        static constexpr const wchar_t* DefaultAudioPath = AKTEXT("assets/audio/Wwise Project/GeneratedSoundBanks/Windows");
+
         /**
          * @brief Initializes the audio system.
          */
@@ -199,6 +201,10 @@ namespace Coffee {
          * @param volume The volume value (0.0 to 1.0).
          */
         static void SetBusVolume(const char* busName, float volume);
+
+        static void OnProjectLoad();
+
+        static void OnProjectUnload();
 
     private:
 
