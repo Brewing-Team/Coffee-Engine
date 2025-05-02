@@ -210,12 +210,11 @@ namespace Coffee
             COFFEE_CORE_WARN("Audio folder path not defined in project");
             return;
         }
+        COFFEE_CORE_INFO("Project audio directory found, loading audio banks...");
 
         g_lowLevelIO->SetBasePath(audioPath.wstring().c_str());
 
         LoadAudioBanks();
-
-        COFFEE_CORE_INFO("Project audio banks loaded successfully");
     }
     void Audio::OnProjectUnload()
     {

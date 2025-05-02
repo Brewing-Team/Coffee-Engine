@@ -70,6 +70,6 @@ namespace Coffee {
             archive(cereal::make_nvp("Project", *s_ActiveProject));
 
             Input::Save();
-        } 
+        }
     }
-}
+} // namespace Coffee
