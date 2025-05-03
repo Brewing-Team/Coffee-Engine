@@ -390,7 +390,8 @@ namespace Coffee
                         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
 
                         Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
-                        glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentEntity);
+                        auto parentRenderItem = UIManager::GetUIRenderItem(parentEntity);
+                        glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentRenderItem);
 
                         glm::vec4 currentRect = anchor.CalculateRect(parentSize);
 
@@ -473,7 +474,8 @@ namespace Coffee
 
         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
         Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
-        glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentEntity);
+        auto parentRenderItem = UIManager::GetUIRenderItem(parentEntity);
+        glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentRenderItem);
 
         if (!isStretchingX && !isStretchingY)
         {
