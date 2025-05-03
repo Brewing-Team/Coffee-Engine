@@ -390,13 +390,14 @@ namespace Coffee
                         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
 
                         Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
-                        auto parentRenderItem = UIManager::GetUIRenderItem(parentEntity);
+                        auto& parentRenderItem = UIManager::GetUIRenderItem(parentEntity);
                         glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentRenderItem);
 
                         glm::vec4 currentRect = anchor.CalculateRect(parentSize);
 
                         AnchorPreset preset = UIManager::GetAnchorPreset(row, col);
                         anchor.SetAnchorPreset(preset, currentRect, parentSize, preservePosition);
+                        UIManager::MarkDirty(entity);
 
                         ImGui::CloseCurrentPopup();
                     }
@@ -461,10 +462,12 @@ namespace Coffee
         if (ImGui::TreeNodeEx("Anchors", ImGuiTreeNodeFlags_DefaultOpen))
         {
             ImGui::Text("Min");
-            ImGui::DragFloat2("##AnchorMin", glm::value_ptr(anchor.AnchorMin), 0.01f, 0.0f, 1.0f);
+            if (ImGui::DragFloat2("##AnchorMin", glm::value_ptr(anchor.AnchorMin), 0.01f, 0.0f, 1.0f))
+                UIManager::MarkDirty(entity);
 
             ImGui::Text("Max");
-            ImGui::DragFloat2("##AnchorMax", glm::value_ptr(anchor.AnchorMax), 0.01f, 0.0f, 1.0f);
+            if (ImGui::DragFloat2("##AnchorMax", glm::value_ptr(anchor.AnchorMax), 0.01f, 0.0f, 1.0f))
+                UIManager::MarkDirty(entity);
 
             ImGui::TreePop();
         }
@@ -474,7 +477,7 @@ namespace Coffee
 
         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
         Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
-        auto parentRenderItem = UIManager::GetUIRenderItem(parentEntity);
+        auto& parentRenderItem = UIManager::GetUIRenderItem(parentEntity);
         glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentRenderItem);
 
         if (!isStretchingX && !isStretchingY)
@@ -484,6 +487,7 @@ namespace Coffee
             if (ImGui::DragFloat2("##Position", glm::value_ptr(anchoredPos), 1.0f))
             {
                 anchor.SetAnchoredPosition(anchoredPos, parentSize);
+                UIManager::MarkDirty(entity);
             }
 
             glm::vec2 size = anchor.GetSize();
@@ -491,6 +495,7 @@ namespace Coffee
             if (ImGui::DragFloat2("##Size", glm::value_ptr(size), 1.0f, 0.0f, FLT_MAX, "%.0f"))
             {
                 anchor.SetSize(size, parentSize);
+                UIManager::MarkDirty(entity);
             }
         }
 
@@ -501,17 +506,23 @@ namespace Coffee
                 if (isStretchingX)
                 {
                     ImGui::Text("Left");
-                    ImGui::DragFloat("##OffsetMinX", &anchor.OffsetMin.x, 1.0f);
+                    if (ImGui::DragFloat("##OffsetMinX", &anchor.OffsetMin.x, 1.0f))
+                        UIManager::MarkDirty(entity);
+
                     ImGui::Text("Right");
-                    ImGui::DragFloat("##OffsetMaxX", &anchor.OffsetMax.x, 1.0f);
+                    if (ImGui::DragFloat("##OffsetMaxX", &anchor.OffsetMax.x, 1.0f))
+                        UIManager::MarkDirty(entity);
                 }
 
                 if (isStretchingY)
                 {
                     ImGui::Text("Top");
-                    ImGui::DragFloat("##OffsetMinY", &anchor.OffsetMin.y, 1.0f);
+                    if (ImGui::DragFloat("##OffsetMinY", &anchor.OffsetMin.y, 1.0f))
+                        UIManager::MarkDirty(entity);
+
                     ImGui::Text("Bottom");
-                    ImGui::DragFloat("##OffsetMaxY", &anchor.OffsetMax.y, 1.0f);
+                    if (ImGui::DragFloat("##OffsetMaxY", &anchor.OffsetMax.y, 1.0f))
+                        UIManager::MarkDirty(entity);
                 }
                 ImGui::TreePop();
             }
@@ -523,6 +534,7 @@ namespace Coffee
         if (ImGui::DragFloat("##Rotation", &rotation, 0.1f))
         {
             transformComponent.SetLocalRotation(glm::vec3(0.f, 0.f, rotation));
+            UIManager::MarkDirty(entity);
         }
     }
 
