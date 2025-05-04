@@ -149,6 +149,7 @@ void Coffee::RegisterComponentsBindings(sol::state& luaState)
         "value", &UISliderComponent::Value,
         "min_value", &UISliderComponent::MinValue,
         "max_value", &UISliderComponent::MaxValue,
+        "selected", &UISliderComponent::Selected,
         "handle_scale", &UISliderComponent::HandleScale
     );
 
