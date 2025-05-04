@@ -136,6 +136,7 @@ namespace Coffee {
         hierarchyComponent->m_Prev = entt::null;
     
         if (parent != entt::null) {
+
             hierarchyComponent->m_Parent = parent;
             HierarchyComponent::OnConstruct(nullptr, registry, entity);
     
