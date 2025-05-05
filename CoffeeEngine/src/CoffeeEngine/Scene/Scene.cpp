@@ -481,10 +481,29 @@ namespace Coffee {
             }
         }
 
-
-        m_PhysicsWorld.drawCollisionShapes();
-
         UIManager::UpdateUI(m_Registry);
+
+        // Debug Draw
+        if (m_SceneDebugFlags.ShowOctree) m_Octree.DebugDraw();
+        if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes();
+        if (m_SceneDebugFlags.ShowNavMesh) {
+            auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
+            for (auto& entity : navMeshViewDebug) {
+                auto& navMeshComponent = navMeshViewDebug.get<NavMeshComponent>(entity);
+                if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated()) {
+                    navMeshComponent.GetNavMesh()->RenderWalkableAreas();
+                }
+            }
+        }
+
+        if (m_SceneDebugFlags.ShowNavMeshPath) {
+            auto navigationAgentViewDebug = m_Registry.view<ActiveComponent, NavigationAgentComponent>();
+            for (auto& agent : navigationAgentViewDebug) {
+                auto& navAgentComponent = navigationAgentViewDebug.get<NavigationAgentComponent>(agent);
+                if (navAgentComponent.ShowDebug && navAgentComponent.GetPathFinder())
+                    navAgentComponent.GetPathFinder()->RenderPath(navAgentComponent.Path);
+            }
+        }
     }
 
 
@@ -697,6 +716,29 @@ namespace Coffee {
                 Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), spriteComponent.texture,
                                      spriteComponent.tilingFactor, spriteComponent.tintColor,
                                      Renderer2D::RenderMode::World);
+            }
+
+        }
+
+        // Debug Draw
+        if (m_SceneDebugFlags.ShowOctree) m_Octree.DebugDraw();
+        if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes();
+        if (m_SceneDebugFlags.ShowNavMesh) {
+            auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
+            for (auto& entity : navMeshViewDebug) {
+                auto& navMeshComponent = navMeshViewDebug.get<NavMeshComponent>(entity);
+                if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated()) {
+                    navMeshComponent.GetNavMesh()->RenderWalkableAreas();
+                }
+            }
+        }
+
+        if (m_SceneDebugFlags.ShowNavMeshPath) {
+            auto navigationAgentViewDebug = m_Registry.view<ActiveComponent, NavigationAgentComponent>();
+            for (auto& agent : navigationAgentViewDebug) {
+                auto& navAgentComponent = navigationAgentViewDebug.get<NavigationAgentComponent>(agent);
+                if (navAgentComponent.ShowDebug && navAgentComponent.GetPathFinder())
+                    navAgentComponent.GetPathFinder()->RenderPath(navAgentComponent.Path);
             }
         }
 
