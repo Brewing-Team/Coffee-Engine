@@ -167,7 +167,7 @@ namespace Coffee {
 
                 RendererAPI::SetCullFace(CullFace::Front);
     
-                for (const auto& command : s_RendererData.renderQueue)
+                for (const auto& command : s_RendererData.opaqueRenderQueue)
                 {
                     // Set the model matrix
                     shadowShader->setMat4("model", command.transform);
@@ -251,9 +251,14 @@ namespace Coffee {
             // Stop after processing the first 4 directional lights
             if (directionalLightCount >= Renderer3DData::MAX_DIRECTIONAL_SHADOWS)
                 break;
-        } 
+        }
 
-        for(const auto& command : s_RendererData.renderQueue)
+        // Sort the render queue based on material and mesh
+        std::sort(s_RendererData.opaqueRenderQueue.begin(), s_RendererData.opaqueRenderQueue.end(), [](const RenderCommand& a, const RenderCommand& b) {
+            return std::tie(a.material, a.mesh) < std::tie(b.material, b.mesh);
+        });
+
+        for(const auto& command : s_RendererData.opaqueRenderQueue)
         {
             Material* material = command.material.get();
 
