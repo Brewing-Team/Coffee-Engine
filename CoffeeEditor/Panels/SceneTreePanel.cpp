@@ -3569,6 +3569,9 @@ namespace Coffee
                     ImGui::Text("Texture");
                     DrawTextureWidget("##Albedo", emitter->particleTexture);
 
+                    ImGui::Text("Transparency");
+                    ImGui::SameLine();
+                    ImGui::Checkbox("##UseTransparency", &emitter->transparency);
 
                     // Restore default state
                     if (!emitter->useRenderer)
