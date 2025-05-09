@@ -199,31 +199,6 @@ namespace Coffee
         std::string rtpcName = std::string(busName) + "Bus_Volume";
         AK::SoundEngine::SetRTPCValue(rtpcName.c_str(), volume * 100.0f);
     }
-    void Audio::OnProjectLoad()
-    {
-        std::filesystem::path audioPath = Project::GetAudioDirectory();
-
-        std::filesystem::path projectPath = Project::GetProjectDirectory() / "";
-        // Don't try to load
-        if (projectPath.compare(audioPath) == 0)
-        {
-            COFFEE_CORE_WARN("Audio folder path not defined in project");
-            return;
-        }
-        COFFEE_CORE_INFO("Project audio directory found, loading audio banks...");
-
-        g_lowLevelIO->SetBasePath(audioPath.wstring().c_str());
-
-        LoadAudioBanks();
-    }
-    void Audio::OnProjectUnload()
-    {
-        g_lowLevelIO->SetBasePath(DefaultAudioPath);
-
-        LoadAudioBanks();
-
-        COFFEE_CORE_INFO("Default audio banks loaded successfully");
-    }
 
     void Audio::ProcessAudio()
     {

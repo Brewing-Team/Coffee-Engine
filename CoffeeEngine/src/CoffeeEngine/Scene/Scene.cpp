@@ -22,6 +22,7 @@
 #include <CoffeeEngine/Scripting/Script.h>
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "CoffeeEngine/UI/UIManager.h"
+#include "PrimitiveMesh.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 
@@ -495,29 +496,10 @@ namespace Coffee {
             }
         }
 
+
+        m_PhysicsWorld.drawCollisionShapes();
+
         UIManager::UpdateUI(m_Registry);
-
-        // Debug Draw
-        if (m_SceneDebugFlags.ShowOctree) m_Octree.DebugDraw();
-        if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes();
-        if (m_SceneDebugFlags.ShowNavMesh) {
-            auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
-            for (auto& entity : navMeshViewDebug) {
-                auto& navMeshComponent = navMeshViewDebug.get<NavMeshComponent>(entity);
-                if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated()) {
-                    navMeshComponent.GetNavMesh()->RenderWalkableAreas();
-                }
-            }
-        }
-
-        if (m_SceneDebugFlags.ShowNavMeshPath) {
-            auto navigationAgentViewDebug = m_Registry.view<ActiveComponent, NavigationAgentComponent>();
-            for (auto& agent : navigationAgentViewDebug) {
-                auto& navAgentComponent = navigationAgentViewDebug.get<NavigationAgentComponent>(agent);
-                if (navAgentComponent.ShowDebug && navAgentComponent.GetPathFinder())
-                    navAgentComponent.GetPathFinder()->RenderPath(navAgentComponent.Path);
-            }
-        }
     }
 
 
@@ -720,7 +702,7 @@ namespace Coffee {
 
         }
 
-        auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>(entt::exclude<StaticComponent>);
+        auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
         for (auto& entity : spriteView)
         {
             auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
@@ -732,40 +714,7 @@ namespace Coffee {
                                      Renderer2D::RenderMode::World);
             }
 
-        }
-
-        // Debug Draw
-        if (m_SceneDebugFlags.ShowOctree) m_Octree.DebugDraw();
-        if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes();
-        if (m_SceneDebugFlags.ShowNavMesh) {
-            auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
-            for (auto& entity : navMeshViewDebug) {
-                auto& navMeshComponent = navMeshViewDebug.get<NavMeshComponent>(entity);
-                if (navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated()) {
-                    navMeshComponent.ShowDebug = m_SceneDebugFlags.ShowNavMesh;
-                }
-            }
-        } else {
-            auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
-            for (auto& entity : navMeshViewDebug) {
-                auto& navMeshComponent = navMeshViewDebug.get<NavMeshComponent>(entity);
-                navMeshComponent.ShowDebug = false;
-            }
-        }
-
-        if (m_SceneDebugFlags.ShowNavMeshPath) {
-            auto navigationAgentViewDebug = m_Registry.view<ActiveComponent, NavigationAgentComponent>();
-            for (auto& agent : navigationAgentViewDebug) {
-                auto& navAgentComponent = navigationAgentViewDebug.get<NavigationAgentComponent>(agent);
-                if (navAgentComponent.GetNavMeshComponent())
-                    navAgentComponent.ShowDebug = m_SceneDebugFlags.ShowNavMeshPath;
-            }
-        } else {
-            auto navigationAgentViewDebug = m_Registry.view<ActiveComponent, NavigationAgentComponent>();
-            for (auto& agent : navigationAgentViewDebug) {
-                auto& navAgentComponent = navigationAgentViewDebug.get<NavigationAgentComponent>(agent);
-                navAgentComponent.ShowDebug = false;
-            }
+            
         }
 
         UIManager::UpdateUI(m_Registry);

@@ -209,81 +209,6 @@ namespace Coffee {
                 RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.OpaqueQuadIndexCount);
             }
 
-            if(batch.TransparentQuadIndexCount > 0)
-            {
-                // Sort the quads by distance to the camera in packs of 4
-                glm::vec3 cameraPosition = target.GetCameraTransform()[3];
-
-/*                 // Sort the transparent quads in-place by distance to the camera
-                std::sort(batch.TransparentQuadVertices.begin(), batch.TransparentQuadVertices.end(),
-                    [&](const QuadVertex& a, const QuadVertex& b) {
-                        // Calculate the index of the quad for each vertex
-                        size_t indexA = (&a - &batch.TransparentQuadVertices[0]) / 4;
-                        size_t indexB = (&b - &batch.TransparentQuadVertices[0]) / 4;
-
-                        // Calculate the center of each quad
-                        glm::vec3 centerA = (batch.TransparentQuadVertices[indexA * 4 + 0].Position +
-                                            batch.TransparentQuadVertices[indexA * 4 + 1].Position +
-                                            batch.TransparentQuadVertices[indexA * 4 + 2].Position +
-                                            batch.TransparentQuadVertices[indexA * 4 + 3].Position) / 4.0f;
-
-                        glm::vec3 centerB = (batch.TransparentQuadVertices[indexB * 4 + 0].Position +
-                                            batch.TransparentQuadVertices[indexB * 4 + 1].Position +
-                                            batch.TransparentQuadVertices[indexB * 4 + 2].Position +
-                                            batch.TransparentQuadVertices[indexB * 4 + 3].Position) / 4.0f;
-
-                        // Compare distances to the camera
-                        float distanceA = glm::length(centerA - cameraPosition);
-                        float distanceB = glm::length(centerB - cameraPosition);
-
-                        return distanceA > distanceB; // Sort in descending order (farther quads first)
-                    }); */
-
-                // Sort the transparent quads in-place by distance to the camera
-                for (size_t i = 0; i < batch.TransparentQuadVertices.size(); i += 4)
-                {
-                    for (size_t j = i + 4; j < batch.TransparentQuadVertices.size(); j += 4)
-                    {
-                        // Calculate the center of the first quad
-                        glm::vec3 centerA = (batch.TransparentQuadVertices[i + 0].Position +
-                                            batch.TransparentQuadVertices[i + 1].Position +
-                                            batch.TransparentQuadVertices[i + 2].Position +
-                                            batch.TransparentQuadVertices[i + 3].Position) / 4.0f;
-
-                        // Calculate the center of the second quad
-                        glm::vec3 centerB = (batch.TransparentQuadVertices[j + 0].Position +
-                                            batch.TransparentQuadVertices[j + 1].Position +
-                                            batch.TransparentQuadVertices[j + 2].Position +
-                                            batch.TransparentQuadVertices[j + 3].Position) / 4.0f;
-
-                        // Compare distances to the camera
-                        float distanceA = glm::length(centerA - cameraPosition);
-                        float distanceB = glm::length(centerB - cameraPosition);
-
-                        // Swap the quads if needed
-                        if (distanceA < distanceB)
-                        {
-                            for (size_t k = 0; k < 4; k++)
-                            {
-                                std::swap(batch.TransparentQuadVertices[i + k], batch.TransparentQuadVertices[j + k]);
-                            }
-                        }
-                    }
-                }
-
-                s_Renderer2DData.QuadVertexBuffer->SetData(batch.TransparentQuadVertices.data(), batch.TransparentQuadVertices.size() * sizeof(QuadVertex));
-
-                batch.TextureSlots[0] = s_Renderer2DData.WhiteTexture;
-
-                for(uint32_t i = 0; i < batch.TextureSlotIndex; i++)
-                {
-                    batch.TextureSlots[i]->Bind(i);
-                }
-
-                s_Renderer2DData.QuadShader->Bind();
-                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.TransparentQuadIndexCount);
-            }
-
             if(batch.LineVertices.size() > 0)
             {
                 s_Renderer2DData.LineVertexBuffer->SetData(batch.LineVertices.data(), batch.LineVertices.size() * sizeof(LineVertex));
@@ -333,21 +258,6 @@ namespace Coffee {
 
                 s_Renderer2DData.QuadShader->Bind();
                 RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.OpaqueQuadIndexCount);
-            }
-
-            if(batch.TransparentQuadIndexCount > 0)
-            {
-                s_Renderer2DData.QuadVertexBuffer->SetData(batch.TransparentQuadVertices.data(), batch.TransparentQuadVertices.size() * sizeof(QuadVertex));
-
-                batch.TextureSlots[0] = s_Renderer2DData.WhiteTexture;
-
-                for(uint32_t i = 0; i < batch.TextureSlotIndex; i++)
-                {
-                    batch.TextureSlots[i]->Bind(i);
-                }
-
-                s_Renderer2DData.QuadShader->Bind();
-                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.TransparentQuadIndexCount);
             }
 
             if(batch.LineVertices.size() > 0)
@@ -474,7 +384,7 @@ namespace Coffee {
         DrawQuad(transform, texture, tilingFactor, tintColor, RenderMode::World, isTransparent);
     }
 
-    void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, RenderMode mode, bool isTransparent, const glm::vec4& uvRect, uint32_t entityID)
+    void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, RenderMode mode, uint32_t entityID, const glm::vec4& uvRect)
     {
         constexpr size_t quadVertexCount = 4;
         const glm::vec2 texCoords[] = {
