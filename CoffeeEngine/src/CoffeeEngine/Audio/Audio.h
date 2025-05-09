@@ -204,6 +204,8 @@ namespace Coffee {
 
     private:
 
+        static std::filesystem::path m_ActiveAudioPath;
+
         /**
          * @brief Initializes the memory manager.
          * @return True if successful, false otherwise.
