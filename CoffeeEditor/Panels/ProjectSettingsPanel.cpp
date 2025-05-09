@@ -1,11 +1,12 @@
 #include "ProjectSettingsPanel.h"
 
-#include "CoffeeEngine/Core/FileDialog.h"
+#include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Project/Project.h"
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
 #include "CoffeeEngine/Core/Input.h"
-
+#include "src/EditorLayer.h"
 
 namespace Coffee {
 
@@ -22,8 +23,10 @@ namespace Coffee {
     }
     void ProjectSettingsPanel::RenderInputSettings(const ImGuiWindowFlags flags)
     {
-        if (!(m_VisiblePanels & PanelDisplayEnum::Input))
-            return;
+        bool isInputPanelVisible = (m_VisiblePanels & PanelDisplayEnum::Input);
+        Application::Get().GetImGuiLayer()->BlockEvents(!isInputPanelVisible);
+
+        if (!isInputPanelVisible) return;
 
         BeginHorizontalChild("Input", flags);
         ImGui::Text("Input Settings");
@@ -164,14 +167,15 @@ namespace Coffee {
         {
 
             static std::string newBindName;
+            newBindName.reserve(256);
             newBindName = m_SelectedInputKey;
             ImGui::TextUnformatted("Name: "); ImGui::SameLine();
-            /*
-            if (ImGui::InputText("BindingName", &newBindName, ImGuiInputTextFlags_EnterReturnsTrue))
+            if (ImGui::InputText("BindingName", newBindName.data(), 256, ImGuiInputTextFlags_EnterReturnsTrue))
             {
-                if (newBindName.length() != 0)
+                // If name is not empty when Enter is pressed, update the action's key in the action map
+                // Also prevent overwriting another action
+                if (!newBindName.empty() && !bindings.contains(newBindName))
                 {
-
                     m_SelectedInputBinding->Name = newBindName;
                     bindings[newBindName] = *m_SelectedInputBinding;
                     bindings.erase(m_SelectedInputKey);
@@ -179,7 +183,6 @@ namespace Coffee {
                     m_SelectedInputKey = newBindName;
                 }
             }
-            */
             ImGui::NewLine();
             ImGui::TextUnformatted("PosButton:"); ImGui::SameLine();
             ImGui::Text("%s", Input::GetButtonLabel(m_SelectedInputBinding->ButtonPos)); ImGui::SameLine();
@@ -281,7 +284,9 @@ namespace Coffee {
 
         ImGui::PushID("ProjectSettings");
 
-        if (ImGui::TreeNodeEx("Project", ImGuiTreeNodeFlags_Leaf))
+        ImGui::SetNextWindowSizeConstraints(ImVec2(100,0), ImVec2(100,INT_MAX));
+        ImGui::BeginChild("Module List");
+        if (ImGui::TreeNodeEx("General", ImGuiTreeNodeFlags_Leaf))
         {
             if (ImGui::IsItemClicked())
                 m_VisiblePanels = PanelDisplayEnum::General;
