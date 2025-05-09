@@ -202,6 +202,10 @@ namespace Coffee {
          */
         static void SetBusVolume(const char* busName, float volume);
 
+        static void OnProjectLoad();
+
+        static void OnProjectUnload();
+
     private:
 
         static std::filesystem::path m_ActiveAudioPath;

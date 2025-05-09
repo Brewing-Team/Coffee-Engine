@@ -1,7 +1,6 @@
 #include "ProjectSettingsPanel.h"
 
-#include "CoffeeEngine/Core/Application.h"
-#include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Core/FileDialog.h"
 #include <imgui.h>
 #include <imgui_stdlib.h>
 
@@ -267,14 +266,6 @@ namespace Coffee {
             }
         }
 
-        ImGui::Text("Game name: ");
-        ImGui::SameLine();
-        if (ImGui::InputText("##gamename", m_NewProjectName.data(), 256, ImGuiInputTextFlags_EnterReturnsTrue))
-        {
-            // no need to check for active project, this window is only accessible when a project is active
-            Project::SetProjectName(m_NewProjectName);
-        }
-
         ImGui::EndChild();
     }
 
@@ -301,9 +292,7 @@ namespace Coffee {
 
         ImGui::PushID("ProjectSettings");
 
-        ImGui::SetNextWindowSizeConstraints(ImVec2(100,0), ImVec2(100,INT_MAX));
-        ImGui::BeginChild("Module List");
-        if (ImGui::TreeNodeEx("General", ImGuiTreeNodeFlags_Leaf))
+        if (ImGui::TreeNodeEx("Project", ImGuiTreeNodeFlags_Leaf))
         {
             if (ImGui::IsItemClicked())
                 SetPanelVisible(PanelDisplayEnum::General);
