@@ -56,15 +56,6 @@ namespace Coffee {
         Input::Load();
         Audio::OnProjectLoad();
 
-        if (GetProjectDefaultScene().empty())
-        {
-            SetProjectDefaultScene("DefaultScene.TeaScene");
-        }
-
-        auto defaultScene = GetProjectDirectory()/GetProjectDefaultScene();
-
-        LoadDefaultScene();
-
         return project;
     }
 
