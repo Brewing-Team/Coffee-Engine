@@ -976,6 +976,9 @@
             archive(cereal::make_nvp("ParticleEmitter", m_Particles) );
         }
 
+        public:
+        bool NeedsUpdate = true; ///< Flag to indicate if the animator needs an update.
+
 
     };
  
