@@ -72,6 +72,8 @@ namespace Coffee {
         s_ToneMappingShader = CreateRef<Shader>("ToneMappingShader", std::string(toneMappingShaderSource));
         s_FXAAShader = CreateRef<Shader>("assets/shaders/FXAAShader.glsl"); // Shader source is too large
         s_FinalPassShader = CreateRef<Shader>("FinalPassShader", std::string(finalPassShaderSource));
+
+        GenerateBRDFLUT();
     }
 
     void Renderer3D::Shutdown()
