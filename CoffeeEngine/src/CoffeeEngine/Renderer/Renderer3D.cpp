@@ -28,10 +28,12 @@ namespace Coffee {
     Renderer3DSettings Renderer3D::s_RenderSettings;
 
     Ref<Mesh> Renderer3D::s_ScreenQuad;
+    Ref<Mesh> Renderer3D::s_CubeMesh;
 
     Ref<Shader> Renderer3D::s_ToneMappingShader;
     Ref<Shader> Renderer3D::s_FXAAShader;
     Ref<Shader> Renderer3D::s_FinalPassShader;
+    Ref<Shader> Renderer3D::s_SkyboxShader;
 
     void Renderer3D::Init()
     {
