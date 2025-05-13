@@ -686,6 +686,15 @@ namespace Coffee {
 
         Camera* camera = nullptr;
         glm::mat4 cameraTransform;
+        auto cameraView = m_Registry.view<ActiveComponent, TransformComponent, CameraComponent>();
+        for(auto entity : cameraView)
+        {
+            auto& firstWolrdEnv = cubemapView.get<WorldEnvironmentComponent>(cubemapView.front());
+            Renderer3D::SetEnvironmentMap(firstWolrdEnv.Skybox);
+        }
+
+        Camera* camera = nullptr;
+        glm::mat4 cameraTransform;
         {
             auto cameraView = m_Registry.view<ActiveComponent, TransformComponent, CameraComponent>();
             ZoneScopedN("CameraComponent View");
