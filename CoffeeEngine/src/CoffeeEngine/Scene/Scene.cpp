@@ -474,7 +474,58 @@ namespace Coffee {
             auto animatorView = m_Registry.view<ActiveComponent, AnimatorComponent>();
             ZoneScopedN("AnimatorComponent View");
 
-            for (auto& entity : animatorView)
+            Ref<Mesh> mesh = meshComponent.GetMesh();
+            Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
+
+            //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
+            Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
+        }
+
+        //Get all entities with LightComponent and TransformComponent
+        auto lightView = m_Registry.view<ActiveComponent, LightComponent, TransformComponent>();
+
+        //Loop through each entity with the specified components
+        for(auto& entity : lightView)
+        {
+            auto& lightComponent = lightView.get<LightComponent>(entity);
+            auto& transformComponent = lightView.get<TransformComponent>(entity);
+
+            lightComponent.Position = transformComponent.GetWorldTransform()[3];
+            lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
+
+            Renderer3D::Submit(lightComponent);
+        }
+
+
+        // Get all entities with ParticlesSystemComponent and TransformComponent
+        auto particleSystemView = m_Registry.view<ActiveComponent, ParticlesSystemComponent, TransformComponent>();
+        for (auto& entity : particleSystemView)
+        {
+            auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
+            auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
+            if (particlesSystemComponent.NeedsUpdate)
+            {
+                particlesSystemComponent.NeedsUpdate = false;
+                particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
+                particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
+                particlesSystemComponent.GetParticleEmitter()->Update(dt);
+                particlesSystemComponent.GetParticleEmitter()->DrawDebug();
+            }
+            else {
+                Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), 
+                    particlesSystemComponent.GetParticleEmitter()->particleTexture, 1, 
+                    particlesSystemComponent.GetParticleEmitter()->colorNormal, Renderer2D::RenderMode::World);
+            }
+ 
+        }
+
+        auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
+        for (auto& entity : spriteView)
+        {
+            auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
+            auto& transformComponent = spriteView.get<TransformComponent>(entity);
+
+            if (spriteComponent.texture)
             {
                 AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
                 if (animatorComponent->NeedsUpdate)
