@@ -26,7 +26,6 @@ namespace Coffee {
     Renderer3DData Renderer3D::s_RendererData;
     Renderer3DStats Renderer3D::s_Stats;
     Renderer3DSettings Renderer3D::s_RenderSettings;
-    Ref<Texture2D> Renderer3D::s_BRDFLUT;
 
     Ref<Mesh> Renderer3D::s_ScreenQuad;
 
@@ -34,21 +33,13 @@ namespace Coffee {
     Ref<Shader> Renderer3D::s_FXAAShader;
     Ref<Shader> Renderer3D::s_FinalPassShader;
 
-    static Ref<Cubemap> s_EnvironmentMap;
-    static Ref<Mesh> s_SkyboxMesh;
-    static Ref<Shader> s_SkyboxShader;
-
     void Renderer3D::Init()
     {
         ZoneScoped;
-
-        s_EnvironmentMap = Cubemap::Load("assets/textures/StandardCubeMap.hdr");
-
-        s_SkyboxMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
-
+        
+        s_RendererData.DefaultSkybox = Cubemap::Load("assets/textures/StandardCubeMap.hdr");
+        s_CubeMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
         s_SkyboxShader = CreateRef<Shader>("assets/shaders/SkyboxShader.glsl");
-        s_SkyboxShader->Bind();
-        s_SkyboxShader->setInt("skybox", 0);
 
         // Shadow map
         s_RendererData.ShadowMapFramebuffer = Framebuffer::Create(4096, 4096, {});
@@ -61,7 +52,6 @@ namespace Coffee {
 
         Ref<Shader> missingShader = CreateRef<Shader>("MissingShader", std::string(missingShaderSource));
         s_RendererData.DefaultMaterial = ShaderMaterial::Create("Missing Material", missingShader);
-        //s_RendererData.DefaultMaterial = nullptr;/* CreateRef<Material>("Missing Material", missingShader); //TODO: Port it to use the Material::Create and use ShaderMaterial */
 
         // TODO: This is a hack to get the missing mesh add it to the PrimitiveMesh class
         Ref<Model> m = Model::Load("assets/models/MissingMesh.glb");
@@ -218,12 +208,17 @@ namespace Coffee {
         
         forwardBuffer->GetColorTexture("EntityID")->Clear({-1.0f,0.0f,0.0f,0.0f}); //TODO: This should only be done in the editor
 
+        if (!s_RendererData.EnvironmentMap)
+        {
+            s_RendererData.EnvironmentMap = s_RendererData.DefaultSkybox;
+        }
+
         // Bind the irradiance map
-        s_EnvironmentMap->BindIrradianceMap(6);
-        s_EnvironmentMap->BindPrefilteredMap(7);
+        s_RendererData.EnvironmentMap->BindIrradianceMap(6);
+        s_RendererData.EnvironmentMap->BindPrefilteredMap(7);
         
         // Bind the BRDF LUT
-        s_BRDFLUT->Bind(8);
+        s_RendererData.BRDFLUT->Bind(8);
 
         // TEMPORAL: lightSpaceMatrix array for shadow mapping
         glm::mat4 lightSpaceMatrices[Renderer3DData::MAX_DIRECTIONAL_SHADOWS];
@@ -387,9 +382,10 @@ namespace Coffee {
         forwardBuffer->SetDrawBuffers({0, 1});
 
         RendererAPI::SetDepthMask(false);
-        s_EnvironmentMap->Bind(0);
+        s_RendererData.EnvironmentMap->Bind(0);
         s_SkyboxShader->Bind();
-        RendererAPI::DrawIndexed(s_SkyboxMesh->GetVertexArray());
+        s_SkyboxShader->setInt("skybox", 0);
+        RendererAPI::DrawIndexed(s_CubeMesh->GetVertexArray());
         RendererAPI::SetDepthMask(true);
 
         forwardBuffer->UnBind();
@@ -404,11 +400,11 @@ namespace Coffee {
         forwardBuffer->SetDrawBuffers({0, 1}); //TODO: This should only be done in the editor
 
         // Bind the irradiance map
-        s_EnvironmentMap->BindIrradianceMap(6);
-        s_EnvironmentMap->BindPrefilteredMap(7);
+        s_RendererData.EnvironmentMap->BindIrradianceMap(6);
+        s_RendererData.EnvironmentMap->BindPrefilteredMap(7);
 
         // Bind the BRDF LUT
-        s_BRDFLUT->Bind(8);
+        s_RendererData.BRDFLUT->Bind(8);
 
         // Render transparent objects (back to front)
         glm::vec3 cameraPos = target.GetCameraTransform()[3];
@@ -560,6 +556,8 @@ namespace Coffee {
         s_RendererData.RenderData.lightCount = 0;
         s_RendererData.opaqueRenderQueue.clear();
         s_RendererData.transparentRenderQueue.clear();
+
+        s_RendererData.EnvironmentMap = nullptr;
     }
 
     void Renderer3D::GenerateBRDFLUT()
@@ -573,10 +571,10 @@ namespace Coffee {
         properties.MinFilter = TextureFilter::Linear;
         properties.MagFilter = TextureFilter::Linear;
 
-        s_BRDFLUT = Texture2D::Create(properties);
+        s_RendererData.BRDFLUT = Texture2D::Create(properties);
         
         Framebuffer framebuffer = Framebuffer(properties.Width, properties.Height, {{ImageFormat::DEPTH24STENCIL8, "Depth"}});
-        framebuffer.AttachColorTexture(s_BRDFLUT, "BRDFLUT");
+        framebuffer.AttachColorTexture(s_RendererData.BRDFLUT, "BRDFLUT");
         framebuffer.Bind();
         framebuffer.SetDrawBuffers({0});
 
