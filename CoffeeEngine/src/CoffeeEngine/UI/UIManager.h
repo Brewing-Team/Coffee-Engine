@@ -143,6 +143,35 @@ namespace Coffee {
          */
         static void MarkDirty(entt::entity entity);
 
+        /**
+         * @brief Queues a scale transformation to be applied during the next update.
+         * @param entity The entity to scale.
+         * @param scale The scale factor to apply.
+         */
+        static void MarkToTransform(entt::entity entity, const glm::vec2& scale) {
+            s_PendingTransforms[entity].push_back(TransformOperation::CreateScale(scale));
+        }
+
+        /**
+         * @brief Queues a move transformation to be applied during the next update.
+         * @param entity The entity to move.
+         * @param offset The amount to move the entity by.
+         * @param isMove Parameter to differentiate from the scale overload (should always be true).
+         */
+        static void MarkToTransform(entt::entity entity, const glm::vec2& offset, bool isMove) {
+            s_PendingTransforms[entity].push_back(TransformOperation::CreateMove(offset));
+        }
+
+        /**
+         * @brief Queues a rotation transformation to be applied during the next update.
+         * @param entity The entity to rotate.
+         * @param angle The rotation angle in degrees.
+         * @param absolute If true, sets the absolute rotation; if false, adds to the current rotation.
+         */
+        static void MarkToTransform(entt::entity entity, float angle, bool absolute = false) {
+            s_PendingTransforms[entity].push_back(TransformOperation::CreateRotate(angle));
+        }
+
     private:
         /**
          * @brief Marks all child entities of a given parent entity for update.
@@ -214,6 +243,45 @@ namespace Coffee {
          */
         static void UpdateUITranformRecursive(entt::registry& registry, UIRenderItem& item);
 
+        /**
+         * @brief Processes pending transformations for UI elements.
+         * @param registry The entity registry.
+         */
+        static void ProcessPendingTransforms(entt::registry& registry);
+
+        /**
+         * @brief Scales a UI element and all of its children by adjusting their sizes.
+         * @param registry The entity registry containing UI elements.
+         * @param entity The entity containing the UI element.
+         * @param scale The scale factor to apply.
+         */
+        static void ScaleUIElement(entt::registry& registry, entt::entity entity, const glm::vec2& scale);
+
+        /**
+         * @brief Moves a UI element by adjusting its position.
+         * @param registry The entity registry containing UI elements.
+         * @param entity The entity containing the UI element.
+         * @param offset The amount to move the element by.
+         */
+        static void MoveUIElement(entt::registry& registry, entt::entity entity, const glm::vec2& offset);
+
+        /**
+         * @brief Rotates a UI element and all of its children.
+         * @param registry The entity registry containing UI elements.
+         * @param entity The entity containing the UI element.
+         * @param angle The rotation angle in degrees.
+         */
+        static void RotateUIElement(entt::registry& registry, entt::entity entity, float angle);
+
+        /**
+         * @brief Gets the anchor pointer from a UI component based on its type.
+         * @param registry The entity registry containing UI elements.
+         * @param entity The entity containing the UI element.
+         * @param componentType The type of UI component.
+         * @return A pointer to the RectAnchor of the component, or nullptr if not found.
+         */
+        static RectAnchor* GetComponentAnchor(entt::registry& registry, entt::entity entity, UIComponentType componentType);
+
     public:
         static glm::vec2 WindowSize;
 
@@ -225,6 +293,8 @@ namespace Coffee {
         static glm::vec2 CanvasReferenceSize;
         static float UIScale;
         static glm::vec2 m_lastWindowSize;
+
+        static std::unordered_map<entt::entity, std::vector<TransformOperation>> s_PendingTransforms;
     };
 
 } // Coffee

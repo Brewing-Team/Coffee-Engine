@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scripting/GameSaver.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
+#include "CoffeeEngine/UI/UIManager.h"
 #include <memory>
 
 void Coffee::RegisterComponentsBindings(sol::state& luaState)
