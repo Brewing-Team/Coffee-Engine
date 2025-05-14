@@ -13,7 +13,7 @@
 #include "CoffeeEngine/Embedded/ToneMappingShader.inl"
 #include "CoffeeEngine/Embedded/FinalPassShader.inl"
 #include "CoffeeEngine/Embedded/MissingShader.inl"
-#include "CoffeeEngine/Embedded/SimpleDepthShader.inl"
+#include "CoffeeEngine/Embedded/ShadowShader.inl"
 #include "CoffeeEngine/Embedded/BRDFLUTShader.inl"
 
 #include <cstdint>
@@ -34,8 +34,6 @@ namespace Coffee {
     Ref<Shader> Renderer3D::s_FXAAShader;
     Ref<Shader> Renderer3D::s_FinalPassShader;
     Ref<Shader> Renderer3D::s_SkyboxShader;
-    Ref<Shader> Renderer3D::depthShader;
-    Ref<Shader> Renderer3D::brdfShader;
 
     void Renderer3D::Init()
     {
@@ -44,10 +42,6 @@ namespace Coffee {
         s_RendererData.DefaultSkybox = Cubemap::Load("assets/textures/StandardCubeMap.hdr");
         s_CubeMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
         s_SkyboxShader = CreateRef<Shader>("assets/shaders/SkyboxShader.glsl");
-
-        depthShader = CreateRef<Shader>("DepthShader", std::string(simpleDepthShaderSource));
-
-        brdfShader = CreateRef<Shader>("BRDFLUTShader", std::string(BRDFLUTSource));
 
         // Shadow map
         s_RendererData.ShadowMapFramebuffer = Framebuffer::Create(4096, 4096, {});
@@ -438,7 +432,6 @@ namespace Coffee {
         forwardBuffer->SetDrawBuffers({0, 1});
 
         RendererAPI::SetDepthMask(false);
-        RendererAPI::SetDepthFunc(DepthFunc::LessEqual);
         s_RendererData.EnvironmentMap->Bind(0);
         s_SkyboxShader->Bind();
         s_SkyboxShader->setInt("skybox", 0);
@@ -655,13 +648,16 @@ namespace Coffee {
 
         RendererAPI::SetViewport(0, 0, properties.Width, properties.Height);
 
+        static Ref<Shader> brdfShader = CreateRef<Shader>("BRDFLUT", BRDFLUTSource);
         brdfShader->Bind();
+
+        static Ref<Mesh> quad = PrimitiveMesh::CreateQuad();
 
         RendererAPI::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
         RendererAPI::Clear();
 
-        s_ScreenQuad->GetVertexArray()->Bind();
-        RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
+        quad->GetVertexArray()->Bind();
+        RendererAPI::DrawIndexed(quad->GetVertexArray());
 
         framebuffer.UnBind();
     }
