@@ -189,6 +189,7 @@ namespace Coffee
         float shapeAngle = 0.75f;                    // Angle for cone shape
         float shapeRadius = 1.0f;                    // Radius for circle shape
         float shapeRadiusThickness = 0.1f;           // Thickness for circle shape
+        bool goCenter = false;
 
         // Velocity over lifetime settings
         bool useVelocityOverLifetime = false;          // Whether to use velocity over lifetime
@@ -380,6 +381,7 @@ namespace Coffee
            archive(cereal::make_nvp("ShapeAngle", shapeAngle));
            archive(cereal::make_nvp("ShapeRadius", shapeRadius));
            archive(cereal::make_nvp("ShapeRadiusThickness", shapeRadiusThickness));
+           archive(cereal::make_nvp("GoCenter", goCenter));
 
            // -------------------- Velocity over Lifetime --------------------
            archive(cereal::make_nvp("UseVelocityOverLifetime", useVelocityOverLifetime));
@@ -426,7 +428,7 @@ namespace Coffee
         }
 
 
-template <class Archive> void load(Archive& archive, const std::uint32_t& version) 
+        template <class Archive> void load(Archive& archive, const std::uint32_t& version) 
         {
 
             if (version == 0)
@@ -574,9 +576,13 @@ template <class Archive> void load(Archive& archive, const std::uint32_t& versio
                 archive(cereal::make_nvp("SizeMultiplier", sizeMultiplier));
                 archive(cereal::make_nvp("RotationMultiplier", rotationMultiplier));
             }
+            if (version >= 4)
+            {
+                archive(cereal::make_nvp("GoCenter", goCenter));
+            }
            
   
         }
     };
 } // namespace Coffee
-CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 3);
+CEREAL_CLASS_VERSION(Coffee::ParticleEmitter, 4);
