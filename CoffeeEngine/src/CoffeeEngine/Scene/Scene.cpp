@@ -449,6 +449,13 @@ namespace Coffee {
             auto& firstWorldEnv = cubemapView.get<WorldEnvironmentComponent>(cubemapView.front());
             Renderer3D::SetEnvironmentMap(firstWorldEnv.Skybox);
             Renderer3D::GetRenderSettings().EnvironmentExposure = firstWorldEnv.SkyboxIntensity;
+
+            // FOG
+            Renderer3D::GetRenderSettings().DepthFog = firstWorldEnv.Fog;
+            Renderer3D::GetRenderSettings().FogColor = firstWorldEnv.FogColor;
+            Renderer3D::GetRenderSettings().FogDensity = firstWorldEnv.FogDensity;
+            Renderer3D::GetRenderSettings().FogHeight = firstWorldEnv.FogHeight;
+            Renderer3D::GetRenderSettings().FogHeightDensity = firstWorldEnv.FogHeightDensity;
         }
 
         // TEMPORAL - Navigation
@@ -645,6 +652,13 @@ namespace Coffee {
             auto& firstWorldEnv = cubemapView.get<WorldEnvironmentComponent>(cubemapView.front());
             Renderer3D::SetEnvironmentMap(firstWorldEnv.Skybox);
             Renderer3D::GetRenderSettings().EnvironmentExposure = firstWorldEnv.SkyboxIntensity;
+
+            // FOG
+            Renderer3D::GetRenderSettings().DepthFog = firstWorldEnv.Fog;
+            Renderer3D::GetRenderSettings().FogColor = firstWorldEnv.FogColor;
+            Renderer3D::GetRenderSettings().FogDensity = firstWorldEnv.FogDensity;
+            Renderer3D::GetRenderSettings().FogHeight = firstWorldEnv.FogHeight;
+            Renderer3D::GetRenderSettings().FogHeightDensity = firstWorldEnv.FogHeightDensity;
         }
 
         Camera* camera = nullptr;
