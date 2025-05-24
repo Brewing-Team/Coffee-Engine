@@ -317,6 +317,8 @@ namespace Coffee {
             return std::tie(a.material, a.mesh) < std::tie(b.material, b.mesh);
         });
 
+        glm::vec3 camViewDir = glm::normalize(glm::vec3(target.GetCameraTransform() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
+
         for(const auto& command : s_RendererData.opaqueRenderQueue)
         {
             Material* material = command.material.get();
@@ -391,7 +393,13 @@ namespace Coffee {
                     break;
             }
 
-/*             if (settings.depthTest)
+            shader->setBool("ditheringEnabled", settings.ditheringEnabled);
+            shader->setFloat("ditheringCircleSize", settings.circleSize);
+            shader->setFloat("ditheringMinDistance", settings.minDistance);
+            shader->setFloat("ditheringMaxDistance", settings.maxDistance);
+            shader->setVec3("camViewDir", camViewDir);
+
+            if (settings.depthTest)
             {
                 RendererAPI::SetDepthMask(true);
             }
