@@ -264,6 +264,10 @@ namespace Coffee {
         {
             arr_newBindName.fill('\0');
         }
+        else
+        {
+            arr_newBindName.fill('\0');
+        }
 
         if (ImGui::Button("New Action"))
         {

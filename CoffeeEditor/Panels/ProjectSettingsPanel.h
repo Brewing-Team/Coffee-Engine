@@ -50,6 +50,8 @@ namespace Coffee {
 
         std::array<char, 256> arr_newBindName;
 
+        std::array<char, 256> arr_newBindName;
+
     };
 
 } // Coffee
