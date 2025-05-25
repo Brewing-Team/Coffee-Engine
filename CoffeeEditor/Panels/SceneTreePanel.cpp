@@ -4465,7 +4465,7 @@ namespace Coffee
             static char buffer[256] = "";
             ImGui::InputTextWithHint("##Search Component", "Search Component:", buffer, 256);
 
-            std::string items[] = {"Empty", "Camera", "Primitive", "Light", "Particle System", "Sprite2D"};
+            std::string items[] = {"Empty", "Camera", "Primitive", "Light", "World Environment", "Particle System", "Sprite2D"};
             static int item_current = 1;
 
             if (ImGui::BeginListBox("##listbox 2", ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 200)))
@@ -4523,43 +4523,10 @@ namespace Coffee
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
-                else if (items[item_current] == "UI Image")
+                else if (items[item_current] == "World Environment")
                 {
-                    Entity e = m_Context->CreateEntity("UI Image");
-                    e.AddComponent<UIImageComponent>();
-                    m_Context->UpdateUIEntities();
-                    SetSelectedEntity(e);
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Text")
-                {
-                    Entity e = m_Context->CreateEntity("UI Text");
-                    e.AddComponent<UITextComponent>();
-                    m_Context->UpdateUIEntities();
-                    SetSelectedEntity(e);
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Button")
-                {
-                    Entity e = m_Context->CreateEntity("UI Button");
-                    e.AddComponent<UIButtonComponent>();
-                    m_Context->UpdateUIEntities();
-                    SetSelectedEntity(e);
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Slider")
-                {
-                    Entity e = m_Context->CreateEntity("UI Slider");
-                    e.AddComponent<UISliderComponent>();
-                    m_Context->UpdateUIEntities();
-                    SetSelectedEntity(e);
-                    ImGui::CloseCurrentPopup();
-                }
-                else if (items[item_current] == "UI Toggle")
-                {
-                    Entity e = m_Context->CreateEntity("UI Toggle");
-                    e.AddComponent<UIToggleComponent>();
-                    m_Context->UpdateUIEntities();
+                    Entity e = m_Context->CreateEntity("World Environment");
+                    e.AddComponent<WorldEnvironmentComponent>();
                     SetSelectedEntity(e);
                     ImGui::CloseCurrentPopup();
                 }
