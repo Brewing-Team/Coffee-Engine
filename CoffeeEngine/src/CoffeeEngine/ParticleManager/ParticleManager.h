@@ -64,19 +64,19 @@ namespace Coffee
          * @brief Sets the position of the particle.
          * @param position The new position of the particle.
          */
-        void SetPosition(glm::vec3 position);
+        void SetPosition(const glm::vec3& position);
 
         /**
          * @brief Sets the rotation of the particle.
          * @param rotation The new rotation of the particle.
          */
-        void SetRotation(glm::vec3 rotation);
+        void SetRotation(const glm::vec3& rotation);
 
         /**
          * @brief Sets the size (scale) of the particle.
          * @param size The new size of the particle.
          */
-        void SetSize(glm::vec3 size);
+        void SetSize(const glm::vec3& size);
 
         /**
          * @brief Update the transform matrix of the particle.
@@ -251,11 +251,12 @@ namespace Coffee
          */
         void GenerateParticle();
 
-        glm::vec3 GetRandomPointByShape(ShapeType type);
+        glm::vec3 GetRandomPointByShape(ShapeType type) const;
 
-        glm::vec3 GetRandomPointInCircle();
-        glm::vec3 GetRandomPointInCone();
-        glm::vec3 GetRandomPointInBox();
+        glm::vec3 GetRandomPointInCircle() const;
+        glm::vec3 GetRandomPointInCone() const;
+        glm::vec3 GetRandomPointInBox() const;
+
 
       public:
         /**
@@ -267,7 +268,7 @@ namespace Coffee
          * @brief Initializes a particle with random values based on emitter settings.
          * @param particle The particle to initialize.
          */
-        void InitParticle(Ref<Particle> particle);
+        void InitParticle(const Ref<Particle>& particle);
 
         /**
          * @brief Updates the particle emitter and its particles.
@@ -280,18 +281,18 @@ namespace Coffee
          * @param particle The particle to update.
          * @param deltaTime The time elapsed since the last frame.
          */
-        void UpdateParticle(Ref<Particle> particle, float deltaTime);
+        void UpdateParticle(const Ref<Particle>& particle, float deltaTime);
 
 
         /**
          * @brief Draw all particles.
          */
-        void DrawParticles();
+        void DrawParticles() const;
 
         /**
          * @brief Draw a single particle.
          */
-        void DrawParticles(Ref<Particle> particle);
+        static void DrawParticles(const Ref<Particle>& particle);
 
 
         /**
@@ -308,10 +309,9 @@ namespace Coffee
         /**
          * @brief Calculates the billboard transform for a particle.
          * @param particleTransform The particle's current transform.
-         * @param viewMatrix The camera's view matrix.
          * @return The billboard transform matrix.
          */
-        glm::mat4 CalculateBillboardTransform(const glm::mat4& particleTransform, const glm::mat4& viewMatrix);
+        glm::mat4 CalculateBillboardTransform(const glm::mat4& particleTransform) const;
 
         /**
          * @brief Serializes the ParticleEmitter object.
