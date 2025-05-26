@@ -3547,21 +3547,23 @@ namespace Coffee
 
                     if (emitter->velocityOverLifeTimeSeparateAxes)
                     {
-
                         ImGui::Text("Velocity X");
-                        CurveEditor::DrawCurve("Velocity X", emitter->speedOverLifeTimeX);
+                        if (CurveEditor::DrawCurve("Velocity X", emitter->speedOverLifeTimeX))
+                            emitter->InvalidateCurves();
 
                         ImGui::Text("Velocity Y ");
-                        CurveEditor::DrawCurve("Velocity Y", emitter->speedOverLifeTimeY);
+                        if (CurveEditor::DrawCurve("Velocity Y", emitter->speedOverLifeTimeY))
+                            emitter->InvalidateCurves();
 
                         ImGui::Text("Velocity Z");
-                        CurveEditor::DrawCurve("Velocity Z", emitter->speedOverLifeTimeZ);
+                        if (CurveEditor::DrawCurve("Velocity Z", emitter->speedOverLifeTimeZ))
+                            emitter->InvalidateCurves();
                     }
                     else
                     {
-
                         ImGui::Text("Velocity");
-                        CurveEditor::DrawCurve("Velocity", emitter->speedOverLifeTimeGeneral);
+                        if (CurveEditor::DrawCurve("Velocity", emitter->speedOverLifeTimeGeneral))
+                            emitter->InvalidateCurves();
                     }
 
                     // Restore default state
@@ -3602,7 +3604,8 @@ namespace Coffee
                     //     // Open a gradient editor (Needs implementation)
                     // }
 
-                    GradientEditor::ShowGradientEditor(emitter->colorOverLifetime_gradientPoints);
+                    if (GradientEditor::ShowGradientEditor(emitter->colorOverLifetime_gradientPoints))
+                        emitter->InvalidateCurves();
 
                     // Restore default state
                     if (!emitter->useColorOverLifetime)
@@ -3640,18 +3643,22 @@ namespace Coffee
                     if (emitter->sizeOverLifeTimeSeparateAxes)
                     {
                         ImGui::Text("Size X");
-                        CurveEditor::DrawCurve("Size X", emitter->sizeOverLifetimeX);
+                        if (CurveEditor::DrawCurve("Size X", emitter->sizeOverLifetimeX))
+                            emitter->InvalidateCurves();
 
                         ImGui::Text("Size Y");
-                        CurveEditor::DrawCurve("Size Y", emitter->sizeOverLifetimeY);
+                        if (CurveEditor::DrawCurve("Size Y", emitter->sizeOverLifetimeY))
+                            emitter->InvalidateCurves();
 
                         ImGui::Text("Size Z");
-                        CurveEditor::DrawCurve("Size Z", emitter->sizeOverLifetimeZ);
+                        if (CurveEditor::DrawCurve("Size Z", emitter->sizeOverLifetimeZ))
+                            emitter->InvalidateCurves();
                     }
                     else
                     {
                         ImGui::Text("Size");
-                        CurveEditor::DrawCurve("Size", emitter->sizeOverLifetimeGeneral);
+                        if (CurveEditor::DrawCurve("Size", emitter->sizeOverLifetimeGeneral))
+                            emitter->InvalidateCurves();
                     }
 
                     // Restore default state
@@ -3684,15 +3691,18 @@ namespace Coffee
 
                     // Rotation on X axis
                     ImGui::Text("Rotation X");
-                    CurveEditor::DrawCurve("##RotationX", emitter->rotationOverLifetimeX);
+                    if (CurveEditor::DrawCurve("##RotationX", emitter->rotationOverLifetimeX))
+                        emitter->InvalidateCurves();
 
                     // Rotation on Y axis
                     ImGui::Text("Rotation Y");
-                    CurveEditor::DrawCurve("##RotationY", emitter->rotationOverLifetimeZ);
+                    if (CurveEditor::DrawCurve("##RotationY", emitter->rotationOverLifetimeZ))
+                        emitter->InvalidateCurves();
 
                     // Rotation on Z axis
                     ImGui::Text("Rotation Z");
-                    CurveEditor::DrawCurve("##RotationZ", emitter->rotationOverLifetimeY);
+                    if (CurveEditor::DrawCurve("##RotationZ", emitter->rotationOverLifetimeY))
+                        emitter->InvalidateCurves();
 
                     // Restore default state
                     if (!emitter->useRotationOverLifetime)
