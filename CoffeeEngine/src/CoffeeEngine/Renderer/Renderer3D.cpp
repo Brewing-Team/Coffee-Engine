@@ -13,7 +13,7 @@
 #include "CoffeeEngine/Embedded/ToneMappingShader.inl"
 #include "CoffeeEngine/Embedded/FinalPassShader.inl"
 #include "CoffeeEngine/Embedded/MissingShader.inl"
-#include "CoffeeEngine/Embedded/ShadowShader.inl"
+#include "CoffeeEngine/Embedded/SimpleDepthShader.inl"
 #include "CoffeeEngine/Embedded/BRDFLUTShader.inl"
 
 #include <cstdint>
@@ -35,6 +35,8 @@ namespace Coffee {
     Ref<Shader> Renderer3D::s_FXAAShader;
     Ref<Shader> Renderer3D::s_FinalPassShader;
     Ref<Shader> Renderer3D::s_SkyboxShader;
+    Ref<Shader> Renderer3D::depthShader;
+    Ref<Shader> Renderer3D::brdfShader;
 
     void Renderer3D::Init()
     {
@@ -43,6 +45,10 @@ namespace Coffee {
         s_RendererData.DefaultSkybox = Cubemap::Load("assets/textures/StandardCubeMap.hdr");
         s_CubeMesh = PrimitiveMesh::CreateCube({-1.0f, -1.0f, -1.0f});
         s_SkyboxShader = CreateRef<Shader>("assets/shaders/SkyboxShader.glsl");
+
+        depthShader = CreateRef<Shader>("DepthShader", std::string(simpleDepthShaderSource));
+
+        brdfShader = CreateRef<Shader>("BRDFLUTShader", std::string(BRDFLUTSource));
 
         // Shadow map
         s_RendererData.ShadowMapFramebuffer = Framebuffer::Create(4096, 4096, {});
@@ -132,33 +138,7 @@ namespace Coffee {
         const Ref<Framebuffer>& forwardBuffer = target.GetFramebuffer("Forward");
         forwardBuffer->Bind();
 
-        RendererAPI::SetColorMask(false, false, false, false);
-        RendererAPI::SetDepthMask(true);
-        RendererAPI::SetDepthFunc(DepthFunc::Less);
-        RendererAPI::Clear(ClearFlags::Depth);
 
-        depthShader->Bind();
-        depthShader->setBool("useCameraProjView", true);
-
-        for (const auto& command : s_RendererData.opaqueRenderQueue)
-        {
-            if (command.animator)
-                AnimationSystem::SetBoneTransformations(depthShader, command.animator);
-            else
-                depthShader->setBool("animated", false);
-
-            // Set the model matrix
-            depthShader->setMat4("model", command.transform);
-
-            Mesh* mesh = command.mesh.get();
-            
-            if(mesh == nullptr)
-            {
-                mesh = s_RendererData.MissingMesh.get();
-            }
-            
-            RendererAPI::DrawIndexed(mesh->GetVertexArray());
-        }
     }
 
     void Renderer3D::ShadowPass(const RenderTarget& target)
@@ -620,19 +600,16 @@ namespace Coffee {
         RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
 
         s_ToneMappingShader->Unbind();
+        lastBuffer->UnBind();
+
+        std::swap(lastBuffer, postBuffer);
 
         // TODO better logic for dynamically enabling and disabling individual post-processing effects
         // Fast aproXimate AntiAliasing
         if (s_RenderSettings.FXAA)
         {
 
-            //This has to be set because the s_ScreenQuad overwrites the depth buffer
-            RendererAPI::SetDepthMask(false);
-
-        s_FinalPassShader->Bind();
-        s_FinalPassShader->setInt("screenTexture", 0);
-        lastBuffer->GetColorTexture("Color")->Bind(0);
-
+            lastBuffer->Bind();
             s_FXAAShader->Bind();
             s_FXAAShader->setInt("screenTexture", 0);
             s_FXAAShader->setVec2("screenSize", {forwardBuffer->GetWidth(), forwardBuffer->GetHeight()});
@@ -641,32 +618,31 @@ namespace Coffee {
             RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
 
             s_FXAAShader->Unbind();
+            lastBuffer->UnBind();
 
-            RendererAPI::SetDepthMask(true);
-
-            forwardBuffer->UnBind();
+            std::swap(lastBuffer, postBuffer);
         }
-        else
-        {
-            //This has to be set because the s_ScreenQuad overwrites the depth buffer
-            RendererAPI::SetDepthMask(false);
 
-            // Copy PostProcessing Texture to the Main Render Texture
-            forwardBuffer->Bind();
-            forwardBuffer->SetDrawBuffers({0});
+        // Final pass to copy the post-processing texture to the main render texture
 
-            s_FinalPassShader->Bind();
-            s_FinalPassShader->setInt("screenTexture", 0);
-            postBuffer->GetColorTexture("Color")->Bind(0);
+        //This has to be set because the s_ScreenQuad overwrites the depth buffer
+        RendererAPI::SetDepthMask(false);
 
-            RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
+        // Copy PostProcessing Texture to the Main Render Texture
+        forwardBuffer->Bind();
+        forwardBuffer->SetDrawBuffers({0});
 
-            s_FinalPassShader->Unbind();
+        s_FinalPassShader->Bind();
+        s_FinalPassShader->setInt("screenTexture", 0);
+        postBuffer->GetColorTexture("Color")->Bind(0);
 
-            RendererAPI::SetDepthMask(true);
+        RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
 
-            forwardBuffer->UnBind();
-        }
+        s_FinalPassShader->Unbind();
+
+        RendererAPI::SetDepthMask(true);
+
+        forwardBuffer->UnBind();
     }
 
     void Renderer3D::ResetCalls()
@@ -698,16 +674,13 @@ namespace Coffee {
 
         RendererAPI::SetViewport(0, 0, properties.Width, properties.Height);
 
-        static Ref<Shader> brdfShader = CreateRef<Shader>("BRDFLUT", BRDFLUTSource);
         brdfShader->Bind();
-
-        static Ref<Mesh> quad = PrimitiveMesh::CreateQuad();
 
         RendererAPI::SetClearColor({0.0f, 0.0f, 0.0f, 1.0f});
         RendererAPI::Clear();
 
-        quad->GetVertexArray()->Bind();
-        RendererAPI::DrawIndexed(quad->GetVertexArray());
+        s_ScreenQuad->GetVertexArray()->Bind();
+        RendererAPI::DrawIndexed(s_ScreenQuad->GetVertexArray());
 
         framebuffer.UnBind();
     }

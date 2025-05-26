@@ -189,6 +189,8 @@ namespace Coffee {
         static Ref<Shader> s_FXAAShader; ///< Fast Approximate AntiAliasing shader
         static Ref<Shader> s_FinalPassShader; ///< Final pass shader.
         static Ref<Shader> s_SkyboxShader; ///< Skybox shader.
+        static Ref<Shader> depthShader; ///< Depth shader.
+        static Ref<Shader> brdfShader; ///< BRDF shader.
     };
 
     /** @} */
