@@ -182,6 +182,13 @@ namespace Coffee {
                 // Position the light to cover the camera's view frustum
                 glm::vec3 lightPos = cameraPos - light.Direction * (shadowDistance * 0.5f);
 
+                // Calculate light position based on camera and scene bounds
+                glm::vec3 cameraPos = target.GetCameraTransform()[3];
+                float shadowDistance = light.ShadowMaxDistance;
+                
+                // Position the light to cover the camera's view frustum
+                glm::vec3 lightPos = cameraPos - light.Direction * (shadowDistance * 0.5f);
+
                 // Adjust the orthographic projection bounds based on ShadowMaxDistance
                 float orthoBounds = shadowDistance * 0.5f; // Slightly larger to avoid edge artifacts
                 float nearPlane = 0.1f;
