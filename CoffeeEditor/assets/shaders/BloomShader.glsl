@@ -141,9 +141,8 @@ void main()
         vec3 upsampled = UpsampleTent9(upsamplingTexture, 0, TexCoord, 1.0f / vec2(textureSize(sourceTexture, 0)), filterRadius);
         vec3 source = textureLod(sourceTexture, TexCoord, 0).rgb;
 
-        float tmpBloomStrength = 0.1;
-        //FragColor.rgb = mix(source, upsampled, tmpBloomStrength);
-        FragColor.rgb = source + upsampled * tmpBloomStrength;
+        //FragColor.rgb = mix(source, upsampled, bloomIntensity);
+        FragColor.rgb = source + upsampled * bloomIntensity;
         FragColor.a = 1.0f;
         //FragColor = vec4(upsampled, 1.0);
     }
