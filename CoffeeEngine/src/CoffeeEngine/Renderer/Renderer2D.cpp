@@ -60,7 +60,7 @@ namespace Coffee {
         static const uint32_t MaxQuadCount = 10000; // Think of increasing this number to 20000
         static const uint32_t MaxVertices = MaxQuadCount * 4;
         static const uint32_t MaxIndices = MaxQuadCount * 6;
-        static const uint32_t MaxTextureSlots = 32;
+        static const uint32_t MaxTextureSlots = 64;
 
         std::vector<QuadVertex> OpaqueQuadVertices;
         uint32_t OpaqueQuadIndexCount = 0;
