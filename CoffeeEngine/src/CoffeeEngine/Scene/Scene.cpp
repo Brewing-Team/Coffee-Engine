@@ -511,6 +511,13 @@ namespace Coffee {
             Renderer3D::GetRenderSettings().FogDensity = firstWorldEnv.FogDensity;
             Renderer3D::GetRenderSettings().FogHeight = firstWorldEnv.FogHeight;
             Renderer3D::GetRenderSettings().FogHeightDensity = firstWorldEnv.FogHeightDensity;
+
+            // Bloom
+            Renderer3D::GetRenderSettings().Bloom = firstWorldEnv.Bloom;
+            // Renderer3D::GetRenderSettings().BloomThreshold = firstWorldEnv.BloomThreshold;
+            Renderer3D::GetRenderSettings().BloomIntensity = firstWorldEnv.BloomIntensity;
+            Renderer3D::GetRenderSettings().BloomRadius = firstWorldEnv.BloomRadius;
+            Renderer3D::GetRenderSettings().BloomMaxMipLevels = firstWorldEnv.BloomMaxMipLevels;
         }
 
         // TEMPORAL - Navigation
@@ -714,6 +721,12 @@ namespace Coffee {
             Renderer3D::GetRenderSettings().FogDensity = firstWorldEnv.FogDensity;
             Renderer3D::GetRenderSettings().FogHeight = firstWorldEnv.FogHeight;
             Renderer3D::GetRenderSettings().FogHeightDensity = firstWorldEnv.FogHeightDensity;
+
+            // Bloom
+            Renderer3D::GetRenderSettings().Bloom = firstWorldEnv.Bloom;
+            Renderer3D::GetRenderSettings().BloomIntensity = firstWorldEnv.BloomIntensity;
+            Renderer3D::GetRenderSettings().BloomRadius = firstWorldEnv.BloomRadius;
+            Renderer3D::GetRenderSettings().BloomMaxMipLevels = firstWorldEnv.BloomMaxMipLevels;
         }
 
         Camera* camera = nullptr;
