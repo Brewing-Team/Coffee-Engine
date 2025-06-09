@@ -76,7 +76,6 @@ namespace Coffee {
         // Create texture from texture parameters
         // Add it to the framebuffers
         // Create the RenderTarget and set it to the Renderer
-
         TextureProperties textureProperties;
         textureProperties.Width = 1280;
         textureProperties.Height = 720;
@@ -88,6 +87,7 @@ namespace Coffee {
         textureProperties.MagFilter = TextureFilter::Linear;
 
         Ref<Texture2D> forwardColorTexture = Texture2D::Create(textureProperties);
+
 
         textureProperties.Format = ImageFormat::RGB8;
         Ref<Texture2D> forwardEntityIDTexture = Texture2D::Create(textureProperties);
