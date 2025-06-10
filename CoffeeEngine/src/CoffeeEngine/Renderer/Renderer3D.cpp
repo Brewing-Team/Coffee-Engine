@@ -201,7 +201,7 @@ namespace Coffee {
                 RendererAPI::Clear(ClearFlags::Depth);
 
                 // Calculate light position based on camera and scene bounds
-                glm::vec3 cameraPos = target.GetCameraTransform()[3];
+                glm::vec3 cameraPos = target->GetCameraTransform()[3];
                 float shadowDistance = light.ShadowMaxDistance;
                 
                 // Position the light to cover the camera's view frustum
