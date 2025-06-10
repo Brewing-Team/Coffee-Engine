@@ -183,14 +183,6 @@ struct Material
 
 uniform Material material;
 
-uniform bool ditheringEnabled;
-uniform float ditheringMinDistance;
-uniform float ditheringMaxDistance;
-uniform float ditheringCircleSize;
-uniform float ditheringRadialBiasMin;
-uniform float ditheringRadialBiasMax;
-uniform vec3 camViewDir;
-
 uniform samplerCube irradianceMap;
 uniform samplerCube prefilterMap;
 uniform sampler2D brdfLUT;
@@ -337,42 +329,6 @@ void main()
         alpha = material.hasAlbedo * (texture(material.albedoMap, VertexInput.TexCoords).a) + (1 - material.hasAlbedo) * material.color.a;
         if (alpha < material.alphaCutoff) {
             discard;
-        }
-    }
-
-    if (ditheringEnabled) {
-        float distance = length(VertexInput.camPos - VertexInput.WorldPos);
-
-        vec3 camToFrag = normalize(VertexInput.WorldPos - VertexInput.camPos);
-        float alignment = dot(camToFrag, camViewDir);
-
-        float threshold = 1.0 - (ditheringCircleSize / 10);
-
-        if (alignment >= threshold) {
-            if (distance <= ditheringMaxDistance) {
-                float fadeAlpha = 1.0;
-
-                if (distance <= ditheringMinDistance) {
-                    discard;
-                } else {
-                    float radialPosition = (1.0 - alignment) / (1.0 - threshold);
-                    radialPosition = clamp(radialPosition, 0.0, 1.0);
-
-                    float distanceRange = ditheringMaxDistance - ditheringMinDistance;
-                    float normalizedDistance = (distance - ditheringMinDistance) / distanceRange;
-                    normalizedDistance = clamp(normalizedDistance, 0.0, 1.0);
-
-                    float radialBias = mix(ditheringRadialBiasMin, ditheringRadialBiasMax, radialPosition);
-                    fadeAlpha = normalizedDistance * radialBias;
-                    fadeAlpha = smoothstep(0.0, 1.0, fadeAlpha);
-
-                    float ditherThreshold = DITHER_PATTERN(gl_FragCoord.xy);
-
-                    if (fadeAlpha < ditherThreshold) {
-                        discard;
-                    }
-                }
-            }
         }
     }
 

@@ -131,7 +131,6 @@ namespace Coffee {
 
         const auto& settings = command.material->GetRenderSettings();
 
-        // TODO: Research if the alpha cutoff should be in opaque or transparent queue
         if (settings.transparencyMode == MaterialRenderSettings::TransparencyMode::Disabled)
         {
             s_RendererData.opaqueRenderQueue.push_back(command);
@@ -192,20 +191,9 @@ namespace Coffee {
                 s_RendererData.ShadowMapFramebuffer->AttachDepthTexture(shadowMap);
     
                 s_RendererData.ShadowMapFramebuffer->Bind();
-                
-                RendererAPI::SetColorMask(false, false, false, false);
-                RendererAPI::SetDepthMask(true);
-                RendererAPI::SetDepthFunc(DepthFunc::Less);
-
+    
                 RendererAPI::SetViewport(0, 0, 4096, 4096);
-                RendererAPI::Clear(ClearFlags::Depth);
-
-                // Calculate light position based on camera and scene bounds
-                glm::vec3 cameraPos = target->GetCameraTransform()[3];
-                float shadowDistance = light.ShadowMaxDistance;
-                
-                // Position the light to cover the camera's view frustum
-                glm::vec3 lightPos = cameraPos - light.Direction * (shadowDistance * 0.5f);
+                RendererAPI::Clear();
 
                 // Calculate light position based on camera and scene bounds
                 glm::vec3 cameraPos = target->GetCameraTransform()[3];
@@ -286,12 +274,8 @@ namespace Coffee {
         forwardBuffer->Bind();
         forwardBuffer->SetDrawBuffers({0, 1}); //TODO: This should only be done in the editor
 
-        RendererAPI::SetColorMask(true, true, true, true);
-        RendererAPI::SetDepthMask(false);
-        RendererAPI::SetDepthFunc(DepthFunc::Equal);
-
         RendererAPI::SetClearColor({0.03f,0.03f,0.03f,1.0});
-        RendererAPI::Clear(ClearFlags::Color);
+        RendererAPI::Clear();
         
         forwardBuffer->GetColorAttachment(1)->Clear({-1.0f,0.0f,0.0f,0.0f}); //TODO: This should only be done in the editor
 
@@ -317,8 +301,6 @@ namespace Coffee {
         std::sort(s_RendererData.opaqueRenderQueue.begin(), s_RendererData.opaqueRenderQueue.end(), [](const RenderCommand& a, const RenderCommand& b) {
             return std::tie(a.material, a.mesh) < std::tie(b.material, b.mesh);
         });
-
-        glm::vec3 camViewDir = glm::normalize(glm::vec3(target.GetCameraTransform() * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
 
         for(const auto& command : s_RendererData.opaqueRenderQueue)
         {
@@ -387,14 +369,6 @@ namespace Coffee {
                     break;
             }
 
-            shader->setBool("ditheringEnabled", settings.ditheringEnabled);
-            shader->setFloat("ditheringCircleSize", settings.circleSize);
-            shader->setFloat("ditheringMinDistance", settings.minDistance);
-            shader->setFloat("ditheringMaxDistance", settings.maxDistance);
-            shader->setFloat("ditheringRadialBiasMin", settings.radialBiasMin);
-            shader->setFloat("ditheringRadialBiasMax", settings.radialBiasMax);
-            shader->setVec3("camViewDir", camViewDir);
-
             if (settings.depthTest)
             {
                 RendererAPI::SetDepthMask(true);
@@ -402,7 +376,7 @@ namespace Coffee {
             else
             {
                 RendererAPI::SetDepthMask(false);
-            } */
+            }
 
             if (settings.wireframe)
             {
@@ -428,7 +402,6 @@ namespace Coffee {
         RendererAPI::SetCullFace(CullFace::Back);
         RendererAPI::SetFaceCulling(true);
         RendererAPI::SetDepthMask(true);
-        RendererAPI::SetDepthFunc(DepthFunc::Less);
         RendererAPI::SetPolygonMode(PolygonMode::Fill);
     }
 

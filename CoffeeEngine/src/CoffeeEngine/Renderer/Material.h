@@ -34,13 +34,6 @@ namespace Coffee {
          } transparencyMode = TransparencyMode::Disabled; ///< The transparency mode.
  
          float alphaCutoff = 0.5f; ///< The alpha cutoff value for the transparency mode.
-
-         bool ditheringEnabled = false;
-         float minDistance = 6.0f;
-         float maxDistance = 12.0f;
-         float circleSize = 1.0f;
-         float radialBiasMin = 0.2f;
-         float radialBiasMax = 1.0f;
  
          // Blend mode
          enum BlendMode

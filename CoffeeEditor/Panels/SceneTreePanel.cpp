@@ -906,6 +906,14 @@ namespace Coffee
                     ImGui::Text("Cone Attenuation");
                     ImGui::DragFloat("##Cone Attenuation", &lightComponent.ConeAttenuation, 0.1f);
                 }
+                if(lightComponent.type == LightComponent::Type::SpotLight)
+                {
+                    ImGui::Text("Angle");
+                    ImGui::DragFloat("##Angle", &lightComponent.Angle, 0.1f);
+
+                    ImGui::Text("Cone Attenuation");
+                    ImGui::DragFloat("##Cone Attenuation", &lightComponent.ConeAttenuation, 0.1f);
+                }
                 if (!isCollapsingHeaderOpen)
                 {
                     entity.RemoveComponent<LightComponent>();
@@ -1275,13 +1283,6 @@ namespace Coffee
                         ImGui::Text("Wireframe");
                         ImGui::SameLine();
                         ImGui::Checkbox("##Wireframe", &materialRenderSettings.wireframe);
-
-                        ImGui::Checkbox("Fade", &materialRenderSettings.ditheringEnabled);
-                        ImGui::DragFloat("Max Distance", &materialRenderSettings.maxDistance, 0.1f, 0.0f, 100.0f);
-                        ImGui::DragFloat("Min Distance", &materialRenderSettings.minDistance, 0.1f, 0.0f, 100.0f);
-                        ImGui::DragFloat("Circle Size", &materialRenderSettings.circleSize, 0.1f, 0.0f, 10.0f);
-                        ImGui::DragFloat("Radial Bias Min", &materialRenderSettings.radialBiasMin, 0.01f, 0.0f, 10.0f);
-                        ImGui::DragFloat("Radial Bias Max", &materialRenderSettings.radialBiasMax, 0.01f, 0.0f, 10.0f);
 
                         ImGui::EndChild();
                         ImGui::TreePop();
@@ -3892,9 +3893,6 @@ namespace Coffee
                     ImGui::Text("Texture");
                     DrawTextureWidget("##Albedo", emitter->particleTexture);
 
-                    ImGui::Text("Transparency");
-                    ImGui::SameLine();
-                    ImGui::Checkbox("##UseTransparency", &emitter->transparency);
 
                     // Restore default state
                     if (!emitter->useRenderer)

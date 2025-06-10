@@ -56,8 +56,6 @@ namespace Coffee {
         Input::Load();
         Audio::OnProjectLoad();
 
-
-
         return project;
     }
 
@@ -65,7 +63,7 @@ namespace Coffee {
     {
         if (s_ActiveProject)
         {
-            std::filesystem::path path = s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_FileName;
+            std::filesystem::path path = s_ActiveProject->m_ProjectDirectory / s_ActiveProject->m_Name;
 
             std::ofstream projectFile(path);
             cereal::JSONOutputArchive archive(projectFile);

@@ -132,6 +132,34 @@ namespace Coffee {
         static void SetRelativeAudioDirectory(const std::filesystem::path& path) { GetActive()->m_AudioFolderPath = path; }
 
         /**
+         * @brief Retrieves de audio directory path of the active project
+         *
+         * This static method returns a reference to the audio directory absolute path associated with the currently
+         * active project
+         * If no audio directory has been defined, it returns the project's directory path instead
+         *
+         * @return audio directory absolute path
+         */
+        static std::filesystem::path GetAudioDirectory() { return GetProjectDirectory() / GetRelativeAudioDirectory(); }
+
+        /**
+         * @brief Retrieves the audio directory relative path of the active object
+         *
+         * This static method returns a reference to the audio directory relative path associated with the currently
+         * active project. If no audio directory has been defined, it returns an empty path instead
+         *
+         * @return The audio directory relative path
+         */
+        static std::filesystem::path GetRelativeAudioDirectory() { return s_ActiveProject->m_AudioFolderPath; }
+
+        /**
+         * @brief Sets the project's audio directory to the path specified
+         *
+         * @param path The relative path to the audio directory
+         */
+        static void SetRelativeAudioDirectory(const std::filesystem::path& path) { GetActive()->m_AudioFolderPath = path; }
+
+        /**
          * @brief Serializes the project data.
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.

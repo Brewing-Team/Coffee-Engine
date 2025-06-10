@@ -72,7 +72,7 @@ namespace Coffee {
 
         // Load the default scene from the project
         SceneManager::SetSceneState(SceneManager::SceneState::Play);
-        SceneManager::ChangeScene(project->GetProjectDirectory() / project->GetProjectDefaultScene());
+        SceneManager::ChangeScene(std::filesystem::current_path() / "gamedata" / "Default.TeaScene");
 
         m_ViewportSize = { 1600.0f, 900.0f };
     }

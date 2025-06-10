@@ -359,29 +359,29 @@ namespace Coffee {
         quadIndexCount += 6;
     }
 
-    void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, bool isTransparent)
+    void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
     {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), {position.x, position.y, 0.0f})
                             * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
         
-        DrawQuad(transform, texture, tilingFactor, tintColor, RenderMode::Screen, isTransparent);
+        DrawQuad(transform, texture, tilingFactor, tintColor, RenderMode::Screen);
     }
 
-    void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, bool isTransparent)
+    void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const float rotation, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
     {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), {position.x, position.y, 0.0f})
                             * glm::rotate(glm::mat4(1.0f), rotation, {0.0f, 0.0f, 1.0f})
                             * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
         
-        DrawQuad(transform, texture, tilingFactor, tintColor, RenderMode::Screen, isTransparent);
+        DrawQuad(transform, texture, tilingFactor, tintColor, RenderMode::Screen);
     }
 
-    void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, bool isTransparent)
+    void Renderer2D::DrawQuad(const glm::vec3& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
     {
         glm::mat4 transform = glm::translate(glm::mat4(1.0f), position)
                             * glm::scale(glm::mat4(1.0f), {size.x, size.y, 1.0f});
         
-        DrawQuad(transform, texture, tilingFactor, tintColor, RenderMode::World, isTransparent);
+        DrawQuad(transform, texture, tilingFactor, tintColor, RenderMode::World);
     }
 
     void Renderer2D::DrawQuad(const glm::mat4& transform, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor, RenderMode mode, uint32_t entityID, const glm::vec4& uvRect)
