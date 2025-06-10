@@ -119,6 +119,8 @@ namespace Coffee {
 
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
+        Application::Get().GetWindow().SetIcon("icon.png");
+
         m_EditorScene = CreateRef<Scene>();
             
         SceneManager::SetSceneState(SceneManager::SceneState::Edit);
