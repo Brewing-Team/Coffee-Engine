@@ -10,8 +10,6 @@
 > [!IMPORTANT]
 > This is a university project for learning how to make a 3D game engine.
 
----
-
 # Documentation
 
 📚 **[Read the full documentation](https://brewing-team.github.io/Coffee-Engine/)** - Complete API reference, tutorials, and guides
@@ -91,8 +89,6 @@ cd ../bin/CoffeeEditor/Release
 ./CoffeeEditor
 ```
 </details>
-
----
 
 # Features
 
@@ -197,11 +193,7 @@ cd ../bin/CoffeeEditor/Release
 - [x] **Scene Serialization**: Complete scene save/load system
 - [x] **Cereal Library**: Robust versioned serialization
 
----
-
 # Screenshots
-
-## Editor
 
 ![](Resources/Release2/screenshot_3.png)
 ![](Resources/Release2/screenshot_4.png)
