@@ -84,8 +84,8 @@ namespace Coffee {
 
         ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
-        Project::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaProject");
-        Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName());
+        Ref<Project> project = Project::Load(std::filesystem::current_path() / "gamedata" / "Default.TeaProject");
+        Application::Get().GetWindow().SetTitle(project->GetProjectName());
         Application::Get().GetWindow().SetIcon("icon.png");
 
         // Load the default scene from the project
