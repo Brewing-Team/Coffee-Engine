@@ -3,6 +3,7 @@
 #include <filesystem>
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceFormat.h"
+#include "CoffeeEngine/Renderer/Shader.h"
 
 namespace Coffee {
 

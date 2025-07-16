@@ -11,7 +11,6 @@ namespace Coffee {
         collisionConfig = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfig);
         broadphase = new btDbvtBroadphase();
-        //dynamic_cast<btDbvtBroadphase*>(broadphase)->setVelocityPrediction(0.5f);
         solver = new btSequentialImpulseConstraintSolver();
         dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfig);
         dynamicsWorld->setGravity(btVector3(0, GRAVITY, 0));

@@ -45,22 +45,8 @@
 #include <tracy/Tracy.hpp>
 
 #include <IconsLucide.h>
-#include <entt_snapshot/Reflection.hpp>
 #include <utility>
 #include <vector>
-
-// All serialization components names
-constexpr std::string_view trc = "TransformComponent";
-constexpr std::string_view tgc = "TagComponent";
-constexpr std::string_view msc = "MeshComponent";
-constexpr std::string_view mtc = "MaterialComponent";
-constexpr std::string_view hrc = "HierarchyComponent";
-constexpr std::string_view nvc = "NavMeshComponent";
-constexpr std::string_view rbc = "RigidbodyComponent";
-constexpr std::string_view asc = "AudioSourceComponent";
-constexpr std::string_view abc = "AnimatorComponent";
-constexpr std::string_view scc = "ScriptComponent";
-
 
 namespace Coffee {
 
@@ -461,7 +447,7 @@ namespace Coffee {
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
 
-        Application::Get().GetImGuiLayer()->BlockEvents(!(m_ViewportHovered || m_ProjectSettingsPanel.IsPanelVisible(PanelDisplayEnum::Input)));
+        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
         ResizeViewport(viewportPanelSize.x, viewportPanelSize.y);
@@ -875,8 +861,6 @@ namespace Coffee {
         {
             Project::Load(path);
             Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - Coffee Engine");
-
-
         }
         else
         {

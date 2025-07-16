@@ -224,13 +224,6 @@ uniform bool showNormals;
 
 const float PI = 3.14159265359;
 
-#define DITHER_PATTERN ditherGradientNoise
-
-float ditherGradientNoise(vec2 uv) {
-    const vec3 magic = vec3(0.06711056, 0.00583715, 52.9829189);
-    return fract(magic.z * fract(dot(uv, magic.xy)));
-}
-
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
@@ -376,19 +369,9 @@ void main()
         {
             /*====Point Light====*/
 
-            vec3 lightDir = normalize(lights[i].position - VertexInput.WorldPos);
+            L = normalize(lights[i].position - VertexInput.WorldPos);
             float distance = length(lights[i].position - VertexInput.WorldPos);
-
-            if(distance > lights[i].range)
-                continue;
-
-            float attenuation = getOmniAttenuation(distance, 1.0 / lights[i].range, lights[i].attenuation);
-            attenuation *= max(0.0, dot(N, lightDir));
-
-            if(attenuation <= 0.0001)
-                continue;
-
-            L = lightDir;
+            float attenuation = 1.0 / (distance * distance);
             radiance = lights[i].color * attenuation * lights[i].intensity;
         }
         else if(lights[i].type == 2)

@@ -1,7 +1,6 @@
 #include "ImGuiLayer.h"
 
 #include "CoffeeEngine/Core/Application.h"
-#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Window.h"
 #include "SDL3/SDL_video.h"
 
@@ -79,30 +78,6 @@ namespace Coffee {
 			ImGuiIO& io = ImGui::GetIO();
 			e.Handled |= e.IsInCategory(EventCategoryMouse) & io.WantCaptureMouse;
 			e.Handled |= e.IsInCategory(EventCategoryKeyboard) & io.WantCaptureKeyboard;
-		}
-
-		if(e.GetEventType() == EventType::WindowDisplayScale)
-		{
-			WindowDisplayScaleEvent& event = static_cast<WindowDisplayScaleEvent&>(e);
-			ImGui::GetStyle().ScaleAllSizes(event.GetScale());
-
-			float fontSize = 17.5f * event.GetScale();
-			float iconFontSize = fontSize;
-			ImGuiIO& io = ImGui::GetIO();
-			io.Fonts->Clear();
-			io.FontDefault = io.Fonts->AddFontFromFileTTF("assets/fonts/JetBrains_Mono/static/JetBrainsMono-Medium.ttf", fontSize);
-
-			// Load icon font
-			static const ImWchar icon_ranges[] = { ICON_MIN_LC, ICON_MAX_LC, 0 }; // Adjust this range according to your icons
-			ImFontConfig icon_config;
-			icon_config.MergeMode = true;
-			icon_config.PixelSnapH = true;
-			icon_config.GlyphMinAdvanceX = iconFontSize;
-			icon_config.GlyphOffset.y = 3.5f;
-			io.Fonts->AddFontFromFileTTF("assets/fonts/lucide.ttf", iconFontSize, &icon_config, icon_ranges);
-
-			ImGui_ImplOpenGL3_DestroyDeviceObjects();
-			ImGui_ImplOpenGL3_CreateDeviceObjects();
 		}
     }
 

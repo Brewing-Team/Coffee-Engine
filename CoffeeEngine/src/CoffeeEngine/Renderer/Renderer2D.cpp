@@ -62,11 +62,8 @@ namespace Coffee {
         static const uint32_t MaxIndices = MaxQuadCount * 6;
         static const uint32_t MaxTextureSlots = 64;
 
-        std::vector<QuadVertex> OpaqueQuadVertices;
-        uint32_t OpaqueQuadIndexCount = 0;
-
-        std::vector<QuadVertex> TransparentQuadVertices;
-        uint32_t TransparentQuadIndexCount = 0;
+        std::vector<QuadVertex> QuadVertices;
+        uint32_t QuadIndexCount = 0;
 
         std::vector<LineVertex> LineVertices;
 
@@ -194,9 +191,9 @@ namespace Coffee {
         {
             Batch& batch = s_Renderer2DData.WorldBatches.front();
 
-            if(batch.OpaqueQuadIndexCount > 0)
+            if(batch.QuadIndexCount > 0)
             {
-                s_Renderer2DData.QuadVertexBuffer->SetData(batch.OpaqueQuadVertices.data(), batch.OpaqueQuadVertices.size() * sizeof(QuadVertex));
+                s_Renderer2DData.QuadVertexBuffer->SetData(batch.QuadVertices.data(), batch.QuadVertices.size() * sizeof(QuadVertex));
 
                 batch.TextureSlots[0] = s_Renderer2DData.WhiteTexture;
 
@@ -206,7 +203,7 @@ namespace Coffee {
                 }
 
                 s_Renderer2DData.QuadShader->Bind();
-                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.OpaqueQuadIndexCount);
+                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
             }
 
             if(batch.LineVertices.size() > 0)
@@ -245,9 +242,9 @@ namespace Coffee {
         {
             Batch& batch = s_Renderer2DData.ScreenBatches.front();
 
-            if(batch.OpaqueQuadIndexCount > 0)
+            if(batch.QuadIndexCount > 0)
             {
-                s_Renderer2DData.QuadVertexBuffer->SetData(batch.OpaqueQuadVertices.data(), batch.OpaqueQuadVertices.size() * sizeof(QuadVertex));
+                s_Renderer2DData.QuadVertexBuffer->SetData(batch.QuadVertices.data(), batch.QuadVertices.size() * sizeof(QuadVertex));
 
                 batch.TextureSlots[0] = s_Renderer2DData.WhiteTexture;
 
@@ -257,7 +254,7 @@ namespace Coffee {
                 }
 
                 s_Renderer2DData.QuadShader->Bind();
-                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.OpaqueQuadIndexCount);
+                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
             }
 
             if(batch.LineVertices.size() > 0)
@@ -325,16 +322,10 @@ namespace Coffee {
 
         Batch& batch = GetBatch(mode);
 
-        std::vector<QuadVertex>& quadVertices = (color.a == 1.0f) ? batch.OpaqueQuadVertices : batch.TransparentQuadVertices;
-        uint32_t& quadIndexCount = (color.a == 1.0f) ? batch.OpaqueQuadIndexCount : batch.TransparentQuadIndexCount;
-
-        if(quadIndexCount >= Batch::MaxIndices)
+        if(batch.QuadIndexCount >= Batch::MaxIndices)
         {
             NextBatch(mode);
             batch = GetBatch(mode);
-            
-            quadVertices = (color.a == 1.0f) ? batch.OpaqueQuadVertices : batch.TransparentQuadVertices;
-            quadIndexCount = (color.a == 1.0f) ? batch.OpaqueQuadIndexCount : batch.TransparentQuadIndexCount;
         }
 
         // Convert entityID to vec3
@@ -345,7 +336,7 @@ namespace Coffee {
 
         for(size_t i = 0; i < quadVertexCount; i++)
         {
-            quadVertices.push_back(
+            batch.QuadVertices.push_back(
             {
                 transform * s_Renderer2DData.QuadVertexPositions[i], 
                 color, 
@@ -356,7 +347,7 @@ namespace Coffee {
                 });
         }
 
-        quadIndexCount += 6;
+        batch.QuadIndexCount += 6;
     }
 
     void Renderer2D::DrawQuad(const glm::vec2& position, const glm::vec2& size, const Ref<Texture2D>& texture, float tilingFactor, const glm::vec4& tintColor)
@@ -396,16 +387,10 @@ namespace Coffee {
 
         Batch& batch = GetBatch(mode);
 
-        std::vector<QuadVertex>& quadVertices = (isTransparent) ?  batch.TransparentQuadVertices : batch.OpaqueQuadVertices;
-        uint32_t& quadIndexCount = (isTransparent) ? batch.TransparentQuadIndexCount : batch.OpaqueQuadIndexCount;
-
-        if(quadIndexCount >= Batch::MaxIndices)
+        if(batch.QuadIndexCount >= Batch::MaxIndices)
         {
             NextBatch(mode);
             batch = GetBatch(mode);
-            
-            quadVertices = (isTransparent) ?  batch.TransparentQuadVertices : batch.OpaqueQuadVertices;
-            quadIndexCount = (isTransparent) ? batch.TransparentQuadIndexCount : batch.OpaqueQuadIndexCount;
         }
 
         float textureIndex = 0.0f;
@@ -449,7 +434,7 @@ namespace Coffee {
 
         for(size_t i = 0; i < quadVertexCount; i++)
         {
-            quadVertices.push_back(
+            batch.QuadVertices.push_back(
             {
                 transform * quadVerts[i],
                 tintColor, 
@@ -460,7 +445,7 @@ namespace Coffee {
                 });
         }
 
-        quadIndexCount += 6;
+        batch.QuadIndexCount += 6;
     }
 
     void Renderer2D::DrawLine(const glm::vec2& start, const glm::vec2& end, const glm::vec4& color, float linewidth)
@@ -989,6 +974,9 @@ namespace Coffee {
         const auto& fontGeometry = font->GetMSDFData()->FontGeometry;
         const auto& metrics = fontGeometry.getMetrics();
         Ref<Texture2D> fontAtlas = font->GetAtlasTexture();
+        
+        // TODO: Skip to the next batch if the font is different
+        batch.FontAtlasTexture = fontAtlas;
 
         double fsScale = textParams.Size / (metrics.ascenderY - metrics.descenderY);
         const float spaceGlyphAdvance = fontGeometry.getGlyph(' ')->getAdvance();

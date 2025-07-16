@@ -104,8 +104,6 @@ namespace Coffee
          * @return True if the event was handled, false otherwise.
          */
         bool OnWindowClose(WindowCloseEvent& e);
-        bool OnWindowResize(WindowResizeEvent& e);
-        bool OnWindowDisplayScale(WindowDisplayScaleEvent& e);
 
       private:
 

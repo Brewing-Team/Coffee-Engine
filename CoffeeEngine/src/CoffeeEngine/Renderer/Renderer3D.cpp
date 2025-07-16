@@ -422,7 +422,6 @@ namespace Coffee {
         s_SkyboxShader->setFloat("exposure", s_RenderSettings.EnvironmentExposure);
         RendererAPI::DrawIndexed(s_CubeMesh->GetVertexArray());
         RendererAPI::SetDepthMask(true);
-        RendererAPI::SetDepthFunc(DepthFunc::Less);
 
         forwardBuffer->UnBind();
     }

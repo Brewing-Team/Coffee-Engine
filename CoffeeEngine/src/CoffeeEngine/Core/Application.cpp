@@ -156,13 +156,6 @@ namespace Coffee
                     m_EventCallback(e);
                     break;
                 }
-                case SDL_EVENT_WINDOW_DISPLAY_SCALE_CHANGED:
-                {
-                    float scale = SDL_GetWindowDisplayScale((SDL_Window*)m_Window->GetNativeWindow());
-                    WindowDisplayScaleEvent e(scale);
-                    m_EventCallback(e);
-                    break;
-                }
                 case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
                 {
                     WindowCloseEvent e;
@@ -263,24 +256,6 @@ namespace Coffee
 
         m_Running = false;
         return true;
-    }
-
-    bool Application::OnWindowResize(WindowResizeEvent& e)
-    {
-        ZoneScoped;
-
-        m_Window->OnSizeChanged(e.GetWidth(), e.GetHeight());
-
-        return false;
-    }
-
-    bool Application::OnWindowDisplayScale(WindowDisplayScaleEvent& e)
-    {
-        ZoneScoped;
-
-        m_Window->OnDisplayScaleChanged(e.GetScale());
-
-        return false;
     }
 
 } // namespace Coffee

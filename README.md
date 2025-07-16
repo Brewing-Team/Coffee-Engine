@@ -10,6 +10,12 @@
 > [!IMPORTANT]
 > This is a university project for learning how to make a 3D game engine.
 
+# Screenshots
+
+| ![](Resources/Release2/screenshot_3.png) | ![](Resources/Release2/screenshot_4.png) |
+| --- | --- |
+| ![](Resources/Release2/screenshot_1.webp) | ![](Resources/Release2/screenshot_2.webp) |
+
 # Documentation
 
 📚 **[Read the full documentation](https://brewing-team.github.io/Coffee-Engine/)** - Complete API reference, tutorials, and guides
@@ -192,19 +198,6 @@ cd ../bin/CoffeeEditor/Release
 ### **Serialization & Persistence**
 - [x] **Scene Serialization**: Complete scene save/load system
 - [x] **Cereal Library**: Robust versioned serialization
-
-### **3D Rendering**
-- [x] **Forward Rendering Pipeline**: Modern Renderer3D implementation
-- [x] **PBR Materials**: Physically-based rendering workflow
-- [x] **Shader Materials**: Custom shader support
-- [x] **Textures**: Complete texture loading and management
-- [x] **Skybox**: HDR environment mapping
-- [x] **HDR Rendering**: High dynamic range pipeline
-
-![](Resources/Release2/screenshot_3.png)
-![](Resources/Release2/screenshot_4.png)
-![](Resources/Release2/screenshot_1.webp)
-![](Resources/Release2/screenshot_2.webp)
 
 ## Acknowledgements
 

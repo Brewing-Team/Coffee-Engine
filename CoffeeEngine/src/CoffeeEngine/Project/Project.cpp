@@ -41,7 +41,6 @@ namespace Coffee {
 
         archive(*project);
 
-        project->m_FileName = path.filename();
         project->m_ProjectDirectory = path.parent_path();
 
         s_ActiveProject = project;

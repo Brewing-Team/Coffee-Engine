@@ -471,8 +471,6 @@ namespace Coffee {
         }
         Audio::PlayInitialAudios();
 
-        UpdateUIEntities();
-
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
 

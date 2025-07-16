@@ -51,49 +51,6 @@ namespace Coffee {
         unsigned int m_Width, m_Height;
     };
 
-    class WindowDisplayScaleEvent : public Event
-    {
-    public:
-        /**
-        * @brief Constructs a WindowDisplayScaleEvent with the given DPI scale.
-        * @param scale The new DPI scale of the window.
-        */
-        WindowDisplayScaleEvent(float scale)
-            : m_Scale(scale) {}
-
-        /**
-        * @brief Retrieves the DPI scale of the window.
-        * @return The DPI scale.
-        */
-        float GetScale() const { return m_Scale; }
-
-        /**
-        * @brief Converts the event to a string representation.
-        * @return A string representation of the event.
-        */
-        std::string ToString() const override
-        {
-            std::stringstream ss;
-            ss << "WindowDisplayScaleEvent: " << m_Scale;
-            return ss.str();
-        }
-
-        /**
-        * @brief Retrieves the event type.
-        * @return The event type.
-        */
-        EVENT_CLASS_TYPE(WindowDisplayScale)
-
-        /**
-        * @brief Retrieves the event category.
-        * @return The event category.
-        */
-        EVENT_CLASS_CATEGORY(EventCategoryApplication)
-
-    private:
-        float m_Scale; ///< The DPI scale of the window.
-    };
-
     /**
      * @brief Event for window close.
      */
