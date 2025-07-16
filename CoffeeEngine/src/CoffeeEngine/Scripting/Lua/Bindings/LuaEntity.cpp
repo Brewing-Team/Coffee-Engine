@@ -56,24 +56,7 @@ void Coffee::RegisterEntityBindings(sol::state& luaState)
                     COFFEE_CORE_ERROR("Lua: Entity {} does not have a ScriptComponent",
                         self->TryGetComponent<TagComponent>() ? self->GetComponent<TagComponent>().Tag : "Unknown");
                     return sol::nil;
-                } else if (componentName == "ParticlesSystemComponent") {
-                    if (auto* component = self->TryGetComponent<ParticlesSystemComponent>())
-                        return sol::make_object(luaState, component);
-
-                    COFFEE_CORE_ERROR("Lua: Entity {} does not have a ParticlesSystemComponent",
-                        self->TryGetComponent<TagComponent>() ? self->GetComponent<TagComponent>().Tag : "Unknown");
-                    return sol::nil;
-                }
-                else if (componentName == "SpriteComponent")
-                {
-                    if (auto* component = self->TryGetComponent<SpriteComponent>())
-                        return sol::make_object(luaState, std::ref(*component));
-
-                    COFFEE_CORE_ERROR("Lua: Entity {} does not have a SpriteComponent",
-                        self->TryGetComponent<TagComponent>() ? self->GetComponent<TagComponent>().Tag : "Unknown");
-                    return sol::nil;
-                }
-                else if (componentName == "NavigationAgentComponent")
+                } else if (componentName == "NavigationAgentComponent")
                 {
                     if (auto* component = self->TryGetComponent<NavigationAgentComponent>())
                         return sol::make_object(luaState, component);
@@ -156,8 +139,6 @@ void Coffee::RegisterEntityBindings(sol::state& luaState)
                     return self->HasComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     return self->HasComponent<ScriptComponent>();
-                } else if (componentName == "ParticlesSystemComponent") {
-                    return self->HasComponent<ParticlesSystemComponent>();
                 } else if (componentName == "NavigationAgentComponent") {
                     return self->HasComponent<NavigationAgentComponent>();
                 } else if (componentName == "RigidbodyComponent") {
@@ -194,8 +175,6 @@ void Coffee::RegisterEntityBindings(sol::state& luaState)
                     self->RemoveComponent<LightComponent>();
                 } else if (componentName == "ScriptComponent") {
                     self->RemoveComponent<ScriptComponent>();
-                } else if (componentName == "ParticlesSystemComponent") {
-                    self->RemoveComponent<ParticlesSystemComponent>();
                 } else if (componentName == "RigidbodyComponent") {
                     self->RemoveComponent<RigidbodyComponent>();
                 } else if (componentName == "AudioSourceComponent") {

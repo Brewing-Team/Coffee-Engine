@@ -14,7 +14,6 @@
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 #include "CoffeeEngine/Navigation/NavMesh.h"
 #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
-#include "CoffeeEngine/ParticleManager/ParticleManager.h"
 #include "CoffeeEngine/Physics/Collider.h"
 #include "CoffeeEngine/Physics/RigidBody.h"
 #include "CoffeeEngine/Renderer/Material.h"
@@ -963,35 +962,6 @@ namespace Coffee
         }
     };
 
-    struct ParticlesSystemComponent
-    {
-      public:
-        bool NeedsUpdate = true; ///< Flag to indicate if the animator needs an update.
-        ParticlesSystemComponent() { m_Particles = CreateRef<ParticleEmitter>(); }
-
-        Ref<ParticleEmitter> GetParticleEmitter() { return m_Particles; }
-        void SetParticleEmitter(Ref<ParticleEmitter> newParticleEmitter) { m_Particles = newParticleEmitter; }
-
-        void Emit(int quantity) { m_Particles->Emit(quantity); }
-        void SetLooping(bool active) { m_Particles->looping = active; }
-
-      private:
-        Ref<ParticleEmitter> m_Particles = nullptr;
-
-      public:
-        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
-        {
-            archive(cereal::make_nvp("ParticleEmitter", m_Particles));
-        }
-
-        template <class Archive> void load(Archive& archive, std::uint32_t const version)
-        {
-            archive(cereal::make_nvp("ParticleEmitter", m_Particles));
-        }
-
-
-    };
-
     struct NavMeshComponent
     {
         bool ShowDebug = false; ///< Flag to show the navigation mesh debug.
@@ -1093,60 +1063,6 @@ namespace Coffee
       private:
         Ref<NavMeshPathfinding> m_PathFinder = nullptr;     ///< The pathfinder.
         Ref<NavMeshComponent> m_NavMeshComponent = nullptr; ///< The navigation mesh component.
-    };
-
-    struct SpriteComponent
-    {
-        Ref<Texture2D> texture; ///< The zone ID.
-        glm::vec4 tintColor = glm::vec4(1);
-        bool flipX = false;
-        bool flipY = false;
-        float tilingFactor = 1;
-
-        SpriteComponent() { texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); };
-
-        SpriteComponent(const SpriteComponent& other) { *this = other; }
-
-        void SetTintColor(glm::vec4 newTint) { tintColor = newTint; }
-        glm::vec4 GetTintColor() { return tintColor; }
-
-        SpriteComponent& operator=(const SpriteComponent& other)
-        {
-            if (this != &other)
-            {
-                texture = other.texture;
-                tintColor = other.tintColor;
-                flipX = other.flipX;
-                flipY = other.flipY;
-                tilingFactor = other.tilingFactor;
-            }
-            return *this;
-        }
-
-        template <class Archive> void save(Archive& archive, std::uint32_t const version) const
-        {
-            archive(cereal::make_nvp("TextureUUID", texture->GetUUID()));
-            archive(cereal::make_nvp("TintColor", tintColor));
-            archive(cereal::make_nvp("FlipX", flipX));
-            archive(cereal::make_nvp("FlipY", flipY));
-            archive(cereal::make_nvp("TilingFactor", tilingFactor));
-        }
-
-        template <class Archive> void load(Archive& archive, std::uint32_t const version)
-        {
-            UUID textureUUID;
-
-            archive(cereal::make_nvp("TextureUUID", textureUUID));
-            archive(cereal::make_nvp("TintColor", tintColor));
-            archive(cereal::make_nvp("FlipX", flipX));
-            archive(cereal::make_nvp("FlipY", flipY));
-            archive(cereal::make_nvp("TilingFactor", tilingFactor));
-
-            if (textureUUID)
-            {
-                texture = ResourceLoader::GetResource<Texture2D>(textureUUID);
-            }
-        }
     };
 
     struct ActiveComponent
@@ -1446,7 +1362,6 @@ CEREAL_CLASS_VERSION(Coffee::ScriptComponent, 0);
 CEREAL_CLASS_VERSION(Coffee::RigidbodyComponent, 0);
 CEREAL_CLASS_VERSION(Coffee::NavMeshComponent, 0);
 CEREAL_CLASS_VERSION(Coffee::NavigationAgentComponent, 0);
-CEREAL_CLASS_VERSION(Coffee::ParticlesSystemComponent, 0);
 CEREAL_CLASS_VERSION(Coffee::UIComponent, 0);
 CEREAL_CLASS_VERSION(Coffee::UIImageComponent, 1);
 CEREAL_CLASS_VERSION(Coffee::UITextComponent, 0);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Panel.h"
+#include "imgui.h"
 
 namespace Coffee {
     class InputBinding;

@@ -40,7 +40,6 @@ namespace Coffee {
         CopyComponentToPrefab<MaterialComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<LightComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<RigidbodyComponent>(sourceEntity, destEntity);
-        CopyComponentToPrefab<ParticlesSystemComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<ScriptComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<AnimatorComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<AudioSourceComponent>(sourceEntity, destEntity);
@@ -48,7 +47,6 @@ namespace Coffee {
         CopyComponentToPrefab<AudioZoneComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<NavMeshComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<NavigationAgentComponent>(sourceEntity, destEntity);
-        CopyComponentToPrefab<SpriteComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<UIImageComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<UITextComponent>(sourceEntity, destEntity);
         CopyComponentToPrefab<UIToggleComponent>(sourceEntity, destEntity);
@@ -286,11 +284,9 @@ namespace Coffee {
         // Copy standard components
         CopyComponentToScene<MaterialComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<LightComponent>(scene, prefabEntity, entity);
-        CopyComponentToScene<ParticlesSystemComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<AudioZoneComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<NavigationAgentComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<NavMeshComponent>(scene, prefabEntity, entity);
-        CopyComponentToScene<SpriteComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<UIImageComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<UITextComponent>(scene, prefabEntity, entity);
         CopyComponentToScene<UIToggleComponent>(scene, prefabEntity, entity);

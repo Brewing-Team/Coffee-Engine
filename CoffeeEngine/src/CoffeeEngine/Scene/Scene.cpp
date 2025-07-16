@@ -223,20 +223,6 @@ namespace Coffee {
         }
     }
 
-    template <>
-    void CopyComponentIfExists<ParticlesSystemComponent>(entt::entity destinyEntity, entt::entity sourceEntity,
-                                              entt::registry& registry){
-
-        if (registry.all_of<ParticlesSystemComponent>(sourceEntity))
-            {
-            auto& srcComponent = registry.get<ParticlesSystemComponent>(sourceEntity);
-            ParticlesSystemComponent newComponent(srcComponent);
-            newComponent.SetParticleEmitter(CreateRef<ParticleEmitter>(*srcComponent.GetParticleEmitter()));
-            registry.emplace<ParticlesSystemComponent>(destinyEntity, std::move(newComponent));
-            
-        }
-    }
-
     template <typename... Components>
     static void CopyEntity(entt::entity destinyEntity, entt::entity sourceEntity, entt::registry& registry)
     {
@@ -609,49 +595,6 @@ namespace Coffee {
         }
 
         {
-            // Get all entities with ParticlesSystemComponent and TransformComponent
-            auto particleSystemView = m_Registry.view<ActiveComponent, ParticlesSystemComponent, TransformComponent>();
-            ZoneScopedN("ParticlesSystemComponent View");
-
-            for (auto& entity : particleSystemView)
-            {
-                auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
-                auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
-                if (particlesSystemComponent.NeedsUpdate)
-                {
-                    particlesSystemComponent.NeedsUpdate = false;
-                    particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
-                    particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = camera.GetViewMatrix();
-                    particlesSystemComponent.GetParticleEmitter()->Update(dt);
-                    particlesSystemComponent.GetParticleEmitter()->DrawDebug();
-                }
-                else {
-                    Renderer2D::DrawQuad(transformComponent.GetWorldTransform(),
-                        particlesSystemComponent.GetParticleEmitter()->particleTexture, 1,
-                        particlesSystemComponent.GetParticleEmitter()->colorNormal, Renderer2D::RenderMode::World);
-                }
-            }
-        }
-
-        {
-            auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
-            ZoneScopedN("SpriteComponent View");
-
-            for (auto& entity : spriteView)
-            {
-                auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
-                auto& transformComponent = spriteView.get<TransformComponent>(entity);
-
-                if (spriteComponent.texture)
-                {
-                    Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), spriteComponent.texture,
-                                         spriteComponent.tilingFactor, spriteComponent.tintColor,
-                                         Renderer2D::RenderMode::World);
-                }
-            }
-        }
-
-        {
             ZoneScopedN("UIManager::UpdateUI");
             UIManager::UpdateUI(m_Registry);
         }
@@ -887,45 +830,6 @@ namespace Coffee {
                 lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
                 Renderer3D::Submit(lightComponent);
-            }
-        }
-
-        {
-            // Get all entities with ParticlesSystemComponent and TransformComponent
-            auto particleSystemView = m_Registry.view<ActiveComponent, ParticlesSystemComponent, TransformComponent>();
-            ZoneScopedN("ParticlesSystemComponent View");
-
-            for (auto& entity : particleSystemView)
-            {
-                if (staticView.contains(entity) && visibleEntitySet.find(entity) == visibleEntitySet.end())
-                    continue;
-
-                auto& particlesSystemComponent = particleSystemView.get<ParticlesSystemComponent>(entity);
-                auto& transformComponent = particleSystemView.get<TransformComponent>(entity);
-
-                particlesSystemComponent.GetParticleEmitter()->transformComponentMatrix = transformComponent.GetWorldTransform();
-                particlesSystemComponent.GetParticleEmitter()->cameraViewMatrix = glm::inverse(cameraTransform);
-                particlesSystemComponent.GetParticleEmitter()->Update(dt);
-            }
-        }
-
-        {
-            auto spriteView = m_Registry.view<ActiveComponent, SpriteComponent, TransformComponent>();
-            ZoneScopedN("SpriteComponent View");
-
-            for (auto& entity : spriteView)
-            {
-                if (staticView.contains(entity) && visibleEntitySet.find(entity) == visibleEntitySet.end())
-                    continue;
-
-                auto& spriteComponent = spriteView.get<SpriteComponent>(entity);
-                auto& transformComponent = spriteView.get<TransformComponent>(entity);
-
-                if (spriteComponent.texture) {
-                    Renderer2D::DrawQuad(transformComponent.GetWorldTransform(), spriteComponent.texture,
-                                         spriteComponent.tilingFactor, spriteComponent.tintColor,
-                                         Renderer2D::RenderMode::World);
-                }
             }
         }
 

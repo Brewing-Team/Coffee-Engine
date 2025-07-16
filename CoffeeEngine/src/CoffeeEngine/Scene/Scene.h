@@ -185,10 +185,8 @@ namespace Coffee {
                 .template get<AudioSourceComponent>(archive)
                 .template get<AudioListenerComponent>(archive)
                 .template get<AudioZoneComponent>(archive)
-                .template get<ParticlesSystemComponent>(archive)
                 .template get<ActiveComponent>(archive)
                 .template get<StaticComponent>(archive)
-                .template get<SpriteComponent>(archive)
                 .template get<UIImageComponent>(archive)
                 .template get<UITextComponent>(archive)
                 .template get<UIToggleComponent>(archive)
@@ -225,7 +223,6 @@ namespace Coffee {
                     .template get<AudioSourceComponent>(archive)
                     .template get<AudioListenerComponent>(archive)
                     .template get<AudioZoneComponent>(archive)
-                    .template get<ParticlesSystemComponent>(archive)
                     .template get<ActiveComponent>(archive)
                     .template get<StaticComponent>(archive);
             }
@@ -248,10 +245,8 @@ namespace Coffee {
                     .template get<AudioSourceComponent>(archive)
                     .template get<AudioListenerComponent>(archive)
                     .template get<AudioZoneComponent>(archive)
-                    .template get<ParticlesSystemComponent>(archive)
                     .template get<ActiveComponent>(archive)
                     .template get<StaticComponent>(archive)
-                    .template get<SpriteComponent>(archive)
                     .template get<UIImageComponent>(archive)
                     .template get<UITextComponent>(archive)
                     .template get<UIToggleComponent>(archive)
@@ -277,10 +272,8 @@ namespace Coffee {
                     .template get<AudioSourceComponent>(archive)
                     .template get<AudioListenerComponent>(archive)
                     .template get<AudioZoneComponent>(archive)
-                    .template get<ParticlesSystemComponent>(archive)
                     .template get<ActiveComponent>(archive)
                     .template get<StaticComponent>(archive)
-                    .template get<SpriteComponent>(archive)
                     .template get<UIImageComponent>(archive)
                     .template get<UITextComponent>(archive)
                     .template get<UIToggleComponent>(archive)
@@ -308,10 +301,8 @@ namespace Coffee {
                     .template get<AudioSourceComponent>(archive)
                     .template get<AudioListenerComponent>(archive)
                     .template get<AudioZoneComponent>(archive)
-                    .template get<ParticlesSystemComponent>(archive)
                     .template get<ActiveComponent>(archive)
                     .template get<StaticComponent>(archive)
-                    .template get<SpriteComponent>(archive)
                     .template get<UIImageComponent>(archive)
                     .template get<UITextComponent>(archive)
                     .template get<UIToggleComponent>(archive)
@@ -331,7 +322,7 @@ namespace Coffee {
             TagComponent, TransformComponent, HierarchyComponent, CameraComponent, \
             MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, \
             ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, \
-            ParticlesSystemComponent, AnimatorComponent, ActiveComponent, StaticComponent, SpriteComponent, \
+            AnimatorComponent, ActiveComponent, StaticComponent, \
             UIComponent, UIImageComponent, UITextComponent, UIToggleComponent, UIButtonComponent, UISliderComponent, \
             WorldEnvironmentComponent
 

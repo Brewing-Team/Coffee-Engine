@@ -522,20 +522,6 @@ UIToggleComponent = {
     end
 }
 
--- Particles Component
-
-ParticlesSystemComponent = {
-    emit = function(self)
-        -- Implementation here
-    end,
-    set_looping = function(self, value)
-        -- Implementation here
-    end,
-    get_emitter = function(self)
-        return {}
-    end
-}
-
 -- Physics Component
 
 RigidBodyType = {
