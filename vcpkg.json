@@ -1,16 +1,13 @@
 {
   "name" : "coffee-engine",
   "version-string" : "1.0.0",
-  "builtin-baseline" : "52572867982f5265a7c71f59be1a006dfc49c90c",
+  "builtin-baseline" : "b2012a0b9df97aafde760c422223c6a4254d34c7",
   "dependencies" : [ {
     "name" : "cereal",
     "version>=" : "1.3.2#1"
   }, {
-    "name" : "fmt",
-    "version>=" : "10.2.1#2"
-  }, {
     "name" : "spdlog",
-    "version>=" : "1.14.1"
+    "version>=" : "1.15.3#0"
   }, {
     "name" : "glm",
     "version>=" : "1.0.1#3"
@@ -42,5 +39,10 @@
   }, {
     "name" : "bullet3",
     "version>=" : "3.25#2"
-  } ]
+  } ],
+  "vcpkg-configuration": {
+    "overlay-ports": [
+      "vcpkg-overlays"
+    ]
+  }
 }
