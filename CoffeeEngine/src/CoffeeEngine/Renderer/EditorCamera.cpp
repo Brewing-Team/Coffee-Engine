@@ -2,12 +2,9 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
-#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 namespace Coffee {

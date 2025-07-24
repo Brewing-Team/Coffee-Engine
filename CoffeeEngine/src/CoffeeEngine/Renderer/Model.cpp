@@ -1,32 +1,99 @@
 #include "CoffeeEngine/Renderer/Model.h"
+
+// Core engine includes
+#include "CoffeeEngine/Animation/Animation.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
+
+// Import data includes
 #include "CoffeeEngine/IO/ImportData/MaterialImportData.h"
 #include "CoffeeEngine/IO/ImportData/MeshImportData.h"
 #include "CoffeeEngine/IO/ImportData/ModelImportData.h"
 #include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
+
+// Renderer includes
 #include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Texture.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Animation/AnimationSystem.h"
 
+// Heavy external dependencies - only in .cpp
 #include <assimp/Importer.hpp>
-#include <assimp/material.h>
-#include <assimp/mesh.h>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <assimp/types.h>
-#include <cstdint>
+
+#include <ozz/animation/offline/animation_builder.h>
+#include <ozz/animation/offline/raw_animation.h>
+#include <ozz/animation/offline/raw_skeleton.h>
+#include <ozz/animation/offline/skeleton_builder.h>
+#include <ozz/base/io/archive.h>
+#include <ozz/base/io/stream.h>
+
+#include <glm/gtc/type_ptr.hpp>
+#include <tracy/Tracy.hpp>
+
+#include <stdint.h>
 #include <filesystem>
 #include <string>
-#include <tracy/Tracy.hpp>
 #include <vector>
-
+#include <iostream>
+#include <algorithm>
+#include <functional>
 
 namespace Coffee {
 
+    // Template implementations moved from header
+    template<class Archive>
+    void Model::save(Archive& archive) const
+    {
+        // convert this to UUIDs
+        std::vector<UUID> meshUUIDs;
+        for(const auto& mesh : m_Meshes)
+        {
+            meshUUIDs.push_back(mesh->GetUUID());
+        }
+        archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
+        SaveAnimations(m_UUID);
+    }
+    
+    template<class Archive>
+    void Model::load(Archive& archive)
+    {
+        std::vector<UUID> meshUUIDs;
+        archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
+        for (const auto& data : meshUUIDs)
+        {
+            m_Meshes.push_back(ResourceLoader::GetResource<Mesh>(data));
+        }
+        ImportAnimations(m_UUID);
+    }
+
+    // Static method implementations moved from header
+    glm::mat4 Model::AiToGlmMat4(const aiMatrix4x4& from)
+    {
+        glm::mat4 to;
+        memcpy(glm::value_ptr(to), &from, sizeof(glm::mat4));
+        return glm::transpose(to);
+    }
+
+    ozz::math::Transform Model::AiToOzzTransform(const aiMatrix4x4& aiTransform)
+    {
+        aiVector3D scale, translation;
+        aiQuaternion rotation;
+        aiTransform.Decompose(scale, rotation, translation);
+
+        ozz::math::Transform ozzTransform = {
+            ozz::math::Float3(translation.x, translation.y, translation.z),
+            ozz::math::Quaternion(rotation.x, rotation.y, rotation.z, rotation.w),
+            ozz::math::Float3(scale.x, scale.y, scale.z)
+        };
+        return ozzTransform;
+    }
+
+    // Helper function for aiMatrix4x4 conversion (kept for compatibility)
     glm::mat4 aiMatrix4x4ToGLMMat4(const aiMatrix4x4& aiMat)
     {
         glm::mat4 glmMat;
@@ -89,7 +156,6 @@ namespace Coffee {
 
         std::vector<Joint> joints;
         std::map<std::string, int> boneMap;
-
 
         if (scene->HasAnimations())
         {
@@ -600,5 +666,8 @@ namespace Coffee {
         }
     }
 
+    // Explicit template instantiations for commonly used archive types
+    template void Model::save<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive& archive) const;
+    template void Model::load<cereal::BinaryInputArchive>(cereal::BinaryInputArchive& archive);
 
 }

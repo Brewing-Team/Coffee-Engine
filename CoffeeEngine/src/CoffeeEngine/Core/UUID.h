@@ -1,6 +1,5 @@
 #pragma once
 #include <cereal/access.hpp>
-#include <cstddef>
 #include <glm/fwd.hpp>
 
 namespace Coffee {

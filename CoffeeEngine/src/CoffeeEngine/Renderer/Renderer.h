@@ -1,13 +1,17 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Assert.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
-#include "CoffeeEngine/Renderer/RenderTarget.h"
-#include "CoffeeEngine/Renderer/UniformBuffer.h"
-#include <glm/fwd.hpp>
+
+#include <glm/ext/matrix_float4x4.hpp>
+
 #include <unordered_map>
-#include <vector>
+
+
 namespace Coffee {
+
+    class RenderTarget;
+    class UniformBuffer;
+    class Mesh;
 
     struct CameraData
     {

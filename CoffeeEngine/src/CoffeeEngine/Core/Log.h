@@ -1,11 +1,7 @@
 #pragma once
 
-#include <memory>
 #include <spdlog/logger.h>
 #include <spdlog/sinks/base_sink.h>
-#include <mutex>
-#include <vector>
-#include <string>
 
 namespace Coffee
 {

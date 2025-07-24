@@ -1,10 +1,15 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/VertexArray.h"
 
-#include <cstdint>
-#include <glm/glm.hpp>
+#include <stdint.h>
+#include <glm/fwd.hpp>
+
+namespace Coffee {
+
+    class VertexArray;
+
+}
 
 namespace Coffee {
 

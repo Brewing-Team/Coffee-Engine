@@ -1,9 +1,7 @@
 #include "Font.h"
-#include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 
 #undef INFINITE
-#include <msdf-atlas-gen/msdf-atlas-gen.h>
 #include <msdf-atlas-gen/FontGeometry.h>
 #include <msdf-atlas-gen/GlyphGeometry.h>
 

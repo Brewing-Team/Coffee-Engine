@@ -25,11 +25,12 @@
 
 #include <AkFilePackageLowLevelIODeferred.h> // File I/O
 
+#include <cereal/cereal.hpp>
 #include <glm/vec3.hpp>
+
 #include <vector>
 #include <string>
-
-#include <cereal/cereal.hpp>
+#include <filesystem>
 
 namespace Coffee {
 

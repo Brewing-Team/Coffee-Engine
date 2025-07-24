@@ -4,6 +4,7 @@
 #include "Renderer2D.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/Renderer/UniformBuffer.h"
 
 #include <glm/matrix.hpp>
 #include <tracy/Tracy.hpp>

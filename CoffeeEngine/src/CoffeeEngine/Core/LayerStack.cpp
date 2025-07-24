@@ -1,4 +1,5 @@
 #include "CoffeeEngine/Core/LayerStack.h"
+#include "CoffeeEngine/Core/Layer.h"
 
 #include <algorithm>
 

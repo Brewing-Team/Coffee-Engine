@@ -6,6 +6,8 @@
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/ImGui/ImGuiLayer.h"
 
+#include <functional>
+
 namespace Coffee
 {
     /**

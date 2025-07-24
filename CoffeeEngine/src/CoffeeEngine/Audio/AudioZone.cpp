@@ -3,7 +3,6 @@
 #include "CoffeeEngine/Scene/Components.h"
 
 #include <AK/SoundEngine/Common/AkSoundEngine.h>
-#include <AK/Plugin/AllPluginsFactories.h>
 
 #include <unordered_map>
 #include <fstream>

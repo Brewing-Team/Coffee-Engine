@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Audio.h"  // Wwise audio functions
+#include "AK/SoundEngine/Common/AkTypes.h"
 #include <glm/glm.hpp> // For position handling
 
 

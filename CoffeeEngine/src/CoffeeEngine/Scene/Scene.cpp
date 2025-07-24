@@ -14,6 +14,7 @@
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/Renderer3D.h"
+#include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
@@ -25,7 +26,7 @@
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 
-#include <cstdint>
+#include <stdint.h>
 #include <cstdlib>
 #include <glm/detail/type_quat.hpp>
 #include <glm/fwd.hpp>

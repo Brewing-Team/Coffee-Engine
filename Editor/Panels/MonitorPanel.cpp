@@ -3,7 +3,7 @@
 #include "CoffeeEngine/Core/SystemInfo.h"
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Timer.h"
-#include <cstdint>
+#include <stdint.h>
 #include <imgui.h>
 #include <string>
 

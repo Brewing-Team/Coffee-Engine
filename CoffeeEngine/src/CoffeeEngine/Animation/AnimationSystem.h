@@ -1,18 +1,20 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Shader.h"
-#include "Skeleton.h"
 
 #include <glm/gtc/type_ptr.hpp>
+#include <ozz/base/maths/soa_transform.h>
 #include <ozz/animation/runtime/local_to_model_job.h>
 #include <ozz/animation/runtime/sampling_job.h>
 #include <ozz/animation/runtime/blending_job.h>
+
+#include <vector>
 
 namespace Coffee {
     class Animation;
     struct AnimationLayer;
     struct AnimatorComponent;
+    class Shader;
 
     /**
      * @brief System responsible for handling animations.

@@ -6,7 +6,9 @@
 #pragma once
 
 #include "CoffeeEngine//Renderer/Font.h"
+#include "CoffeeEngine/Animation/Animation.h"
 #include "CoffeeEngine/Animation/AnimationSystem.h"
+#include "CoffeeEngine/Animation/Skeleton.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
@@ -17,6 +19,7 @@
 #include "CoffeeEngine/Physics/Collider.h"
 #include "CoffeeEngine/Physics/RigidBody.h"
 #include "CoffeeEngine/Renderer/Material.h"
+#include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
@@ -30,8 +33,6 @@
 #include <cereal/types/memory.hpp>
 #include <cereal/types/string.hpp>
 #include <cereal/types/vector.hpp>
-#include <glm/ext/matrix_transform.hpp>
-#include <glm/fwd.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -41,9 +42,6 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include "CoffeeEngine/Project/Project.h"
-
-#include <glm/gtx/matrix_decompose.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 // FIXME : DONT MOVE THIS INCLUDE
 #include "CoffeeEngine/Audio/Audio.h"

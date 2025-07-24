@@ -2,18 +2,23 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Layer.h"
-#include "CoffeeEngine/Events/ApplicationEvent.h"
-#include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
-#include "CoffeeEngine/Renderer/RenderTarget.h"
-#include "CoffeeEngine/Scene/Scene.h"
+
 #include "Panels/ContentBrowserPanel.h"
 #include "Panels/MonitorPanel.h"
 #include "Panels/SceneTreePanel.h"
 #include "Panels/ProjectSettingsPanel.h"
-
 #include <Panels/ImportPanel.h>
 #include <Panels/OutputPanel.h>
+
+namespace Coffee {
+
+    class MouseButtonPressedEvent;
+    class KeyPressedEvent;
+    class FileDropEvent;
+    class Scene;
+    class RenderTarget;
+}
 
 namespace Coffee {
 

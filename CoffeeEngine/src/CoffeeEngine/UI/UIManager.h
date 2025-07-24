@@ -1,5 +1,6 @@
 #pragma once
-#include <entt/entity/registry.hpp>
+
+#include <entt/entity/fwd.hpp>
 #include <unordered_map>
 #include "UIAnchor.h"
 

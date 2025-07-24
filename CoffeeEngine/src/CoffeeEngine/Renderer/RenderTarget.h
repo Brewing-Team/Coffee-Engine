@@ -1,11 +1,15 @@
 #pragma once
 
+#include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Renderer/Camera.h"
-#include "CoffeeEngine/Renderer/Framebuffer.h"
 #include <string>
 #include <unordered_map>
-#include <vector>
-#include <glm/glm.hpp>
+#include <glm/fwd.hpp>
+
+namespace Coffee {
+
+    class Framebuffer;
+}
 
 namespace Coffee {
     

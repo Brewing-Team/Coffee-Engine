@@ -13,7 +13,7 @@
 #include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "CoffeeEngine/Scripting/ScriptManager.h"
 
-#include <cstdint>
+#include <stdint.h>
 #include <filesystem>
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>

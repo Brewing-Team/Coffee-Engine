@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 
@@ -9,12 +8,19 @@
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/vector.hpp>
-#include <glm/glm.hpp>
-#include <cstdint>
+#include <glm/vec4.hpp>
+#include <glm/fwd.hpp>
+
+#include <stdint.h>
 #include <vector>
 
-// Remove
+// TODO: REMOVE
 #include <glad/glad.h>
+
+namespace Coffee {
+
+    class ImportData;
+}
 
 namespace Coffee {
 

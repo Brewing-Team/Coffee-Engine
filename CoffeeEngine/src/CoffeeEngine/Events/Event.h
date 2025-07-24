@@ -2,7 +2,8 @@
 
 #include "CoffeeEngine/Core/Base.h"
 
-#include <functional>
+#include <fmt/base.h>
+#include <fmt/format.h>
 #include <string>
 
 namespace Coffee {

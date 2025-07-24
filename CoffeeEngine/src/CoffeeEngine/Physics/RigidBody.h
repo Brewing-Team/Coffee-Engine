@@ -4,14 +4,18 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
-#include "Collider.h"
-#include "PhysicsWorld.h"
+
+#include <btBulletDynamicsCommon.h>
 
 #include <cereal/cereal.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/vector.hpp>
-#include <glm/glm.hpp>
-#include <memory>
+#include <glm/vec3.hpp>
+
+namespace Coffee {
+
+    class Collider;
+}
 
 namespace Coffee {
 

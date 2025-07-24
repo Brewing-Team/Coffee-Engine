@@ -1,37 +1,39 @@
 #pragma once
 
-#include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
-#include "CoffeeEngine/Renderer/Material.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
-#include "CoffeeEngine/Renderer/Texture.h"
-#include "CoffeeEngine/Scene/Scene.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
+#include "CoffeeEngine/Animation/Skeleton.h"
 
+#include <assimp/material.h>
+#include <assimp/mesh.h>
 #include <assimp/scene.h>
-#include <cereal/access.hpp>
+#include <ozz/animation/offline/raw_animation.h>
+#include "ozz/base/maths/transform.h"
+
+/* #include <cereal/access.hpp>
 #include <cereal/archives/binary.hpp>
 #include <cereal/types/polymorphic.hpp>
-#include <cereal/types/vector.hpp>
-#include <ozz/animation/offline/animation_builder.h>
-#include <ozz/animation/offline/raw_animation.h>
-#include <ozz/animation/offline/raw_skeleton.h>
-#include <ozz/animation/offline/skeleton_builder.h>
-#include <ozz/base/io/archive.h>
-#include <ozz/base/io/stream.h>
+#include <cereal/types/vector.hpp> */
 
 #include <filesystem>
-#include <glm/fwd.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/mat4x4.hpp>
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 namespace Coffee {
+
+    // Forward declarations for Coffee Engine types
+    class Mesh;
+    class Texture2D;
+    class Material;
+    class ImportData;
+    class Skeleton;
+    class AnimationController;
+    struct Joint;
+    struct PBRMaterialTextures;
 
     /**
      * @defgroup renderer Renderer
@@ -57,6 +59,8 @@ namespace Coffee {
         Model(const std::filesystem::path& path);
 
         Model(ImportData& importData);
+
+        ~Model() = default;
 
         void LoadFromFilePath(const std::filesystem::path& path);
 
@@ -134,6 +138,7 @@ namespace Coffee {
         void ImportAnimations(const UUID uuid);
 
     private:
+
         /**
          * @brief Processes a mesh from the Assimp mesh and scene.
          * @param mesh The Assimp mesh.
@@ -170,59 +175,24 @@ namespace Coffee {
         
         friend class cereal::access;
         template<class Archive>
-        void save(Archive& archive) const
-        {
-            // convert this to UUIDs
-            std::vector<UUID> meshUUIDs;
-            for(const auto& mesh : m_Meshes)
-            {
-                meshUUIDs.push_back(mesh->GetUUID());
-            }
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
-            SaveAnimations(m_UUID);
-        }
+        void save(Archive& archive) const;
+        
         template<class Archive>
-        void load(Archive& archive)
-        {
-            std::vector<UUID> meshUUIDs;
-            archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
-            for (const auto& data : meshUUIDs)
-            {
-                m_Meshes.push_back(ResourceLoader::GetResource<Mesh>(data));
-            }
-            ImportAnimations(m_UUID);
-        }
+        void load(Archive& archive);
 
         /**
          * @brief Converts an Assimp matrix to a GLM matrix.
          * @param from The Assimp matrix.
          * @return The GLM matrix.
          */
-        static glm::mat4 AiToGlmMat4(const aiMatrix4x4& from)
-        {
-            glm::mat4 to;
-            memcpy(glm::value_ptr(to), &from, sizeof(glm::mat4));
-            return glm::transpose(to);
-        }
+        static glm::mat4 AiToGlmMat4(const aiMatrix4x4& from);
 
         /**
          * @brief Converts an Assimp transform to an Ozz transform.
          * @param aiTransform The Assimp transform.
          * @return The Ozz transform.
          */
-        static ozz::math::Transform AiToOzzTransform(const aiMatrix4x4& aiTransform)
-        {
-            aiVector3D scale, translation;
-            aiQuaternion rotation;
-            aiTransform.Decompose(scale, rotation, translation);
-
-            ozz::math::Transform ozzTransform = {
-                ozz::math::Float3(translation.x, translation.y, translation.z),
-                ozz::math::Quaternion(rotation.x, rotation.y, rotation.z, rotation.w),
-                ozz::math::Float3(scale.x, scale.y, scale.z)
-            };
-            return ozzTransform;
-        }
+        static ozz::math::Transform AiToOzzTransform(const aiMatrix4x4& aiTransform);
 
         unsigned int MAX_BONE_INFLUENCE = 4;
 

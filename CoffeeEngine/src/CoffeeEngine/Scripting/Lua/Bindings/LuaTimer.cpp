@@ -1,5 +1,6 @@
 #include "LuaTimer.h"
 
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Core/Timer.h"
 

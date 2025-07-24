@@ -1,10 +1,12 @@
 #pragma once
 
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Core/Base.h"
+
 #include <filesystem>
 
 namespace Coffee {
 
+    class Texture2D;
     struct MSDFData;
 
     class Font

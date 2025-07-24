@@ -4,7 +4,6 @@
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Scene/Entity.h"
-#include "CoffeeEngine/Scene/Scene.h"
 #include "SceneManager.h"
 
 #include <entt/entt.hpp>

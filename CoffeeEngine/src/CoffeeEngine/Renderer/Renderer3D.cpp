@@ -9,6 +9,8 @@
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Renderer/UniformBuffer.h"
+#include "CoffeeEngine/Renderer/RenderTarget.h"
+#include "CoffeeEngine/Renderer/VertexArray.h"
 
 #include "CoffeeEngine/Embedded/ToneMappingShader.inl"
 #include "CoffeeEngine/Embedded/FinalPassShader.inl"
@@ -16,7 +18,7 @@
 #include "CoffeeEngine/Embedded/SimpleDepthShader.inl"
 #include "CoffeeEngine/Embedded/BRDFLUTShader.inl"
 
-#include <cstdint>
+#include <stdint.h>
 #include <glm/fwd.hpp>
 #include <glm/matrix.hpp>
 #include <tracy/Tracy.hpp>

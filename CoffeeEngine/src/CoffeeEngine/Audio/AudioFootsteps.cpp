@@ -1,5 +1,5 @@
 #include "AudioFootsteps.h"
-#include "CoffeeEngine/Renderer/EditorCamera.h"
+#include "CoffeeEngine/Audio/Audio.h"
 
 #include <SDL3/SDL_keyboard.h>
 

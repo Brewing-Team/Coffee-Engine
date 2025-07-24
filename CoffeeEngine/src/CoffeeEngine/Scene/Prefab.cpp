@@ -3,7 +3,6 @@
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
-#include "SceneManager.h"
 
 namespace Coffee {
 

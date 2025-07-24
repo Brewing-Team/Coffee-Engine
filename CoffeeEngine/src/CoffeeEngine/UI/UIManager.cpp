@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/Renderer2D.h"
+#include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
 

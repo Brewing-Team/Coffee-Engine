@@ -1,11 +1,16 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Texture.h"
-#include <cstdint>
-#include <initializer_list>
-#include <sys/types.h>
+
+#include <glm/fwd.hpp>
+
+#include <stdint.h>
 #include <vector>
+
+namespace Coffee {
+
+    class Texture2D;
+}
 
 namespace Coffee {
 

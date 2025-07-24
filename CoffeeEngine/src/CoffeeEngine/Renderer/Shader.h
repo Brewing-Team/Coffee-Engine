@@ -1,14 +1,11 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-
-#include <string>
-#include <unordered_map>
+namespace Coffee {
+    class ImportData;
+}
 
 namespace Coffee {
 
@@ -131,7 +128,7 @@ namespace Coffee {
          * @param shader The shader ID.
          * @param type The type of the shader.
          */
-        void checkCompileErrors(GLuint shader, std::string type);
+        void checkCompileErrors(unsigned int shader, std::string type);
 
     private:
         std::string ReadShaderFile(const std::filesystem::path& shaderPath);

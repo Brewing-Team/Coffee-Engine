@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CoffeeEngine/Core/Base.h"
 #include "entt/entity/fwd.hpp"
 #include <cereal/cereal.hpp>
 #include <entt/entt.hpp>

@@ -2,11 +2,9 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 
-#include <cstdint>
+#include <stdint.h>
 #include <glad/glad.h>
 #include <tracy/Tracy.hpp>
-
-#include <glm/vec4.hpp>
 
 namespace Coffee {
 

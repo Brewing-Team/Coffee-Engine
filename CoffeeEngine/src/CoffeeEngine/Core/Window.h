@@ -1,12 +1,12 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/GraphicsContext.h"
-#include "SDL3/SDL_video.h"
 
-#include <cstdint>
+#include <SDL3/SDL_video.h>
 
 namespace Coffee {
+
+    class GraphicsContext;
 
     /**
      * @defgroup core Core

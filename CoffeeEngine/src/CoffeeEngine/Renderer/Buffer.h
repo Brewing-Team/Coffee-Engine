@@ -1,7 +1,10 @@
 #pragma once
 
+#include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/Base.h"
-#include <cstdint>
+
+#include <stdint.h>
+#include <vector>
 
 namespace Coffee {
 

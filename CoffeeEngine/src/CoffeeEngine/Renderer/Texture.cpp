@@ -4,25 +4,21 @@
 #include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Embedded/EquirectToCubemap.inl"
 #include "CoffeeEngine/Embedded/IrradianceConvolution.inl"
 #include "CoffeeEngine/Embedded/PreFilterConvolutionShader.inl"
-#include "CoffeeEngine/Embedded/BRDFLUTShader.inl"
+#include "CoffeeEngine/Renderer/VertexArray.h"
+#include "CoffeeEngine/Renderer/Buffer.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/string.hpp>
-#include <cereal/types/memory.hpp>
-#include <cstdint>
-#include <filesystem>
-#include <fstream>
-#include <glad/glad.h>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <stdint.h>
+#include <filesystem>
+#include <glad/glad.h>
 #include <stb_image.h>
-#include <glm/vec4.hpp>
 #include <tracy/Tracy.hpp>
 
 namespace Coffee {

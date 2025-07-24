@@ -2,6 +2,8 @@
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 
+#include "CoffeeEngine/Math/BoundingBox.h"
+
 #include <btBulletDynamicsCommon.h>
 #include <cereal/access.hpp>
 #include <cereal/cereal.hpp>

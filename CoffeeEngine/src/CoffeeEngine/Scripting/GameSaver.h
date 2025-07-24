@@ -1,10 +1,8 @@
 #pragma once
 
-#include <SDL3/SDL.h>
 #include <cereal/archives/json.hpp>
 #include <cereal/types/unordered_map.hpp>
 #include <cereal/types/variant.hpp>
-#include <fstream>
 #include <unordered_map>
 #include <variant>
 

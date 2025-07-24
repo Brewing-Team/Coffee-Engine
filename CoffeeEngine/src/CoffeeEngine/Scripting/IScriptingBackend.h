@@ -1,8 +1,13 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Scripting/Script.h"
 #include <filesystem>
+
+namespace Coffee {
+
+    class Script;
+
+}
 
 namespace Coffee {
 

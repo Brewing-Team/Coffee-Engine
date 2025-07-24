@@ -1,11 +1,10 @@
 #pragma once
 
-#include "CoffeeEngine/Renderer/Font.h"
-#include "CoffeeEngine/Renderer/RenderTarget.h"
+#include "CoffeeEngine/Core/Base.h"
 
-#include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include <string>
 
 namespace Coffee {
 
@@ -14,6 +13,12 @@ namespace Coffee {
     struct OBB;
 
     class Frustum;
+    class Font;
+    class Texture2D;
+    class RenderTarget;
+}
+
+namespace Coffee {
     
     class Renderer2D
     {

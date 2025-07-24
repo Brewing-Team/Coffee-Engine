@@ -27,7 +27,7 @@
 #include <CoffeeEngine/Scripting/Script.h>
 #include <SDL3/SDL_misc.h>
 #include <array>
-#include <cstdint>
+#include <stdint.h>
 #include <cstring>
 #include <filesystem>
 #include <fstream>

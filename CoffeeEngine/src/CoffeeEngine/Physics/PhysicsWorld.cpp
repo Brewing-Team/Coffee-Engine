@@ -2,6 +2,7 @@
 #include "CoffeeEngine/Physics/CollisionSystem.h"
 #include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
+#include "CoffeeEngine/Scene/Entity.h"
 
 #include <glm/fwd.hpp>
 

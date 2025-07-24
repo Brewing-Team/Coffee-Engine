@@ -6,8 +6,6 @@
 #include "CoffeeEngine/Scene/Components.h"
 #include "ozz/animation/runtime/skeleton_utils.h"
 
-#include <iostream>
-
 namespace Coffee {
 
     std::vector<AnimatorComponent*> AnimationSystem::m_Animators;

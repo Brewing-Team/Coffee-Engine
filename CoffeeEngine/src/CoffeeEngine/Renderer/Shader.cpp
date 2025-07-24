@@ -1,11 +1,16 @@
-#include "CoffeeEngine/Renderer/Shader.h"
+#include "Shader.h"
+#include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
+
+#include <glad/glad.h>
+#include <glm/vec2.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 
 #include <fstream>
 #include <sstream>
-#include <iostream>
 #include <tracy/Tracy.hpp>
 
 namespace Coffee {
@@ -164,7 +169,7 @@ namespace Coffee {
         return ResourceLoader::LoadShader(shaderSource);
     }*/
 
-    void Shader::checkCompileErrors(GLuint shader, std::string type)
+    void Shader::checkCompileErrors(unsigned int shader, std::string type)
     {
         GLint success;
         GLchar infoLog[1024];

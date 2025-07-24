@@ -1,9 +1,16 @@
 #pragma once
 
-#include <CoffeeEngine/Renderer/Buffer.h>
+#include "CoffeeEngine/Core/Base.h"
 
-#include <cstdint>
+#include <stdint.h>
 #include <vector>
+
+namespace Coffee {
+
+    class VertexBuffer;
+    class IndexBuffer;
+
+}
 
 namespace Coffee {
 

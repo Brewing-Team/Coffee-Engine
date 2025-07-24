@@ -1,7 +1,12 @@
 #pragma once
 
-#include "CoffeeEngine/Events/Event.h"
+#include <string>
 
+namespace Coffee {
+
+    class Event;
+
+}
 
 namespace Coffee {
     /**

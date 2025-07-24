@@ -1,17 +1,19 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/EditorCamera.h"
-#include "CoffeeEngine/Renderer/Framebuffer.h"
-#include "CoffeeEngine/Renderer/Material.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
-#include "CoffeeEngine/Renderer/RenderTarget.h"
-#include "CoffeeEngine/Renderer/Shader.h"
-#include "CoffeeEngine/Renderer/Texture.h"
-#include "CoffeeEngine/Renderer/UniformBuffer.h"
-#include "CoffeeEngine/Renderer/VertexArray.h"
-#include "CoffeeEngine/Scene/Components.h"
-#include <glm/fwd.hpp>
+#include "CoffeeEngine/Scene/Components.h" // TODO: Should I separate each Compnent in its own file for better compilation time
+
+#include <glm/matrix.hpp>
+
+namespace Coffee {
+
+    class RenderTarget;
+    class UniformBuffer;
+    class Mesh;
+    class AnimatorComponent;
+    class Material;
+    class Framebuffer;
+}
 
 namespace Coffee {
 

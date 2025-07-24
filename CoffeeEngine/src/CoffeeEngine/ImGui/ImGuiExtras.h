@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include "CoffeeEngine/Core/Base.h"
+#include <stdint.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <vector>
@@ -18,7 +18,7 @@ struct GradientPoint
      * @tparam Archive The type of the archive.
      * @param archive The archive to serialize to.
      */
-    template <class Archive> void serialize(Archive& archive, std::uint32_t const version) { archive(position, color); }
+    template <class Archive> void serialize(Archive& archive, uint32_t const version) { archive(position, color); }
 };
 
 /**
@@ -34,7 +34,7 @@ struct CurvePoint
      * @tparam Archive The type of the archive.
      * @param archive The archive to serialize to.
      */
-    template <class Archive> void serialize(Archive& archive, std::uint32_t const version) { archive(time, value); }
+    template <class Archive> void serialize(Archive& archive, uint32_t const version) { archive(time, value); }
 };
 
 /**

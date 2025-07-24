@@ -1,6 +1,9 @@
 #include "CollisionSystem.h"
 #include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Physics/PhysicsWorld.h"
+#include "CoffeeEngine/Scene/Entity.h"
 #include <BulletCollision/NarrowPhaseCollision/btPersistentManifold.h>
+#include <tracy/Tracy.hpp>
 
 namespace Coffee {
 

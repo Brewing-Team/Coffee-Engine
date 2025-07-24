@@ -2,7 +2,7 @@
 
 #include "CoffeeEngine/Events/Event.h"
 
-#include <cstdint>
+#include <stdint.h>
 #include <string>
 #include <sstream>
 

@@ -6,26 +6,19 @@
 
 #pragma once
 
-#include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Core/UUID.h"
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceImporter.h"
-#include <CoffeeEngine/Animation/Animation.h>
-#include "ImportData/ImportData.h"
-#include "ImportData/ImportDataUtils.h"
 #include "ResourceRegistry.h"
+#include "ResourceImporter.h"
+
+#include "CoffeeEngine/Core/Base.h"
+#include "ImportData/ImportDataUtils.h"
 
 #include <filesystem>
 
-
+namespace Coffee {
+    class ImportData;
+}
 
 namespace Coffee {
-
-    class Model;
-    class Mesh;
-    class Material;
-    class Texture;
-    class Texture2D;
 
     /**
      * @class ResourceLoader

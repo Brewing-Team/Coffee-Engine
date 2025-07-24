@@ -15,13 +15,8 @@
 #include "Bindings/LuaResources.h"
 #include "LuaScript.h"
 
-#include <fstream>
 #include <lua.h>
-#include <regex>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <sol/property.hpp>
 #include <sol/types.hpp>
 
 #define SOL_PRINT_ERRORS 1

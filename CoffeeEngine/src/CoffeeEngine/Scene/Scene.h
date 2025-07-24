@@ -1,20 +1,22 @@
 #pragma once
 
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
-#include "CoffeeEngine/Events/Event.h"
-#include "CoffeeEngine/Navigation/NavMesh.h"
-#include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
-#include "CoffeeEngine/Physics/PhysicsWorld.h"
-#include "CoffeeEngine/Renderer/EditorCamera.h"
-#include "CoffeeEngine/Scene/SceneTree.h"
 #include "CoffeeEngine/Scene/Components.h"
-#include "entt/entity/fwd.hpp"
+#include "CoffeeEngine/Scene/SceneTree.h"
+#include "CoffeeEngine/Physics/PhysicsWorld.h"
 
 #include <entt/entt.hpp>
 #include "entt/entity/snapshot.hpp"
 #include <filesystem>
 #include <string>
 #include <vector>
+
+namespace Coffee {
+
+    class EditorCamera;
+    class Event;
+    class SceneTree;
+}
 
 namespace Coffee {
 

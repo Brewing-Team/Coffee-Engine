@@ -1,11 +1,15 @@
 #include "Renderer2D.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/Math/Frustum.h"
-#include "CoffeeEngine/Renderer/MSDFData.h"
+#include "CoffeeEngine/Renderer/Buffer.h"
 #include "CoffeeEngine/Renderer/Shader.h"
 #include "CoffeeEngine/Renderer/Texture.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
 #include "CoffeeEngine/Renderer/RendererAPI.h"
+#include "CoffeeEngine/Renderer/Framebuffer.h"
+#include "CoffeeEngine/Renderer/RenderTarget.h"
+#include "CoffeeEngine/Renderer/Font.h"
+#include "CoffeeEngine/Renderer/MSDFData.h"
 
 #include "CoffeeEngine/Embedded/QuadShader.inl"
 #include "CoffeeEngine/Embedded/TextShader.inl"
@@ -20,7 +24,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/quaternion.hpp>
 
-#include <cstdint>
+#include <stdint.h>
 #include <queue>
 #include <vector>
 

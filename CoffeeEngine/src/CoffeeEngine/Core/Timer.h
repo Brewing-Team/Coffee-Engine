@@ -6,10 +6,7 @@
 
 #pragma once
 
-#include "CoffeeEngine/Core/Assert.h"
 #include "Stopwatch.h"
-
-#include "SDL3/SDL_timer.h"
 #include <functional>
 
 namespace Coffee
@@ -128,7 +125,7 @@ namespace Coffee
         Stopwatch m_Stopwatch; ///< Stopwatch to measure elapsed time.
 
         TimerCallback m_Callback; ///< The callback function to be called when the timer triggers.
-        SDL_TimerID m_TimerID; ///< The SDL timer ID.
+        int m_TimerID; ///< The SDL timer ID.
     };
 
     /** @} */

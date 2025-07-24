@@ -1,6 +1,7 @@
-#include "CoffeeEngine/Renderer/Buffer.h"
+#include "Buffer.h"
 
 #include <glad/glad.h>
+
 #include <tracy/Tracy.hpp>
 
 namespace Coffee {

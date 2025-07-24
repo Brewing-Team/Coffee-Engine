@@ -1,5 +1,8 @@
 #include "GameSaver.h"
+
+#include <SDL3/SDL_filesystem.h>
 #include <iostream>
+#include <fstream>
 
 namespace Coffee {
 

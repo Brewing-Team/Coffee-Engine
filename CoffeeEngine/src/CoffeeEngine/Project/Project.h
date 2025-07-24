@@ -1,9 +1,9 @@
 #pragma once
 
-#include "CoffeeEngine/Core/Base.h"
 #include <cereal/cereal.hpp>
 #include <filesystem>
-#include <string>
+
+#include "CoffeeEngine/Core/Base.h"
 
 namespace Coffee {
 

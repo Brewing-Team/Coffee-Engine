@@ -3,11 +3,8 @@
 #include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "entt/entity/entity.hpp"
+#include "CoffeeEngine/Scene/Components.h"
 #include "entt/entity/fwd.hpp"
-#include <cstdint>
-#include <utility>
-#include <vector>
 
 namespace Coffee {
 

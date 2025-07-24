@@ -1,13 +1,13 @@
 #pragma once
 
-#include "CoffeeEngine/Events/Event.h"
-#include "CoffeeEngine/Events/MouseEvent.h"
 #include <CoffeeEngine/Renderer/Camera.h>
 
 #include <glm/fwd.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 namespace Coffee {
+    
+    class Event;
+    class MouseScrolledEvent;
 
     /**
      * @defgroup renderer Renderer

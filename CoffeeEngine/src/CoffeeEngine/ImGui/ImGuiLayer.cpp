@@ -5,12 +5,10 @@
 #include "SDL3/SDL_video.h"
 
 #include <imgui.h>
-#include <imgui_internal.h>
 
-//Previously this was in a specific file called ImGuiBuild.cpp but on Windows Platform using MSVC was not linking
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
-#include "imgui_impl_sdl3.cpp"
-#include "imgui_impl_opengl3.cpp"
+#include <imgui_impl_sdl3.cpp>
+#include <imgui_impl_opengl3.cpp>
 
 #include <IconsLucide.h>
 

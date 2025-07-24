@@ -34,5 +34,5 @@ namespace Coffee {
 
 }
 
-#include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/Core/Assert.h"
+//#include "CoffeeEngine/Core/Log.h"
+//#include "CoffeeEngine/Core/Assert.h"

@@ -2,13 +2,14 @@
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 
-#include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/Physics/PhysicsWorld.h"
-#include "CoffeeEngine/Scene/Entity.h"
-#include <btBulletDynamicsCommon.h>
 #include <unordered_set>
-#include <utility>
 #include <btBulletDynamicsCommon.h>
+
+namespace Coffee {
+    
+    class Scene;
+    class PhysicsWorld;
+}
 
 namespace Coffee {
 

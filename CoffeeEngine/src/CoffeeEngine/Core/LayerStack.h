@@ -6,10 +6,13 @@
 
 #pragma once
 
-#include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Core/Layer.h"
-
 #include <vector>
+
+namespace Coffee {
+
+    class Layer;
+
+}
 
 namespace Coffee {
 

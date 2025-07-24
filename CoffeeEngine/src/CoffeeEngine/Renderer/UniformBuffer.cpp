@@ -1,7 +1,7 @@
 #include "UniformBuffer.h"
 #include "CoffeeEngine/Core/Base.h"
 
-#include <cstdint>
+#include <stdint.h>
 #include <glad/glad.h>
 
 namespace Coffee {

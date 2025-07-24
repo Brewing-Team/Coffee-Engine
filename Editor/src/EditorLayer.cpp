@@ -34,7 +34,7 @@
 #include "CoffeeEngine/Scene/SceneManager.h"
 
 #include <ImGuizmo.h>
-#include <cstdint>
+#include <stdint.h>
 #include <filesystem>
 #include <glm/fwd.hpp>
 #include <glm/gtc/type_ptr.hpp>

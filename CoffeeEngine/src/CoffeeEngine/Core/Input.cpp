@@ -1,18 +1,18 @@
 #include "CoffeeEngine/Core/Input.h"
 
 #include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Window.h"
 #include "CoffeeEngine/Events/ControllerEvent.h"
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
 #include "CoffeeEngine/Project/Project.h"
-#include "Platform/Windows/WindowsSystemInfo.h"
 #include "SDL3/SDL_mouse.h"
-#include "SystemInfo.h"
 
 #include <SDL3/SDL_init.h>
 
+#include <SDL3/SDL_timer.h>
 #include <cereal/types/vector.hpp>
 #include <cereal/types/unordered_map.hpp>
 #include <cereal/archives/json.hpp>

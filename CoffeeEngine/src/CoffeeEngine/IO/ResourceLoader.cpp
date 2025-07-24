@@ -1,7 +1,6 @@
 #include "ResourceLoader.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/IO/CacheManager.h"
 #include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
 #include "CoffeeEngine/IO/Resource.h"
@@ -13,7 +12,6 @@
 #include "CoffeeEngine/IO/ResourceImporter.h"
 #include "CoffeeEngine/IO/ResourceUtils.h"
 #include <filesystem>
-#include <fstream>
 #include <string>
 
 namespace Coffee {

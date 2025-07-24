@@ -1,9 +1,16 @@
 #pragma once
 
-#include "CoffeeEngine/Renderer/Mesh.h"
-
-#include <memory>
+#include <cereal/external/base64.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/archives/binary.hpp>
+#include <glm/glm.hpp>
 #include <vector>
+#include <sstream>
+
+namespace Coffee {
+    class Vertex;
+    class Mesh;
+}
 
 /**
  * @brief Structure representing a triangle in the navigation mesh.

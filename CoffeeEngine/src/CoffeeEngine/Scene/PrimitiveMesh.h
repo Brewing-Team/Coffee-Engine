@@ -1,7 +1,12 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
+
+#include <glm/ext/matrix_float4x4.hpp>
+
+namespace Coffee {
+    class Mesh;
+}
 
 namespace Coffee {
 

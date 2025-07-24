@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include <cstdint>
+#include <stdint.h>
 
 namespace Coffee {
 

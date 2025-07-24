@@ -1,6 +1,7 @@
 #include "NavMesh.h"
 
 #include "CoffeeEngine/Renderer/Renderer2D.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
 
 #include <algorithm>
 #include <cmath>
