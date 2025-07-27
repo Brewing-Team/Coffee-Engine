@@ -3,10 +3,21 @@
 #include "CoffeeEngine/Renderer/Renderer2D.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 
+#include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/binary.hpp>
+
 #include <algorithm>
 #include <cmath>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>
+
+// NavMeshTriangle implementation
+template<class Archive>
+void NavMeshTriangle::serialize(Archive& archive, std::uint32_t const version)
+{
+    archive(cereal::make_nvp("Vertices", vertices), cereal::make_nvp("Center", center), cereal::make_nvp("Normal", normal), cereal::make_nvp("Neighbors", neighbors));
+}
 
 namespace Coffee
 {
@@ -134,4 +145,11 @@ namespace Coffee
 
         return angleDegrees <= WalkableSlopeAngle;
     }
-}
+
+} // namespace Coffee
+
+// Explicit template instantiations for common cereal archives
+template void NavMeshTriangle::serialize<cereal::JSONInputArchive>(cereal::JSONInputArchive&, std::uint32_t const);
+template void NavMeshTriangle::serialize<cereal::JSONOutputArchive>(cereal::JSONOutputArchive&, std::uint32_t const);
+template void NavMeshTriangle::serialize<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&, std::uint32_t const);
+template void NavMeshTriangle::serialize<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&, std::uint32_t const);

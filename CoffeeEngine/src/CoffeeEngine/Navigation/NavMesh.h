@@ -22,10 +22,7 @@ struct NavMeshTriangle
     glm::vec3 normal; ///< Normal of the triangle
     std::vector<int> neighbors; ///< Indices of neighboring triangles
 
-    template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
-    {
-        archive(cereal::make_nvp("Vertices", vertices), cereal::make_nvp("Center", center), cereal::make_nvp("Normal", normal), cereal::make_nvp("Neighbors", neighbors));
-    }
+    template<class Archive> void serialize(Archive& archive, std::uint32_t const version);
 };
 
 namespace Coffee

@@ -2,6 +2,21 @@
 #include <algorithm>
 #include <string>
 #include <unordered_map>
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/binary.hpp>
+
+// Template implementations
+template<class Archive>
+void GradientPoint::serialize(Archive& archive, uint32_t const version)
+{
+    archive(position, color);
+}
+
+template<class Archive>
+void CurvePoint::serialize(Archive& archive, uint32_t const version)
+{
+    archive(time, value);
+}
 
 
 void GradientEditor::DrawGradientBar(const std::vector<GradientPoint>& points, ImVec2 canvas_pos, ImVec2 canvas_size)
@@ -281,3 +296,14 @@ float CurveEditor::ScaleCurveValue(float curveValue, float min, float max)
 {
     return curveValue * (max - min) + min;
 }
+
+// Explicit template instantiations for common cereal archives
+template void GradientPoint::serialize<cereal::JSONInputArchive>(cereal::JSONInputArchive&, uint32_t const);
+template void GradientPoint::serialize<cereal::JSONOutputArchive>(cereal::JSONOutputArchive&, uint32_t const);
+template void GradientPoint::serialize<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&, uint32_t const);
+template void GradientPoint::serialize<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&, uint32_t const);
+
+template void CurvePoint::serialize<cereal::JSONInputArchive>(cereal::JSONInputArchive&, uint32_t const);
+template void CurvePoint::serialize<cereal::JSONOutputArchive>(cereal::JSONOutputArchive&, uint32_t const);
+template void CurvePoint::serialize<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&, uint32_t const);
+template void CurvePoint::serialize<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&, uint32_t const);

@@ -133,10 +133,7 @@ namespace Coffee {
              * @tparam Archive The type of the archive.
              * @param archive The archive to serialize to.
              */
-            template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
-            {
-                archive(cereal::make_nvp("Name", name), cereal::make_nvp("Events", events));
-            }
+            template<class Archive> void serialize(Archive& archive, std::uint32_t const version);
         };
         
         

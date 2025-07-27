@@ -2,12 +2,21 @@
 
 #include "CoffeeEngine/Scene/Components.h"
 
+#include <cereal/archives/json.hpp>
+#include <cereal/archives/binary.hpp>
+
 #include <cassert>
 #include <fstream>
 #include <sstream>
 
 namespace Coffee
 {
+    // AudioBank implementation
+    template<class Archive>
+    void Audio::AudioBank::serialize(Archive& archive, std::uint32_t const version)
+    {
+        archive(cereal::make_nvp("Name", name), cereal::make_nvp("Events", events));
+    }
     const std::filesystem::path Audio::DefaultAudioPath = std::filesystem::absolute(std::filesystem::current_path() / "assets/audio/Wwise Project/GeneratedSoundBanks/Windows");
     std::filesystem::path Audio::m_ActiveAudioPath = Audio::DefaultAudioPath;
 
@@ -451,4 +460,11 @@ namespace Coffee
         // Terminate the Memory Manager
         AK::MemoryMgr::Term();
     }
+
+    // Explicit template instantiations for common cereal archives
+    template void Audio::AudioBank::serialize<cereal::JSONInputArchive>(cereal::JSONInputArchive&, std::uint32_t const);
+    template void Audio::AudioBank::serialize<cereal::JSONOutputArchive>(cereal::JSONOutputArchive&, std::uint32_t const);
+    template void Audio::AudioBank::serialize<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&, std::uint32_t const);
+    template void Audio::AudioBank::serialize<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&, std::uint32_t const);
+
 } // namespace Coffee

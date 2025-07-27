@@ -32,25 +32,7 @@ namespace Coffee {
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
-        template<class Archive> void serialize(Archive& archive, std::uint32_t const version)
-        {
-            archive(name, parentIndex);
-
-            archive(localTransform.translation.x,
-                   localTransform.translation.y,
-                   localTransform.translation.z);
-
-            archive(localTransform.rotation.x,
-                   localTransform.rotation.y,
-                   localTransform.rotation.z,
-                   localTransform.rotation.w);
-
-            archive(localTransform.scale.x,
-                   localTransform.scale.y,
-                   localTransform.scale.z);
-
-            archive(invBindPose);
-        }
+        template<class Archive> void serialize(Archive& archive, std::uint32_t const version);
     };
 
     /**

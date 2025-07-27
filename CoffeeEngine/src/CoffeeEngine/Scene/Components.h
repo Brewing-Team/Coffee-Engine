@@ -65,10 +65,7 @@ namespace Coffee
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
-        template <class Archive> void serialize(Archive& archive, std::uint32_t const version)
-        {
-            archive(cereal::make_nvp("Tag", Tag));
-        }
+        template <class Archive> void serialize(Archive& archive, std::uint32_t const version);
     };
 
     /**
@@ -195,11 +192,7 @@ namespace Coffee
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
-        template <class Archive> void serialize(Archive& archive, std::uint32_t const version)
-        {
-            archive(cereal::make_nvp("Position", Position), cereal::make_nvp("Rotation", Rotation),
-                    cereal::make_nvp("Scale", Scale));
-        }
+        template <class Archive> void serialize(Archive& archive, std::uint32_t const version);
     };
 
     /**
@@ -218,10 +211,7 @@ namespace Coffee
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
-        template <class Archive> void serialize(Archive& archive, std::uint32_t const version)
-        {
-            archive(cereal::make_nvp("Camera", Camera));
-        }
+        template <class Archive> void serialize(Archive& archive, std::uint32_t const version);
     };
 
     /**
@@ -591,35 +581,7 @@ namespace Coffee
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
-        template <class Archive> void serialize(Archive& archive, std::uint32_t const version)
-        {
-            if (version >= 2)
-            {
-                archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction),
-                            cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range),
-                            cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity),
-                            cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type),
-                            cereal::make_nvp("Shadow", Shadow), cereal::make_nvp("ShadowBias", ShadowBias),
-                            cereal::make_nvp("ShadowMaxDistance", ShadowMaxDistance),
-                            cereal::make_nvp("ConeAttenuation", ConeAttenuation));
-            }
-            else if (version >= 1)
-            {
-                archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction),
-                        cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range),
-                        cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity),
-                        cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type),
-                        cereal::make_nvp("Shadow", Shadow), cereal::make_nvp("ShadowBias", ShadowBias),
-                        cereal::make_nvp("ShadowMaxDistance", ShadowMaxDistance));
-            }
-            else
-            {
-                archive(cereal::make_nvp("Color", Color), cereal::make_nvp("Direction", Direction),
-                        cereal::make_nvp("Position", Position), cereal::make_nvp("Range", Range),
-                        cereal::make_nvp("Attenuation", Attenuation), cereal::make_nvp("Intensity", Intensity),
-                        cereal::make_nvp("Angle", Angle), cereal::make_nvp("Type", type));
-            }
-        }
+        template <class Archive> void serialize(Archive& archive, std::uint32_t const version);
     };
 
     struct WorldEnvironmentComponent

@@ -98,21 +98,7 @@ namespace Coffee {
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
          */
-        template<class Archive> void serialize(Archive& archive, std::uint32_t const version) 
-        {
-            archive(cereal::make_nvp("Name", m_Name),
-                    cereal::make_nvp("StartScene",m_StartScenePath.string()),
-                    cereal::make_nvp("CacheDirectory", m_CacheDirectory));
-
-            if (version >= 1)
-            {
-                archive(cereal::make_nvp("AudioDirectory", m_AudioFolderPath));
-            }
-            else
-            {
-                m_AudioFolderPath = "";
-            }
-        }
+        template<class Archive> void serialize(Archive& archive, std::uint32_t const version);
 
     private:
         std::string m_Name = "Untitled"; ///< The name of the project.
