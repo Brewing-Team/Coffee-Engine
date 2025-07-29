@@ -20,6 +20,8 @@ target_include_directories(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
     coffee-engine)
 
+target_precompile_headers(${PROJECT_NAME} REUSE_FROM coffee-engine)
+
 
 # Copy Assets folder
 add_custom_target(copy_resources ALL

@@ -60,7 +60,7 @@ namespace Coffee {
         static void SetCurrentRenderTarget(RenderTarget* renderTarget)
         {
             s_RendererData.CurrentRenderTarget = renderTarget;
-            COFFEE_ASSERT(s_RendererData.CurrentRenderTarget && "Render target not found");
+            //COFFEE_ASSERT(s_RendererData.CurrentRenderTarget && "Render target not found");
         }
 
         static RenderTarget* GetCurrentRenderTarget() { return s_RendererData.CurrentRenderTarget; }

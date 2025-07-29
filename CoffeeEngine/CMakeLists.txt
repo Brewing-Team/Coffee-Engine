@@ -43,6 +43,8 @@ add_library(${PROJECT_NAME} ${SOURCES})
 
 add_library(coffee-engine ALIAS ${PROJECT_NAME})
 
+target_precompile_headers(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS}/pch.h)
+
 target_include_directories(${PROJECT_NAME}
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${INCLUDE_DIRS} ${LUA_INCLUDE_DIR} ${BULLET_INCLUDE_DIR}
 )
