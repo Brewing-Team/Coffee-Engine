@@ -1,9 +1,11 @@
 #include "ProjectSettingsPanel.h"
 
 #include "CoffeeEngine/Core/FileDialog.h"
-#include <imgui.h>
-
 #include "CoffeeEngine/Core/Input.h"
+#include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Audio/Audio.h"
+
+#include <imgui.h>
 
 namespace Coffee {
 
@@ -18,7 +20,7 @@ namespace Coffee {
         m_SelectedInputKey = actionName;
         m_SelectedInputBinding = binding;
         // Copy name to modifiable array to enable Input Action name change
-        std::copy_n(m_SelectedInputKey.begin(), std::min<size_t>(m_SelectedInputKey.size(), 255), arr_newBindName.begin());
+        std::ranges::copy_n(m_SelectedInputKey.begin(), std::min<size_t>(m_SelectedInputKey.size(), 255), arr_newBindName.begin());
 
     }
     void ProjectSettingsPanel::RenderInputSettings(const ImGuiWindowFlags flags)

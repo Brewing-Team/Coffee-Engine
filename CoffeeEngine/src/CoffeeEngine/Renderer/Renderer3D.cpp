@@ -1,6 +1,5 @@
 #include "Renderer3D.h"
 #include "CoffeeEngine/Renderer/Material.h"
-#include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
@@ -11,6 +10,7 @@
 #include "CoffeeEngine/Renderer/UniformBuffer.h"
 #include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Renderer/VertexArray.h"
+#include "CoffeeEngine/Animation/AnimationSystem.h"
 
 #include "CoffeeEngine/Embedded/ToneMappingShader.inl"
 #include "CoffeeEngine/Embedded/FinalPassShader.inl"

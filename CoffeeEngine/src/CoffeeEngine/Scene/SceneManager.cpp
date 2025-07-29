@@ -1,4 +1,6 @@
 #include "SceneManager.h"
+#include "CoffeeEngine/Audio/Audio.h"
+#include "CoffeeEngine/Audio/AudioZone.h"
 #include <filesystem>
 #include <tracy/Tracy.hpp>
 #include <future>

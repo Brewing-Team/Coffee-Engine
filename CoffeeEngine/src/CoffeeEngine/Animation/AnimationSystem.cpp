@@ -1,9 +1,12 @@
 #include "AnimationSystem.h"
+#include "CoffeeEngine/Animation/Animation.h"
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 
 #include "CoffeeEngine/Renderer/Model.h"
-#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Renderer/Shader.h"
+#include "CoffeeEngine/Scene/Components/AnimatorComponent.h"
 #include "ozz/animation/runtime/skeleton_utils.h"
 
 namespace Coffee {

@@ -5,6 +5,8 @@
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
+#include "CoffeeEngine/Scripting/ScriptManager.h"
+#include "CoffeeEngine/Audio/Audio.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>

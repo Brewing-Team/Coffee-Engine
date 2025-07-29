@@ -1,10 +1,113 @@
 #include "Prefab.h"
 
+#include "CoffeeEngine/Animation/Animation.h"
+#include "CoffeeEngine/Animation/AnimationSystem.h"
+#include "CoffeeEngine/Animation/Skeleton.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 
 namespace Coffee {
+
+    template<class Archive>
+    void Prefab::save(Archive& archive, std::uint32_t const version) const
+    {
+        archive(cereal::make_nvp("Base", cereal::base_class<Resource>(this)));
+        archive(cereal::make_nvp("RootEntity", m_RootEntity));
+
+        entt::snapshot{m_Registry}
+            .get<entt::entity>(archive)
+            .template get<TagComponent>(archive)
+            .template get<TransformComponent>(archive)
+            .template get<HierarchyComponent>(archive)
+            .template get<MeshComponent>(archive)
+            .template get<MaterialComponent>(archive)
+            .template get<LightComponent>(archive)
+            .template get<RigidbodyComponent>(archive)
+            .template get<StaticComponent>(archive)
+            .template get<ActiveComponent>(archive)
+            .template get<ScriptComponent>(archive)
+            .template get<AnimatorComponent>(archive)
+            .template get<AudioSourceComponent>(archive)
+            .template get<AudioListenerComponent>(archive)
+            .template get<AudioZoneComponent>(archive)
+            .template get<NavMeshComponent>(archive)
+            .template get<NavigationAgentComponent>(archive)
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive)
+            .template get<UISliderComponent>(archive)
+            .template get<UIComponent>(archive);
+    }
+
+    template<class Archive>
+    void Prefab::load(Archive& archive, std::uint32_t const version)
+    {
+        archive(cereal::make_nvp("Base", cereal::base_class<Resource>(this)));
+        archive(cereal::make_nvp("RootEntity", m_RootEntity));
+
+        if (version == 0)
+        {
+            entt::snapshot_loader{m_Registry}
+            .get<entt::entity>(archive)
+            .template get<TagComponent>(archive)
+            .template get<TransformComponent>(archive)
+            .template get<HierarchyComponent>(archive)
+            .template get<MeshComponent>(archive)
+            .template get<MaterialComponent>(archive)
+            .template get<LightComponent>(archive)
+            .template get<RigidbodyComponent>(archive)
+            .template get<StaticComponent>(archive)
+            .template get<ActiveComponent>(archive)
+            .template get<ScriptComponent>(archive)
+            .template get<AnimatorComponent>(archive)
+            .template get<AudioSourceComponent>(archive)
+            .template get<AudioListenerComponent>(archive)
+            .template get<AudioZoneComponent>(archive)
+            .template get<NavMeshComponent>(archive)
+            .template get<NavigationAgentComponent>(archive)
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive)
+            .template get<UISliderComponent>(archive);
+        }
+        else if (version == 1)
+        {
+            entt::snapshot_loader{m_Registry}
+            .get<entt::entity>(archive)
+            .template get<TagComponent>(archive)
+            .template get<TransformComponent>(archive)
+            .template get<HierarchyComponent>(archive)
+            .template get<MeshComponent>(archive)
+            .template get<MaterialComponent>(archive)
+            .template get<LightComponent>(archive)
+            .template get<RigidbodyComponent>(archive)
+            .template get<StaticComponent>(archive)
+            .template get<ActiveComponent>(archive)
+            .template get<ScriptComponent>(archive)
+            .template get<AnimatorComponent>(archive)
+            .template get<AudioSourceComponent>(archive)
+            .template get<AudioListenerComponent>(archive)
+            .template get<AudioZoneComponent>(archive)
+            .template get<NavMeshComponent>(archive)
+            .template get<NavigationAgentComponent>(archive)
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive)
+            .template get<UISliderComponent>(archive)
+            .template get<UIComponent>(archive);
+        }
+
+        SceneManager::GetActiveScene()->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
+
+    }
 
     Prefab::Prefab()
         : Resource(ResourceType::Prefab)

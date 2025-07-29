@@ -1,6 +1,7 @@
 #include "Entity.h"
 #include "CoffeeEngine/Scene/Scene.h"
-#include "entt/entity/fwd.hpp"
+
+#include <entt/entt.hpp>
 
 namespace Coffee {
 

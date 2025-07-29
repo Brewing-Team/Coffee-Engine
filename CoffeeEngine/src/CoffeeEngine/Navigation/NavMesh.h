@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cereal/cereal.hpp>
 #include <cereal/external/base64.hpp>
 #include <cereal/types/vector.hpp>
 #include <cereal/archives/binary.hpp>

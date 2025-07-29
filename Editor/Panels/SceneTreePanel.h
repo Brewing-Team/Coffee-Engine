@@ -1,10 +1,18 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/Entity.h"
+
 #include "Panel.h"
-#include "entt/entity/fwd.hpp"
+
+namespace Coffee {
+
+    class Scene;
+    class TransformComponent;
+    class RigidbodyComponent;
+    class RectAnchor;
+
+}
 
 namespace Coffee {
 

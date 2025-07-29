@@ -1,6 +1,7 @@
 #include "LuaScene.h"
 
 #include "CoffeeEngine/Scene/Scene.h"
+#include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scene/Entity.h"
 

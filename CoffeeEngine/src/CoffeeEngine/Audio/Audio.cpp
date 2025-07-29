@@ -1,9 +1,16 @@
 #include "Audio.h"
 
-#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Scene/Components/AudioSourceComponent.h"
+#include "CoffeeEngine/Scene/Components/AudioListenerComponent.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
+#include <glm/geometric.hpp>
 
 #include <cassert>
 #include <fstream>

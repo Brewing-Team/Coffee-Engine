@@ -1,21 +1,19 @@
 #pragma once
 
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
-#include "CoffeeEngine/Scene/Components.h"
-#include "CoffeeEngine/Scene/SceneTree.h"
-#include "CoffeeEngine/Physics/PhysicsWorld.h"
+#include "CoffeeEngine/Physics/PhysicsWorld.h" // Think removing it using Scope<PhysicsWorld> instead
+
+#include <cereal/cereal.hpp>
 
 #include <entt/entt.hpp>
-#include "entt/entity/snapshot.hpp"
 #include <filesystem>
-#include <string>
-#include <vector>
 
 namespace Coffee {
 
     class EditorCamera;
     class Event;
     class SceneTree;
+    class UUID;
 }
 
 namespace Coffee {
@@ -26,6 +24,7 @@ namespace Coffee {
      */
 
     struct AnimatorComponent;
+    struct MeshComponent;
     class Entity;
     class Model;
 
@@ -167,156 +166,14 @@ namespace Coffee {
          * @tparam Archive The type of the archive.
          * @param archive The archive to save the scene to.
          */
-         template <class Archive> void save(Archive& archive, std::uint32_t const version) const
-         {
-            entt::snapshot{m_Registry}
-                .get<entt::entity>(archive)
-                .template get<TagComponent>(archive)
-                .template get<TransformComponent>(archive)
-                .template get<HierarchyComponent>(archive)
-                .template get<CameraComponent>(archive)
-                .template get<MeshComponent>(archive)
-                .template get<MaterialComponent>(archive)
-                .template get<LightComponent>(archive)
-                .template get<WorldEnvironmentComponent>(archive)
-                .template get<RigidbodyComponent>(archive)
-                .template get<ScriptComponent>(archive)
-                .template get<NavMeshComponent>(archive)
-                .template get<NavigationAgentComponent>(archive)
-                .template get<AnimatorComponent>(archive)
-                .template get<AudioSourceComponent>(archive)
-                .template get<AudioListenerComponent>(archive)
-                .template get<AudioZoneComponent>(archive)
-                .template get<ActiveComponent>(archive)
-                .template get<StaticComponent>(archive)
-                .template get<UIImageComponent>(archive)
-                .template get<UITextComponent>(archive)
-                .template get<UIToggleComponent>(archive)
-                .template get<UIButtonComponent>(archive)
-                .template get<UISliderComponent>(archive)
-                .template get<UIComponent>(archive);
-         }
+         template <class Archive> void save(Archive& archive, std::uint32_t const version) const;
 
         /**
          * @brief Deserializes the scene from an archive.
          * @tparam Archive The type of the archive.
          * @param archive The archive to load the scene from.
          */
-        template <class Archive> void load(Archive& archive, std::uint32_t const version)
-        {
-            m_IsLoading = true;
-
-            if (version == 0)
-            {
-                entt::snapshot_loader{m_Registry}
-                    .get<entt::entity>(archive)
-                    .template get<TagComponent>(archive)
-                    .template get<TransformComponent>(archive)
-                    .template get<HierarchyComponent>(archive)
-                    .template get<CameraComponent>(archive)
-                    .template get<MeshComponent>(archive)
-                    .template get<MaterialComponent>(archive)
-                    .template get<LightComponent>(archive)
-                    .template get<RigidbodyComponent>(archive)
-                    .template get<ScriptComponent>(archive)
-                    .template get<NavMeshComponent>(archive)
-                    .template get<NavigationAgentComponent>(archive)
-                    .template get<AnimatorComponent>(archive)
-                    .template get<AudioSourceComponent>(archive)
-                    .template get<AudioListenerComponent>(archive)
-                    .template get<AudioZoneComponent>(archive)
-                    .template get<ActiveComponent>(archive)
-                    .template get<StaticComponent>(archive);
-            }
-            else if (version == 1)
-            {
-                entt::snapshot_loader{m_Registry}
-                    .get<entt::entity>(archive)
-                    .template get<TagComponent>(archive)
-                    .template get<TransformComponent>(archive)
-                    .template get<HierarchyComponent>(archive)
-                    .template get<CameraComponent>(archive)
-                    .template get<MeshComponent>(archive)
-                    .template get<MaterialComponent>(archive)
-                    .template get<LightComponent>(archive)
-                    .template get<RigidbodyComponent>(archive)
-                    .template get<ScriptComponent>(archive)
-                    .template get<NavMeshComponent>(archive)
-                    .template get<NavigationAgentComponent>(archive)
-                    .template get<AnimatorComponent>(archive)
-                    .template get<AudioSourceComponent>(archive)
-                    .template get<AudioListenerComponent>(archive)
-                    .template get<AudioZoneComponent>(archive)
-                    .template get<ActiveComponent>(archive)
-                    .template get<StaticComponent>(archive)
-                    .template get<UIImageComponent>(archive)
-                    .template get<UITextComponent>(archive)
-                    .template get<UIToggleComponent>(archive)
-                    .template get<UIButtonComponent>(archive)
-                    .template get<UISliderComponent>(archive);
-            }
-            else if (version == 2)
-            {
-                entt::snapshot_loader{m_Registry}
-                    .get<entt::entity>(archive)
-                    .template get<TagComponent>(archive)
-                    .template get<TransformComponent>(archive)
-                    .template get<HierarchyComponent>(archive)
-                    .template get<CameraComponent>(archive)
-                    .template get<MeshComponent>(archive)
-                    .template get<MaterialComponent>(archive)
-                    .template get<LightComponent>(archive)
-                    .template get<RigidbodyComponent>(archive)
-                    .template get<ScriptComponent>(archive)
-                    .template get<NavMeshComponent>(archive)
-                    .template get<NavigationAgentComponent>(archive)
-                    .template get<AnimatorComponent>(archive)
-                    .template get<AudioSourceComponent>(archive)
-                    .template get<AudioListenerComponent>(archive)
-                    .template get<AudioZoneComponent>(archive)
-                    .template get<ActiveComponent>(archive)
-                    .template get<StaticComponent>(archive)
-                    .template get<UIImageComponent>(archive)
-                    .template get<UITextComponent>(archive)
-                    .template get<UIToggleComponent>(archive)
-                    .template get<UIButtonComponent>(archive)
-                    .template get<UISliderComponent>(archive)
-                    .template get<UIComponent>(archive);
-            }
-            else if (version == 3)
-            {
-                entt::snapshot_loader{m_Registry}
-                    .get<entt::entity>(archive)
-                    .template get<TagComponent>(archive)
-                    .template get<TransformComponent>(archive)
-                    .template get<HierarchyComponent>(archive)
-                    .template get<CameraComponent>(archive)
-                    .template get<MeshComponent>(archive)
-                    .template get<MaterialComponent>(archive)
-                    .template get<LightComponent>(archive)
-                    .template get<WorldEnvironmentComponent>(archive)
-                    .template get<RigidbodyComponent>(archive)
-                    .template get<ScriptComponent>(archive)
-                    .template get<NavMeshComponent>(archive)
-                    .template get<NavigationAgentComponent>(archive)
-                    .template get<AnimatorComponent>(archive)
-                    .template get<AudioSourceComponent>(archive)
-                    .template get<AudioListenerComponent>(archive)
-                    .template get<AudioZoneComponent>(archive)
-                    .template get<ActiveComponent>(archive)
-                    .template get<StaticComponent>(archive)
-                    .template get<UIImageComponent>(archive)
-                    .template get<UITextComponent>(archive)
-                    .template get<UIToggleComponent>(archive)
-                    .template get<UIButtonComponent>(archive)
-                    .template get<UISliderComponent>(archive)
-                    .template get<UIComponent>(archive);
-            }
-
-            AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
-
-            m_IsLoading = false;
-        }
+        template <class Archive> void load(Archive& archive, std::uint32_t const version);
 
     private:
         // NOTE: this macro should be modified when adding new components

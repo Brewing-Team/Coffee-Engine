@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Scene/Components.h" // TODO: Should I separate each Compnent in its own file for better compilation time
+#include "CoffeeEngine/Scene/Components/LightComponent.h"
 
 #include <glm/matrix.hpp>
 
@@ -13,6 +13,10 @@ namespace Coffee {
     class AnimatorComponent;
     class Material;
     class Framebuffer;
+    class Cubemap;
+    class Shader;
+    class Texture2D;
+    class VertexArray;
 }
 
 namespace Coffee {

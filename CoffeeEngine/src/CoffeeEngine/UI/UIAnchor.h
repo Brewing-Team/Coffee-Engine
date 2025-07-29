@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
+
 #include <cereal/cereal.hpp>
 #include <glm/glm.hpp>
 

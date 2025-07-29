@@ -1,7 +1,11 @@
 #pragma once
 
+#include "CoffeeEngine/Core/Base.h"
 #include "Panel.h"
 #include "imgui.h"
+
+#include <stdint.h>
+#include <array>
 
 namespace Coffee {
     class InputBinding;

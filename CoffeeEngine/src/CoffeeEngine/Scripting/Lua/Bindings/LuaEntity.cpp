@@ -1,6 +1,7 @@
 #include "LuaEntity.h"
 
 #include "CoffeeEngine/Scene/Entity.h"
+#include "CoffeeEngine/Scene/Components.h" // TODO: Think if should I include all components or just the ones I need
 
 void Coffee::RegisterEntityBindings(sol::state& luaState)
 {

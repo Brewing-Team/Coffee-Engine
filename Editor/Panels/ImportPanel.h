@@ -1,6 +1,14 @@
 #pragma once
 
 #include "Panel.h"
+#include "CoffeeEngine/Core/Base.h"
+
+namespace Coffee {
+
+    class Scene;
+    class Resource;
+    class ImportData;
+}
 
 namespace Coffee {
 

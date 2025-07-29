@@ -5,6 +5,9 @@
 #pragma once
 #include "Panel.h"
 #include "imgui.h"
+#include <spdlog/common.h>
+#include <string>
+#include <tuple>
 
 // This class uses as reference the ImGui example "Example: Log" from the ImGui repository.
 // https://github.com/ocornut/imgui/blob/f484af34c2014e98a64410e6cd81e1a5ab434bfd/imgui_demo.cpp

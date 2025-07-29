@@ -6,6 +6,8 @@
 
 #include <glm/fwd.hpp>
 
+#include <tracy/Tracy.hpp>
+
 namespace Coffee {
 
     PhysicsWorld::PhysicsWorld() {

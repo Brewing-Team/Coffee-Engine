@@ -16,6 +16,7 @@
 #include "CoffeeEngine/Renderer/EditorCamera.h"
 #include "CoffeeEngine/Renderer/Framebuffer.h"
 #include "CoffeeEngine/Renderer/Material.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/RenderTarget.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
 #include "CoffeeEngine/Renderer/Renderer2D.h"

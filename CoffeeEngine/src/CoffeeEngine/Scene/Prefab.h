@@ -4,7 +4,6 @@
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/Scene/Entity.h"
-#include "SceneManager.h"
 
 #include <entt/entt.hpp>
 #include <filesystem>
@@ -57,100 +56,10 @@ namespace Coffee {
         friend class cereal::access;
         
         template<class Archive>
-        void save(Archive& archive, std::uint32_t const version) const
-        {
-            archive(cereal::make_nvp("Base", cereal::base_class<Resource>(this)));
-            archive(cereal::make_nvp("RootEntity", m_RootEntity));
-
-            entt::snapshot{m_Registry}
-                .get<entt::entity>(archive)
-                .template get<TagComponent>(archive)
-                .template get<TransformComponent>(archive)
-                .template get<HierarchyComponent>(archive)
-                .template get<MeshComponent>(archive)
-                .template get<MaterialComponent>(archive)
-                .template get<LightComponent>(archive)
-                .template get<RigidbodyComponent>(archive)
-                .template get<StaticComponent>(archive)
-                .template get<ActiveComponent>(archive)
-                .template get<ScriptComponent>(archive)
-                .template get<AnimatorComponent>(archive)
-                .template get<AudioSourceComponent>(archive)
-                .template get<AudioListenerComponent>(archive)
-                .template get<AudioZoneComponent>(archive)
-                .template get<NavMeshComponent>(archive)
-                .template get<NavigationAgentComponent>(archive)
-                .template get<UIImageComponent>(archive)
-                .template get<UITextComponent>(archive)
-                .template get<UIToggleComponent>(archive)
-                .template get<UIButtonComponent>(archive)
-                .template get<UISliderComponent>(archive)
-                .template get<UIComponent>(archive);
-        }
+        void save(Archive& archive, std::uint32_t const version) const;
         
         template<class Archive>
-        void load(Archive& archive, std::uint32_t const version)
-        {
-            archive(cereal::make_nvp("Base", cereal::base_class<Resource>(this)));
-            archive(cereal::make_nvp("RootEntity", m_RootEntity));
-
-            if (version == 0)
-            {
-                entt::snapshot_loader{m_Registry}
-                .get<entt::entity>(archive)
-                .template get<TagComponent>(archive)
-                .template get<TransformComponent>(archive)
-                .template get<HierarchyComponent>(archive)
-                .template get<MeshComponent>(archive)
-                .template get<MaterialComponent>(archive)
-                .template get<LightComponent>(archive)
-                .template get<RigidbodyComponent>(archive)
-                .template get<StaticComponent>(archive)
-                .template get<ActiveComponent>(archive)
-                .template get<ScriptComponent>(archive)
-                .template get<AnimatorComponent>(archive)
-                .template get<AudioSourceComponent>(archive)
-                .template get<AudioListenerComponent>(archive)
-                .template get<AudioZoneComponent>(archive)
-                .template get<NavMeshComponent>(archive)
-                .template get<NavigationAgentComponent>(archive)
-                .template get<UIImageComponent>(archive)
-                .template get<UITextComponent>(archive)
-                .template get<UIToggleComponent>(archive)
-                .template get<UIButtonComponent>(archive)
-                .template get<UISliderComponent>(archive);
-            }
-            else if (version == 1)
-            {
-                entt::snapshot_loader{m_Registry}
-                .get<entt::entity>(archive)
-                .template get<TagComponent>(archive)
-                .template get<TransformComponent>(archive)
-                .template get<HierarchyComponent>(archive)
-                .template get<MeshComponent>(archive)
-                .template get<MaterialComponent>(archive)
-                .template get<LightComponent>(archive)
-                .template get<RigidbodyComponent>(archive)
-                .template get<StaticComponent>(archive)
-                .template get<ActiveComponent>(archive)
-                .template get<ScriptComponent>(archive)
-                .template get<AnimatorComponent>(archive)
-                .template get<AudioSourceComponent>(archive)
-                .template get<AudioListenerComponent>(archive)
-                .template get<AudioZoneComponent>(archive)
-                .template get<NavMeshComponent>(archive)
-                .template get<NavigationAgentComponent>(archive)
-                .template get<UIImageComponent>(archive)
-                .template get<UITextComponent>(archive)
-                .template get<UIToggleComponent>(archive)
-                .template get<UIButtonComponent>(archive)
-                .template get<UISliderComponent>(archive)
-                .template get<UIComponent>(archive);
-            }
-
-            SceneManager::GetActiveScene()->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
-
-        }
+        void load(Archive& archive, std::uint32_t const version);
         
     private:
         entt::registry m_Registry;

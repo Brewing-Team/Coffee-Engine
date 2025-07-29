@@ -1,15 +1,18 @@
 #include "Scene.h"
 
+#include "CoffeeEngine/Animation/Animation.h"
+#include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Math/Frustum.h"
+#include "CoffeeEngine/Navigation/NavMesh.h"
+#include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
 #include "CoffeeEngine/Physics/Collider.h"
 #include "CoffeeEngine/Physics/CollisionCallback.h"
 #include "CoffeeEngine/Physics/CollisionSystem.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
 #include "CoffeeEngine/Renderer/EditorCamera.h"
-#include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Renderer/Model.h"
 #include "CoffeeEngine/Renderer/Renderer.h"
@@ -23,11 +26,11 @@
 #include <CoffeeEngine/Scripting/Script.h>
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "CoffeeEngine/UI/UIManager.h"
-#include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 
+#include "entt/entity/snapshot.hpp"
+
 #include <stdint.h>
-#include <cstdlib>
 #include <glm/detail/type_quat.hpp>
 #include <glm/fwd.hpp>
 #include <memory>
@@ -44,6 +47,154 @@ namespace Coffee {
     std::map <UUID, UUID> Scene::s_UUIDMap;
     std::vector<MeshComponent*> Scene::s_MeshComponents;
     std::vector<AnimatorComponent*> Scene::s_AnimatorComponents;
+
+    template <class Archive>
+    void Scene::save(Archive& archive, std::uint32_t const version) const
+    {
+        entt::snapshot{m_Registry}
+            .get<entt::entity>(archive)
+            .template get<TagComponent>(archive)
+            .template get<TransformComponent>(archive)
+            .template get<HierarchyComponent>(archive)
+            .template get<CameraComponent>(archive)
+            .template get<MeshComponent>(archive)
+            .template get<MaterialComponent>(archive)
+            .template get<LightComponent>(archive)
+            .template get<WorldEnvironmentComponent>(archive)
+            .template get<RigidbodyComponent>(archive)
+            .template get<ScriptComponent>(archive)
+            .template get<NavMeshComponent>(archive)
+            .template get<NavigationAgentComponent>(archive)
+            .template get<AnimatorComponent>(archive)
+            .template get<AudioSourceComponent>(archive)
+            .template get<AudioListenerComponent>(archive)
+            .template get<AudioZoneComponent>(archive)
+            .template get<ActiveComponent>(archive)
+            .template get<StaticComponent>(archive)
+            .template get<UIImageComponent>(archive)
+            .template get<UITextComponent>(archive)
+            .template get<UIToggleComponent>(archive)
+            .template get<UIButtonComponent>(archive)
+            .template get<UISliderComponent>(archive)
+            .template get<UIComponent>(archive);
+    }
+
+    template <class Archive>
+    void Scene::load(Archive& archive, std::uint32_t const version)
+    {
+        m_IsLoading = true;
+
+        if (version == 0)
+        {
+            entt::snapshot_loader{m_Registry}
+                .get<entt::entity>(archive)
+                .template get<TagComponent>(archive)
+                .template get<TransformComponent>(archive)
+                .template get<HierarchyComponent>(archive)
+                .template get<CameraComponent>(archive)
+                .template get<MeshComponent>(archive)
+                .template get<MaterialComponent>(archive)
+                .template get<LightComponent>(archive)
+                .template get<RigidbodyComponent>(archive)
+                .template get<ScriptComponent>(archive)
+                .template get<NavMeshComponent>(archive)
+                .template get<NavigationAgentComponent>(archive)
+                .template get<AnimatorComponent>(archive)
+                .template get<AudioSourceComponent>(archive)
+                .template get<AudioListenerComponent>(archive)
+                .template get<AudioZoneComponent>(archive)
+                .template get<ActiveComponent>(archive)
+                .template get<StaticComponent>(archive);
+        }
+        else if (version == 1)
+        {
+            entt::snapshot_loader{m_Registry}
+                .get<entt::entity>(archive)
+                .template get<TagComponent>(archive)
+                .template get<TransformComponent>(archive)
+                .template get<HierarchyComponent>(archive)
+                .template get<CameraComponent>(archive)
+                .template get<MeshComponent>(archive)
+                .template get<MaterialComponent>(archive)
+                .template get<LightComponent>(archive)
+                .template get<RigidbodyComponent>(archive)
+                .template get<ScriptComponent>(archive)
+                .template get<NavMeshComponent>(archive)
+                .template get<NavigationAgentComponent>(archive)
+                .template get<AnimatorComponent>(archive)
+                .template get<AudioSourceComponent>(archive)
+                .template get<AudioListenerComponent>(archive)
+                .template get<AudioZoneComponent>(archive)
+                .template get<ActiveComponent>(archive)
+                .template get<StaticComponent>(archive)
+                .template get<UIImageComponent>(archive)
+                .template get<UITextComponent>(archive)
+                .template get<UIToggleComponent>(archive)
+                .template get<UIButtonComponent>(archive)
+                .template get<UISliderComponent>(archive);
+        }
+        else if (version == 2)
+        {
+            entt::snapshot_loader{m_Registry}
+                .get<entt::entity>(archive)
+                .template get<TagComponent>(archive)
+                .template get<TransformComponent>(archive)
+                .template get<HierarchyComponent>(archive)
+                .template get<CameraComponent>(archive)
+                .template get<MeshComponent>(archive)
+                .template get<MaterialComponent>(archive)
+                .template get<LightComponent>(archive)
+                .template get<RigidbodyComponent>(archive)
+                .template get<ScriptComponent>(archive)
+                .template get<NavMeshComponent>(archive)
+                .template get<NavigationAgentComponent>(archive)
+                .template get<AnimatorComponent>(archive)
+                .template get<AudioSourceComponent>(archive)
+                .template get<AudioListenerComponent>(archive)
+                .template get<AudioZoneComponent>(archive)
+                .template get<ActiveComponent>(archive)
+                .template get<StaticComponent>(archive)
+                .template get<UIImageComponent>(archive)
+                .template get<UITextComponent>(archive)
+                .template get<UIToggleComponent>(archive)
+                .template get<UIButtonComponent>(archive)
+                .template get<UISliderComponent>(archive)
+                .template get<UIComponent>(archive);
+        }
+        else if (version == 3)
+        {
+            entt::snapshot_loader{m_Registry}
+                .get<entt::entity>(archive)
+                .template get<TagComponent>(archive)
+                .template get<TransformComponent>(archive)
+                .template get<HierarchyComponent>(archive)
+                .template get<CameraComponent>(archive)
+                .template get<MeshComponent>(archive)
+                .template get<MaterialComponent>(archive)
+                .template get<LightComponent>(archive)
+                .template get<WorldEnvironmentComponent>(archive)
+                .template get<RigidbodyComponent>(archive)
+                .template get<ScriptComponent>(archive)
+                .template get<NavMeshComponent>(archive)
+                .template get<NavigationAgentComponent>(archive)
+                .template get<AnimatorComponent>(archive)
+                .template get<AudioSourceComponent>(archive)
+                .template get<AudioListenerComponent>(archive)
+                .template get<AudioZoneComponent>(archive)
+                .template get<ActiveComponent>(archive)
+                .template get<StaticComponent>(archive)
+                .template get<UIImageComponent>(archive)
+                .template get<UITextComponent>(archive)
+                .template get<UIToggleComponent>(archive)
+                .template get<UIButtonComponent>(archive)
+                .template get<UISliderComponent>(archive)
+                .template get<UIComponent>(archive);
+        }
+
+        AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
+
+        m_IsLoading = false;
+    }
 
     Scene::Scene()
     {

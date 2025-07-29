@@ -1,9 +1,13 @@
 #include "AudioZone.h"
 
-#include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/Scene/Components/AudioZoneComponent.h"
+#include "CoffeeEngine/Audio/Audio.h"
 
 #include <AK/SoundEngine/Common/AkSoundEngine.h>
 
+#include <cereal/external/rapidjson/document.h>
+#include <filesystem>
 #include <unordered_map>
 #include <fstream>
 

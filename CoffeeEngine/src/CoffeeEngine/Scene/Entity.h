@@ -1,9 +1,10 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Assert.h"
+#include "CoffeeEngine/Scene/Components/ActiveComponent.h"
+#include "CoffeeEngine/Scene/Components/RigidbodyComponent.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "CoffeeEngine/Scene/Components.h"
 #include "entt/entity/fwd.hpp"
 
 namespace Coffee {

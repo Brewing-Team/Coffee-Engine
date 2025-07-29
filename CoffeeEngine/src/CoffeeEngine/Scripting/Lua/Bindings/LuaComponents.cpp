@@ -1,6 +1,8 @@
 #include "LuaComponents.h"
 
+#include "CoffeeEngine/Renderer/Material.h"
 #include "CoffeeEngine/Scene/Components.h"
+#include "CoffeeEngine/Renderer/Mesh.h"
 #include "CoffeeEngine/Scripting/GameSaver.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "CoffeeEngine/UI/UIManager.h"
