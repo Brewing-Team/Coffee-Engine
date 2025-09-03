@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/Kitware/CMake/master/Help/manual/presets/schema.json",
+  "version": 8,
+  "configurePresets": [
+    {
+      "name": "debug-custom-clang",
+      "displayName": "Debug with Custom Clang",
+      "description": "Debug build with specific Clang version",
+      "inherits": "debug-clang",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/usr/bin/clang-15",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++-15"
+      }
+    },
+    {
+      "name": "debug-custom-gcc",
+      "displayName": "Debug with Custom GCC",
+      "description": "Debug build with specific GCC version",
+      "inherits": "debug",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/usr/bin/gcc-12",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++-12"
+      }
+    },
+    {
+      "name": "debug-windows-clang",
+      "displayName": "Debug Windows with Clang",
+      "description": "Debug build on Windows using Clang",
+      "inherits": ["base", "vcpkg", "clang"],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_C_COMPILER": "clang-cl",
+        "CMAKE_CXX_COMPILER": "clang-cl"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "editor-custom-clang",
+      "displayName": "Editor (Custom Clang)",
+      "description": "Build Editor with custom Clang version",
+      "configurePreset": "debug-custom-clang",
+      "targets": ["Editor"]
+    },
+    {
+      "name": "all-custom-gcc",
+      "displayName": "All Targets (Custom GCC)",
+      "description": "Build all targets with custom GCC version",
+      "configurePreset": "debug-custom-gcc"
+    }
+  ]
+}

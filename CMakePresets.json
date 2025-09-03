@@ -1,0 +1,229 @@
+{
+  "$schema": "https://cmake.org/cmake/help/latest/_downloads/3e2d73bff478d88a7de0de736ba5e361/schema.json",
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "base",
+      "displayName": "Base Configuration",
+      "description": "Base configuration with common settings",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/bin/${presetName}",
+        "CMAKE_ARCHIVE_OUTPUT_DIRECTORY": "${sourceDir}/bin/${presetName}/lib",
+        "CMAKE_LIBRARY_OUTPUT_DIRECTORY": "${sourceDir}/bin/${presetName}/lib"
+      }
+    },
+    {
+      "name": "vcpkg",
+      "displayName": "vcpkg Integration",
+      "description": "vcpkg package manager integration - VCPKG_ROOT must be set",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        },
+        "VCPKG_OVERLAY_PORTS": "${sourceDir}/vcpkg-overlays"
+      }
+    },
+    {
+      "name": "debug",
+      "displayName": "Debug Build Type",
+      "description": "Debug build configuration",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release",
+      "displayName": "Release Build Type", 
+      "description": "Release build configuration",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "relwithdebinfo",
+      "displayName": "RelWithDebInfo Build Type",
+      "description": "Release with debug info build configuration",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "msvc",
+      "displayName": "MSVC Compiler",
+      "description": "Microsoft Visual C++ compiler",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "gcc",
+      "displayName": "GCC Compiler",
+      "description": "GNU Compiler Collection",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "clang",
+      "displayName": "Clang Compiler",
+      "description": "Clang/LLVM compiler",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++"
+      }
+    },
+    {
+      "name": "tracy",
+      "displayName": "Tracy Profiling",
+      "description": "Tracy profiler integration",
+      "hidden": true,
+      "cacheVariables": {
+        "TRACY_ENABLE": "ON",
+        "CMAKE_CXX_FLAGS": "-DTRACY_ENABLE"
+      }
+    },
+    {
+      "name": "analyze",
+      "displayName": "Build Analysis",
+      "description": "Clang build time analysis",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_CXX_FLAGS": "-ftime-trace"
+      }
+    },
+    {
+      "name": "debug-msvc",
+      "displayName": "Debug (MSVC)",
+      "description": "Debug build with MSVC compiler",
+      "inherits": ["base", "vcpkg", "debug", "msvc"]
+    },
+    {
+      "name": "release-msvc",
+      "displayName": "Release (MSVC)",
+      "description": "Release build with MSVC compiler",
+      "inherits": ["base", "vcpkg", "release", "msvc"]
+    },
+    {
+      "name": "relwithdebinfo-msvc",
+      "displayName": "RelWithDebInfo (MSVC)",
+      "description": "Release with debug info build with MSVC compiler",
+      "inherits": ["base", "vcpkg", "relwithdebinfo", "msvc"]
+    },
+    {
+      "name": "debug-gcc",
+      "displayName": "Debug (GCC)",
+      "description": "Debug build with GCC compiler",
+      "inherits": ["base", "vcpkg", "debug", "gcc"]
+    },
+    {
+      "name": "release-gcc",
+      "displayName": "Release (GCC)",
+      "description": "Release build with GCC compiler",
+      "inherits": ["base", "vcpkg", "release", "gcc"]
+    },
+    {
+      "name": "relwithdebinfo-gcc",
+      "displayName": "RelWithDebInfo (GCC)",
+      "description": "Release with debug info build with GCC compiler",
+      "inherits": ["base", "vcpkg", "relwithdebinfo", "gcc"]
+    },
+    {
+      "name": "debug-clang",
+      "displayName": "Debug (Clang)",
+      "description": "Debug build with Clang compiler",
+      "inherits": ["base", "vcpkg", "debug", "clang"]
+    },
+    {
+      "name": "release-clang",
+      "displayName": "Release (Clang)",
+      "description": "Release build with Clang compiler",
+      "inherits": ["base", "vcpkg", "release", "clang"]
+    },
+    {
+      "name": "relwithdebinfo-clang",
+      "displayName": "RelWithDebInfo (Clang)",
+      "description": "Release with debug info build with Clang compiler",
+      "inherits": ["base", "vcpkg", "relwithdebinfo", "clang"]
+    },
+    {
+      "name": "tracy-msvc",
+      "displayName": "Tracy (MSVC)",
+      "description": "Release build with Tracy profiling and MSVC",
+      "inherits": ["base", "vcpkg", "release", "msvc", "tracy"]
+    },
+    {
+      "name": "tracy-gcc",
+      "displayName": "Tracy (GCC)",
+      "description": "Release build with Tracy profiling and GCC",
+      "inherits": ["base", "vcpkg", "release", "gcc", "tracy"]
+    },
+    {
+      "name": "tracy-clang",
+      "displayName": "Tracy (Clang)",
+      "description": "Release build with Tracy profiling and Clang",
+      "inherits": ["base", "vcpkg", "release", "clang", "tracy"]
+    },
+    {
+      "name": "analyze-clang",
+      "displayName": "Analyze (Clang)",
+      "description": "Debug build with Clang build analysis",
+      "inherits": ["base", "vcpkg", "debug", "clang", "analyze"]
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "Engine",
+      "displayName": "Engine",
+      "targets": ["CoffeeEngine"]
+    },
+    {
+      "name": "Editor",
+      "displayName": "Editor",
+      "targets": ["Editor"]
+    },
+    {
+      "name": "Runtime",
+      "displayName": "Runtime",
+      "targets": ["Runtime"]
+    },
+    {
+      "name": "Sandbox",
+      "displayName": "Sandbox",
+      "targets": ["Sandbox"]
+    },
+    {
+      "name": "All",
+      "displayName": "All Targets"
+    }
+  ]
+}

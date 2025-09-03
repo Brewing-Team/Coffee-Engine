@@ -4,18 +4,12 @@ project(Coffee-Engine VERSION 0.4.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add -ftime-trace for ClangBuildAnalyzer (Clang only)
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_options(-ftime-trace)
-    message(STATUS "Added -ftime-trace for ClangBuildAnalyzer")
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    message(STATUS "Found ccache in ${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
 endif()
-
-#find_program(CCACHE_PROGRAM ccache)
-#if(CCACHE_PROGRAM)
-#    message(STATUS "Found ccache in ${CCACHE_PROGRAM}")
-#    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-#    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-#endif()
 
 # Check for available linkers and use the best one available (Linux/Unix only)
 # Priority: mold > lld > ld (default)
@@ -35,17 +29,16 @@ if(UNIX AND NOT APPLE)
             set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -fuse-ld=lld")
         else()
             message(STATUS "Using default ld linker")
-            # No need to set flags for default linker
         endif()
     endif()
 endif()
 
-# TODO: Change the ARCHIVE AND LIBRARY DIRECTIORES TO RESPECT THE PROJECT FOLDERS
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/lib)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+# Set output directories (will be overridden by presets if used)
+if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+endif()
 
-if (MSVC)
+if(MSVC)
     add_compile_options(/bigobj) # Check if we can remove this [LuaBackend.obj is too big]
 endif()
 
