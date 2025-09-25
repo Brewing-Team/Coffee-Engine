@@ -8,7 +8,7 @@
   },
   "configurePresets": [
     {
-      "name": "base",
+      "name": "Base",
       "displayName": "Base Configuration",
       "description": "Base configuration with common settings",
       "hidden": true,
@@ -23,7 +23,7 @@
       }
     },
     {
-      "name": "vcpkg",
+      "name": "VCPKG",
       "displayName": "vcpkg Integration",
       "description": "vcpkg package manager integration - VCPKG_ROOT must be set",
       "hidden": true,
@@ -36,7 +36,7 @@
       }
     },
     {
-      "name": "debug",
+      "name": "Debug",
       "displayName": "Debug Build Type",
       "description": "Debug build configuration",
       "hidden": true,
@@ -45,7 +45,7 @@
       }
     },
     {
-      "name": "release",
+      "name": "Release",
       "displayName": "Release Build Type", 
       "description": "Release build configuration",
       "hidden": true,
@@ -54,7 +54,7 @@
       }
     },
     {
-      "name": "relwithdebinfo",
+      "name": "RelWithDebInfo",
       "displayName": "RelWithDebInfo Build Type",
       "description": "Release with debug info build configuration",
       "hidden": true,
@@ -63,7 +63,7 @@
       }
     },
     {
-      "name": "msvc",
+      "name": "MSVC",
       "displayName": "MSVC Compiler",
       "description": "Microsoft Visual C++ compiler",
       "hidden": true,
@@ -78,7 +78,7 @@
       }
     },
     {
-      "name": "gcc",
+      "name": "GCC",
       "displayName": "GCC Compiler",
       "description": "GNU Compiler Collection",
       "hidden": true,
@@ -93,7 +93,7 @@
       }
     },
     {
-      "name": "clang",
+      "name": "Clang",
       "displayName": "Clang Compiler",
       "description": "Clang/LLVM compiler",
       "hidden": true,
@@ -103,7 +103,7 @@
       }
     },
     {
-      "name": "tracy",
+      "name": "Tracy",
       "displayName": "Tracy Profiling",
       "description": "Tracy profiler integration",
       "hidden": true,
@@ -113,7 +113,7 @@
       }
     },
     {
-      "name": "analyze",
+      "name": "Analyze",
       "displayName": "Build Analysis",
       "description": "Clang build time analysis",
       "hidden": true,
@@ -122,82 +122,82 @@
       }
     },
     {
-      "name": "debug-msvc",
+      "name": "Debug-MSVC",
       "displayName": "Debug (MSVC)",
       "description": "Debug build with MSVC compiler",
-      "inherits": ["base", "vcpkg", "debug", "msvc"]
+      "inherits": ["Base", "VCPKG", "Debug", "MSVC"]
     },
     {
-      "name": "release-msvc",
+      "name": "Release-MSVC",
       "displayName": "Release (MSVC)",
       "description": "Release build with MSVC compiler",
-      "inherits": ["base", "vcpkg", "release", "msvc"]
+      "inherits": ["Base", "VCPKG", "Release", "MSVC"]
     },
     {
-      "name": "relwithdebinfo-msvc",
+      "name": "RelWithDebInfo-MSVC",
       "displayName": "RelWithDebInfo (MSVC)",
       "description": "Release with debug info build with MSVC compiler",
-      "inherits": ["base", "vcpkg", "relwithdebinfo", "msvc"]
+      "inherits": ["Base", "VCPKG", "RelWithDebInfo", "MSVC"]
     },
     {
-      "name": "debug-gcc",
+      "name": "Debug-GCC",
       "displayName": "Debug (GCC)",
       "description": "Debug build with GCC compiler",
-      "inherits": ["base", "vcpkg", "debug", "gcc"]
+      "inherits": ["Base", "VCPKG", "Debug", "GCC"]
     },
     {
-      "name": "release-gcc",
+      "name": "Release-GCC",
       "displayName": "Release (GCC)",
       "description": "Release build with GCC compiler",
-      "inherits": ["base", "vcpkg", "release", "gcc"]
+      "inherits": ["Base", "VCPKG", "Release", "GCC"]
     },
     {
-      "name": "relwithdebinfo-gcc",
+      "name": "RelWithDebInfo-GCC",
       "displayName": "RelWithDebInfo (GCC)",
       "description": "Release with debug info build with GCC compiler",
-      "inherits": ["base", "vcpkg", "relwithdebinfo", "gcc"]
+      "inherits": ["Base", "VCPKG", "RelWithDebInfo", "GCC"]
     },
     {
-      "name": "debug-clang",
+      "name": "Debug-Clang",
       "displayName": "Debug (Clang)",
       "description": "Debug build with Clang compiler",
-      "inherits": ["base", "vcpkg", "debug", "clang"]
+      "inherits": ["Base", "VCPKG", "Debug", "Clang"]
     },
     {
-      "name": "release-clang",
+      "name": "Release-Clang",
       "displayName": "Release (Clang)",
       "description": "Release build with Clang compiler",
-      "inherits": ["base", "vcpkg", "release", "clang"]
+      "inherits": ["Base", "VCPKG", "Release", "Clang"]
     },
     {
-      "name": "relwithdebinfo-clang",
+      "name": "RelWithDebInfo-Clang",
       "displayName": "RelWithDebInfo (Clang)",
       "description": "Release with debug info build with Clang compiler",
-      "inherits": ["base", "vcpkg", "relwithdebinfo", "clang"]
+      "inherits": ["Base", "VCPKG", "RelWithDebInfo", "Clang"]
     },
     {
-      "name": "tracy-msvc",
+      "name": "Tracy-MSVC",
       "displayName": "Tracy (MSVC)",
       "description": "Release build with Tracy profiling and MSVC",
-      "inherits": ["base", "vcpkg", "release", "msvc", "tracy"]
+      "inherits": ["Base", "VCPKG", "Release", "MSVC", "Tracy"]
     },
     {
-      "name": "tracy-gcc",
+      "name": "Tracy-GCC",
       "displayName": "Tracy (GCC)",
       "description": "Release build with Tracy profiling and GCC",
-      "inherits": ["base", "vcpkg", "release", "gcc", "tracy"]
+      "inherits": ["Base", "VCPKG", "Release", "GCC", "Tracy"]
     },
     {
-      "name": "tracy-clang",
+      "name": "Tracy-Clang",
       "displayName": "Tracy (Clang)",
       "description": "Release build with Tracy profiling and Clang",
-      "inherits": ["base", "vcpkg", "release", "clang", "tracy"]
+      "inherits": ["Base", "VCPKG", "Release", "Clang", "Tracy"]
     },
     {
-      "name": "analyze-clang",
+      "name": "Analyze-Clang",
       "displayName": "Analyze (Clang)",
       "description": "Debug build with Clang build analysis",
-      "inherits": ["base", "vcpkg", "debug", "clang", "analyze"]
+      "inherits": ["Base", "VCPKG", "Debug", "Clang", "Analyze"]
     }
   ],
   "buildPresets": [

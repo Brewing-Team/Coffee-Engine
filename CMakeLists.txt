@@ -33,11 +33,6 @@ if(UNIX AND NOT APPLE)
     endif()
 endif()
 
-# Set output directories (will be overridden by presets if used)
-if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
-endif()
-
 if(MSVC)
     add_compile_options(/bigobj) # Check if we can remove this [LuaBackend.obj is too big]
 endif()
