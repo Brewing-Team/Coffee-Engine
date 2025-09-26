@@ -18,6 +18,12 @@ Welcome to Coffee's Engine documentation!
    getting_started/configuring_an_ide/engine_development
    getting_started/styling
 
+.. toctree:: 
+   :maxdepth: 1
+   :caption: Manual
+
+   manual/scripting
+
 .. toctree::
    :hidden:
    :maxdepth: 1
