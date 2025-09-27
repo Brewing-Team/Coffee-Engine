@@ -772,19 +772,13 @@ namespace Coffee {
 
         static Ref<Mesh> gridPlane = PrimitiveMesh::CreatePlane({1000.0f, 1000.0f});
         static Ref<Shader> gridShader = Shader::Create("assets/shaders/SimpleGridShader.glsl");
-        static Ref<Material> gridShaderMaterialFront = ShaderMaterial::Create("GridShaderMaterialFront", gridShader);
-        static Ref<Material> gridShaderMaterialBack = ShaderMaterial::Create("GridShaderMaterialBack", gridShader);
+        static Ref<Material> gridShaderMaterial = ShaderMaterial::Create("GridShaderMaterialFront", gridShader);
 
-        MaterialRenderSettings& gridMaterialRenderSettingsFront = gridShaderMaterialFront->GetRenderSettings();
-        gridMaterialRenderSettingsFront.cullMode = MaterialRenderSettings::CullMode::Front;
-        gridMaterialRenderSettingsFront.transparencyMode = MaterialRenderSettings::TransparencyMode::Alpha;
+        MaterialRenderSettings& gridMaterialRenderSettings = gridShaderMaterial->GetRenderSettings();
+        gridMaterialRenderSettings.cullMode = MaterialRenderSettings::CullMode::None;
+        gridMaterialRenderSettings.transparencyMode = MaterialRenderSettings::TransparencyMode::Alpha;
 
-        MaterialRenderSettings& gridMaterialRenderSettingsBack = gridShaderMaterialBack->GetRenderSettings();
-        gridMaterialRenderSettingsBack.cullMode = MaterialRenderSettings::CullMode::Back;
-        gridMaterialRenderSettingsBack.transparencyMode = MaterialRenderSettings::TransparencyMode::Alpha;
-
-        Renderer3D::Submit(RenderCommand{.mesh = gridPlane, .material = gridShaderMaterialFront});
-        Renderer3D::Submit(RenderCommand{.mesh = gridPlane, .material = gridShaderMaterialBack});
+        Renderer3D::Submit(RenderCommand{.mesh = gridPlane, .material = gridShaderMaterial});
     }
 
     void EditorLayer::ResizeViewport(float width, float height)
