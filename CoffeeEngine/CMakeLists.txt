@@ -40,7 +40,6 @@ find_package(Lua REQUIRED)
 find_package(Bullet REQUIRED)
 
 add_library(${PROJECT_NAME} ${SOURCES})
-
 add_library(coffee-engine ALIAS ${PROJECT_NAME})
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS}/pch.h)
