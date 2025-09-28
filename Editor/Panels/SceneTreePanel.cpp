@@ -87,14 +87,30 @@ namespace Coffee
 
         // Search by entity tag
         static std::array<char, 256> searchBuffer;
+        
+        // Calculate the width for the input field to leave space for the clear button
+        float availableWidth = ImGui::GetContentRegionAvail().x;
+        float clearButtonWidth = ImGui::CalcTextSize(ICON_LC_X).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+        
+        ImGui::PushItemWidth(availableWidth - clearButtonWidth - ImGui::GetStyle().ItemSpacing.x);
         ImGui::InputTextWithHint("##searchbar", ICON_LC_SEARCH " Search by name:", searchBuffer.data(),
                                  searchBuffer.size());
+        ImGui::PopItemWidth();
 
-        ImGui::SameLine();
-        if (ImGui::Button(ICON_LC_CIRCLE_X "##searchbarclear"))
+        // Position the clear button to appear inside the input field
+        ImGui::SameLine(0, -clearButtonWidth - ImGui::GetStyle().FramePadding.x);
+        
+        // Style the clear button to blend with the input field
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.3f, 0.3f, 0.3f, 0.3f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.4f, 0.4f, 0.4f, 0.5f));
+        
+        if (ImGui::Button(ICON_LC_X "##searchbarclear"))
         {
             searchBuffer[0] = '\0';
         }
+        
+        ImGui::PopStyleColor(3);
 
         ImGui::BeginChild("entity tree", {0, 0}, ImGuiChildFlags_Border);
 
