@@ -182,7 +182,7 @@ namespace Coffee {
                                     case ResourceType::Texture2D:
                                     {
                                         Ref<Texture2D> texture = std::static_pointer_cast<Texture2D>(resource);
-                                        ImGui::Image((void*)(intptr_t)texture->GetID(), ImVec2(64, 64));
+                                        ImGui::Image((ImTextureID)(uintptr_t)texture->GetID(), ImVec2(64, 64));
                                         ImGui::SameLine();
                                         ImGui::BeginGroup();
                                         ImGui::Text("%s", resource->GetName().c_str());

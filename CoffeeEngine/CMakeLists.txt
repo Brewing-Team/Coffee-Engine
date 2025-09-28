@@ -32,8 +32,8 @@ find_package(assimp CONFIG REQUIRED)
 find_package(cereal REQUIRED)
 find_package(EnTT CONFIG REQUIRED)
 find_package(Tracy CONFIG REQUIRED)
-#find_package(imgui REQUIRED)
-#find_package(ImGuizmo REQUIRED)
+find_package(imgui REQUIRED)
+find_package(ImGuizmo REQUIRED)
 find_package(nfd REQUIRED)
 find_package(sol2 CONFIG REQUIRED)
 find_package(Lua REQUIRED)
@@ -54,9 +54,8 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     SDL3::SDL3
     glm::glm
     GLAD
-    imgui
-    #imguizmo::imguizmo
-    ImGuizmo
+    imgui::imgui
+    imguizmo::imguizmo
     stb_image
     assimp::assimp
     EnTT::EnTT
@@ -120,10 +119,8 @@ if (UNIX)
     option(SDL_STATIC "Use static SDL" ON)
 endif()
 
-add_subdirectory(vendor/imgui)
 add_subdirectory(vendor/GLAD)
 add_subdirectory(vendor/stb_image)
-add_subdirectory(vendor/ImGuizmo)
 add_subdirectory(vendor/IconFontCppHeaders)
 add_subdirectory(vendor/ozz_animation)
 add_subdirectory(vendor/Wwise)

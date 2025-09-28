@@ -454,7 +454,7 @@ namespace Coffee {
         ResizeViewport(viewportPanelSize.x, viewportPanelSize.y);
 
         uint32_t textureID = m_ViewportRenderTarget->GetFramebuffer("Forward")->GetColorAttachment(0)->GetID();
-        ImGui::Image((void*)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, {0, 1}, {1, 0});
+        ImGui::Image((ImTextureID)(uintptr_t)textureID, ImVec2{ m_ViewportSize.x, m_ViewportSize.y }, {0, 1}, {1, 0});
 
         //Guizmo
         Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();

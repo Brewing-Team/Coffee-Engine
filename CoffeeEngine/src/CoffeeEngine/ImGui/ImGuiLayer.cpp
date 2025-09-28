@@ -7,8 +7,8 @@
 #include <imgui.h>
 
 #define IMGUI_IMPL_OPENGL_LOADER_GLAD
-#include <imgui_impl_sdl3.cpp>
-#include <imgui_impl_opengl3.cpp>
+#include <imgui_impl_sdl3.h>
+#include <imgui_impl_opengl3.h>
 
 #include <IconsLucide.h>
 
@@ -127,6 +127,7 @@ namespace Coffee {
 		style.GrabRounding = 1;
 		style.WindowTitleAlign.x = 0.5;
 		style.WindowMenuButtonPosition = ImGuiDir_None;
+		style.TabRounding = 0;
 
 		//TEA THEME V2
 		ImVec4* colors = ImGui::GetStyle().Colors;
@@ -239,6 +240,7 @@ namespace Coffee {
 		style.GrabRounding = 2;
 		style.WindowTitleAlign.x = 0.5;
 		style.WindowMenuButtonPosition = ImGuiDir_None;
+		style.TabRounding = 0;
 
 		//COFFEE THEME V2
 		ImVec4* colors = ImGui::GetStyle().Colors;
