@@ -28,7 +28,7 @@
   }, {
     "name" : "tracy",
     "version>=" : "0.11.1#2",
-    "features" : [ "gui-tools" ]
+    "features" : [ "gui-tools", "on-demand" ]
   }, {
     "name" : "nativefiledialog-extended",
     "version>=" : "1.2.0"
