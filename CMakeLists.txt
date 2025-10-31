@@ -4,6 +4,8 @@ project(Coffee-Engine VERSION 0.4.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
+
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
     message(STATUS "Found ccache in ${CCACHE_PROGRAM}")
@@ -37,7 +39,9 @@ if(MSVC)
     add_compile_options(/bigobj) # Check if we can remove this [LuaBackend.obj is too big]
 endif()
 
-add_definitions(-DUNICODE -D_UNICODE)
+if(WIN32)
+    add_compile_definitions(UNICODE _UNICODE NOMINMAX)
+endif()
 
 add_subdirectory(CoffeeEngine)
 add_subdirectory(Editor)

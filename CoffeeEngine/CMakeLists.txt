@@ -70,15 +70,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC
     ${BULLET_LIBRARIES}
 )
 
-# Libraries Cofigurations
+# Libraries Configurations
 
-#option(MSDF_ATLAS_BUILD_STANDALONE "Build the msdf-atlas-gen standalone executable" OFF)
-#option(MSDF_ATLAS_USE_SKIA "Build with the Skia library" OFF)
-#option(MSDF_ATLAS_NO_ARTERY_FONT "Disable Artery Font export and do not require its submodule" ON)
-#option(MSDF_ATLAS_USE_VCPKG "Use vcpkg package manager to link project dependencies" ON)
-#option(MSDF_ATLAS_MSDFGEN_EXTERNAL "Do not build the msdfgen submodule but find it as an external package" ON)
-
-# Temporal fix for the msdf-atlas-gen build to not take ages due to skia
+# Disable features of msdf-atlas-gen build to not take ages due to skia
 option(MSDF_ATLAS_USE_SKIA "Build with the Skia library" OFF)
 option(MSDF_ATLAS_USE_VCPKG "Use vcpkg package manager to link project dependencies" OFF)
 option(MSDF_ATLAS_MSDFGEN_EXTERNAL "Do not build the msdfgen submodule but find it as an external package" OFF)
@@ -91,22 +85,22 @@ option(ozz_build_howtos "Build howtos" OFF)
 option(ozz_build_tests "Build unit tests" OFF)
 
 # Set this in a profile like (Release + Profile)
-option(TRACY_ENABLE "Enable Tracy Profiler" ON)
-option(TRACY_ON_DEMAND "Enable Tracy on-demand mode" OFF)
-option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on first call)" OFF)
+#option(TRACY_ENABLE "Enable Tracy Profiler" ON)
+#option(TRACY_ON_DEMAND "Enable Tracy on-demand mode" OFF)
+#option(TRACY_DELAYED_INIT "Enable delayed initialization of the library (init on first call)" OFF)
 
-set(ENABLE_PROFILING OFF CACHE BOOL "Enable profiling" FORCE)
-
-if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    if (ENABLE_PROFILING)
-        message(STATUS "Profiling enabled")
-    endif()
-else()
-    message(STATUS "Profiling disabled")
-    get_target_property(TRACY_INTERFACE Tracy::TracyClient INTERFACE_COMPILE_DEFINITIONS)
-    list(REMOVE_ITEM TRACY_INTERFACE "TRACY_ENABLE")
-    set_target_properties(Tracy::TracyClient PROPERTIES INTERFACE_COMPILE_DEFINITIONS "${TRACY_INTERFACE}")
-endif()
+#set(ENABLE_PROFILING OFF CACHE BOOL "Enable profiling" FORCE)
+#
+#if (CMAKE_BUILD_TYPE STREQUAL "Release" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+#    if (ENABLE_PROFILING)
+#        message(STATUS "Profiling enabled")
+#    endif()
+#else()
+#    message(STATUS "Profiling disabled")
+#    get_target_property(TRACY_INTERFACE Tracy::TracyClient INTERFACE_COMPILE_DEFINITIONS)
+#    list(REMOVE_ITEM TRACY_INTERFACE "TRACY_ENABLE")
+#    set_target_properties(Tracy::TracyClient PROPERTIES INTERFACE_COMPILE_DEFINITIONS "${TRACY_INTERFACE}")
+#endif()
 
 option(NFD_PORTAL "Use xdg-desktop-portal instead of GTK" ON)
 
@@ -126,13 +120,7 @@ add_subdirectory(vendor/ozz_animation)
 add_subdirectory(vendor/Wwise)
 add_subdirectory(vendor/msdf-atlas-gen)
 
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=1)
-    message(STATUS "COFFEE_DEBUG ENABLED!")
-else()
-target_compile_definitions(${PROJECT_NAME} PRIVATE COFFEE_DEBUG=0)
-message(STATUS "COFFEE_DEBUG DISABLED!")
-endif()
-
-add_definitions(-DUNICODE -D_UNICODE)
-add_definitions(-DNOMINMAX)
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    $<$<CONFIG:Debug>:COFFEE_DEBUG=1>
+    $<$<NOT:$<CONFIG:Debug>>:COFFEE_DEBUG=0>
+)

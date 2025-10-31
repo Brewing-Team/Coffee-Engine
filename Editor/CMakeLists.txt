@@ -6,8 +6,6 @@ set(PANEL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Panels")
 
 file(GLOB_RECURSE SOURCES "${SRC_DIR}/*.cpp" "${PANEL_DIR}/*.cpp")
 
-SET(CMAKE_BUILD_RPATH_USE_ORIGIN TRUE)
-
 # Set the output directory based on the project name and build type
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_NAME}/$<CONFIG>")
 
@@ -21,7 +19,6 @@ target_link_libraries(${PROJECT_NAME}
     coffee-engine)
 
 target_precompile_headers(${PROJECT_NAME} REUSE_FROM coffee-engine)
-
 
 # Copy Assets folder
 add_custom_target(copy_resources ALL
@@ -37,5 +34,3 @@ add_custom_target(copy_resources ALL
         COMMENT "Copying resources into binary directory")
 
 add_dependencies(${PROJECT_NAME} copy_resources)
-
-#
