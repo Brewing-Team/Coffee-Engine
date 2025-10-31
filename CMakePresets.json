@@ -10,7 +10,7 @@
     {
       "name": "base",
       "hidden": true,
-      "generator": "Ninja",
+      "generator": "Ninja Multi-Config",
       "binaryDir": "${sourceDir}/build",
       "cacheVariables": {
         "CMAKE_RUNTIME_OUTPUT_DIRECTORY": "${sourceDir}/bin/${presetName}",
@@ -27,21 +27,8 @@
       }
     },
     {
-      "name": "msvc",
-      "hidden": true,
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "cl",
-        "CMAKE_CXX_COMPILER": "cl"
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
-    },
-    {
       "name": "gcc",
-      "hidden": true,
+      "inherits": ["base", "vcpkg"],
       "cacheVariables": {
         "CMAKE_C_COMPILER": "gcc",
         "CMAKE_CXX_COMPILER": "g++"
@@ -54,125 +41,323 @@
     },
     {
       "name": "clang",
-      "hidden": true,
+      "inherits": ["base", "vcpkg"],
       "cacheVariables": {
         "CMAKE_C_COMPILER": "clang",
         "CMAKE_CXX_COMPILER": "clang++"
       }
     },
     {
-      "name": "tracy",
-      "displayName": "Tracy Profiling",
-      "description": "Tracy profiler integration",
-      "hidden": true,
+      "name": "msvc",
+      "inherits": ["base", "vcpkg"],
       "cacheVariables": {
-        "TRACY_ENABLE": "ON",
-        "CMAKE_CXX_FLAGS": "-DTRACY_ENABLE"
+        "CMAKE_C_COMPILER": "cl",
+        "CMAKE_CXX_COMPILER": "cl"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
       }
-    },
-    {
-      "name": "Debug-MSVC",
-      "displayName": "Debug (MSVC)",
-      "description": "Debug build with MSVC compiler",
-      "inherits": ["Base", "VCPKG", "Debug", "MSVC"]
-    },
-    {
-      "name": "Release-MSVC",
-      "displayName": "Release (MSVC)",
-      "description": "Release build with MSVC compiler",
-      "inherits": ["Base", "VCPKG", "Release", "MSVC"]
-    },
-    {
-      "name": "RelWithDebInfo-MSVC",
-      "displayName": "RelWithDebInfo (MSVC)",
-      "description": "Release with debug info build with MSVC compiler",
-      "inherits": ["Base", "VCPKG", "RelWithDebInfo", "MSVC"]
-    },
-    {
-      "name": "Debug-GCC",
-      "displayName": "Debug (GCC)",
-      "description": "Debug build with GCC compiler",
-      "inherits": ["Base", "VCPKG", "Debug", "GCC"]
-    },
-    {
-      "name": "Release-GCC",
-      "displayName": "Release (GCC)",
-      "description": "Release build with GCC compiler",
-      "inherits": ["Base", "VCPKG", "Release", "GCC"]
-    },
-    {
-      "name": "RelWithDebInfo-GCC",
-      "displayName": "RelWithDebInfo (GCC)",
-      "description": "Release with debug info build with GCC compiler",
-      "inherits": ["Base", "VCPKG", "RelWithDebInfo", "GCC"]
-    },
-    {
-      "name": "Debug-Clang",
-      "displayName": "Debug (Clang)",
-      "description": "Debug build with Clang compiler",
-      "inherits": ["Base", "VCPKG", "Debug", "Clang"]
-    },
-    {
-      "name": "Release-Clang",
-      "displayName": "Release (Clang)",
-      "description": "Release build with Clang compiler",
-      "inherits": ["Base", "VCPKG", "Release", "Clang"]
-    },
-    {
-      "name": "RelWithDebInfo-Clang",
-      "displayName": "RelWithDebInfo (Clang)",
-      "description": "Release with debug info build with Clang compiler",
-      "inherits": ["Base", "VCPKG", "RelWithDebInfo", "Clang"]
-    },
-    {
-      "name": "Tracy-MSVC",
-      "displayName": "Tracy (MSVC)",
-      "description": "Release build with Tracy profiling and MSVC",
-      "inherits": ["Base", "VCPKG", "Release", "MSVC", "Tracy"]
-    },
-    {
-      "name": "Tracy-GCC",
-      "displayName": "Tracy (GCC)",
-      "description": "Release build with Tracy profiling and GCC",
-      "inherits": ["Base", "VCPKG", "Release", "GCC", "Tracy"]
-    },
-    {
-      "name": "Tracy-Clang",
-      "displayName": "Tracy (Clang)",
-      "description": "Release build with Tracy profiling and Clang",
-      "inherits": ["Base", "VCPKG", "Release", "Clang", "Tracy"]
-    },
-    {
-      "name": "Analyze-Clang",
-      "displayName": "Analyze (Clang)",
-      "description": "Debug build with Clang build analysis",
-      "inherits": ["Base", "VCPKG", "Debug", "Clang", "Analyze"]
     }
   ],
   "buildPresets": [
     {
-      "name": "Engine",
-      "displayName": "Engine",
-      "targets": ["CoffeeEngine"]
+      "name": "engine-debug-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "Debug",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
     },
     {
-      "name": "Editor",
-      "displayName": "Editor",
-      "targets": ["Editor"]
+      "name": "engine-debug-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "Debug",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
     },
     {
-      "name": "Runtime",
-      "displayName": "Runtime",
-      "targets": ["Runtime"]
+      "name": "engine-debug-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "Debug",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     },
     {
-      "name": "Sandbox",
-      "displayName": "Sandbox",
-      "targets": ["Sandbox"]
+      "name": "engine-relwithdebinfo-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
     },
     {
-      "name": "All",
-      "displayName": "All Targets"
+      "name": "engine-relwithdebinfo-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "engine-relwithdebinfo-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "engine-release-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "Release",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "engine-release-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "Release",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "engine-release-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "Release",
+      "targets": ["Coffee-Engine"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "editor-debug-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "Debug",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "editor-debug-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "Debug",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "editor-debug-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "Debug",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "editor-relwithdebinfo-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "editor-relwithdebinfo-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "editor-relwithdebinfo-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "editor-release-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "Release",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "editor-release-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "Release",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "editor-release-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "Release",
+      "targets": ["Coffee-Editor"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "runtime-debug-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "Debug",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "runtime-debug-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "Debug",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "runtime-debug-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "Debug",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "runtime-relwithdebinfo-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "runtime-relwithdebinfo-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "runtime-relwithdebinfo-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "RelWithDebInfo",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "runtime-release-gcc-linux",
+      "configurePreset": "gcc",
+      "configuration": "Release",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "runtime-release-clang-linux",
+      "configurePreset": "clang",
+      "configuration": "Release",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
+      }
+    },
+    {
+      "name": "runtime-release-msvc-windows",
+      "configurePreset": "msvc",
+      "configuration": "Release",
+      "targets": ["Coffee-Runtime"],
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     }
   ]
 }
