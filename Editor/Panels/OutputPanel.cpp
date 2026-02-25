@@ -1,55 +1,48 @@
 #include "OutputPanel.h"
-#include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "IconsLucide.h"
 #include <cstdlib>
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 #include <string>
 #include <vector>
-#include <regex>
 
 namespace Coffee {
 
-    // Helper function to remove milliseconds from timestamp
-    std::string SimplifyTimestamp(const std::string& log) {
-        // Regular expression to match timestamps with milliseconds: [YYYY-MM-DD HH:MM:SS.mmm]
-        static std::regex timestamp_regex(R"(\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})\.\d{3}\])");
-        
-        // Replace with timestamp without milliseconds: [YYYY-MM-DD HH:MM:SS]
-        return std::regex_replace(log, timestamp_regex, "[$1]");
+    // Helper function to extract only the message text from a log entry
+    std::string ExtractMessageText(const std::string& log) {
+        // Find the last ']' which marks the end of the log level
+        size_t lastBracket = log.find_last_of(']');
+        if (lastBracket != std::string::npos && lastBracket + 1 < log.length()) {
+            // Extract everything after the last bracket
+            std::string message = log.substr(lastBracket + 1);
+            // Trim leading whitespace
+            size_t start = message.find_first_not_of(" \t");
+            if (start != std::string::npos) {
+                return message.substr(start);
+            }
+        }
+        // Fallback to original log if parsing fails
+        return log;
     }
 
     void OutputPanel::OnImGuiRender()
     {
         if (!m_Visible) return;
 
-        ImGui::Begin("Output", nullptr, ImGuiWindowFlags_HorizontalScrollbar);
-        
-        // Add buttons and filter
-        if (ImGui::Button("Options"))
-            ImGui::OpenPopup("Options");
-        ImGui::SameLine();
-        bool clear = ImGui::Button("Clear");
-        ImGui::SameLine();
-        bool copy = ImGui::Button("Copy");
-        ImGui::SameLine();
-        m_Filter.Draw("Filter", -100.0f);
+        ImGui::Begin("Output", nullptr);
 
-        // Options menu
-        if (ImGui::BeginPopup("Options"))
-        {
-            ImGui::Checkbox("Auto-scroll", &m_AutoScroll);
-            ImGui::EndPopup();
-        }
-
-        ImGui::Separator();
-        ImGui::BeginChild("scrolling", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+        static bool clear = false;
+        static bool copy = false;
 
         const std::vector<std::string>& logBuffer = Coffee::Log::GetLogBuffer();
         
         // Handle clear button
         if (clear)
+        {
             Coffee::Log::ClearLogBuffer();
+            clear = false;
+        }
 
         // Handle copy button
         if (copy)
@@ -60,38 +53,109 @@ namespace Coffee {
                 if (m_Filter.IsActive() && !m_Filter.PassFilter(log.c_str()))
                     continue;
                 
-                // Use simplified timestamp for copying
-                std::string simplifiedLog = SimplifyTimestamp(log);
-                ImGui::LogText("%s\n", simplifiedLog.c_str());
+                ImGui::LogText("%s\n", log.c_str());
             }
             ImGui::LogFinish();
+            copy = false;
         }
 
+        // Fixed-size right panel for buttons (Godot-like layout)
+        const float rightPanelWidth = 100.0f;
+        const float availWidth = ImGui::GetContentRegionAvail().x;
+        const float availHeight = ImGui::GetContentRegionAvail().y;
+        const float searchBarHeight = ImGui::GetFrameHeightWithSpacing() + ImGui::GetStyle().ItemSpacing.y;
+        const float leftPanelWidth = availWidth - rightPanelWidth - ImGui::GetStyle().ItemSpacing.x;
+        const float mainAreaHeight = availHeight - searchBarHeight;
+
+        // Left panel - Log output
+        ImGui::BeginChild("OutputLog", ImVec2(leftPanelWidth, mainAreaHeight), true);
+        
+        // Enable text wrapping
+        ImGui::PushTextWrapPos(0.0f);
+        
         // Display logs with filtering
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 1));
+        int logIndex = 0;
         for (const std::string& log : logBuffer)
         {
             // Skip this log if it doesn't pass the filter
             if (m_Filter.IsActive() && !m_Filter.PassFilter(log.c_str()))
                 continue;
-
-            // Simplify timestamp for display
-            std::string simplifiedLog = SimplifyTimestamp(log);
             
-            auto [before_level, level_str, after_level] = ParseLogMessage(simplifiedLog);
+            auto [before_level, level_str, after_level] = ParseLogMessage(log);
             spdlog::level::level_enum level = spdlog::level::from_str(level_str);
             
+            // Extract only the message text (without timestamp and log level)
+            std::string messageText = ExtractMessageText(log);
+            
+            // Create unique ID for this log entry
+            ImGui::PushID(logIndex++);
+            
+            // Push color for the text
             ImGui::PushStyleColor(ImGuiCol_Text, GetLogLevelColor(level));
-            ImGui::TextUnformatted(simplifiedLog.c_str());
+            
+            // Calculate wrapped text size to make selectable area match
+            ImVec2 textSize = ImGui::CalcTextSize(messageText.c_str(), nullptr, false, ImGui::GetContentRegionAvail().x);
+            
+            // Make each log line selectable with proper size
+            ImGui::Selectable("##selectable", false, ImGuiSelectableFlags_AllowOverlap, ImVec2(0, textSize.y));
+            
+            // Right-click context menu for copying (must be called right after Selectable)
+            if (ImGui::BeginPopupContextItem())
+            {
+                if (ImGui::MenuItem("Copy"))
+                {
+                    // Copy the full log with all flags and timestamps
+                    ImGui::SetClipboardText(log.c_str());
+                }
+                ImGui::EndPopup();
+            }
+            
+            // Draw wrapped text on top of the selectable
+            ImVec2 textPos = ImGui::GetItemRectMin();
+            ImGui::SetCursorScreenPos(textPos);
+            ImGui::TextWrapped("%s", messageText.c_str());
+            
             ImGui::PopStyleColor();
+            ImGui::PopID();
         }
         ImGui::PopStyleVar();
+        ImGui::PopTextWrapPos();
 
-        // Auto-scroll if enabled
-        if (m_AutoScroll && ImGui::GetScrollY() >= ImGui::GetScrollMaxY())
+        // Auto-scroll to bottom when enabled
+        if (m_AutoScroll)
             ImGui::SetScrollHereY(1.0f);
 
         ImGui::EndChild();
+
+        // Right panel - Buttons (fixed width, non-resizable)
+        ImGui::SameLine();
+        ImGui::BeginChild("OutputOptions", ImVec2(rightPanelWidth, mainAreaHeight), true);
+        
+        // Buttons stacked vertically
+        if (ImGui::Button("Clear", ImVec2(-1, 0)))
+            clear = true;
+        
+        if (ImGui::Button("Copy", ImVec2(-1, 0)))
+            copy = true;
+        
+        ImGui::Separator();
+        
+        if (ImGui::Button("Options", ImVec2(-1, 0)))
+            ImGui::OpenPopup("Options");
+
+        // Options menu
+        if (ImGui::BeginPopup("Options"))
+        {
+            ImGui::Checkbox("Auto-scroll", &m_AutoScroll);
+            ImGui::EndPopup();
+        }
+        
+        ImGui::EndChild();
+
+        // Search bar at the bottom, matching the width of the log panel
+        m_Filter.Draw(ICON_LC_SEARCH " Filter", leftPanelWidth);
+
         ImGui::End();
     }
 
