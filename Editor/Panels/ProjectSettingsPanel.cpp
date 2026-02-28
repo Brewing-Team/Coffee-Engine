@@ -7,6 +7,8 @@
 #include "CoffeeEngine/Audio/Audio.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceUtils.h"
+#include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/Renderer3D.h"
 
 #include <imgui.h>
 #include <algorithm>
@@ -463,7 +465,42 @@ namespace Coffee {
         ImGui::Text("Audio Settings");
         ImGui::Separator();
         ImGui::Spacing();
-        ImGui::TextDisabled("Audio settings coming soon...");
+        
+        // Music Volume
+        static float musicVolume = 1.0f;
+        ImGui::Text("Music Volume:");
+        ImGui::SameLine(150);
+        ImGui::SetNextItemWidth(200);
+        if (ImGui::SliderFloat("##MusicVolume", &musicVolume, 0.0f, 1.0f, "%.2f"))
+        {
+            Audio::SetBusVolume("Music", musicVolume);
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Control the volume of music audio (0.0 = Silent, 1.0 = Full Volume)");
+        }
+        ImGui::SameLine();
+        ImGui::Text("%.0f%%", musicVolume * 100.0f);
+        
+        ImGui::Spacing();
+        
+        // SFX Volume
+        static float sfxVolume = 1.0f;
+        ImGui::Text("SFX Volume:");
+        ImGui::SameLine(150);
+        ImGui::SetNextItemWidth(200);
+        if (ImGui::SliderFloat("##SFXVolume", &sfxVolume, 0.0f, 1.0f, "%.2f"))
+        {
+            Audio::SetBusVolume("SFX", sfxVolume);
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Control the volume of sound effects (0.0 = Silent, 1.0 = Full Volume)");
+        }
+        ImGui::SameLine();
+        ImGui::Text("%.0f%%", sfxVolume * 100.0f);
+        
+        ImGui::Spacing();
     }
     
     void ProjectSettingsPanel::RenderPhysicsSettings()
@@ -479,7 +516,33 @@ namespace Coffee {
         ImGui::Text("Rendering Settings");
         ImGui::Separator();
         ImGui::Spacing();
-        ImGui::TextDisabled("Rendering settings coming soon...");
+        
+        auto& rendererSettings = Renderer::GetRenderSettings();
+        auto& renderer3DSettings = Renderer3D::GetRenderSettings();
+        
+        // Post Processing
+        if (ImGui::Checkbox("Post Processing", &rendererSettings.PostProcessing))
+        {
+            // Setting is automatically applied via reference
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Enable/disable all post-processing effects");
+        }
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+        
+        // FXAA
+        if (ImGui::Checkbox("FXAA (Fast Approximate Anti-Aliasing)", &renderer3DSettings.FXAA))
+        {
+            // Setting is automatically applied via reference
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Smooths jagged edges with minimal performance cost");
+        }
     }
     
     void ProjectSettingsPanel::RenderDebugSettings()
