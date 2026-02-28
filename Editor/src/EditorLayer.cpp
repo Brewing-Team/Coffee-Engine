@@ -256,9 +256,6 @@ namespace Coffee {
 
         ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
-        static bool show = true;
-        ImGui::ShowDemoWindow(&show);
-
         struct MainMenuWindows
         {
             bool EditorSettings = false;
@@ -508,13 +505,6 @@ namespace Coffee {
 
                 auto& style = ImGuizmo::GetStyle();
 
-                //style.TranslationLineThickness = 3.0f;
-                //style.TranslationLineArrowSize = 10.0f;
-                //style.RotationLineThickness = 4.0f;
-                //style.RotationOuterLineThickness = 4.0f;
-                //style.ScaleLineThickness = 4.0f;
-                //style.ScaleLineCircleSize = 6.0f;
-
                 // Set colors
                 style.Colors[ImGuizmo::DIRECTION_X] = ImVec4(0.918f, 0.196f, 0.310f, 1.0f);
                 style.Colors[ImGuizmo::DIRECTION_Y] = ImVec4(0.153f, 0.525f, 0.918f, 1.0f);
@@ -646,51 +636,6 @@ namespace Coffee {
 
         ImGui::End();
         ImGui::PopStyleVar();
-
-        // Debug Window for testing the ResourceRegistry
-        ImGui::Begin("Resource Registry");
-        
-        // Static variable to store the search query
-        static std::string searchQuery;
-        
-        // Input text field for the search query
-        char buffer[256];
-        strncpy(buffer, searchQuery.c_str(), sizeof(buffer));
-        if (ImGui::InputText("Search", buffer, sizeof(buffer)))
-        {
-            searchQuery = std::string(buffer);
-        }
-        
-        if (ImGui::BeginTable("ResourceTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable))
-        {
-            ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort);
-            ImGui::TableSetupColumn("UUID", ImGuiTableColumnFlags_DefaultSort);
-            ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_DefaultSort);
-            ImGui::TableSetupColumn("Use Count", ImGuiTableColumnFlags_DefaultSort);
-            ImGui::TableHeadersRow();
-        
-            auto& resources = ResourceRegistry::GetResourceRegistry();
-            for (auto& resource : resources)
-            {
-                // Filter resources based on the search query
-                if (searchQuery.empty() || resource.second->GetName().find(searchQuery) != std::string::npos)
-                {
-                    ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0);
-                    ImGui::Text("%s", resource.second->GetName().c_str());
-                    ImGui::TableSetColumnIndex(1);
-                    ImGui::Text("%lu", resource.second->GetUUID());
-                    ImGui::TableSetColumnIndex(2);
-                    ImGui::Text("%s", ResourceTypeToString(resource.second->GetType()).c_str());
-                    ImGui::TableSetColumnIndex(3);
-                    ImGui::Text("%d", resource.second.use_count());
-                }
-            }
-        
-            ImGui::EndTable();
-        }
-        
-        ImGui::End();
     }
 
     void EditorLayer::OnOverlayRender()

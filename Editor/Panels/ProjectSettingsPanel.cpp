@@ -2,8 +2,11 @@
 
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/Core/Input.h"
+#include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Audio/Audio.h"
+#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/IO/ResourceUtils.h"
 
 #include <imgui.h>
 #include <algorithm>
@@ -88,6 +91,14 @@ namespace Coffee {
         if (node_open)
             ImGui::TreePop();
         
+        // Debug category
+        node_flags = base_flags | (m_CurrentCategory == SettingsCategory::Debug ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_Leaf;
+        node_open = ImGui::TreeNodeEx("Debug", node_flags);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            m_CurrentCategory = SettingsCategory::Debug;
+        if (node_open)
+            ImGui::TreePop();
+        
         ImGui::EndChild();
     }
 
@@ -115,6 +126,9 @@ namespace Coffee {
                 break;
             case SettingsCategory::Rendering:
                 RenderRenderingSettings();
+                break;
+            case SettingsCategory::Debug:
+                RenderDebugSettings();
                 break;
             default:
                 break;
@@ -357,7 +371,7 @@ namespace Coffee {
             ImGui::Text("Negative Key Value: %d", Input::IsKeyPressed(m_SelectedAction->KeyNeg));
             ImGui::Text("Positive Button Value: %d", Input::GetButtonRaw(m_SelectedAction->ButtonPos));
             ImGui::Text("Negative Button Value: %d", Input::GetButtonRaw(m_SelectedAction->ButtonNeg));
-            ImGui::Text("Axis Value: %d", Input::GetAxisRaw(m_SelectedAction->Axis));
+            ImGui::Text("Axis Value: %.2f", Input::GetAxisRaw(m_SelectedAction->Axis));
         }
         
         ImGui::EndChild();
@@ -427,7 +441,21 @@ namespace Coffee {
         ImGui::Text("Display Settings");
         ImGui::Separator();
         ImGui::Spacing();
-        ImGui::TextDisabled("Display settings coming soon...");
+        
+        auto& window = Application::Get().GetWindow();
+        
+        // VSync
+        bool vsync = window.IsVSync();
+        if (ImGui::Checkbox("VSync", &vsync))
+        {
+            window.SetVSync(vsync);
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Synchronize frame rate with monitor refresh rate");
+        }
+        
+        ImGui::Spacing();
     }
     
     void ProjectSettingsPanel::RenderAudioSettings()
@@ -452,6 +480,72 @@ namespace Coffee {
         ImGui::Separator();
         ImGui::Spacing();
         ImGui::TextDisabled("Rendering settings coming soon...");
+    }
+    
+    void ProjectSettingsPanel::RenderDebugSettings()
+    {
+        ImGui::Text("Debug");
+        ImGui::Separator();
+        ImGui::Spacing();
+        
+        // ImGui Demo Window toggle
+        ImGui::Checkbox("Show ImGui Demo Window", &m_ShowImGuiDemoWindow);
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Display the ImGui demo window for reference and testing");
+        }
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::Spacing();
+        
+        // Resource Registry Section
+        if (ImGui::CollapsingHeader("Resource Registry", ImGuiTreeNodeFlags_DefaultOpen))
+        {
+            ImGui::Spacing();
+            
+            // Static variable to store the search query
+            static std::string searchQuery;
+            
+            // Input text field for the search query
+            char buffer[256];
+            strncpy(buffer, searchQuery.c_str(), sizeof(buffer));
+            if (ImGui::InputText("Search", buffer, sizeof(buffer)))
+            {
+                searchQuery = std::string(buffer);
+            }
+            
+            if (ImGui::BeginTable("ResourceTable", 4, ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_Sortable))
+            {
+                ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_DefaultSort);
+                ImGui::TableSetupColumn("UUID", ImGuiTableColumnFlags_DefaultSort);
+                ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_DefaultSort);
+                ImGui::TableSetupColumn("Use Count", ImGuiTableColumnFlags_DefaultSort);
+                ImGui::TableHeadersRow();
+            
+                auto& resources = ResourceRegistry::GetResourceRegistry();
+                for (auto& resource : resources)
+                {
+                    // Filter resources based on the search query
+                    if (searchQuery.empty() || resource.second->GetName().find(searchQuery) != std::string::npos)
+                    {
+                        ImGui::TableNextRow();
+                        ImGui::TableSetColumnIndex(0);
+                        ImGui::Text("%s", resource.second->GetName().c_str());
+                        ImGui::TableSetColumnIndex(1);
+                        ImGui::Text("%lu", resource.second->GetUUID());
+                        ImGui::TableSetColumnIndex(2);
+                        ImGui::Text("%s", ResourceTypeToString(resource.second->GetType()).c_str());
+                        ImGui::TableSetColumnIndex(3);
+                        ImGui::Text("%d", resource.second.use_count());
+                    }
+                }
+            
+                ImGui::EndTable();
+            }
+        }
+        
+        ImGui::Spacing();
     }
 
     void ProjectSettingsPanel::OnImGuiRender()
@@ -484,6 +578,12 @@ namespace Coffee {
             RenderSettingsContent();
         }
         ImGui::End();
+        
+        // Show ImGui demo window if enabled
+        if (m_ShowImGuiDemoWindow)
+        {
+            ImGui::ShowDemoWindow(&m_ShowImGuiDemoWindow);
+        }
     }
 
 } // Coffee

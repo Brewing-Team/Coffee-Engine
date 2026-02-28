@@ -19,7 +19,8 @@ namespace Coffee {
         Display,
         Audio,
         Physics,
-        Rendering
+        Rendering,
+        Debug
     };
 
     class ProjectSettingsPanel : public Panel
@@ -42,6 +43,7 @@ namespace Coffee {
         void RenderAudioSettings();
         void RenderPhysicsSettings();
         void RenderRenderingSettings();
+        void RenderDebugSettings();
         
         // Input Map helpers
         void RenderInputActionsList();
@@ -53,6 +55,11 @@ namespace Coffee {
         SettingsCategory m_CurrentCategory = SettingsCategory::General;
         std::array<char, 256> m_SearchBuffer;
         std::string m_SearchQuery;
+        
+        // Debug state
+        std::array<char, 256> m_ResourceSearchBuffer;
+        std::string m_ResourceSearchQuery;
+        bool m_ShowImGuiDemoWindow = false;
         
         // Input Map state
         std::string m_SelectedActionName;
