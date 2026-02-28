@@ -445,6 +445,7 @@ namespace Coffee {
         ImGui::Spacing();
         
         auto& window = Application::Get().GetWindow();
+        auto& rendererSettings = Renderer::GetRenderSettings();
         
         // VSync
         bool vsync = window.IsVSync();
@@ -456,6 +457,23 @@ namespace Coffee {
         {
             ImGui::SetTooltip("Synchronize frame rate with monitor refresh rate");
         }
+        
+        ImGui::Spacing();
+        
+        // Resolution Scale
+        ImGui::Text("Resolution Scale:");
+        ImGui::SameLine(150);
+        ImGui::SetNextItemWidth(200);
+        if (ImGui::SliderFloat("##RenderScale", &rendererSettings.RenderScale, 0.25f, 2.0f, "%.2f"))
+        {
+            // Setting is automatically applied via reference
+        }
+        if (ImGui::IsItemHovered())
+        {
+            ImGui::SetTooltip("Scale the rendering resolution\n0.5 = 50%% (better performance)\n1.0 = 100%% (native)\n2.0 = 200%% (better quality)");
+        }
+        ImGui::SameLine();
+        ImGui::Text("%.0f%%", rendererSettings.RenderScale * 100.0f);
         
         ImGui::Spacing();
     }

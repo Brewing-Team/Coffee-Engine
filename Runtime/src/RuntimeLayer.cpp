@@ -144,7 +144,11 @@ namespace Coffee {
         if((m_ViewportSize.x > 0.0f && m_ViewportSize.y > 0.0f) &&
            (width != m_ViewportSize.x || height != m_ViewportSize.y))
         {
-            m_ViewportRenderTarget->Resize((uint32_t)width, (uint32_t)height);
+            // Apply render scale to actual framebuffer resolution
+            float renderScale = Renderer::GetRenderSettings().RenderScale;
+            uint32_t scaledWidth = static_cast<uint32_t>(width * renderScale);
+            uint32_t scaledHeight = static_cast<uint32_t>(height * renderScale);
+            m_ViewportRenderTarget->Resize(scaledWidth, scaledHeight);
         }
 
         m_ViewportSize = { width, height };

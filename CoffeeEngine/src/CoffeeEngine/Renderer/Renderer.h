@@ -36,6 +36,7 @@ namespace Coffee {
     struct RendererSettings
     {
         bool PostProcessing = true; ///< Enable or disable post-processing.
+        float RenderScale = 1.0f; ///< Resolution scale multiplier (0.5 = 50%, 1.0 = 100%, 2.0 = 200%).
     };
 
     class Renderer
