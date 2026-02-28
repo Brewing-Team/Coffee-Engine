@@ -6,273 +6,405 @@
 #include "CoffeeEngine/Audio/Audio.h"
 
 #include <imgui.h>
+#include <algorithm>
 
 namespace Coffee {
 
-    void ProjectSettingsPanel::BeginHorizontalChild(const char* label, const ImGuiWindowFlags flags)
+    void ProjectSettingsPanel::SetSelectedAction(const std::string& actionName)
     {
-        ImGui::SameLine();
-        ImGui::BeginChild(label);
-    }
-
-    void ProjectSettingsPanel::SetSelectedBinding(std::string actionName, InputBinding* binding)
-    {
-        m_SelectedInputKey = actionName;
-        m_SelectedInputBinding = binding;
-        // Copy name to modifiable array to enable Input Action name change
-        std::ranges::copy_n(m_SelectedInputKey.begin(), std::min<size_t>(m_SelectedInputKey.size(), 255), arr_newBindName.begin());
-
-    }
-    void ProjectSettingsPanel::RenderInputSettings(const ImGuiWindowFlags flags)
-    {
-        if (!(m_VisiblePanels & PanelDisplayEnum::Input))
-            return;
-
-        BeginHorizontalChild("Input", flags);
-        ImGui::Text("Input Settings");
-        ImGui::SameLine();
-        if (ImGui::Button("Save Inputs"))
-        {
-            Input::Save();
-        }
-
-#pragma region InputMap
         auto& bindings = Input::GetAllBindings();
-        ImGuiTreeNodeFlags node_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
-        if (ImGui::BeginTable("InputMap", 4, ImGuiTableFlags_ScrollY, {480, 240}))
+        auto it = bindings.find(actionName);
+        if (it != bindings.end())
         {
-
-
-            ImGui::TableSetupColumn("Input", ImGuiTableColumnFlags_None);
-            ImGui::TableSetupColumn("Type", ImGuiTableColumnFlags_None);
-            ImGui::TableSetupColumn("Bound to", ImGuiTableColumnFlags_None);
-            ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_None);
-            ImGui::TableHeadersRow();
-
-            for (auto& binding : bindings)
-            {
-                ImGui::PushID(binding.first.c_str());
-                ImGui::TableNextRow();
-                ImGui::TableNextColumn();
-                if (ImGui::TreeNodeEx(binding.first.c_str(), node_flags))
-                {
-                    InputBinding& b = binding.second;
-
-                    if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
-                    {
-                        SetSelectedBinding(binding.first, &binding.second);
-                    }
-
-
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    if (ImGui::TreeNodeEx("PosButton", ImGuiTreeNodeFlags_Leaf))
-                    {
-                        ImGui::TableNextColumn();
-                        ImGui::Text("Button");
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%s", Input::GetButtonLabel(b.ButtonPos));
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%i", Input::GetButtonRaw(b.ButtonPos));
-
-                        ImGui::TableNextColumn();
-                        ImGui::TreePop();
-                    }
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    if (ImGui::TreeNodeEx("NegButton", ImGuiTreeNodeFlags_Leaf))
-                    {
-                        ImGui::TableNextColumn();
-                        ImGui::Text("Button");
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%s", Input::GetButtonLabel(b.ButtonNeg));
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%i", Input::GetButtonRaw(b.ButtonNeg));
-
-                        ImGui::TableNextColumn();
-                        ImGui::TreePop();
-                    }
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    if (ImGui::TreeNodeEx("PosKey", ImGuiTreeNodeFlags_Leaf))
-                    {
-                        ImGui::TableNextColumn();
-                        ImGui::Text("Key");
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%s", Input::GetKeyLabel(b.KeyPos));
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%i", Input::IsKeyPressed(b.KeyPos));
-
-                        ImGui::TableNextColumn();
-                        ImGui::TreePop();
-                    }
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    if (ImGui::TreeNodeEx("NegKey", ImGuiTreeNodeFlags_Leaf))
-                    {
-                        ImGui::TableNextColumn();
-                        ImGui::Text("Key");
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%s", Input::GetKeyLabel(b.KeyNeg));
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%i", Input::IsKeyPressed(b.KeyNeg));
-
-                        ImGui::TableNextColumn();
-                        ImGui::TreePop();
-                    }
-                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    if (ImGui::TreeNodeEx("Axis", ImGuiTreeNodeFlags_Leaf))
-                    {
-                        ImGui::TableNextColumn();
-                        ImGui::Text("Axis");
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text( "%s", Input::GetAxisLabel(b.Axis));
-
-                        ImGui::TableNextColumn();
-                        ImGui::Text("%i", Input::GetAxisRaw(b.Axis));
-
-                        ImGui::TableNextColumn();
-                        ImGui::TreePop();
-                    }
-
-                    ImGui::TreePop();
-                }
-                ImGui::PopID();
-            }
-            ImGui::EndTable();
-
+            m_SelectedActionName = actionName;
+            m_SelectedAction = &it->second;
+            
+            // Copy name to rename buffer
+            size_t copySize = std::min<size_t>(actionName.size(), 255);
+            std::copy_n(actionName.begin(), copySize, m_RenameActionBuffer.begin());
+            m_RenameActionBuffer[copySize] = '\0';
         }
-#pragma endregion InputMap
-
-
-        ImGui::SameLine();
-        ImGui::Separator();
-
-        ImGui::SameLine();
-        ImGui::PushID("BindingConfig");
-        ImGui::BeginGroup();
-
-
-        if (m_SelectedInputBinding)
+    }
+    void ProjectSettingsPanel::RenderSearchBar()
+    {
+        ImGui::SetNextItemWidth(-1.0f);
+        if (ImGui::InputTextWithHint("##SearchSettings", "Search settings...", m_SearchBuffer.data(), m_SearchBuffer.size()))
         {
-            ImGui::TextUnformatted("Name: "); ImGui::SameLine();
-            if (ImGui::InputText("BindingName", arr_newBindName.data(), 255, ImGuiInputTextFlags_EnterReturnsTrue))
-            {
-                std::string str_newBindName = {arr_newBindName.begin(), arr_newBindName.end()};
-                if (strlen(arr_newBindName.data()) != 0)
-                {
-                    m_SelectedInputBinding->Name = str_newBindName;
-                    bindings[str_newBindName] = *m_SelectedInputBinding;
-                    bindings.erase(m_SelectedInputKey);
-                    m_SelectedInputBinding = &bindings[str_newBindName];
-                    m_SelectedInputKey = str_newBindName;
-                }
-            }
-            ImGui::NewLine();
-            ImGui::TextUnformatted("PosButton:"); ImGui::SameLine();
-            ImGui::Text("%s", Input::GetButtonLabel(m_SelectedInputBinding->ButtonPos)); ImGui::SameLine();
-            if (ImGui::Button("Rebind##PosButton"))
-            {
-                Input::StartRebindMode(m_SelectedInputKey, RebindState::PosButton);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Unbind##PosButtonUnBind"))
-            {
-                m_SelectedInputBinding->ButtonPos = Button::Invalid;
-            }
-
-            ImGui::TextUnformatted("NegButton:"); ImGui::SameLine();
-            ImGui::Text("%s", Input::GetButtonLabel(m_SelectedInputBinding->ButtonNeg)); ImGui::SameLine();
-            if (ImGui::Button("Rebind##NegButton"))
-            {
-                Input::StartRebindMode(m_SelectedInputKey, RebindState::NegButton);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Unbind##NegButtonUnBind"))
-            {
-                m_SelectedInputBinding->ButtonNeg = Button::Invalid;
-            }
-
-            ImGui::TextUnformatted("PosKey:"); ImGui::SameLine();
-            ImGui::Text("%s", Input::GetKeyLabel(m_SelectedInputBinding->KeyPos)); ImGui::SameLine();
-            if (ImGui::Button("Rebind##PosKey"))
-            {
-                Input::StartRebindMode(m_SelectedInputKey, RebindState::PosKey);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Unbind##PosKeyUnBind"))
-            {
-                m_SelectedInputBinding->KeyPos = Key::Unknown;
-            }
-
-            ImGui::TextUnformatted("NegKey:"); ImGui::SameLine();
-            ImGui::Text("%s", Input::GetKeyLabel(m_SelectedInputBinding->KeyNeg)); ImGui::SameLine();
-            if (ImGui::Button("Rebind##NegKey"))
-            {
-                Input::StartRebindMode(m_SelectedInputKey, RebindState::NegKey);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Unbind##NegKeyUnBind"))
-            {
-                m_SelectedInputBinding->KeyNeg = Key::Unknown;
-            }
-
-            ImGui::TextUnformatted("Axis:"); ImGui::SameLine();
-            ImGui::Text("%s", Input::GetAxisLabel(m_SelectedInputBinding->Axis)); ImGui::SameLine();
-            if (ImGui::Button("Rebind##Axis"))
-            {
-                Input::StartRebindMode(m_SelectedInputKey, RebindState::Axis);
-            }
-            ImGui::SameLine();
-            if (ImGui::Button("Unbind##AxisUnBind"))
-            {
-                m_SelectedInputBinding->Axis = Axis::Invalid;
-                m_SelectedInputBinding->invertedAxis = false;
-            }
-            ImGui::Checkbox("Inverted axis", &m_SelectedInputBinding->invertedAxis);
-
+            m_SearchQuery = std::string(m_SearchBuffer.data());
         }
-        else
-        {
-            arr_newBindName.fill('\0');
-        }
+    }
 
-        if (ImGui::Button("New Action"))
-        {
-            bindings["NewAction"] = InputBinding();
-            SetSelectedBinding("NewAction", &bindings["NewAction"]);
-        }
-
-        ImGui::EndGroup();
-        ImGui::PopID();
-
+    void ProjectSettingsPanel::RenderCategoryTree()
+    {
+        ImGui::BeginChild("CategoryTree", ImVec2(200, 0), true);
+        
+        ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+        
+        // General category
+        ImGuiTreeNodeFlags node_flags = base_flags | (m_CurrentCategory == SettingsCategory::General ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_Leaf;
+        bool node_open = ImGui::TreeNodeEx("General", node_flags);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            m_CurrentCategory = SettingsCategory::General;
+        if (node_open)
+            ImGui::TreePop();
+        
+        // Input Map category
+        node_flags = base_flags | (m_CurrentCategory == SettingsCategory::InputMap ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_Leaf;
+        node_open = ImGui::TreeNodeEx("Input Map", node_flags);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            m_CurrentCategory = SettingsCategory::InputMap;
+        if (node_open)
+            ImGui::TreePop();
+        
+        // Display category
+        node_flags = base_flags | (m_CurrentCategory == SettingsCategory::Display ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_Leaf;
+        node_open = ImGui::TreeNodeEx("Display", node_flags);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            m_CurrentCategory = SettingsCategory::Display;
+        if (node_open)
+            ImGui::TreePop();
+        
+        // Audio category
+        node_flags = base_flags | (m_CurrentCategory == SettingsCategory::Audio ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_Leaf;
+        node_open = ImGui::TreeNodeEx("Audio", node_flags);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            m_CurrentCategory = SettingsCategory::Audio;
+        if (node_open)
+            ImGui::TreePop();
+        
+        // Physics category
+        node_flags = base_flags | (m_CurrentCategory == SettingsCategory::Physics ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_Leaf;
+        node_open = ImGui::TreeNodeEx("Physics", node_flags);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            m_CurrentCategory = SettingsCategory::Physics;
+        if (node_open)
+            ImGui::TreePop();
+        
+        // Rendering category
+        node_flags = base_flags | (m_CurrentCategory == SettingsCategory::Rendering ? ImGuiTreeNodeFlags_Selected : 0) | ImGuiTreeNodeFlags_Leaf;
+        node_open = ImGui::TreeNodeEx("Rendering", node_flags);
+        if (ImGui::IsItemClicked() && !ImGui::IsItemToggledOpen())
+            m_CurrentCategory = SettingsCategory::Rendering;
+        if (node_open)
+            ImGui::TreePop();
+        
         ImGui::EndChild();
     }
 
-    void ProjectSettingsPanel::RenderGeneralSettings(const ImGuiWindowFlags flags)
+    void ProjectSettingsPanel::RenderSettingsContent()
     {
-        if (!(m_VisiblePanels & PanelDisplayEnum::General))
-            return;
-
-        BeginHorizontalChild("General", flags);
-
-        ImGui::Text("General settings for this project (WIP)");
-        std::string str = Coffee::Project::GetRelativeAudioDirectory().string();
-        char* strData = str.data();
-        ImGui::InputText("##AudioBanksPath", strData, str.size(), ImGuiInputTextFlags_ReadOnly);
         ImGui::SameLine();
-        if (ImGui::Button("Select...##AudioBanksPathButton"))
+        ImGui::BeginChild("SettingsContent", ImVec2(0, 0), true);
+        
+        switch (m_CurrentCategory)
+        {
+            case SettingsCategory::General:
+                RenderGeneralSettings();
+                break;
+            case SettingsCategory::InputMap:
+                RenderInputMapSettings();
+                break;
+            case SettingsCategory::Display:
+                RenderDisplaySettings();
+                break;
+            case SettingsCategory::Audio:
+                RenderAudioSettings();
+                break;
+            case SettingsCategory::Physics:
+                RenderPhysicsSettings();
+                break;
+            case SettingsCategory::Rendering:
+                RenderRenderingSettings();
+                break;
+            default:
+                break;
+        }
+        
+        ImGui::EndChild();
+    }
+
+    void ProjectSettingsPanel::RenderInputActionsList()
+    {
+        ImGui::BeginChild("ActionsList", ImVec2(300, -30), true);
+        
+        auto& bindings = Input::GetAllBindings();
+        
+        ImGui::Text("Actions");
+        ImGui::Separator();
+        
+        ImGuiListClipper clipper;
+        clipper.Begin(static_cast<int>(bindings.size()));
+        
+        int index = 0;
+        for (auto& [actionName, binding] : bindings)
+        {
+            if (clipper.Step())
+            {
+                for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
+                {
+                    auto it = bindings.begin();
+                    std::advance(it, i);
+                    
+                    ImGui::PushID(it->first.c_str());
+                    
+                    bool isSelected = (m_SelectedActionName == it->first);
+                    if (ImGui::Selectable(it->first.c_str(), isSelected))
+                    {
+                        SetSelectedAction(it->first);
+                    }
+                    
+                    ImGui::PopID();
+                }
+            }
+            index++;
+        }
+        
+        ImGui::EndChild();
+        
+        // Add/Remove buttons
+        if (ImGui::Button("Add", ImVec2(145, 0)))
+        {
+            m_ShowAddActionPopup = true;
+            m_NewActionNameBuffer.fill('\0');
+        }
+        
+        ImGui::SameLine();
+        
+        if (ImGui::Button("Remove", ImVec2(145, 0)))
+        {
+            if (!m_SelectedActionName.empty())
+            {
+                bindings.erase(m_SelectedActionName);
+                m_SelectedActionName.clear();
+                m_SelectedAction = nullptr;
+            }
+        }
+    }
+
+    void ProjectSettingsPanel::RenderAddActionPopup()
+    {
+        if (m_ShowAddActionPopup)
+        {
+            ImGui::OpenPopup("Add Action");
+            m_ShowAddActionPopup = false;
+        }
+        
+        if (ImGui::BeginPopupModal("Add Action", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::Text("Enter action name:");
+            ImGui::SetNextItemWidth(300);
+            
+            bool enterPressed = ImGui::InputText("##NewActionName", m_NewActionNameBuffer.data(), m_NewActionNameBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue);
+            
+            ImGui::Separator();
+            
+            if (ImGui::Button("OK", ImVec2(145, 0)) || enterPressed)
+            {
+                std::string newActionName(m_NewActionNameBuffer.data());
+                if (!newActionName.empty())
+                {
+                    auto& bindings = Input::GetAllBindings();
+                    if (bindings.find(newActionName) == bindings.end())
+                    {
+                        bindings[newActionName] = InputBinding();
+                        bindings[newActionName].Name = newActionName;
+                        SetSelectedAction(newActionName);
+                    }
+                }
+                ImGui::CloseCurrentPopup();
+            }
+            
+            ImGui::SetItemDefaultFocus();
+            ImGui::SameLine();
+            
+            if (ImGui::Button("Cancel", ImVec2(145, 0)))
+            {
+                ImGui::CloseCurrentPopup();
+            }
+            
+            ImGui::EndPopup();
+        }
+    }
+
+    void ProjectSettingsPanel::RenderInputActionDetails()
+    {
+        ImGui::SameLine();
+        ImGui::BeginChild("ActionDetails", ImVec2(0, 0), true);
+        
+        if (!m_SelectedAction)
+        {
+            ImGui::TextDisabled("No action selected");
+            ImGui::EndChild();
+            return;
+        }
+        
+        auto& bindings = Input::GetAllBindings();
+        
+        ImGui::Text("Action: %s", m_SelectedActionName.c_str());
+        ImGui::Separator();
+        
+        // Rename action
+        ImGui::Text("Name:");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(200);
+        if (ImGui::InputText("##RenameAction", m_RenameActionBuffer.data(), m_RenameActionBuffer.size(), ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            std::string newName(m_RenameActionBuffer.data());
+            if (!newName.empty() && newName != m_SelectedActionName)
+            {
+                // Rename the action
+                InputBinding temp = *m_SelectedAction;
+                temp.Name = newName;
+                bindings.erase(m_SelectedActionName);
+                bindings[newName] = temp;
+                SetSelectedAction(newName);
+            }
+        }
+        
+        ImGui::Spacing();
+        ImGui::Text("Bindings:");
+        ImGui::Separator();
+        
+        // Positive Key
+        ImGui::Text("Positive Key:");
+        ImGui::SameLine(150);
+        ImGui::Text("%s", Input::GetKeyLabel(m_SelectedAction->KeyPos));
+        ImGui::SameLine();
+        if (ImGui::Button("Set##PosKey"))
+        {
+            Input::StartRebindMode(m_SelectedActionName, RebindState::PosKey);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear##PosKey"))
+        {
+            m_SelectedAction->KeyPos = Key::Unknown;
+        }
+        
+        // Negative Key
+        ImGui::Text("Negative Key:");
+        ImGui::SameLine(150);
+        ImGui::Text("%s", Input::GetKeyLabel(m_SelectedAction->KeyNeg));
+        ImGui::SameLine();
+        if (ImGui::Button("Set##NegKey"))
+        {
+            Input::StartRebindMode(m_SelectedActionName, RebindState::NegKey);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear##NegKey"))
+        {
+            m_SelectedAction->KeyNeg = Key::Unknown;
+        }
+        
+        ImGui::Spacing();
+        
+        // Positive Button
+        ImGui::Text("Positive Button:");
+        ImGui::SameLine(150);
+        ImGui::Text("%s", Input::GetButtonLabel(m_SelectedAction->ButtonPos));
+        ImGui::SameLine();
+        if (ImGui::Button("Set##PosButton"))
+        {
+            Input::StartRebindMode(m_SelectedActionName, RebindState::PosButton);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear##PosButton"))
+        {
+            m_SelectedAction->ButtonPos = Button::Invalid;
+        }
+        
+        // Negative Button
+        ImGui::Text("Negative Button:");
+        ImGui::SameLine(150);
+        ImGui::Text("%s", Input::GetButtonLabel(m_SelectedAction->ButtonNeg));
+        ImGui::SameLine();
+        if (ImGui::Button("Set##NegButton"))
+        {
+            Input::StartRebindMode(m_SelectedActionName, RebindState::NegButton);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear##NegButton"))
+        {
+            m_SelectedAction->ButtonNeg = Button::Invalid;
+        }
+        
+        ImGui::Spacing();
+        
+        // Axis
+        ImGui::Text("Axis:");
+        ImGui::SameLine(150);
+        ImGui::Text("%s", Input::GetAxisLabel(m_SelectedAction->Axis));
+        ImGui::SameLine();
+        if (ImGui::Button("Set##Axis"))
+        {
+            Input::StartRebindMode(m_SelectedActionName, RebindState::Axis);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Clear##Axis"))
+        {
+            m_SelectedAction->Axis = Axis::Invalid;
+            m_SelectedAction->invertedAxis = false;
+        }
+        
+        ImGui::Checkbox("Inverted Axis", &m_SelectedAction->invertedAxis);
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        
+        // Current values (for debugging)
+        if (ImGui::CollapsingHeader("Debug Values"))
+        {
+            ImGui::Text("Positive Key Value: %d", Input::IsKeyPressed(m_SelectedAction->KeyPos));
+            ImGui::Text("Negative Key Value: %d", Input::IsKeyPressed(m_SelectedAction->KeyNeg));
+            ImGui::Text("Positive Button Value: %d", Input::GetButtonRaw(m_SelectedAction->ButtonPos));
+            ImGui::Text("Negative Button Value: %d", Input::GetButtonRaw(m_SelectedAction->ButtonNeg));
+            ImGui::Text("Axis Value: %d", Input::GetAxisRaw(m_SelectedAction->Axis));
+        }
+        
+        ImGui::EndChild();
+    }
+
+    void ProjectSettingsPanel::RenderInputMapSettings()
+    {
+        ImGui::Text("Input Map");
+        ImGui::SameLine();
+        if (ImGui::Button("Save"))
+        {
+            Input::Save();
+        }
+        ImGui::Separator();
+        
+        RenderInputActionsList();
+        RenderInputActionDetails();
+        RenderAddActionPopup();
+
+    }
+
+    void ProjectSettingsPanel::RenderGeneralSettings()
+    {
+        ImGui::Text("General");
+        ImGui::Separator();
+        
+        ImGui::Spacing();
+        
+        // Project Name
+        ImGui::Text("Project Name:");
+        ImGui::SameLine(150);
+        Ref<Project> project = Project::GetActive();
+        if (project)
+        {
+            ImGui::TextDisabled("%s", project->GetProjectName().c_str());
+        }
+        
+        ImGui::Spacing();
+        
+        // Audio Directory
+        ImGui::Text("Audio Banks Path:");
+        std::string audioPath = Coffee::Project::GetRelativeAudioDirectory().string();
+        ImGui::SameLine(150);
+        ImGui::SetNextItemWidth(300);
+        ImGui::InputText("##AudioBanksPath", audioPath.data(), audioPath.size(), ImGuiInputTextFlags_ReadOnly);
+        ImGui::SameLine();
+        if (ImGui::Button("Browse..."))
         {
             FileDialogArgs args;
             args.DefaultPath = Project::GetProjectDirectory().string();
@@ -284,8 +416,42 @@ namespace Coffee {
                 Audio::OnProjectLoad();
             }
         }
-
-        ImGui::EndChild();
+        
+        ImGui::Spacing();
+        ImGui::Separator();
+        ImGui::TextDisabled("More settings coming soon...");
+    }
+    
+    void ProjectSettingsPanel::RenderDisplaySettings()
+    {
+        ImGui::Text("Display Settings");
+        ImGui::Separator();
+        ImGui::Spacing();
+        ImGui::TextDisabled("Display settings coming soon...");
+    }
+    
+    void ProjectSettingsPanel::RenderAudioSettings()
+    {
+        ImGui::Text("Audio Settings");
+        ImGui::Separator();
+        ImGui::Spacing();
+        ImGui::TextDisabled("Audio settings coming soon...");
+    }
+    
+    void ProjectSettingsPanel::RenderPhysicsSettings()
+    {
+        ImGui::Text("Physics Settings");
+        ImGui::Separator();
+        ImGui::Spacing();
+        ImGui::TextDisabled("Physics settings coming soon...");
+    }
+    
+    void ProjectSettingsPanel::RenderRenderingSettings()
+    {
+        ImGui::Text("Rendering Settings");
+        ImGui::Separator();
+        ImGui::Spacing();
+        ImGui::TextDisabled("Rendering settings coming soon...");
     }
 
     void ProjectSettingsPanel::OnImGuiRender()
@@ -296,41 +462,27 @@ namespace Coffee {
 
         if (!project)
         {
-            ImGui::Begin("Project Settings");
+            ImGui::Begin("Project Settings", &m_Visible);
             ImGui::Text("No project loaded");
             ImGui::End();
             return;
         }
 
-        ImGui::SetNextWindowSize({960,480}, ImGuiCond_Once);
+        ImGui::SetNextWindowSize({1024, 600}, ImGuiCond_FirstUseEver);
 
-        ImGui::Begin("Project Settings");
-        ImGui::Text("Project Settings");
-
-        constexpr ImGuiWindowFlags flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize;
-
-        ImGui::PushID("ProjectSettings");
-
-        if (ImGui::TreeNodeEx("Project", ImGuiTreeNodeFlags_Leaf))
+        if (ImGui::Begin("Project Settings", &m_Visible))
         {
-            if (ImGui::IsItemClicked())
-                m_VisiblePanels = PanelDisplayEnum::General;
-            ImGui::TreePop();
+            // Search bar at the top
+            RenderSearchBar();
+            
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
+            
+            // Main layout: category tree on left, settings content on right
+            RenderCategoryTree();
+            RenderSettingsContent();
         }
-        if (ImGui::TreeNodeEx("Input", ImGuiTreeNodeFlags_Leaf))
-        {
-            if (ImGui::IsItemClicked())
-                m_VisiblePanels = PanelDisplayEnum::Input;
-            ImGui::TreePop();
-        }
-
-        ImGui::SameLine();
-        ImGui::Separator();
-
-        RenderGeneralSettings(flags);
-        RenderInputSettings(flags);
-
-        ImGui::PopID();
         ImGui::End();
     }
 
