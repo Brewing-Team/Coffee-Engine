@@ -69,6 +69,7 @@ namespace Coffee {
         TextureFilter MipMapFilter = TextureFilter::Linear;
         glm::vec4 BorderColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
         uint32_t Width, Height;
+        uint32_t Depth = 1;
         bool GenerateMipmaps = true;
         bool srgb = true;
 
@@ -76,7 +77,7 @@ namespace Coffee {
         void serialize(Archive& archive)
         {
             int formatInt = static_cast<int>(Format);
-            archive(formatInt, Width, Height, GenerateMipmaps, srgb);
+            archive(formatInt, Width, Height, Depth, GenerateMipmaps, srgb);
             Format = static_cast<ImageFormat>(formatInt);
         } 
     };
@@ -174,6 +175,66 @@ namespace Coffee {
         uint32_t m_textureID;
         int m_Width, m_Height;
     };
+
+    class Texture3D : public Texture
+    {
+    public:
+        Texture3D() = default;
+        Texture3D(const TextureProperties& properties);
+        Texture3D(uint32_t width, uint32_t height, uint32_t depth, ImageFormat imageFormat, TextureWrap wrapping = TextureWrap::Repeat,
+                  TextureFilter minFilter = TextureFilter::LinearMipmapLinear, TextureFilter magFilter = TextureFilter::Linear,
+                  TextureFilter mipMapFilter = TextureFilter::Linear, const glm::vec4& borderColor = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        ~Texture3D();
+
+        void Bind(uint32_t slot) override;
+        void Resize(uint32_t width, uint32_t height, uint32_t depth);
+        std::tuple<uint32_t, uint32_t, uint32_t> GetSize() { return std::make_tuple(m_Properties.Width, m_Properties.Height, m_Properties.Depth); };
+        uint32_t GetWidth() override { return m_Properties.Width; };
+        uint32_t GetHeight() override { return m_Properties.Height; };
+        uint32_t GetDepth() { return m_Properties.Depth; };
+        uint32_t GetID() override { return m_textureID; };
+        ImageFormat GetImageFormat() override { return m_Properties.Format; };
+
+        void Clear(glm::vec4 color);
+        void SetData(void* data, uint32_t size);
+
+        static Ref<Texture3D> Create(uint32_t width, uint32_t height, uint32_t depth, ImageFormat format);
+        static Ref<Texture3D> Create(const TextureProperties& properties);
+
+    private:
+        void InitializeTexture3D();
+
+        friend class cereal::access;
+
+        template<class Archive>
+        void save(Archive& archive) const
+        {
+            archive(m_Properties, m_Data, cereal::base_class<Texture>(this));
+        }
+
+        template <class Archive>
+        void load(Archive& archive)
+        {
+            archive(m_Properties, m_Data, cereal::base_class<Texture>(this));
+        }
+
+        template <class Archive>
+        static void load_and_construct(Archive& data, cereal::construct<Texture3D>& construct)
+        {
+            TextureProperties properties;
+            data(properties);
+            construct(properties);
+
+            data(construct->m_Data, cereal::base_class<Texture>(construct.ptr()));
+            construct->SetData(construct->m_Data.data(), construct->m_Data.size());
+        }
+    private:
+        TextureProperties m_Properties;
+        std::vector<unsigned char> m_Data;
+        uint32_t m_textureID;
+    };
+
+    
 
     class Mesh;
 
@@ -351,7 +412,9 @@ namespace Coffee {
 
 CEREAL_REGISTER_TYPE(Coffee::Texture);
 CEREAL_REGISTER_TYPE(Coffee::Texture2D);
+CEREAL_REGISTER_TYPE(Coffee::Texture3D);
 CEREAL_REGISTER_TYPE(Coffee::Cubemap);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Resource, Coffee::Texture);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Texture, Coffee::Texture2D);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Texture, Coffee::Texture3D);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Coffee::Texture, Coffee::Cubemap);

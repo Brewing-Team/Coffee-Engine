@@ -295,6 +295,126 @@ namespace Coffee {
         glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
     }
 
+    // Texture3D Implementation
+
+    Texture3D::Texture3D(const TextureProperties& properties)
+        : Texture(ResourceType::Texture3D), m_Properties(properties)
+    {
+        ZoneScoped;
+
+        InitializeTexture3D();
+    }
+
+    Texture3D::Texture3D(uint32_t width, uint32_t height, uint32_t depth, ImageFormat imageFormat, TextureWrap wrapping,
+                         TextureFilter minFilter, TextureFilter magFilter, TextureFilter mipMapFilter, const glm::vec4& borderColor)
+        : Texture(ResourceType::Texture3D)
+    {
+        ZoneScoped;
+
+        m_Properties.Format = imageFormat;
+        m_Properties.Wrapping = wrapping;
+        m_Properties.MinFilter = minFilter;
+        m_Properties.MagFilter = magFilter;
+        m_Properties.MipMapFilter = mipMapFilter;
+        m_Properties.BorderColor = borderColor;
+        m_Properties.Width = width;
+        m_Properties.Height = height;
+        m_Properties.Depth = depth;
+
+        InitializeTexture3D();
+    }
+
+    Texture3D::~Texture3D()
+    {
+        ZoneScoped;
+
+        glDeleteTextures(1, &m_textureID);
+
+        if(m_Data.size() > 0)
+        {
+            m_Data.clear();
+        }
+    }
+
+    void Texture3D::Bind(uint32_t slot)
+    {
+        ZoneScoped;
+
+        glBindTextureUnit(slot, m_textureID);
+    }
+
+    void Texture3D::Resize(uint32_t width, uint32_t height, uint32_t depth)
+    {
+        ZoneScoped;
+
+        m_Properties.Width = width;
+        m_Properties.Height = height;
+        m_Properties.Depth = depth;
+
+        glDeleteTextures(1, &m_textureID);
+
+        InitializeTexture3D();
+    }
+
+    void Texture3D::Clear(glm::vec4 color)
+    {
+        ZoneScoped;
+
+        glBindTexture(GL_TEXTURE_3D, m_textureID);
+
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
+        glClearTexImage(m_textureID, 0, format, GL_FLOAT, &color);
+    }
+
+    void Texture3D::SetData(void* data, uint32_t size)
+    {
+        ZoneScoped;
+
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
+        glTextureSubImage3D(m_textureID, 0, 0, 0, 0, m_Properties.Width, m_Properties.Height, m_Properties.Depth, format, GL_UNSIGNED_BYTE, data);
+        
+        if(m_Properties.GenerateMipmaps)
+        {
+            glGenerateTextureMipmap(m_textureID);
+        }
+    }
+
+    Ref<Texture3D> Texture3D::Create(uint32_t width, uint32_t height, uint32_t depth, ImageFormat format)
+    {
+        return CreateRef<Texture3D>(width, height, depth, format);
+    }
+
+    Ref<Texture3D> Texture3D::Create(const TextureProperties& properties)
+    {
+        return CreateRef<Texture3D>(properties);
+    }
+
+    void Texture3D::InitializeTexture3D()
+    {
+        int mipLevels = m_Properties.GenerateMipmaps ? 1 + floor(log2(std::max({m_Properties.Width, m_Properties.Height, m_Properties.Depth}))) : 1;
+
+        GLenum internalFormat = ImageFormatToOpenGLInternalFormat(m_Properties.Format);
+        GLenum format = ImageFormatToOpenGLFormat(m_Properties.Format);
+
+        glCreateTextures(GL_TEXTURE_3D, 1, &m_textureID);
+        glTextureStorage3D(m_textureID, mipLevels, internalFormat, m_Properties.Width, m_Properties.Height, m_Properties.Depth);
+
+        GLenum wrap = TextureWrapToOpenGL(m_Properties.Wrapping);
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_S, wrap);
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_T, wrap);
+        glTextureParameteri(m_textureID, GL_TEXTURE_WRAP_R, wrap);
+
+        glTextureParameterfv(m_textureID, GL_TEXTURE_BORDER_COLOR, &m_Properties.BorderColor[0]);
+
+        GLenum minFilter = TextureFilterToOpenGL(m_Properties.MinFilter);
+        GLenum magFilter = TextureFilterToOpenGL(m_Properties.MagFilter);
+        glTextureParameteri(m_textureID, GL_TEXTURE_MIN_FILTER, minFilter);
+        glTextureParameteri(m_textureID, GL_TEXTURE_MAG_FILTER, magFilter);
+
+        //Add an option to choose the anisotropic filtering level
+        glTextureParameterf(m_textureID, GL_TEXTURE_MAX_ANISOTROPY, 16.0f);
+    }
+
     static glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
     static glm::mat4 captureViews[] =
     {

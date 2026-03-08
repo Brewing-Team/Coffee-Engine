@@ -8,6 +8,7 @@
 namespace Coffee {
 
     class Texture2D;
+    class Texture3D;
     class Cubemap;
     class Model;
     class Mesh;
@@ -49,6 +50,8 @@ namespace Coffee {
         {
         case ResourceType::Texture2D:
             return "Texture2D";
+        case ResourceType::Texture3D:
+            return "Texture3D";
         case ResourceType::Cubemap:
             return "Cubemap";
         case ResourceType::Model:
@@ -76,6 +79,8 @@ namespace Coffee {
         {
         case ResourceType::Texture2D:
             return ".tex";
+        case ResourceType::Texture3D:
+            return ".tex3d";
         case ResourceType::Cubemap:
             return ".cubemap";
         case ResourceType::Model:
@@ -104,6 +109,9 @@ namespace Coffee {
         case Coffee::ResourceType::Texture2D:
             return ResourceFormat::Binary;
             break;
+        case Coffee::ResourceType::Texture3D:
+            return ResourceFormat::Binary;
+            break;
         case ResourceType::Cubemap:
             return ResourceFormat::Binary;
             break;
@@ -127,6 +135,10 @@ namespace Coffee {
         if constexpr (std::is_same<T, Texture2D>::value)
         {
             return ResourceType::Texture2D;
+        }
+        else if constexpr (std::is_same<T, Texture3D>::value)
+        {
+            return ResourceType::Texture3D;
         }
         else if constexpr (std::is_same<T, Cubemap>::value)
         {

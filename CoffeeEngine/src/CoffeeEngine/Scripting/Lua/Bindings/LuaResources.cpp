@@ -18,6 +18,7 @@ namespace Coffee
             "Unknown", ResourceType::Unknown,
             "Texture", ResourceType::Texture,
             "Texture2D", ResourceType::Texture2D,
+            "Texture3D", ResourceType::Texture3D,
             "Cubemap", ResourceType::Cubemap,
             "Model", ResourceType::Model,
             "Mesh", ResourceType::Mesh,
@@ -274,6 +275,10 @@ namespace Coffee
                 case ResourceType::PBRMaterial:
                 {
                     return sol::make_object(luaState, ResourceLoader::Load<PBRMaterial>(filePath));
+                }
+                default:
+                {
+                    return sol::make_object(luaState, sol::nil);
                 }
             }
         });
