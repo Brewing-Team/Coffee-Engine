@@ -7,8 +7,10 @@ int main(int argc, const char** argv)
     Coffee::Log::Init();
     COFFEE_CORE_WARN("Initialized Log!");
 
-    auto app = Coffee::CreateApplication();
-    app->Run();
+    Coffee::Engine engine;
+
+    Coffee::Application* app = Coffee::CreateApplication();
+    engine.Run(*app);
     delete app;
 
     return 0;

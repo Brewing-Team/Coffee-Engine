@@ -1,6 +1,7 @@
 #include <Coffee.h>
-#include <CoffeeEngine/Core/EntryPoint.h>
-
+#include "CoffeeEngine/Core/EntryPoint.h"
+#include "CoffeeEngine/Core/Engine.h"
+#include "CoffeeEngine/Core/Application.h"
 #include "EditorLayer.h"
 
 namespace Coffee {
@@ -8,9 +9,9 @@ namespace Coffee {
     class CoffeeEditor : public Application
     {
     public:
-        CoffeeEditor()
+        void OnInit(Engine &engine) override
         {
-            PushLayer(new EditorLayer());
+            engine.PushLayer(new EditorLayer());
         }
 
         ~CoffeeEditor()

@@ -1,5 +1,6 @@
-#include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Engine.h"
 
+#include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Core/Input.h"
@@ -24,14 +25,9 @@ extern "C"
 
 namespace Coffee
 {
-    Application* Application::s_Instance = nullptr;
-
-    Application::Application()
+    Engine::Engine()
     {
         ZoneScoped;
-
-        COFFEE_CORE_ASSERT(!s_Instance, "Application already exists!");
-		s_Instance = this;
 
         m_Window = Window::Create(WindowProps("Coffee Engine"));
         SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
@@ -44,12 +40,12 @@ namespace Coffee
 		PushOverlay(m_ImGuiLayer);
     }
 
-    Application::~Application()
+    Engine::~Engine()
     {
         Audio::Shutdown();
     }
 
-    void Application::PushLayer(Layer* layer)
+    void Engine::PushLayer(Layer* layer)
     {
         ZoneScoped;
 
@@ -57,7 +53,7 @@ namespace Coffee
         layer->OnAttach();
     }
 
-    void Application::PushOverlay(Layer* layer)
+    void Engine::PushOverlay(Layer* layer)
     {
         ZoneScoped;
         
@@ -65,12 +61,12 @@ namespace Coffee
         layer->OnAttach();
     }
 
-    void Application::Close()
+    void Engine::Close()
     {
         m_Running = false;
     }
 
-    void Application::OnEvent(Event& e)
+    void Engine::OnEvent(Event& e)
     {
         ZoneScoped;
 
@@ -87,11 +83,13 @@ namespace Coffee
         Input::OnEvent(e);
     }
 
-    void Application::Run()
+    void Engine::Run(Application& app)
     {
         ZoneScoped;
 
         static Stopwatch frameTimeStopwatch;
+
+        app.OnInit(*this);
 
         while (m_Running)
         {   
@@ -111,6 +109,8 @@ namespace Coffee
 
             //Prepare input frame
             Input::OnFrameUpdate();
+
+            app.OnUpdate(deltaTime);
 
             //Update and render
             {
@@ -136,7 +136,7 @@ namespace Coffee
         }
     }
 
-    void Application::ProcessEvents()
+    void Engine::ProcessEvents()
     {
         SDL_Event event;
         while(SDL_PollEvent(&event))
@@ -250,7 +250,7 @@ namespace Coffee
         }
     }
 
-    bool Application::OnWindowClose(WindowCloseEvent& e)
+    bool Engine::OnWindowClose(WindowCloseEvent& e)
     {
         ZoneScoped;
 
