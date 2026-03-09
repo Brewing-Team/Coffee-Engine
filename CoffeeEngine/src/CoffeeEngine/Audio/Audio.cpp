@@ -12,6 +12,28 @@
 #include <cereal/types/string.hpp>
 #include <glm/geometric.hpp>
 
+#include <AK/IBytes.h>
+#include <AK/SoundEngine/Common/AkTypes.h>
+
+#include <AK/MusicEngine/Common/AkMusicEngine.h>     // Music Engine
+#include <AK/SoundEngine/Common/AkMemoryMgr.h>       // Memory Manager interface
+
+#include <AK/SoundEngine/Common/AkSoundEngine.h>     // Sound Engine
+#include <AK/SoundEngine/Common/AkStreamMgrModule.h> // Stream Manager
+#include <AK/SpatialAudio/Common/AkSpatialAudio.h>   // Spatial Audio
+
+#if AK_WWISESDK_VERSION_MAJOR < 2024
+#include <AK/SoundEngine/Common/AkModule.h> // Default memory manager
+#else
+#include <AK/SoundEngine/Common/AkMemoryMgrModule.h> // Default memory manager
+#endif
+
+#ifndef AK_OPTIMIZED
+#include <AK/Comm/AkCommunication.h> // Communication (for debug builds)
+#endif
+
+#include <AkFilePackageLowLevelIODeferred.h> // File I/O
+
 #include <cassert>
 #include <fstream>
 #include <sstream>
@@ -24,18 +46,14 @@ namespace Coffee
     {
         archive(cereal::make_nvp("Name", name), cereal::make_nvp("Events", events));
     }
-    const std::filesystem::path Audio::DefaultAudioPath = std::filesystem::absolute(std::filesystem::current_path() / "assets/audio/Wwise Project/GeneratedSoundBanks/Windows");
-    std::filesystem::path Audio::m_ActiveAudioPath = Audio::DefaultAudioPath;
 
-    // Global pointer for the low-level IO
+    // Global pointer for the low-level IO (This should be inside the class but I will remove Wwise in the future so i don't care.)
     CAkFilePackageLowLevelIODeferred* g_lowLevelIO = nullptr;
-
-    std::vector<Ref<Audio::AudioBank>> Audio::audioBanks;
-    std::vector<AudioSourceComponent*> Audio::audioSources;
-    std::vector<AudioListenerComponent*> Audio::audioListeners;
 
     void Audio::Init()
     {
+        Audio::m_ActiveAudioPath = Audio::DefaultAudioPath;
+
         if (!InitializeMemoryManager())
             return;
 

@@ -85,46 +85,46 @@ namespace Coffee {
         /**
          * @brief Initializes the Renderer API.
          */
-        static void Init();
+        void Init();
 
-        static void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
+        void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 
         /**
          * @brief Sets the clear color for the renderer.
          * @param color The clear color as a glm::vec4.
          */
-        static void SetClearColor(const glm::vec4& color);
+        void SetClearColor(const glm::vec4& color);
 
         /**
          * @brief Clears the current buffer.
          */
-        static void Clear(uint32_t clearFlags = (uint32_t)ClearFlags::Color | (uint32_t)ClearFlags::Depth);
+        void Clear(uint32_t clearFlags = (uint32_t)ClearFlags::Color | (uint32_t)ClearFlags::Depth);
 
-        static void SetColorMask(bool red, bool green, bool blue, bool alpha);
+        void SetColorMask(bool red, bool green, bool blue, bool alpha);
 
         /**
          * @brief Enables or disables the depth mask.
          * @param enabled True to enable the depth mask, false to disable it.
          */
-        static void SetDepthMask(bool enabled);
+        void SetDepthMask(bool enabled);
 
-        static void SetDepthFunc(DepthFunc func);
+        void SetDepthFunc(DepthFunc func);
 
-        static void SetBlend(bool enabled);
-        static void SetBlendFunc(BlendFunc src, BlendFunc dst);
-        static void SetBlendEquation(BlendEquation equation);
+        void SetBlend(bool enabled);
+        void SetBlendFunc(BlendFunc src, BlendFunc dst);
+        void SetBlendEquation(BlendEquation equation);
 
-        static void SetFaceCulling(bool enabled);
+        void SetFaceCulling(bool enabled);
 
-        static void SetCullFace(CullFace face);
+        void SetCullFace(CullFace face);
 
-        static void SetPolygonMode(PolygonMode mode);
+        void SetPolygonMode(PolygonMode mode);
 
         /**
          * @brief Draws the indexed vertices from the specified vertex array.
          * @param vertexArray The vertex array containing the vertices to draw.
          */
-        static void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0);
+        void DrawIndexed(const Ref<VertexArray>& vertexArray, uint32_t indexCount = 0);
 
         /**
          * @brief Draws lines from the specified vertex array.
@@ -132,15 +132,7 @@ namespace Coffee {
          * @param vertexCount The number of vertices to draw.
          * @param lineWidth The width of the lines.
          */
-        static void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount, float lineWidth = 1.0f);
-
-        /**
-         * @brief Creates a new Renderer API instance.
-         * @return A scope pointer to the created Renderer API instance.
-         */
-        static Scope<RendererAPI> Create();
-    private:
-        static Scope<RendererAPI> s_RendererAPI; ///< The Renderer API instance.
+        void DrawLines(const Ref<VertexArray>& vertexArray, uint32_t vertexCount, float lineWidth = 1.0f);
     };
 
     /** @} */

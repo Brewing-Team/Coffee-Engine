@@ -1,6 +1,11 @@
 #pragma once
 
 #include "Base.h"
+#include "CoffeeEngine/Audio/Audio.h"
+#include "CoffeeEngine/Core/EngineContext.h"
+#include "CoffeeEngine/Core/Input.h"
+#include "CoffeeEngine/Renderer/Renderer.h"
+#include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "Window.h"
 #include "LayerStack.h"
 #include "CoffeeEngine/Events/ApplicationEvent.h"
@@ -24,6 +29,12 @@ namespace Coffee
      */
     class Engine
     {
+      public:
+        Renderer renderer; ///< The renderer used by the engine.
+        RendererAPI rendererAPI; ///< The renderer API used by the engine.
+        Input input; ///< The input system used by the engine.
+        Audio audio; ///< The audio system used by the engine.
+        
       public:
         using EventCallbackFn = std::function<void(Event&)>; ///< Type definition for event callback function.
         /**
@@ -58,6 +69,8 @@ namespace Coffee
          * @param layer The overlay to push.
          */
         void PushOverlay(Layer* layer);
+
+        EngineContext GetContext() { return { &renderer, &rendererAPI, &input, &resources, &jobs };
 
         /**
          * @brief Gets the main engine window.

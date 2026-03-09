@@ -129,16 +129,16 @@ namespace Coffee {
         /**
          * @brief Initializes the renderer.
          */
-        static void Init();
+        void Init(RendererAPI* api);
 
         /**
          * @brief Shuts down the renderer.
          */
-        static void Shutdown();
+        void Shutdown();
 
-        static void Submit(const RenderCommand& command);
+        void Submit(const RenderCommand& command);
 
-        static void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f), uint32_t entityID = 4294967295);
+        void Submit(const Ref<Shader>& shader, const Ref<VertexArray>& vertexArray, const glm::mat4& transform = glm::mat4(1.0f), uint32_t entityID = 4294967295);
 
         /**
          * @brief Submits a light component.
@@ -146,67 +146,69 @@ namespace Coffee {
          */
 
          //Todo change this to a light class and not a component
-        static void Submit(const LightComponent& light);
+        void Submit(const LightComponent& light);
 
-        static void SetEnvironmentMap(const Ref<Cubemap>& environmentMap) { s_RendererData.EnvironmentMap = environmentMap; }
+        void SetEnvironmentMap(const Ref<Cubemap>& environmentMap) { m_RendererData.EnvironmentMap = environmentMap; }
         
-        static void DepthPrePass(const Ref<RenderTarget>& target);
-        //static void SSAOPass(const Ref<RenderTarget>& target);
-        static void ShadowPass(const Ref<RenderTarget>& target);
-        static void ForwardPass(const Ref<RenderTarget>& target);
-        static void SkyboxPass(const Ref<RenderTarget>& target);
-        static void TransparentPass(const Ref<RenderTarget>& target);
-        static void PostProcessingPass(const Ref<RenderTarget>& target);
+        void DepthPrePass(const Ref<RenderTarget>& target);
+        //void SSAOPass(const Ref<RenderTarget>& target);
+        void ShadowPass(const Ref<RenderTarget>& target);
+        void ForwardPass(const Ref<RenderTarget>& target);
+        void SkyboxPass(const Ref<RenderTarget>& target);
+        void TransparentPass(const Ref<RenderTarget>& target);
+        void PostProcessingPass(const Ref<RenderTarget>& target);
 
         /**
          * @brief Gets the renderer data.
          * @return A reference to the renderer data.
          */
-        static const Renderer3DData& GetData() { return s_RendererData; }
+        const Renderer3DData& GetData() { return m_RendererData; }
 
         /**
          * @brief Gets the renderer statistics.
          * @return A reference to the renderer statistics.
          */
-        static const Renderer3DStats& GetStats() { return s_Stats; }
-        static void ResetStats() { s_Stats.Reset(); }
+        const Renderer3DStats& GetStats() { return m_Stats; }
+        void ResetStats() { m_Stats.Reset(); }
 
         /**
          * @brief Gets the render settings.
          * @return A reference to the render settings.
          */
-        static Renderer3DSettings& GetRenderSettings() { return s_RenderSettings; }
+        Renderer3DSettings& GetRenderSettings() { return m_RenderSettings; }
         
         // TODO: Think better name for this
         /*
             - Reset Lights Count
             - Reset Render Queue
         */
-        static void ResetCalls();
+        void ResetCalls();
     
     private:
-        static void GenerateBRDFLUT();
+        void GenerateBRDFLUT();
 
     private:
-        static Renderer3DData s_RendererData; ///< Renderer data.
-        static Renderer3DStats s_Stats; ///< Renderer statistics.
-        static Renderer3DSettings s_RenderSettings; ///< Render settings.
+        RendererAPI* m_API; ///< The renderer API used by the renderer.
 
-        static Ref<Mesh> s_ScreenQuad; ///< Screen quad mesh.
-        static Ref<Mesh> s_CubeMesh; ///< Cube mesh.
+        Renderer3DData m_RendererData; ///< Renderer data.
+        Renderer3DStats m_Stats; ///< Renderer statistics.
+        Renderer3DSettings m_RenderSettings; ///< Render settings.
 
-        static Ref<Shader> s_FogShader; ///< Fog shader.
-        static Ref<Shader> s_ToneMappingShader; ///< Tone mapping shader.
-        static Ref<Shader> s_FXAAShader; ///< Fast Approximate AntiAliasing shader
-        static Ref<Shader> s_FinalPassShader; ///< Final pass shader.
-        static Ref<Shader> s_SkyboxShader; ///< Skybox shader.
-        static Ref<Shader> depthShader; ///< Depth shader.
-        static Ref<Shader> brdfShader; ///< BRDF shader.
-        static Ref<Shader> s_BloomShader; ///< Bloom downsample shader.
+        Ref<Mesh> m_ScreenQuad; ///< Screen quad mesh.
+        Ref<Mesh> m_CubeMesh; ///< Cube mesh.
 
-        static Ref<Framebuffer> s_BloomFramebuffer; ///< Bloom framebuffer.
-        static Ref<Texture2D> s_BloomDownsampleTexture; ///< Bloom downsampled texture.
-        static Ref<Texture2D> s_BloomUpsampleTexture; ///< Bloom upsampled texture.
+        Ref<Shader> m_FogShader; ///< Fog shader.
+        Ref<Shader> m_ToneMappingShader; ///< Tone mapping shader.
+        Ref<Shader> m_FXAAShader; ///< Fast Approximate AntiAliasing shader
+        Ref<Shader> m_FinalPassShader; ///< Final pass shader.
+        Ref<Shader> m_SkyboxShader; ///< Skybox shader.
+        Ref<Shader> depthShader; ///< Depth shader.
+        Ref<Shader> brdfShader; ///< BRDF shader.
+        Ref<Shader> m_BloomShader; ///< Bloom downsample shader.
+
+        Ref<Framebuffer> m_BloomFramebuffer; ///< Bloom framebuffer.
+        Ref<Texture2D> m_BloomDownsampleTexture; ///< Bloom downsampled texture.
+        Ref<Texture2D> m_BloomUpsampleTexture; ///< Bloom upsampled texture.
     };
 
     /** @} */

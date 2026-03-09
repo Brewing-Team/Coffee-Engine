@@ -1,8 +1,8 @@
 #include "CoffeeEngine/Renderer/RendererAPI.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Assert.h"
-#include "CoffeeEngine/Renderer/VertexArray.h"
 #include "CoffeeEngine/Renderer/Buffer.h"
+#include "CoffeeEngine/Renderer/VertexArray.h"
 
 #include <stdint.h>
 #include <glad/glad.h>
@@ -10,8 +10,6 @@
 #include <glm/vec4.hpp>
 
 namespace Coffee {
-
-	Scope<RendererAPI> RendererAPI::s_RendererAPI = RendererAPI::Create();
 
     void OpenGLMessageCallback(
 		unsigned source,
@@ -224,10 +222,5 @@ namespace Coffee {
 		glLineWidth(lineWidth);
 		glDrawArrays(GL_LINES, 0, vertexCount);
 	}
-
-    Scope<RendererAPI> RendererAPI::Create()
-    {
-        return CreateScope<RendererAPI>();
-    }
 
 }

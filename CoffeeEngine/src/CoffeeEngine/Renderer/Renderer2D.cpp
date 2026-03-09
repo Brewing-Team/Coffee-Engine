@@ -30,94 +30,13 @@
 
 namespace Coffee {
 
-    struct QuadVertex
+    void Renderer2D::Init(RendererAPI* api)
     {
-        glm::vec3 Position;
-        glm::vec4 Color;
-        glm::vec2 TexCoord;
-        
-        float TexIndex;
-        float TilingFactor;
+        m_API = api;
 
-        glm::vec3 EntityID;
-    };
+        m_Renderer2DData.QuadVertexArray = VertexArray::Create();
 
-    struct LineVertex
-    {
-        glm::vec3 Position;
-        glm::vec4 Color;
-        
-        glm::vec3 EntityID;
-    };
-
-    struct TextVertex
-    {
-        glm::vec3 Position;
-        glm::vec4 Color;
-        glm::vec2 TexCoord;
-
-        glm::vec3 EntityID;
-    };
-
-    struct Batch
-    {
-        static const uint32_t MaxQuadCount = 20000; // Think of increasing this number to 20000
-        static const uint32_t MaxVertices = MaxQuadCount * 4;
-        static const uint32_t MaxIndices = MaxQuadCount * 6;
-        static const uint32_t MaxTextureSlots = 64;
-
-        std::vector<QuadVertex> QuadVertices;
-        uint32_t QuadIndexCount = 0;
-
-        std::vector<LineVertex> LineVertices;
-
-        std::vector<TextVertex> TextVertices;
-        uint32_t TextIndexCount = 0;
-
-        std::array<Ref<Texture2D>, MaxTextureSlots> TextureSlots;
-        uint32_t TextureSlotIndex = 1; // 0 is reserved for white texture
-
-        Ref<Texture2D> FontAtlasTexture;
-
-        float LineWidth = 1.5f;
-    };
-
-    struct Renderer2DData
-    {
-        std::queue<Batch> WorldBatches;
-        std::queue<Batch> ScreenBatches;
-
-        Ref<VertexArray> QuadVertexArray;
-        Ref<VertexBuffer> QuadVertexBuffer;
-
-        Ref<VertexArray> LineVertexArray;
-        Ref<VertexBuffer> LineVertexBuffer;
-
-        Ref<VertexArray> TextVertexArray;
-        Ref<VertexBuffer> TextVertexBuffer;
-
-        Ref<Shader> QuadShader;
-        Ref<Shader> LineShader;
-        Ref<Shader> TextShader;
-
-        Ref<Texture2D> WhiteTexture;
-
-        glm::vec4 QuadVertexPositions[4] = {
-            {-0.5f, -0.5f, 0.0f, 1.0f},
-            {0.5f, -0.5f, 0.0f, 1.0f},
-            {0.5f, 0.5f, 0.0f, 1.0f},
-            {-0.5f, 0.5f, 0.0f, 1.0f}
-        };
-
-    };
-
-    static Renderer2DData s_Renderer2DData;
-
-    void Renderer2D::Init()
-    {
-        s_Renderer2DData.QuadVertexArray = VertexArray::Create();
-
-        s_Renderer2DData.QuadVertexBuffer = VertexBuffer::Create(Batch::MaxVertices * sizeof(QuadVertex));
+        m_Renderer2DData.QuadVertexBuffer = VertexBuffer::Create(Batch::MaxVertices * sizeof(QuadVertex));
         BufferLayout quadLayout = {
             {ShaderDataType::Vec3, "a_Position"},
             {ShaderDataType::Vec4, "a_Color"},
@@ -126,8 +45,8 @@ namespace Coffee {
             {ShaderDataType::Float, "a_TilingFactor"},
             {ShaderDataType::Vec3, "a_EntityID"}
         };
-        s_Renderer2DData.QuadVertexBuffer->SetLayout(quadLayout);
-        s_Renderer2DData.QuadVertexArray->AddVertexBuffer(s_Renderer2DData.QuadVertexBuffer);
+        m_Renderer2DData.QuadVertexBuffer->SetLayout(quadLayout);
+        m_Renderer2DData.QuadVertexArray->AddVertexBuffer(m_Renderer2DData.QuadVertexBuffer);
 
         std::vector<uint32_t> quadIndices(Batch::MaxIndices);
 
@@ -146,42 +65,42 @@ namespace Coffee {
         }
 
         Ref<IndexBuffer> quadIB = IndexBuffer::Create(quadIndices.data(), quadIndices.size());
-        s_Renderer2DData.QuadVertexArray->SetIndexBuffer(quadIB);
+        m_Renderer2DData.QuadVertexArray->SetIndexBuffer(quadIB);
         quadIndices.clear();
 
         // Line
-        s_Renderer2DData.LineVertexArray = VertexArray::Create();
+        m_Renderer2DData.LineVertexArray = VertexArray::Create();
 
-        s_Renderer2DData.LineVertexBuffer = VertexBuffer::Create(Batch::MaxVertices * sizeof(LineVertex));
+        m_Renderer2DData.LineVertexBuffer = VertexBuffer::Create(Batch::MaxVertices * sizeof(LineVertex));
         BufferLayout lineLayout = {
             {ShaderDataType::Vec3, "a_Position"},
             {ShaderDataType::Vec4, "a_Color"},
             {ShaderDataType::Vec3, "a_EntityID"}
         };
-        s_Renderer2DData.LineVertexBuffer->SetLayout(lineLayout);
-        s_Renderer2DData.LineVertexArray->AddVertexBuffer(s_Renderer2DData.LineVertexBuffer);
+        m_Renderer2DData.LineVertexBuffer->SetLayout(lineLayout);
+        m_Renderer2DData.LineVertexArray->AddVertexBuffer(m_Renderer2DData.LineVertexBuffer);
 
         // Text
-        s_Renderer2DData.TextVertexArray = VertexArray::Create();
+        m_Renderer2DData.TextVertexArray = VertexArray::Create();
 
-        s_Renderer2DData.TextVertexBuffer = VertexBuffer::Create(Batch::MaxVertices * sizeof(TextVertex));
+        m_Renderer2DData.TextVertexBuffer = VertexBuffer::Create(Batch::MaxVertices * sizeof(TextVertex));
         BufferLayout textLayout = {
             {ShaderDataType::Vec3, "a_Position"},
             {ShaderDataType::Vec4, "a_Color"},
             {ShaderDataType::Vec2, "a_TexCoord"},
             {ShaderDataType::Vec3, "a_EntityID"}
         };
-        s_Renderer2DData.TextVertexBuffer->SetLayout(textLayout);
-        s_Renderer2DData.TextVertexArray->AddVertexBuffer(s_Renderer2DData.TextVertexBuffer);
-        s_Renderer2DData.TextVertexArray->SetIndexBuffer(quadIB);
+        m_Renderer2DData.TextVertexBuffer->SetLayout(textLayout);
+        m_Renderer2DData.TextVertexArray->AddVertexBuffer(m_Renderer2DData.TextVertexBuffer);
+        m_Renderer2DData.TextVertexArray->SetIndexBuffer(quadIB);
 
-        s_Renderer2DData.WhiteTexture = Texture2D::Create(1, 1, ImageFormat::RGBA8);
+        m_Renderer2DData.WhiteTexture = Texture2D::Create(1, 1, ImageFormat::RGBA8);
         uint32_t whiteTextureData = 0xffffffff;
-        s_Renderer2DData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
+        m_Renderer2DData.WhiteTexture->SetData(&whiteTextureData, sizeof(uint32_t));
 
-        s_Renderer2DData.QuadShader = CreateRef<Shader>("QuadShader", std::string(quadShaderSource));
-        s_Renderer2DData.LineShader = CreateRef<Shader>("LineShader", std::string(lineShaderSource));
-        s_Renderer2DData.TextShader = CreateRef<Shader>("TextShader", std::string(textShaderSource));
+        m_Renderer2DData.QuadShader = CreateRef<Shader>("QuadShader", std::string(quadShaderSource));
+        m_Renderer2DData.LineShader = CreateRef<Shader>("LineShader", std::string(lineShaderSource));
+        m_Renderer2DData.TextShader = CreateRef<Shader>("TextShader", std::string(textShaderSource));
     }
 
     void Renderer2D::WorldPass(const Ref<RenderTarget>& target)
@@ -191,44 +110,44 @@ namespace Coffee {
         forwardBuffer->Bind();
         //forwardBuffer->SetDrawBuffers({0, 1}); //TODO: This should only be done in the editor
 
-        while (!s_Renderer2DData.WorldBatches.empty())
+        while (!m_Renderer2DData.WorldBatches.empty())
         {
-            Batch& batch = s_Renderer2DData.WorldBatches.front();
+            Batch& batch = m_Renderer2DData.WorldBatches.front();
 
             if(batch.QuadIndexCount > 0)
             {
-                s_Renderer2DData.QuadVertexBuffer->SetData(batch.QuadVertices.data(), batch.QuadVertices.size() * sizeof(QuadVertex));
+                m_Renderer2DData.QuadVertexBuffer->SetData(batch.QuadVertices.data(), batch.QuadVertices.size() * sizeof(QuadVertex));
 
-                batch.TextureSlots[0] = s_Renderer2DData.WhiteTexture;
+                batch.TextureSlots[0] = m_Renderer2DData.WhiteTexture;
 
                 for(uint32_t i = 0; i < batch.TextureSlotIndex; i++)
                 {
                     batch.TextureSlots[i]->Bind(i);
                 }
 
-                s_Renderer2DData.QuadShader->Bind();
-                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
+                m_Renderer2DData.QuadShader->Bind();
+                m_API->DrawIndexed(m_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
             }
 
             if(batch.LineVertices.size() > 0)
             {
-                s_Renderer2DData.LineVertexBuffer->SetData(batch.LineVertices.data(), batch.LineVertices.size() * sizeof(LineVertex));
+                m_Renderer2DData.LineVertexBuffer->SetData(batch.LineVertices.data(), batch.LineVertices.size() * sizeof(LineVertex));
 
-                s_Renderer2DData.LineShader->Bind();
-                RendererAPI::DrawLines(s_Renderer2DData.LineVertexArray, batch.LineVertices.size(), batch.LineWidth);
+                m_Renderer2DData.LineShader->Bind();
+                m_API->DrawLines(m_Renderer2DData.LineVertexArray, batch.LineVertices.size(), batch.LineWidth);
             }
 
             if(batch.TextIndexCount > 0)
             {
-                s_Renderer2DData.TextVertexBuffer->SetData(batch.TextVertices.data(), batch.TextVertices.size() * sizeof(TextVertex));
+                m_Renderer2DData.TextVertexBuffer->SetData(batch.TextVertices.data(), batch.TextVertices.size() * sizeof(TextVertex));
 
                 batch.FontAtlasTexture->Bind(0);
 
-                s_Renderer2DData.TextShader->Bind();
-                RendererAPI::DrawIndexed(s_Renderer2DData.TextVertexArray, batch.TextIndexCount);
+                m_Renderer2DData.TextShader->Bind();
+                m_API->DrawIndexed(m_Renderer2DData.TextVertexArray, batch.TextIndexCount);
             }
 
-            s_Renderer2DData.WorldBatches.pop();
+            m_Renderer2DData.WorldBatches.pop();
         }
 
         forwardBuffer->UnBind();
@@ -242,44 +161,44 @@ namespace Coffee {
         forwardBuffer->Bind();
         //forwardBuffer->SetDrawBuffers({0, 1}); //TODO: This should only be done in the editor
 
-        while (!s_Renderer2DData.ScreenBatches.empty())
+        while (!m_Renderer2DData.ScreenBatches.empty())
         {
-            Batch& batch = s_Renderer2DData.ScreenBatches.front();
+            Batch& batch = m_Renderer2DData.ScreenBatches.front();
 
             if(batch.QuadIndexCount > 0)
             {
-                s_Renderer2DData.QuadVertexBuffer->SetData(batch.QuadVertices.data(), batch.QuadVertices.size() * sizeof(QuadVertex));
+                m_Renderer2DData.QuadVertexBuffer->SetData(batch.QuadVertices.data(), batch.QuadVertices.size() * sizeof(QuadVertex));
 
-                batch.TextureSlots[0] = s_Renderer2DData.WhiteTexture;
+                batch.TextureSlots[0] = m_Renderer2DData.WhiteTexture;
 
                 for(uint32_t i = 0; i < batch.TextureSlotIndex; i++)
                 {
                     batch.TextureSlots[i]->Bind(i);
                 }
 
-                s_Renderer2DData.QuadShader->Bind();
-                RendererAPI::DrawIndexed(s_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
+                m_Renderer2DData.QuadShader->Bind();
+                m_API->DrawIndexed(m_Renderer2DData.QuadVertexArray, batch.QuadIndexCount);
             }
 
             if(batch.LineVertices.size() > 0)
             {
-                s_Renderer2DData.LineVertexBuffer->SetData(batch.LineVertices.data(), batch.LineVertices.size() * sizeof(LineVertex));
+                m_Renderer2DData.LineVertexBuffer->SetData(batch.LineVertices.data(), batch.LineVertices.size() * sizeof(LineVertex));
 
-                s_Renderer2DData.LineShader->Bind();
-                RendererAPI::DrawLines(s_Renderer2DData.LineVertexArray, batch.LineVertices.size(), batch.LineWidth);
+                m_Renderer2DData.LineShader->Bind();
+                m_API->DrawLines(m_Renderer2DData.LineVertexArray, batch.LineVertices.size(), batch.LineWidth);
             }
 
             if(batch.TextIndexCount > 0)
             {
-                s_Renderer2DData.TextVertexBuffer->SetData(batch.TextVertices.data(), batch.TextVertices.size() * sizeof(TextVertex));
+                m_Renderer2DData.TextVertexBuffer->SetData(batch.TextVertices.data(), batch.TextVertices.size() * sizeof(TextVertex));
 
                 batch.FontAtlasTexture->Bind(0);
 
-                s_Renderer2DData.TextShader->Bind();
-                RendererAPI::DrawIndexed(s_Renderer2DData.TextVertexArray, batch.TextIndexCount);
+                m_Renderer2DData.TextShader->Bind();
+                m_API->DrawIndexed(m_Renderer2DData.TextVertexArray, batch.TextIndexCount);
             }
 
-            s_Renderer2DData.ScreenBatches.pop();
+            m_Renderer2DData.ScreenBatches.pop();
         }
 
         forwardBuffer->UnBind();
@@ -342,7 +261,7 @@ namespace Coffee {
         {
             batch.QuadVertices.push_back(
             {
-                transform * s_Renderer2DData.QuadVertexPositions[i], 
+                transform * m_Renderer2DData.QuadVertexPositions[i], 
                 color, 
                 texCoords[i], 
                 0.0f, 
@@ -427,10 +346,10 @@ namespace Coffee {
         glm::vec3 entityIDVec3 = glm::vec3(r / 255.0f, g / 255.0f, b / 255.0f);
 
         glm::vec4 quadVerts[4] = {
-            s_Renderer2DData.QuadVertexPositions[0],
-            s_Renderer2DData.QuadVertexPositions[1],
-            s_Renderer2DData.QuadVertexPositions[2],
-            s_Renderer2DData.QuadVertexPositions[3]
+            m_Renderer2DData.QuadVertexPositions[0],
+            m_Renderer2DData.QuadVertexPositions[1],
+            m_Renderer2DData.QuadVertexPositions[2],
+            m_Renderer2DData.QuadVertexPositions[3]
         };
 
         quadVerts[1].x = quadVerts[2].x = -0.5f + uvRect.z;
@@ -1144,7 +1063,7 @@ namespace Coffee {
 
     Batch& Renderer2D::GetBatch(RenderMode mode)
     {
-        auto& batches = (mode == RenderMode::World) ? s_Renderer2DData.WorldBatches : s_Renderer2DData.ScreenBatches;
+        auto& batches = (mode == RenderMode::World) ? m_Renderer2DData.WorldBatches : m_Renderer2DData.ScreenBatches;
         if (batches.empty())
         {
             batches.emplace();
@@ -1154,7 +1073,7 @@ namespace Coffee {
     
     void Renderer2D::NextBatch(RenderMode mode)
     {
-        auto& batches = (mode == RenderMode::World) ? s_Renderer2DData.WorldBatches : s_Renderer2DData.ScreenBatches;
+        auto& batches = (mode == RenderMode::World) ? m_Renderer2DData.WorldBatches : m_Renderer2DData.ScreenBatches;
         batches.emplace();
     }
 }

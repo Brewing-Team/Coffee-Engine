@@ -22,26 +22,11 @@ namespace Coffee {
 
     constexpr const char* MAPPING_FILE_PATH = "InputMapping.json";
 
-    std::unordered_map<std::string, InputBinding> Input::m_BindingsMap = std::unordered_map<std::string, InputBinding>();
-    std::vector<Ref<Gamepad>> Input::m_Gamepads;
-    std::unordered_map<ButtonCode, uint8_t> Input::m_ButtonStates = {{Button::Invalid, 0}};
-    std::unordered_map<AxisCode, float> Input::m_AxisStates = {{Axis::Invalid, 0.0f}};
-    std::unordered_map<AxisCode, float> Input::m_AxisDeadzones;
-    std::unordered_map<KeyCode, bool> Input::m_KeyStates = {{Key::Unknown, false}};
-    std::unordered_map<MouseCode, bool> Input::m_MouseStates;
-    glm::vec2 Input::m_MousePosition = glm::vec2(0.0f);
-
-    Timer Input::m_RebindTimer(5.0,false,true,[](){Input::ResetRebindState();});
-    RebindState Input::m_RebindState = RebindState::None;
-    std::string Input::m_RebindActionName = "";
-
-    // Current frame's timestamp
-    // Direct call to SDL because I didn't find any functions for it within the engine's API
-    long Input::m_Timestamp = Input::OnFrameUpdate();
-
-    void Input::Init()
+    void Input::Init(Window* window)
     {
         SDL_InitSubSystem(SDL_INIT_GAMEPAD);
+
+        m_Window = window;
 
         // Axis deadzone defaults
         m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
@@ -50,6 +35,12 @@ namespace Coffee {
         m_AxisDeadzones[Axis::RightX] = 0.15f;
         m_AxisDeadzones[Axis::LeftY] = 0.15f;
         m_AxisDeadzones[Axis::RightY] = 0.15f;
+
+        m_RebindTimer = Timer(5.0,false,true,[this](){Input::ResetRebindState();});
+    
+        // Current frame's timestamp
+        // Direct call to SDL because I didn't find any functions for it within the engine's API
+        m_Timestamp = Input::OnFrameUpdate();
     }
 
     void Input::Save()
@@ -105,9 +96,7 @@ namespace Coffee {
 
     void Input::SetMouseGrabbed(bool grabbed)
     {
-        // TODO: Think if the window should be passed as parameter
-        Window& window = Application::Get().GetWindow();
-        SDL_SetWindowRelativeMouseMode((SDL_Window*)window.GetNativeWindow(), grabbed);
+        SDL_SetWindowRelativeMouseMode((SDL_Window*)m_Window->GetNativeWindow(), grabbed);
     }
 
     const glm::vec2& Input::GetMousePosition()

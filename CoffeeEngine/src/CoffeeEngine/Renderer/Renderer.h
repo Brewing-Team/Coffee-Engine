@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Assert.h"
+#include "CoffeeEngine/Renderer/Renderer3D.h"
 
 #include <glm/ext/matrix_float4x4.hpp>
 
@@ -9,6 +10,7 @@
 
 namespace Coffee {
 
+    class RendererAPI;
     class RenderTarget;
     class UniformBuffer;
     class Mesh;
@@ -43,35 +45,39 @@ namespace Coffee {
     {
     public:
         
-        static void Init();
-        static void Render();
-        static void Shutdown();
+        void Init(RendererAPI* api);
+        void Render();
+        void Shutdown();
 
-        static void AddRenderTarget(const Ref<RenderTarget>& renderTarget);
-        static void RemoveRenderTarget(const std::string& name);
-        static Ref<RenderTarget> GetRenderTarget(const std::string& name);
+        void AddRenderTarget(const Ref<RenderTarget>& renderTarget);
+        void RemoveRenderTarget(const std::string& name);
+        Ref<RenderTarget> GetRenderTarget(const std::string& name);
 
-        static void SetCurrentRenderTarget(const std::string& name)
+        void SetCurrentRenderTarget(const std::string& name)
         { 
-            s_RendererData.CurrentRenderTarget = GetRenderTarget(name).get();
-            COFFEE_ASSERT(s_RendererData.CurrentRenderTarget && "Render target not found");
+            m_RendererData.CurrentRenderTarget = GetRenderTarget(name).get();
+            COFFEE_ASSERT(m_RendererData.CurrentRenderTarget && "Render target not found");
         }
 
         // This is more dangerous bc the renderTarget can not be in the map but is convenient
-        static void SetCurrentRenderTarget(RenderTarget* renderTarget)
+        void SetCurrentRenderTarget(RenderTarget* renderTarget)
         {
-            s_RendererData.CurrentRenderTarget = renderTarget;
-            //COFFEE_ASSERT(s_RendererData.CurrentRenderTarget && "Render target not found");
+            m_RendererData.CurrentRenderTarget = renderTarget;
+            //COFFEE_ASSERT(m_RendererData.CurrentRenderTarget && "Render target not found");
         }
 
-        static RenderTarget* GetCurrentRenderTarget() { return s_RendererData.CurrentRenderTarget; }
+        RenderTarget* GetCurrentRenderTarget() { return m_RendererData.CurrentRenderTarget; }
 
-        static RendererSettings& GetRenderSettings() { return s_RenderSettings; }
+        RendererSettings& GetRenderSettings() { return m_RenderSettings; }
 
     private:
-        static RendererData s_RendererData; ///< Renderer data.
-        static RendererSettings s_RenderSettings; ///< Render settings.
-        static Ref<Mesh> s_ScreenQuad; ///< Screen quad mesh.
+        RendererAPI* m_API; ///< The renderer API used by the renderer.
+        Renderer3D m_Renderer3D; ///< The 3D renderer.
+        Renderer2D m_Renderer2D; ///< The 2D renderer.
+
+        RendererData m_RendererData; ///< Renderer data.
+        RendererSettings m_RenderSettings; ///< Render settings.
+        Ref<Mesh> m_ScreenQuad; ///< Screen quad mesh.
     };
 
 }

@@ -18,6 +18,8 @@
 
 namespace Coffee {
 
+    class Window;
+
     using InputAction = uint16_t;
     /**
      * @brief List of possible actions in ActionMap v0.1
@@ -81,11 +83,11 @@ namespace Coffee {
         /**
          * Initializes the module
          */
-        static void Init();
+        void Init(Window* window);
 
-        static void Save();
+        void Save();
 
-        static void Load();
+        void Load();
 
         /**
          * Checks if a specific key is currently being pressed.
@@ -93,7 +95,7 @@ namespace Coffee {
          * @param key The key code of the key to check.
          * @return True if the key is currently being pressed, false otherwise.
          */
-        static bool IsKeyPressed(const KeyCode key);
+        bool IsKeyPressed(const KeyCode key);
 
         /**
          * Checks if a mouse button is currently pressed.
@@ -101,7 +103,7 @@ namespace Coffee {
          * @param button The mouse button to check.
          * @return True if the mouse button is pressed, false otherwise.
          */
-        static bool IsMouseButtonPressed(const MouseCode button);
+        bool IsMouseButtonPressed(const MouseCode button);
 
         /**
             * Sets the mouse cursor to be grabbed or ungrabbed.
@@ -109,52 +111,52 @@ namespace Coffee {
             * When ungrabbed, the mouse cursor is free to move outside the window.
             * @param grabbed True to grab the mouse cursor, false to ungrab it.
             */
-        static void SetMouseGrabbed(bool grabbed);
+        void SetMouseGrabbed(bool grabbed);
 
         /**
          * Retrieves the current position of the mouse.
          *
          * @return The current position of the mouse as a 2D vector.
          */
-        static const glm::vec2& GetMousePosition();
+        const glm::vec2& GetMousePosition();
         /**
          * @brief Retrieves the current x-coordinate of the mouse cursor.
          *
          * @return The x-coordinate of the mouse cursor.
          */
-        static const float GetMouseX();
+        const float GetMouseX();
         /**
          * @brief Retrieves the current y-coordinate of the mouse cursor.
          *
          * @return The y-coordinate of the mouse cursor.
          */
 
-        static const float GetMouseY();
+        const float GetMouseY();
 
-        static glm::vec2 GetMouseDelta();
+        glm::vec2 GetMouseDelta();
         /**
          * @brief Checks if a specific button is currently pressed on a given controller.
          *
          * @param button The button code to check.
          * @return True if the button is pressed, false otherwise.
          */
-        static bool GetButtonRaw(ButtonCode button);
+        bool GetButtonRaw(ButtonCode button);
         /**
          * @brief Retrieves the current value of an axis on a given controller.
          *
          * @param axis The axis code to check.
          * @return The axis value, usually between -1 and 1. Returns 0 if the controller is invalid.
          */
-        static float GetAxisRaw(AxisCode axis);
+        float GetAxisRaw(AxisCode axis);
 
         /**
          * Gets the InputBinding object for the given action
          * @param actionName The action to retrieve an InputBinding for
          * @return The InputBinding containing the bounds keys, buttons and axis for the provided action
          */
-        static InputBinding& GetBinding(const std::string& actionName);
+        InputBinding& GetBinding(const std::string& actionName);
 
-        static std::unordered_map<std::string, InputBinding>& GetAllBindings();
+        std::unordered_map<std::string, InputBinding>& GetAllBindings();
 
         /**
          *
@@ -162,104 +164,105 @@ namespace Coffee {
          * @param highFreqPower Strength of the right (high frequency) motor
          * @param duration Vibration duration
          */
-        static void SendRumble(uint16_t lowFreqPower, uint16_t highFreqPower, uint32_t duration);
+        void SendRumble(uint16_t lowFreqPower, uint16_t highFreqPower, uint32_t duration);
 
-        static const char* GetKeyLabel(KeyCode key);
-        static const char* GetMouseButtonLabel(MouseCode button);
-        static const char* GetButtonLabel(ButtonCode button);
-        static const char* GetAxisLabel(AxisCode axis);
+        const char* GetKeyLabel(KeyCode key);
+        const char* GetMouseButtonLabel(MouseCode button);
+        const char* GetButtonLabel(ButtonCode button);
+        const char* GetAxisLabel(AxisCode axis);
 
-        static void StartRebindMode(std::string actionName, RebindState type);
-        static void ResetRebindState();
+        void StartRebindMode(std::string actionName, RebindState type);
+        void ResetRebindState();
 
-        static void OnEvent(Event& e);
+        void OnEvent(Event& e);
 
-	    static long OnFrameUpdate();
+	    long OnFrameUpdate();
 
       private:
 
-        static void GenerateDefaultMappingFile();
+        void GenerateDefaultMappingFile();
 
         /**
 	     * @brief Handles controller connection events
 	     * @param cEvent The event data to process
 	     */
-        static void OnAddController(const ControllerAddEvent* cEvent);
+        void OnAddController(const ControllerAddEvent* cEvent);
 	    /**
          * @brief Handles controller disconnection events
          * @param cEvent The event data to process
          */
-	    static void OnRemoveController(const ControllerRemoveEvent* cEvent);
+	    void OnRemoveController(const ControllerRemoveEvent* cEvent);
 	    /**
         * @brief Handles button press events from controllers.
         *
         * @param e The button press event to process.
         */
-        static void OnButtonPressed(const ButtonPressEvent& e);
+        void OnButtonPressed(const ButtonPressEvent& e);
 	    /**
          * @brief Handles button release events from controllers.
          *
          * @param e The button release event to process.
          */
-        static void OnButtonReleased(const ButtonReleaseEvent& e);
+        void OnButtonReleased(const ButtonReleaseEvent& e);
 	    /**
          * @brief Handles axis movement events from controllers.
          *
          * @param e The axis move event to process.
          */
-        static void OnAxisMoved(const AxisMoveEvent& e);
+        void OnAxisMoved(const AxisMoveEvent& e);
 	    /**
          * @brief Handles key press events from the keyboard.
          *
          * @param event The key pressed event to process.
          */
-	    static void OnKeyPressed(const KeyPressedEvent& event);
+	    void OnKeyPressed(const KeyPressedEvent& event);
 	    /**
          * @brief Handles key release events from the keyboard.
          *
          * @param event The key released event to process.
          */
-	    static void OnKeyReleased(const KeyReleasedEvent& event);
+	    void OnKeyReleased(const KeyReleasedEvent& event);
 	    /**
          * @brief Handles mouse button press events.
          *
          * @param event The mouse button pressed event to process.
          */
-	    static void OnMouseButtonPressed(const MouseButtonPressedEvent& event);
+	    void OnMouseButtonPressed(const MouseButtonPressedEvent& event);
 	    /**
          * @brief Handles mouse button release events.
          *
          * @param event The mouse button released event to process.
          */
-	    static void OnMouseButtonReleased(const MouseButtonReleasedEvent& event);
+	    void OnMouseButtonReleased(const MouseButtonReleasedEvent& event);
 	    /**
          * @brief Handles mouse movement events.
          *
          * @param event The mouse moved event to process.
          */
-	    static void OnMouseMoved(const MouseMovedEvent& event);
+	    void OnMouseMoved(const MouseMovedEvent& event);
+    
+    private:
+        std::unordered_map<std::string, InputBinding> m_BindingsMap;
 
-        static std::unordered_map<std::string, InputBinding> m_BindingsMap;
-
-	    static std::vector<Ref<Gamepad>> m_Gamepads;
-	    static std::unordered_map<ButtonCode, uint8_t> m_ButtonStates;
-	    static std::unordered_map<AxisCode, float> m_AxisStates;
-	    static std::unordered_map<KeyCode, bool> m_KeyStates;
-        static std::unordered_map<MouseCode, bool> m_MouseStates;
-        static std::unordered_map<AxisCode, float> m_AxisDeadzones;
-        static glm::vec2 m_MousePosition; // Position relative to window
-
+	    std::vector<Ref<Gamepad>> m_Gamepads;
+	    std::unordered_map<ButtonCode, uint8_t> m_ButtonStates = {{Button::Invalid, 0}};;
+	    std::unordered_map<AxisCode, float> m_AxisStates = {{Axis::Invalid, 0.0f}};
+	    std::unordered_map<KeyCode, bool> m_KeyStates = {{Key::Unknown, false}};
+        std::unordered_map<MouseCode, bool> m_MouseStates;
+        std::unordered_map<AxisCode, float> m_AxisDeadzones;
+        glm::vec2 m_MousePosition = glm::vec2(0.0f); // Position relative to window
 
         // Rebind mode
-        static Timer m_RebindTimer;
-        static RebindState m_RebindState;
-	    static std::string m_RebindActionName;
+        Timer m_RebindTimer;
+        RebindState m_RebindState = RebindState::None;
+	    std::string m_RebindActionName;
 
 	    // Input timestamps to prevent recalculating values multiple times in the same frame
-	    static long m_Timestamp;
+	    long m_Timestamp;
 
 	    friend class InputBinding; // Allow direct access to private variables from InputBinding
 
+        Window* m_Window;
     };
     /** @} */
 } // namespace Coffee
