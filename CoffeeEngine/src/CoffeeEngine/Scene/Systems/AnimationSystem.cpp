@@ -64,8 +64,8 @@ namespace Coffee {
         SetupPerJointWeights(animator, upperBodyRootIndex);
 
         animator->GetContext().Resize(std::max(
-            animator->GetAnimationController()->GetAnimation(upperBodyAnimIndex)->GetAnimation()->num_tracks(),
-            animator->GetAnimationController()->GetAnimation(lowerBodyAnimIndex)->GetAnimation()->num_tracks()
+            animator->GetAnimationController()->GetAnimationClip(upperBodyAnimIndex)->GetAnimation()->num_tracks(),
+            animator->GetAnimationController()->GetAnimationClip(lowerBodyAnimIndex)->GetAnimation()->num_tracks()
         ));
     }
 
@@ -100,11 +100,11 @@ namespace Coffee {
         auto& upperLayer = animator->UpperAnimation;
         auto& lowerLayer = animator->LowerAnimation;
 
-        Animation* upperBodyCurrentAnim = animController->GetAnimation(animator->UpperAnimation->CurrentAnimation);
-        Animation* upperBodyNextAnim = animator->UpperAnimation->IsBlending ? animController->GetAnimation(animator->UpperAnimation->NextAnimation) : nullptr;
+        AnimationClip* upperBodyCurrentAnim = animController->GetAnimationClip(animator->UpperAnimation->CurrentAnimation);
+        AnimationClip* upperBodyNextAnim = animator->UpperAnimation->IsBlending ? animController->GetAnimationClip(animator->UpperAnimation->NextAnimation) : nullptr;
 
-        Animation* lowerBodyCurrentAnim = animController->GetAnimation(animator->LowerAnimation->CurrentAnimation);
-        Animation* lowerBodyNextAnim = animator->LowerAnimation->IsBlending ? animController->GetAnimation(animator->LowerAnimation->NextAnimation) : nullptr;
+        AnimationClip* lowerBodyCurrentAnim = animController->GetAnimationClip(animator->LowerAnimation->CurrentAnimation);
+        AnimationClip* lowerBodyNextAnim = animator->LowerAnimation->IsBlending ? animController->GetAnimationClip(animator->LowerAnimation->NextAnimation) : nullptr;
 
         if (!upperBodyCurrentAnim || !lowerBodyCurrentAnim)
         {
@@ -146,7 +146,7 @@ namespace Coffee {
         }
     }
 
-    void AnimationSystem::UpdateLayerTimes(const float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer, const Animation* currentAnim)
+    void AnimationSystem::UpdateLayerTimes(const float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer, const AnimationClip* currentAnim)
     {
         layer->AnimationTime += deltaTime * animator->AnimationSpeed;
 
@@ -165,7 +165,7 @@ namespace Coffee {
         }
     }
 
-    void AnimationSystem::SampleAndBlendLayerAnimations(AnimatorComponent* animator, AnimationLayer* layer, const Animation* currentAnim, const Animation* nextAnim, std::vector<ozz::math::SoaTransform>& outputTransforms)
+    void AnimationSystem::SampleAndBlendLayerAnimations(AnimatorComponent* animator, AnimationLayer* layer, const AnimationClip* currentAnim, const AnimationClip* nextAnim, std::vector<ozz::math::SoaTransform>& outputTransforms)
     {
         float currentDuration = currentAnim->GetAnimation()->duration();
 
@@ -292,7 +292,7 @@ namespace Coffee {
         std::vector<ozz::math::SoaTransform> localTransforms(numJoints);
 
         ozz::animation::SamplingJob samplingJob;
-        samplingJob.animation = animator->GetAnimationController()->GetAnimation(animationIndex)->GetAnimation();
+        samplingJob.animation = animator->GetAnimationController()->GetAnimationClip(animationIndex)->GetAnimation();
         samplingJob.context = &animator->GetContext();
         samplingJob.ratio = timeRatio;
         samplingJob.output = ozz::make_span(localTransforms);
@@ -335,7 +335,7 @@ namespace Coffee {
                                     || (layer == animator->LowerAnimation.get() && index == animator->UpperAnimation->CurrentAnimation)
                                     ? (layer == animator->UpperAnimation.get() ? animator->LowerAnimation->AnimationTime : animator->UpperAnimation->AnimationTime)
                                     : 0.0f;
-            animator->GetContext().Resize(animator->GetAnimationController()->GetAnimation(index)->GetAnimation()->num_tracks());
+            animator->GetContext().Resize(animator->GetAnimationController()->GetAnimationClip(index)->GetAnimation()->num_tracks());
         }
     }
 

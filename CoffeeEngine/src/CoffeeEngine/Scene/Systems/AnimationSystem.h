@@ -11,7 +11,7 @@
 #include <vector>
 
 namespace Coffee {
-    class Animation;
+    class AnimationClip;
     struct AnimationLayer;
     struct AnimatorComponent;
     class Shader;
@@ -115,7 +115,7 @@ namespace Coffee {
          * @param layer The animation layer to update.
          * @param currentAnim The current animation.
          */
-        static void UpdateLayerTimes(float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer, const Animation* currentAnim);
+        static void UpdateLayerTimes(float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer, const AnimationClip* currentAnim);
 
         /**
          * @brief Samples and blends animations for a specific layer.
@@ -125,7 +125,7 @@ namespace Coffee {
          * @param nextAnim The next animation.
          * @param outputTransforms The output transforms for the layer.
          */
-        static void SampleAndBlendLayerAnimations(AnimatorComponent* animator, AnimationLayer* layer, const Animation* currentAnim, const Animation* nextAnim, std::vector<ozz::math::SoaTransform>& outputTransforms);
+        static void SampleAndBlendLayerAnimations(AnimatorComponent* animator, AnimationLayer* layer, const AnimationClip* currentAnim, const AnimationClip* nextAnim, std::vector<ozz::math::SoaTransform>& outputTransforms);
 
         /**
          * @brief Samples the transforms for the animation.

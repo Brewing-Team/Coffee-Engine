@@ -12,7 +12,7 @@
 #include <vector>
 
 namespace Coffee {
-
+    
     /**
      * @brief Struct representing a layer of animation blending.
      */
@@ -33,21 +33,21 @@ namespace Coffee {
     /**
      * @brief Class representing an animation.
      */
-    class Animation
+    class AnimationClip // TODO: Rename to AnimationClip or something similar to avoid confusion with ozz::animation::Animation
     {
     public:
-        Animation() = default;
-        ~Animation() = default;
+        AnimationClip() = default;
+        ~AnimationClip() = default;
 
-        Animation(const Animation&) = delete;
-        Animation& operator=(const Animation&) = delete;
+        AnimationClip(const AnimationClip&) = delete;
+        AnimationClip& operator=(const AnimationClip&) = delete;
 
-        Animation(Animation&& other) noexcept
+        AnimationClip(AnimationClip&& other) noexcept
             : m_Name(std::move(other.m_Name))
             , m_Animation(std::move(other.m_Animation))
         {}
 
-        Animation& operator=(Animation&& other) noexcept {
+        AnimationClip& operator=(AnimationClip&& other) noexcept {
             m_Name = std::move(other.m_Name);
             m_Animation = std::move(other.m_Animation);
             return *this;
@@ -115,36 +115,36 @@ namespace Coffee {
          * @param name The name of the animation.
          * @return A pointer to the animation.
          */
-        Animation* GetAnimation(const std::string& name);
+        AnimationClip* GetAnimationClip(const std::string& name);
 
         /**
          * @brief Gets an animation by index.
          * @param index The index of the animation.
          * @return A pointer to the animation.
          */
-        Animation* GetAnimation(unsigned int index);
+        AnimationClip* GetAnimationClip(unsigned int index);
 
         /**
          * @brief Gets the number of animations.
          * @return The number of animations.
          */
-        unsigned int GetAnimationCount() const { return m_Animations.size(); }
+        unsigned int GetAnimationClipCount() const { return m_AnimationClips.size(); }
 
         /**
          * @brief Gets the animation map.
          * @return The animation map.
          */
-        const std::map<std::string, unsigned int>& GetAnimationMap() const { return m_AnimationsMap; }
+        const std::map<std::string, unsigned int>& GetAnimationClipMap() const { return m_AnimationClipsMap; }
 
         /**
          * @brief Gets the animations.
          * @return The animations.
          */
-        const std::vector<Animation>& GetAnimations() const { return m_Animations; }
+        const std::vector<AnimationClip>& GetAnimationClips() const { return m_AnimationClips; }
 
     private:
-        std::vector<Animation> m_Animations; ///< The animations.
-        std::map<std::string, unsigned int> m_AnimationsMap; ///< The animation map.
+        std::vector<AnimationClip> m_AnimationClips; ///< The animations.
+        std::map<std::string, unsigned int> m_AnimationClipsMap; ///< The animation map.
     };
 
 } // Coffee

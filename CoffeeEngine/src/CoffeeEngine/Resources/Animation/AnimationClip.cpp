@@ -1,4 +1,4 @@
-#include "Animation.h"
+#include "AnimationClip.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>
@@ -12,18 +12,18 @@ namespace Coffee {
         archive(cereal::make_nvp("CurrentAnimation", CurrentAnimation));
     }
 
-    void Animation::SetAnimation(ozz::unique_ptr<ozz::animation::Animation> animation)
+    void AnimationClip::SetAnimation(ozz::unique_ptr<ozz::animation::Animation> animation)
     {
         m_Animation = std::move(animation);
         m_Name = m_Animation->name();
     }
 
-    void Animation::Save(ozz::io::OArchive& archive) const
+    void AnimationClip::Save(ozz::io::OArchive& archive) const
     {
         m_Animation->Save(archive);
     }
 
-    void Animation::Load(ozz::io::IArchive& archive)
+    void AnimationClip::Load(ozz::io::IArchive& archive)
     {
         m_Animation->Load(archive, 7);
         m_Name = m_Animation->name();
@@ -31,25 +31,25 @@ namespace Coffee {
 
     void AnimationController::AddAnimation(const std::string& name, ozz::unique_ptr<ozz::animation::Animation> animation)
     {
-        m_AnimationsMap[name] = m_Animations.size();
-        Animation newAnimation;
+        m_AnimationClipsMap[name] = m_AnimationClips.size();
+        AnimationClip newAnimation;
         newAnimation.SetAnimation(std::move(animation));
-        m_Animations.push_back(std::move(newAnimation));
+        m_AnimationClips.push_back(std::move(newAnimation));
     }
 
-    Animation* AnimationController::GetAnimation(const std::string& name)
+    AnimationClip* AnimationController::GetAnimationClip(const std::string& name)
     {
-        auto it = m_AnimationsMap.find(name);
-        if (it != m_AnimationsMap.end())
-            return &m_Animations[it->second];
+        auto it = m_AnimationClipsMap.find(name);
+        if (it != m_AnimationClipsMap.end())
+            return &m_AnimationClips[it->second];
 
         return nullptr;
     }
 
-    Animation* AnimationController::GetAnimation(unsigned int index)
+    AnimationClip* AnimationController::GetAnimationClip(unsigned int index)
     {
-        if (index < m_Animations.size())
-            return &m_Animations[index];
+        if (index < m_AnimationClips.size())
+            return &m_AnimationClips[index];
 
         return nullptr;
     }
