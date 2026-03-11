@@ -5,13 +5,13 @@
 #include "CoffeeEngine/Embedded/FinalPassShader.inl"
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/Project/Project.h"
-#include "CoffeeEngine/Renderer/Renderer.h"
-#include "CoffeeEngine/Renderer/RendererAPI.h"
+#include "CoffeeEngine/Rendering/Renderer.h"
+#include "CoffeeEngine/Rendering/RendererAPI.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
-#include "CoffeeEngine/Scripting/ScriptManager.h"
+#include "CoffeeEngine/Scripting/ScriptingManager.h"
 
 #include <stdint.h>
 #include <filesystem>

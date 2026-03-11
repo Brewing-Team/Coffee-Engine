@@ -1,4 +1,4 @@
-#include "CoffeeEngine/Renderer/GraphicsContext.h"
+#include "CoffeeEngine/Rendering/GraphicsContext.h"
 #include "CoffeeEngine/Core/Assert.h"
 
 #include <glad/glad.h>

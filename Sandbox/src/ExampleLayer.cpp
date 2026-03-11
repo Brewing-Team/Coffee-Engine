@@ -1,11 +1,11 @@
 #include "ExampleLayer.h"
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Buffer.h"
-#include "CoffeeEngine/Renderer/EditorCamera.h"
-#include "CoffeeEngine/Renderer/Model.h"
-#include "CoffeeEngine/Renderer/RendererAPI.h"
-#include "CoffeeEngine/Renderer/VertexArray.h"
+#include "CoffeeEngine/Rendering/Buffer.h"
+#include "CoffeeEngine/Rendering/EditorCamera.h"
+#include "CoffeeEngine/Rendering/Model.h"
+#include "CoffeeEngine/Rendering/RendererAPI.h"
+#include "CoffeeEngine/Rendering/VertexArray.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/fwd.hpp>
 #include <glm/trigonometric.hpp>

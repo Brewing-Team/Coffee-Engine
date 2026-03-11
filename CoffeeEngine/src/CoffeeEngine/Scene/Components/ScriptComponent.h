@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Scripting/ScriptManager.h"
+#include "CoffeeEngine/Scripting/ScriptingManager.h"
 #include <cereal/cereal.hpp>
 #include <filesystem>
 
@@ -18,7 +18,7 @@ namespace Coffee
             {
                 using enum ScriptingLanguage;
             case Lua:
-                script = ScriptManager::CreateScript(path, language);
+                script = ScriptingManager::CreateScript(path, language);
                 break;
             case cSharp:
                 break;

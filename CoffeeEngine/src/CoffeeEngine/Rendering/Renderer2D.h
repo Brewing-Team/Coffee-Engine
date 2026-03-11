@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/RendererAPI.h"
+#include "CoffeeEngine/Rendering/RendererAPI.h"
 
 #include <glm/gtc/quaternion.hpp>
 

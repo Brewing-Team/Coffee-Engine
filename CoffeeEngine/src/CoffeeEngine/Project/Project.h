@@ -18,63 +18,39 @@ namespace Coffee {
      */
     class Project {
     public:
-        /**
-         * @brief Creates a new project.
-         * @return A reference to the newly created project.
-         */
-        static Ref<Project> New(const std::filesystem::path& path);
 
         /**
-         * @brief Loads a project from the specified path.
-         * @param path The path to the project file.
-         * @return A reference to the loaded project.
-         */
-        static Ref<Project> Load(const std::filesystem::path& path);
-
-        /**
-         * @brief Saves the active project to the specified path.
-         * @param path The path to save the project file.
-         */
-        static void SaveActive();
-
-        /**
-         * @brief Gets the active project.
-         * @return A reference to the active project.
-         */
-        static Ref<Project> GetActive() { return s_ActiveProject; }
-
-        /**
-         * @brief Gets the directory of the active project.
+         * @brief Gets the directory of the project.
          * @return The path to the project directory.
          */
-        static const std::filesystem::path& GetProjectDirectory() { return s_ActiveProject->m_ProjectDirectory; }
+        const std::filesystem::path& GetDirectory() { return m_ProjectDirectory; }
 
         /**
-         * @brief Gets the name of the active project.
+         * @brief Gets the name of the project.
          * @return The name of the project.
          */
-        static const std::string& GetProjectName() { return s_ActiveProject->m_Name; }
+        const std::string& GetName() { return m_Name; }
 
         /**
-         * @brief Retrieves the cache directory path of the active project.
+         * @brief Retrieves the cache directory path of the project.
          * 
-         * This static method returns a constant reference to the cache directory path
-         * associated with the currently active project.
+         * This method returns a constant reference to the cache directory path
+         * associated with this project.
          * 
-         * @return const std::filesystem::path& Reference to the cache directory path.
+         * @return std::filesystem::path Reference to the cache directory path.
          */
-        static std::filesystem::path GetCacheDirectory() { return s_ActiveProject->GetProjectDirectory() / s_ActiveProject->m_CacheDirectory; }
+        static std::filesystem::path GetCacheDirectory() { return GetDirectory() / m_CacheDirectory; }
 
         /**
-         * @brief Retrieves de audio directory path of the active project
+         * @brief Retrieves de audio directory path of the project
          *
-         * This static method returns a reference to the audio directory absolute path associated with the currently
-         * active project
+         * This static method returns a reference to the audio directory absolute path associated with the
+         * project
          * If no audio directory has been defined, it returns the project's directory path instead
          *
          * @return audio directory absolute path
          */
-        static std::filesystem::path GetAudioDirectory() { return GetProjectDirectory() / GetRelativeAudioDirectory(); }
+        static std::filesystem::path GetAudioDirectory() { return GetDirectory() / GetRelativeAudioDirectory(); }
 
         /**
          * @brief Retrieves the audio directory relative path of the active object
@@ -84,14 +60,14 @@ namespace Coffee {
          *
          * @return The audio directory relative path
          */
-        static std::filesystem::path GetRelativeAudioDirectory() { return s_ActiveProject->m_AudioFolderPath; }
+        static std::filesystem::path GetRelativeAudioDirectory() { return m_AudioFolderPath; }
 
         /**
          * @brief Sets the project's audio directory to the path specified
          *
          * @param path The relative path to the audio directory
          */
-        static void SetRelativeAudioDirectory(const std::filesystem::path& path) { GetActive()->m_AudioFolderPath = path; }
+        static void SetRelativeAudioDirectory(const std::filesystem::path& path) { m_AudioFolderPath = path; }
 
         /**
          * @brief Serializes the project data.
@@ -107,8 +83,6 @@ namespace Coffee {
 
         std::filesystem::path m_StartScenePath; ///< The path to the start scene.
         std::filesystem::path m_AudioFolderPath; ///< The path to the audio folder
-
-        inline static Ref<Project> s_ActiveProject; ///< The active project.
     };
 
     /** @} */

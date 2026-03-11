@@ -1,7 +1,7 @@
 #include "UITextComponent.h"
 
 #include "CoffeeEngine/Project/Project.h"
-#include "CoffeeEngine/Renderer/Font.h"
+#include "CoffeeEngine/Rendering/Font.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>

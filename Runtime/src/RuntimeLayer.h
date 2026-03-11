@@ -3,7 +3,7 @@
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
-#include "CoffeeEngine/Renderer/RenderTarget.h"
+#include "CoffeeEngine/Rendering/RenderTarget.h"
 
 namespace Coffee {
 

@@ -28,14 +28,14 @@ namespace Coffee {
          * @param deltaTime The time elapsed since the last update.
          * @param animator The animator component to update.
          */
-        static void Update(float deltaTime, AnimatorComponent* animator);
+        void Update(float deltaTime, AnimatorComponent* animator);
 
         /**
          * @brief Sets the bone transformations for the shader.
          * @param shader The shader to set the bone transformations for.
          * @param animator The animator component.
          */
-        static void SetBoneTransformations(const Ref<Shader>& shader, const AnimatorComponent* animator);
+        void SetBoneTransformations(const Ref<Shader>& shader, const AnimatorComponent* animator);
 
         /**
          * @brief Sets the current animation for a specific layer.
@@ -43,30 +43,30 @@ namespace Coffee {
          * @param animator The animator component.
          * @param layer The animation layer to update.
          */
-        static void SetCurrentAnimation(unsigned int index, AnimatorComponent* animator, AnimationLayer* layer);
+        void SetCurrentAnimation(unsigned int index, AnimatorComponent* animator, AnimationLayer* layer);
 
         /**
          * @brief Adds an animator component to the system.
          * @param animatorComponent The animator component to add.
          */
-        static void AddAnimator(AnimatorComponent* animatorComponent);
+        void AddAnimator(AnimatorComponent* animatorComponent);
 
         /**
          * @brief Gets the list of animators.
          * @return A vector of animator components.
          */
-        static std::vector<AnimatorComponent*> GetAnimators() { return m_Animators; }
+        std::vector<AnimatorComponent*> GetAnimators() { return m_Animators; }
 
         /**
          * @brief Resets the animators vector.
          */
-        static void ResetAnimators() { m_Animators.clear(); }
+        void ResetAnimators() { m_Animators.clear(); }
 
         /**
          * @brief Loads the animator.
          * @param animator The animator component.
          */
-        static void LoadAnimator(AnimatorComponent* animator);
+        void LoadAnimator(AnimatorComponent* animator);
 
         /**
          * @brief Sets up partial blending for upper and lower body animations.
@@ -75,7 +75,7 @@ namespace Coffee {
          * @param upperBodyJointName The name of the upper body root joint.
          * @param animator The animator component.
          */
-        static void SetupPartialBlending(unsigned int upperBodyAnimIndex, unsigned int lowerBodyAnimIndex, const std::string& upperBodyJointName, AnimatorComponent* animator);
+        void SetupPartialBlending(unsigned int upperBodyAnimIndex, unsigned int lowerBodyAnimIndex, const std::string& upperBodyJointName, AnimatorComponent* animator);
 
     private:
         /**
@@ -84,7 +84,7 @@ namespace Coffee {
          * @param animator The animator component.
          * @param layer The animation layer to update.
          */
-        static void UpdateBlending(float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer);
+        void UpdateBlending(float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer);
 
         /**
          * @brief Blends transforms between two sets of animations.
@@ -92,21 +92,21 @@ namespace Coffee {
          * @param nextTransforms The next animation transforms.
          * @param blendRatio The ratio for blending between the two animations.
          */
-        static void BlendTransforms(std::vector<ozz::math::SoaTransform>& currentTransforms, const std::vector<ozz::math::SoaTransform>& nextTransforms, float blendRatio);
+        void BlendTransforms(std::vector<ozz::math::SoaTransform>& currentTransforms, const std::vector<ozz::math::SoaTransform>& nextTransforms, float blendRatio);
 
         /**
          * @brief Updates partial blending for upper and lower body animations.
          * @param deltaTime The time elapsed since the last update.
          * @param animator The animator component.
          */
-        static void UpdatePartialBlending(float deltaTime, AnimatorComponent* animator);
+        void UpdatePartialBlending(float deltaTime, AnimatorComponent* animator);
 
         /**
          * @brief Sets up per-joint weights for partial blending.
          * @param animator The animator component.
          * @param upperBodyRootIndex The index of the upper body root joint.
          */
-        static void SetupPerJointWeights(const AnimatorComponent* animator, int upperBodyRootIndex);
+        void SetupPerJointWeights(const AnimatorComponent* animator, int upperBodyRootIndex);
 
         /**
          * @brief Updates the animation times for a specific layer.
@@ -115,7 +115,7 @@ namespace Coffee {
          * @param layer The animation layer to update.
          * @param currentAnim The current animation.
          */
-        static void UpdateLayerTimes(float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer, const AnimationClip* currentAnim);
+        void UpdateLayerTimes(float deltaTime, const AnimatorComponent* animator, AnimationLayer* layer, const AnimationClip* currentAnim);
 
         /**
          * @brief Samples and blends animations for a specific layer.
@@ -125,7 +125,7 @@ namespace Coffee {
          * @param nextAnim The next animation.
          * @param outputTransforms The output transforms for the layer.
          */
-        static void SampleAndBlendLayerAnimations(AnimatorComponent* animator, AnimationLayer* layer, const AnimationClip* currentAnim, const AnimationClip* nextAnim, std::vector<ozz::math::SoaTransform>& outputTransforms);
+        void SampleAndBlendLayerAnimations(AnimatorComponent* animator, AnimationLayer* layer, const AnimationClip* currentAnim, const AnimationClip* nextAnim, std::vector<ozz::math::SoaTransform>& outputTransforms);
 
         /**
          * @brief Samples the transforms for the animation.
@@ -134,7 +134,7 @@ namespace Coffee {
          * @param timeRatio The time ratio for the animation.
          * @return A vector of sampled transforms.
          */
-        static std::vector<ozz::math::SoaTransform> SampleTransforms(AnimatorComponent* animator, unsigned int animationIndex, float timeRatio);
+        std::vector<ozz::math::SoaTransform> SampleTransforms(AnimatorComponent* animator, unsigned int animationIndex, float timeRatio);
 
         /**
          * @brief Converts local transforms to model space.
@@ -142,20 +142,21 @@ namespace Coffee {
          * @param localTransforms The local transforms.
          * @return A vector of transforms in model space.
          */
-        static std::vector<ozz::math::Float4x4> ConvertToModelSpace(AnimatorComponent* animator, const std::vector<ozz::math::SoaTransform>& localTransforms);
+        std::vector<ozz::math::Float4x4> ConvertToModelSpace(AnimatorComponent* animator, const std::vector<ozz::math::SoaTransform>& localTransforms);
 
         /**
          * @brief Converts an Ozz matrix to a GLM matrix.
          * @param from The Ozz matrix.
          * @return The GLM matrix.
          */
-        static glm::mat4 OzzToGlmMat4(const ozz::math::Float4x4& from) {
+        glm::mat4 OzzToGlmMat4(const ozz::math::Float4x4& from) {
             glm::mat4 to;
             memcpy(glm::value_ptr(to), &from.cols[0], sizeof(glm::mat4));
             return to;
         }
 
     private:
-        static std::vector<AnimatorComponent*> m_Animators; ///< The list of animator components.
+        // When refactoring this system this should not exist anymore...
+        std::vector<AnimatorComponent*> m_Animators; ///< The list of animator components.
     };
 } // namespace Coffee

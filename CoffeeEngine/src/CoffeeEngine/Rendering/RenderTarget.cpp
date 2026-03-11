@@ -1,5 +1,5 @@
 #include "RenderTarget.h"
-#include "CoffeeEngine/Renderer/Framebuffer.h"
+#include "CoffeeEngine/Rendering/Framebuffer.h"
 
 namespace Coffee {
 

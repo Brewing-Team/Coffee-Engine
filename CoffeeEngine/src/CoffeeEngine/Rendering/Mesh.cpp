@@ -4,9 +4,9 @@
 #include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/ImportData/MeshImportData.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/Renderer/Buffer.h"
-#include "CoffeeEngine/Renderer/Material.h"
-#include "CoffeeEngine/Renderer/VertexArray.h"
+#include "CoffeeEngine/Rendering/Buffer.h"
+#include "CoffeeEngine/Rendering/Material.h"
+#include "CoffeeEngine/Rendering/VertexArray.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include <cereal/access.hpp>

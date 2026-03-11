@@ -2,7 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Layer.h"
-#include "CoffeeEngine/Renderer/EditorCamera.h"
+#include "CoffeeEngine/Rendering/EditorCamera.h"
 
 #include "Panels/ContentBrowserPanel.h"
 #include "Panels/MonitorPanel.h"

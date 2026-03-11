@@ -1,10 +1,10 @@
 #include "Renderer.h"
-#include "CoffeeEngine/Renderer/RenderTarget.h"
+#include "CoffeeEngine/Rendering/RenderTarget.h"
 #include "Renderer3D.h"
 #include "Renderer2D.h"
-#include "CoffeeEngine/Renderer/RendererAPI.h"
+#include "CoffeeEngine/Rendering/RendererAPI.h"
 #include "CoffeeEngine/Scene/PrimitiveMesh.h"
-#include "CoffeeEngine/Renderer/UniformBuffer.h"
+#include "CoffeeEngine/Rendering/UniformBuffer.h"
 
 #include <glm/matrix.hpp>
 #include <tracy/Tracy.hpp>

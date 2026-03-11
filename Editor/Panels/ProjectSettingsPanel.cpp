@@ -7,8 +7,8 @@
 #include "CoffeeEngine/Audio/Audio.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/IO/ResourceUtils.h"
-#include "CoffeeEngine/Renderer/Renderer.h"
-#include "CoffeeEngine/Renderer/Renderer3D.h"
+#include "CoffeeEngine/Rendering/Renderer.h"
+#include "CoffeeEngine/Rendering/Renderer3D.h"
 
 #include <imgui.h>
 #include <algorithm>

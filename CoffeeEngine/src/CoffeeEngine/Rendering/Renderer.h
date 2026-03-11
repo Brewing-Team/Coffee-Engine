@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Assert.h"
-#include "CoffeeEngine/Renderer/Renderer3D.h"
+#include "CoffeeEngine/Rendering/Renderer3D.h"
 
 #include <glm/ext/matrix_float4x4.hpp>
 

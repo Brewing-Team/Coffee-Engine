@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Camera.h"
+#include "CoffeeEngine/Rendering/Camera.h"
 #include <string>
 #include <unordered_map>
 #include <glm/fwd.hpp>

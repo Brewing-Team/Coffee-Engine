@@ -23,13 +23,13 @@ namespace Coffee {
 
     class CollisionSystem {
     public:
-        static void Initialize(Scene* scene);
-        static void checkCollisions(const PhysicsWorld& world);
-        static void Shutdown();
+        void Initialize(Scene* scene);
+        void checkCollisions(const PhysicsWorld& world);
+        void Shutdown();
 
       private:
-        static Scene* s_Scene;
-        static std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> s_ActiveCollisions;
+        Scene* m_Scene;
+        std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> m_ActiveCollisions;
     };
 
 }

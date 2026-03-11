@@ -7,9 +7,10 @@
 
 namespace Coffee {
 
-    SceneManager::SceneState SceneManager::s_SceneState = SceneManager::SceneState::Edit;
-    Ref<Scene> SceneManager::s_ActiveScene = nullptr;
-    std::filesystem::path SceneManager::s_WorkingDirectory = std::filesystem::current_path();
+    SceneManager::SceneManager()
+    {
+        m_WorkingDirectory = std::filesystem::current_path();
+    }
 
     Ref<Scene> SceneManager::PreloadScene(const std::filesystem::path& scenePath)
     {

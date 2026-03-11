@@ -1,8 +1,8 @@
-#include "CoffeeEngine/Renderer/RendererAPI.h"
+#include "CoffeeEngine/Rendering/RendererAPI.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Assert.h"
-#include "CoffeeEngine/Renderer/Buffer.h"
-#include "CoffeeEngine/Renderer/VertexArray.h"
+#include "CoffeeEngine/Rendering/Buffer.h"
+#include "CoffeeEngine/Rendering/VertexArray.h"
 
 #include <stdint.h>
 #include <glad/glad.h>

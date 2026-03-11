@@ -13,14 +13,6 @@
 
 namespace Coffee
 {
-    uint64_t m_nextZoneID= 1000;
-
-    std::unordered_map<uint64_t, AudioZoneComponent*> m_zones;
-
-    std::unordered_map<uint64_t, glm::vec3> m_registeredObjects;
-
-    std::vector<std::string> AudioZone::busNames;
-
     void AudioZone::Shutdown()
     {
         RemoveAllReverbZones();

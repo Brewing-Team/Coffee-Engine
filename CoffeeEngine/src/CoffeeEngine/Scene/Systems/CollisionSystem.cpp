@@ -6,11 +6,8 @@
 
 namespace Coffee {
 
-    Scene* CollisionSystem::s_Scene = nullptr;
-    std::unordered_set<std::pair<btCollisionObject*, btCollisionObject*>, PairHash> CollisionSystem::s_ActiveCollisions;
-
     void CollisionSystem::Initialize(Scene* scene) {
-        s_Scene = scene;
+        m_Scene = scene;
     }
 
     void CollisionSystem::checkCollisions(const PhysicsWorld& world) {
@@ -26,8 +23,8 @@ namespace Coffee {
             auto objB = const_cast<btCollisionObject*>(contactManifold->getBody1());
 
             // Get entities from collision objects
-            Entity entityA(static_cast<entt::entity>(reinterpret_cast<size_t>(objA->getUserPointer())), s_Scene);
-            Entity entityB(static_cast<entt::entity>(reinterpret_cast<size_t>(objB->getUserPointer())), s_Scene);
+            Entity entityA(static_cast<entt::entity>(reinterpret_cast<size_t>(objA->getUserPointer())), m_Scene);
+            Entity entityB(static_cast<entt::entity>(reinterpret_cast<size_t>(objB->getUserPointer())), m_Scene);
 
             if (contactManifold->getNumContacts() > 0) {
                 auto pair = std::make_pair(objA, objB);
@@ -37,7 +34,7 @@ namespace Coffee {
                 CollisionInfo info{entityA, entityB, contactManifold};
 
                 // Handle collision enter
-                if (s_ActiveCollisions.find(pair) == s_ActiveCollisions.end()) {
+                if (m_ActiveCollisions.find(pair) == m_ActiveCollisions.end()) {
                     if (entityA.HasComponent<RigidbodyComponent>() && entityB.HasComponent<RigidbodyComponent>()) {
                         auto& rbA = entityA.GetComponent<RigidbodyComponent>();
                         auto& rbB = entityB.GetComponent<RigidbodyComponent>();
@@ -65,10 +62,10 @@ namespace Coffee {
         }
 
         // Handle collision exit
-        for (const auto& pair : s_ActiveCollisions) {
+        for (const auto& pair : m_ActiveCollisions) {
             if (currentCollisions.find(pair) == currentCollisions.end()) {
-                Entity entityA(static_cast<entt::entity>(reinterpret_cast<size_t>(pair.first->getUserPointer())), s_Scene);
-                Entity entityB(static_cast<entt::entity>(reinterpret_cast<size_t>(pair.second->getUserPointer())), s_Scene);
+                Entity entityA(static_cast<entt::entity>(reinterpret_cast<size_t>(pair.first->getUserPointer())), m_Scene);
+                Entity entityB(static_cast<entt::entity>(reinterpret_cast<size_t>(pair.second->getUserPointer())), m_Scene);
 
                 CollisionInfo info = { entityA, entityB, nullptr };
 
@@ -85,12 +82,12 @@ namespace Coffee {
             }
         }
 
-        s_ActiveCollisions = currentCollisions;
+        m_ActiveCollisions = currentCollisions;
     }
 
     void CollisionSystem::Shutdown() {
-        s_ActiveCollisions.clear();
-        s_Scene = nullptr;
+        m_ActiveCollisions.clear();
+        m_Scene = nullptr;
     }
 
 }

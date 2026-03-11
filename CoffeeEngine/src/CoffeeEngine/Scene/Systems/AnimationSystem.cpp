@@ -1,17 +1,15 @@
 #include "AnimationSystem.h"
-#include "CoffeeEngine/Animation/Animation.h"
+#include "CoffeeEngine/Resources/Animation/AnimationClip.h"
 
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 
-#include "CoffeeEngine/Renderer/Model.h"
+#include "CoffeeEngine/Rendering/Model.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/Renderer/Shader.h"
+#include "CoffeeEngine/Rendering/Shader.h"
 #include "CoffeeEngine/Scene/Components/AnimatorComponent.h"
 #include "ozz/animation/runtime/skeleton_utils.h"
 
 namespace Coffee {
-
-    std::vector<AnimatorComponent*> AnimationSystem::m_Animators;
 
     void AnimationSystem::Update(float deltaTime, AnimatorComponent* animator)
     {

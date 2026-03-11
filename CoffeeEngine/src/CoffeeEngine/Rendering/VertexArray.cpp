@@ -1,5 +1,5 @@
-#include "CoffeeEngine/Renderer/VertexArray.h"
-#include "CoffeeEngine/Renderer/Buffer.h"
+#include "CoffeeEngine/Rendering/VertexArray.h"
+#include "CoffeeEngine/Rendering/Buffer.h"
 
 #include <glad/glad.h>
 #include <tracy/Tracy.hpp>

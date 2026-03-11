@@ -6,7 +6,7 @@
 #include "CoffeeEngine/IO/Resource.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceUtils.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Rendering/Texture.h"
 #include "imgui.h"
 
 #include <src/EditorLayer.h>

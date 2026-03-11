@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CoffeeEngine/Renderer/Camera.h>
+#include <CoffeeEngine/Rendering/Camera.h>
 
 #include <glm/fwd.hpp>
 

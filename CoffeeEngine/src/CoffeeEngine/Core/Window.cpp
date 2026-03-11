@@ -1,7 +1,7 @@
 #include "CoffeeEngine/Core/Window.h"
 #include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/Renderer/GraphicsContext.h"
+#include "CoffeeEngine/Rendering/GraphicsContext.h"
 
 #include "SDL3/SDL_init.h"
 #include <tracy/Tracy.hpp>

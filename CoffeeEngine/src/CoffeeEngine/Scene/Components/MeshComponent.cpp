@@ -1,7 +1,7 @@
 #include "MeshComponent.h"
 #include "AnimatorComponent.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Rendering/Mesh.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "CoffeeEngine/Renderer/Camera.h"
-#include "CoffeeEngine/Renderer/EditorCamera.h"
-#include "CoffeeEngine/Renderer/Model.h"
-#include <CoffeeEngine/Renderer/RendererAPI.h>
-#include <CoffeeEngine/Renderer/Shader.h>
-#include <CoffeeEngine/Renderer/Texture.h>
+#include "CoffeeEngine/Rendering/Camera.h"
+#include "CoffeeEngine/Rendering/EditorCamera.h"
+#include "CoffeeEngine/Rendering/Model.h"
+#include <CoffeeEngine/Rendering/RendererAPI.h>
+#include <CoffeeEngine/Rendering/Shader.h>
+#include <CoffeeEngine/Rendering/Texture.h>
 #include <CoffeeEngine/Core/Layer.h>
 
 class ExampleLayer : public Coffee::Layer

@@ -4,7 +4,7 @@
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scripting/Lua/LuaBackend.h"
 #include "CoffeeEngine/Scripting/Script.h"
-#include "CoffeeEngine/Scripting/ScriptManager.h"
+#include "CoffeeEngine/Scripting/ScriptingManager.h"
 #include <regex>
 #include <sol/forward.hpp>
 #include <sol/sol.hpp>
@@ -19,14 +19,14 @@ namespace Coffee {
         LuaScript(const std::filesystem::path& path) : Script(path)
         {
             //TODO: Think if this is a good way or store it in another way is better
-            const LuaBackend& backend = static_cast<const LuaBackend&>(ScriptManager::GetBackend(ScriptingLanguage::Lua));
+            const LuaBackend& backend = static_cast<const LuaBackend&>(ScriptingManager::GetBackend(ScriptingLanguage::Lua));
             m_Environment = sol::environment(backend.GetLuaState(), sol::create, backend.GetLuaState().globals());
         }
         ~LuaScript() = default;
 
         void OnReady() override
         {
-            ScriptManager::ExecuteScript(*this, ScriptingLanguage::Lua);
+            ScriptingManager::ExecuteScript(*this, ScriptingLanguage::Lua);
             const sol::protected_function& onReady = m_Environment["on_ready"];
             if (!onReady.valid()) {
                 COFFEE_CORE_ERROR("Lua: on_ready function is not valid.");

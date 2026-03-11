@@ -1,6 +1,6 @@
 #include "PrimitiveMesh.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Rendering/Mesh.h"
 #include <stdint.h>
 #include <glm/gtc/constants.hpp>
 #include <vector>

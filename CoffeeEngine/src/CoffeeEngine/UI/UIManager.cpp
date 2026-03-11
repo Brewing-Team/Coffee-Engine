@@ -1,8 +1,8 @@
 #include "UIManager.h"
 
-#include "CoffeeEngine/Renderer/Renderer.h"
-#include "CoffeeEngine/Renderer/Renderer2D.h"
-#include "CoffeeEngine/Renderer/RenderTarget.h"
+#include "CoffeeEngine/Rendering/Renderer.h"
+#include "CoffeeEngine/Rendering/Renderer2D.h"
+#include "CoffeeEngine/Rendering/RenderTarget.h"
 #include "CoffeeEngine/Scene/Components/ActiveComponent.h"
 #include "CoffeeEngine/Scene/Components/TransformComponent.h"
 #include "CoffeeEngine/Scene/Components/UIButtonComponent.h"
@@ -11,7 +11,7 @@
 #include "CoffeeEngine/Scene/Components/UITextComponent.h"
 #include "CoffeeEngine/Scene/Components/UIToggleComponent.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "CoffeeEngine/Renderer/Font.h"
+#include "CoffeeEngine/Rendering/Font.h"
 
 namespace Coffee {
 

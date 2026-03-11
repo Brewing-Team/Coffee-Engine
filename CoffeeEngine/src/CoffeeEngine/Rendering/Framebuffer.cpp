@@ -1,6 +1,6 @@
 #include "Framebuffer.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Rendering/Texture.h"
 
 #include <stdint.h>
 #include <glad/glad.h>

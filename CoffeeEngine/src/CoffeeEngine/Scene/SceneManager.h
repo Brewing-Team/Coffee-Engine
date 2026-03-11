@@ -16,27 +16,29 @@ namespace Coffee {
         };
     public:
         
-        static Ref<Scene> PreloadScene(const std::filesystem::path& scenePath);
-        static std::future<Ref<Scene>> PreloadSceneAsync(const std::filesystem::path& scenePath);
+        SceneManager();
 
-        static void ChangeScene(const std::filesystem::path& scenePath);
-        static void ChangeScene(const Ref<Scene>& scene);
-        static void ChangeSceneAsync(const std::filesystem::path& scenePath);
+        Ref<Scene> PreloadScene(const std::filesystem::path& scenePath);
+        std::future<Ref<Scene>> PreloadSceneAsync(const std::filesystem::path& scenePath);
 
-        static Ref<Scene>& GetActiveScene() { return s_ActiveScene; }
+        void ChangeScene(const std::filesystem::path& scenePath);
+        void ChangeScene(const Ref<Scene>& scene);
+        void ChangeSceneAsync(const std::filesystem::path& scenePath);
 
-        static void SetWorkingDirectory(const std::filesystem::path& workingDirectory) { s_WorkingDirectory = workingDirectory; }
+        Ref<Scene>& GetActiveScene() { return s_ActiveScene; }
 
-        static void SetSceneState(SceneState state) { s_SceneState = state; }
-        static SceneState GetSceneState() { return s_SceneState; }
-        static std::string GetSceneName() { return s_ActiveScene ? s_ActiveScene->GetFilePath().filename().string() : ""; }
+        void SetWorkingDirectory(const std::filesystem::path& workingDirectory) { s_WorkingDirectory = workingDirectory; }
+
+        void SetSceneState(SceneState state) { s_SceneState = state; }
+        SceneState GetSceneState() { return s_SceneState; }
+        std::string GetSceneName() { return s_ActiveScene ? s_ActiveScene->GetFilePath().filename().string() : ""; }
     private:
-        static void ExitCurrentScene();
-        static void InitNewScene();
+        void ExitCurrentScene();
+        void InitNewScene();
     private:
-        static SceneState s_SceneState;
-        static std::filesystem::path s_WorkingDirectory;
-        static Ref<Scene> s_ActiveScene;
+        SceneState m_SceneState = SceneState::Edit;
+        std::filesystem::path m_WorkingDirectory;
+        Ref<Scene> m_ActiveScene;
     };
 
 }

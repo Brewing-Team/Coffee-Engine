@@ -5,7 +5,7 @@
 #include "CoffeeEngine/Animation/Skeleton.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Physics/Collider.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"

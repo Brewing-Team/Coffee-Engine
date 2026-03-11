@@ -1,6 +1,6 @@
 #include "WorldEnvironmentComponent.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 
 #include <cereal/archives/json.hpp>

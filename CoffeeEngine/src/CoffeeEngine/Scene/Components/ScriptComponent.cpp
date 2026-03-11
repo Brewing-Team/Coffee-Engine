@@ -54,7 +54,7 @@ namespace Coffee
             {
                 using enum ScriptingLanguage;
             case Lua:
-                script = ScriptManager::CreateScript(scriptPath, language);
+                script = ScriptingManager::CreateScript(scriptPath, language);
                 break;
             case cSharp:
                 // Handle cSharp script loading if needed

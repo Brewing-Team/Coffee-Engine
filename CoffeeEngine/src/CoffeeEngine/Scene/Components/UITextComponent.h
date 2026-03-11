@@ -2,7 +2,7 @@
 
 #include "UIComponent.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Renderer/Renderer2D.h"
+#include "CoffeeEngine/Rendering/Renderer2D.h"
 
 #include <cereal/cereal.hpp>
 #include <glm/vec4.hpp>

@@ -1,7 +1,7 @@
 #include "NavMesh.h"
 
-#include "CoffeeEngine/Renderer/Renderer2D.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
+#include "CoffeeEngine/Rendering/Renderer2D.h"
+#include "CoffeeEngine/Rendering/Mesh.h"
 
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include <cereal/archives/json.hpp>

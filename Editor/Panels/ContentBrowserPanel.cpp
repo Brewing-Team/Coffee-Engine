@@ -3,8 +3,8 @@
 #include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
 #include "CoffeeEngine/Project/Project.h"
-#include "CoffeeEngine/Renderer/Model.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Rendering/Model.h"
+#include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/Scene/Prefab.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include <CoffeeEngine/IO/ResourceUtils.h>

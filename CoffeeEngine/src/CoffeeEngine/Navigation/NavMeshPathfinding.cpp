@@ -1,6 +1,6 @@
 #include "NavMeshPathfinding.h"
 
-#include "CoffeeEngine/Renderer/Renderer2D.h"
+#include "CoffeeEngine/Rendering/Renderer2D.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/norm.hpp>

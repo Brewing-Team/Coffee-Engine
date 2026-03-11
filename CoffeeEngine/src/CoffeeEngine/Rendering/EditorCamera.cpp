@@ -1,4 +1,4 @@
-#include "CoffeeEngine/Renderer/EditorCamera.h"
+#include "CoffeeEngine/Rendering/EditorCamera.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/KeyCodes.h"

@@ -1,6 +1,6 @@
 #include "MaterialComponent.h"
 #include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/Renderer/Material.h"
+#include "CoffeeEngine/Rendering/Material.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>

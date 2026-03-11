@@ -1,4 +1,4 @@
-#include "CoffeeEngine/Renderer/Model.h"
+#include "CoffeeEngine/Rendering/Model.h"
 
 // Core engine includes
 #include "CoffeeEngine/Animation/Animation.h"
@@ -15,9 +15,9 @@
 #include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
 
 // Renderer includes
-#include "CoffeeEngine/Renderer/Material.h"
-#include "CoffeeEngine/Renderer/Mesh.h"
-#include "CoffeeEngine/Renderer/Texture.h"
+#include "CoffeeEngine/Rendering/Material.h"
+#include "CoffeeEngine/Rendering/Mesh.h"
+#include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/Animation/AnimationSystem.h"
 
 // Heavy external dependencies - only in .cpp
