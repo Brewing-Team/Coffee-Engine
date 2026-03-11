@@ -27,7 +27,7 @@ namespace Coffee {
          * @param name The name of the resource.
          * @param resource A reference to the resource to add.
          */
-        static void Add(UUID uuid, Ref<Resource> resource)
+        void Add(UUID uuid, Ref<Resource> resource)
         { 
             m_Resources[uuid] = resource;
 
@@ -42,7 +42,7 @@ namespace Coffee {
          * @return A reference to the resource, or nullptr if not found.
          */
         template<typename T>
-        static Ref<T> Get(UUID uuid)
+        Ref<T> Get(UUID uuid)
         {
             if (!Exists(uuid))
             {
@@ -58,7 +58,7 @@ namespace Coffee {
          * @return A reference to the resource, or nullptr if not found.
          */
          template<typename T>
-        static Ref<T> Get(const std::string& name)
+        Ref<T> Get(const std::string& name)
         {
             if (!Exists(name))
             {
@@ -73,16 +73,16 @@ namespace Coffee {
          * @param name The name of the resource.
          * @return True if the resource exists, false otherwise.
          */
-        static bool Exists(UUID uuid) { return m_Resources.find(uuid) != m_Resources.end(); }
+        bool Exists(UUID uuid) { return m_Resources.find(uuid) != m_Resources.end(); }
 
         /**
          * @brief Checks if a resource exists in the registry.
          * @param name The name of the resource.
          * @return True if the resource exists, false otherwise.
          */
-        static bool Exists(const std::string& name) { return m_NameToUUID.find(name) != m_NameToUUID.end(); }
+        bool Exists(const std::string& name) { return m_NameToUUID.find(name) != m_NameToUUID.end(); }
 
-        static void Remove(UUID uuid)
+        void Remove(UUID uuid)
         {
             if (Exists(uuid))
             {
@@ -94,23 +94,23 @@ namespace Coffee {
         /**
          * @brief Clears all resources from the registry.
          */
-        static void Clear() 
+        void Clear() 
         {
             m_Resources.clear();
             m_NameToUUID.clear();
         }
 
-        static UUID GetUUIDByName(const std::string& name) { return m_NameToUUID[name]; }
+        UUID GetUUIDByName(const std::string& name) { return m_NameToUUID[name]; }
 
         /**
          * @brief Gets the entire resource registry.
          * @return A constant reference to the resource registry.
          */
-        static const std::unordered_map<UUID, Ref<Resource>>& GetResourceRegistry() { return m_Resources; }
+        const std::unordered_map<UUID, Ref<Resource>>& GetResourceRegistry() { return m_Resources; }
 
     private:
-        static std::unordered_map<UUID, Ref<Resource>> m_Resources; ///< The resource registry.
-        static std::unordered_map<std::string, UUID> m_NameToUUID; ///< The mapping of resource names to UUIDs.
+        std::unordered_map<UUID, Ref<Resource>> m_Resources; ///< The resource registry.
+        std::unordered_map<std::string, UUID> m_NameToUUID; ///< The mapping of resource names to UUIDs.
     };
 
 }

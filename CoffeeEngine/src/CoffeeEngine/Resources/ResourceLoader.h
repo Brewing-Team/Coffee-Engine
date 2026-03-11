@@ -6,132 +6,188 @@
 
 #pragma once
 
-#include "ResourceRegistry.h"
-#include "ResourceImporter.h"
-
 #include "CoffeeEngine/Core/Base.h"
-#include "ImportData/ImportDataUtils.h"
-
+#include "CoffeeEngine/IO/ImportData/ImportData.h"
+#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceFormat.h"
+#include "CoffeeEngine/IO/ResourceSaver.h"
+#include "CoffeeEngine/IO/CacheManager.h"
+#include <cereal/archives/binary.hpp>
+#include <cereal/archives/json.hpp>
 #include <filesystem>
+#include <fstream>
 
 namespace Coffee {
-    class ImportData;
-}
 
-namespace Coffee {
+    class Model;
+    class Mesh;
+    struct Vertex;
+
+    class Material;
+    struct PBRMaterialTextures;
+    class Texture;
+    class Texture2D;
 
     /**
-     * @class ResourceLoader
-     * @brief Loads resources such as textures and models for the CoffeeEngine.
+     * @class ResourceImporter
+     * @brief Handles the import of resources such as textures.
      */
     class ResourceLoader
     {
     public:
-        /**
-         * @brief Loads all resources from a directory.
-         * @param directory The directory to load resources from.
-         */
-        static void LoadDirectory(const std::filesystem::path& directory);
 
-        /**
-         * @brief Loads a single resource file.
-         * @param path The file path of the resource to load.
-         */
-        static void LoadFile(const std::filesystem::path& path);
+        // TODO: Consider changing the name of functions to Load instead of Import.
 
-        template <typename T>
-        inline static Ref<T> Load(const std::filesystem::path& path)
+        template<typename T>
+        Ref<T> Import(const ImportData& importData)
         {
-            if (ImportDataUtils::HasImportFile(path))
+            ImportData& data = const_cast<ImportData&>(importData);
+
+            if (data.IsValid())
             {
-                std::filesystem::path importPath = path;
-                importPath += ".import";
-                Scope<ImportData> importData = ImportDataUtils::LoadImportData(importPath);
-                return Load<T>(*importData);
+                // Check if the resource is cached
+                if(std::filesystem::exists(data.cachedPath))
+                {
+                    const Ref<T>& resource = LoadFromCache<T>(data.cachedPath);
+                    return resource;
+                }
+                // If the resource is not cached, import it
+                else
+                {
+                    // This is a placeholder implementation this should be done for each type of resource and should be done in a separate function
+
+                    // TODO: Think about passing the import data to the resource constructor!!! Can simplify a lot of things
+
+                    Ref<T> resource = CreateRef<T>(data);
+                    
+                    if(data.cache)
+                        ResourceSaver::Save<T>(data.cachedPath, resource);
+
+                    return resource;
+                }
             }
             else
             {
-                Scope<ImportData> newImportData = ImportDataUtils::CreateImportData<T>();
-                newImportData->originalPath = path;
+                Ref<T> resource = CreateRef<T>(data);
 
-                if(isInternalResource(path))
+                data.uuid = resource->GetUUID();
+
+                if(data.cache)
                 {
-                    newImportData->internal = true;
+                    std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(data.uuid, GetResourceType<T>());
+                    data.cachedPath = cachedFilePath;
+                    
+                    ResourceSaver::Save<T>(cachedFilePath, resource);
                 }
 
-                const Ref<T>& resource = s_Importer.Import<T>(*newImportData);
-
-                ImportDataUtils::SaveImportData(newImportData);
-                ResourceRegistry::Add(newImportData->uuid, resource);
-
                 return resource;
             }
         }
 
         template<typename T>
-        inline static Ref<T> Load(const ImportData& importData)
+        Ref<T> ImportEmbedded(const ImportData& importData)
         {
-            if (ResourceRegistry::Exists(importData.uuid))
+            ImportData& data = const_cast<ImportData&>(importData);
+
+            if (data.IsValid())
             {
-                return ResourceRegistry::Get<T>(importData.uuid);
+                // Check if the resource is cached
+                if (std::filesystem::exists(data.cachedPath))
+                {
+                    const Ref<T>& resource = LoadFromCache<T>(data.cachedPath);
+                    return resource;
+                }
+                // If the resource is not cached, import it
+                else
+                {
+                    // Create the resource from the embedded data
+                    Ref<T> resource = CreateRef<T>(data);
+
+                    // Save the resource to the cache
+                    ResourceSaver::Save<T>(data.cachedPath, resource);
+                    return resource;
+                }
             }
-
-            const Ref<T>& resource = s_Importer.Import<T>(importData);
-            
-            ResourceRegistry::Add(importData.uuid, resource);
-            return resource;
-        }
-
-        template<typename T>
-        static Ref<T> LoadEmbedded(const ImportData& importData)
-        {
-            if (ResourceRegistry::Exists(importData.uuid))
+            else
             {
-                return ResourceRegistry::Get<T>(importData.uuid);
-            }
-
-            const Ref<T>& resource = s_Importer.ImportEmbedded<T>(importData);
-
-            ResourceRegistry::Add(importData.uuid, resource);
-            return resource;
-        }
-
-        template<typename T>
-        static Ref<T> GetResource(UUID uuid)
-        {
-            if (uuid == UUID::null)
+                // Handle invalid data case
+                COFFEE_WARN("ImportEmbeddedResource: Invalid import data.");
                 return nullptr;
-
-            if (ResourceRegistry::Exists(uuid))
-            {
-                return ResourceRegistry::Get<T>(uuid);
             }
-
-            const Ref<T>& resource = s_Importer.ImportFromCache<T>(uuid);
-
-            if (resource)
-            {
-                ResourceRegistry::Add(uuid, resource);
-                return resource;
-            }
-
-            return nullptr;
         }
 
-        static void RemoveResource(const Ref<Resource>& resource);
-        static void ReimportResource(const Ref<Resource>& resource);
+        template<typename T>
+        Ref<T> ImportFromCache(UUID uuid)
+        {
+            std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuid, GetResourceType<T>());
 
-        static void SetWorkingDirectory(const std::filesystem::path& path) { s_WorkingDirectory = path; }
-        static const std::filesystem::path& GetWorkingDirectory() { return s_WorkingDirectory; }
-    
+            if (std::filesystem::exists(cachedFilePath))
+            {
+                const Ref<Resource>& resource = LoadFromCache<T>(cachedFilePath);
+                return std::static_pointer_cast<T>(resource);
+            }
+            else
+            {
+                COFFEE_ERROR("ResourceImporter::ImportResourceFromCache: Resource {0} not found in cache.", (uint64_t)uuid);
+                return nullptr;
+            }
+        }
+
     private:
-        static bool isInternalResource(const std::filesystem::path& path);
-    private:
-        static std::filesystem::path s_EngineAssetsDirectory; ///< The directory where the engine Resources are stored.
-        static std::filesystem::path s_WorkingDirectory; ///< The working directory of the resource loader.
-        static ResourceImporter s_Importer; ///< The importer used to load resources.
+        /**
+         * @brief Loads a resource from the cache.
+         * @param path The file path of the resource to load.
+         * @param format The format of the resource.
+         * @return A reference to the loaded resource.
+         */
+        template<typename T>
+        Ref<T> LoadFromCache(const std::filesystem::path& path)
+        {
+            COFFEE_INFO("Loading resource from cache: {0}", path.string());
+
+            ResourceFormat resourceFormat = GetResourceSaveFormatFromType(GetResourceType<T>());
+
+            switch (resourceFormat)
+            {
+                case ResourceFormat::Binary:
+                    return BinaryDeserialization<T>(path);
+                    break;
+                case ResourceFormat::JSON:
+                    return JSONDeserialization<T>(path);
+                    break;
+            }
+        }
+
+        /**
+         * @brief Deserializes a resource from a binary file.
+         * @param path The file path of the binary file.
+         * @return A reference to the deserialized resource.
+         */
+        template<typename T>
+        Ref<T> BinaryDeserialization(const std::filesystem::path& path)
+        {
+            std::ifstream file(path, std::ios::binary);
+            cereal::BinaryInputArchive archive(file);
+            Ref<T> resource;
+            archive(resource);
+            return resource;
+        }
+
+        /**
+         * @brief Deserializes a resource from a JSON file.
+         * @param path The file path of the JSON file.
+         * @return A reference to the deserialized resource.
+         */
+        template<typename T>
+        Ref<T> JSONDeserialization(const std::filesystem::path& path)
+        {
+            std::ifstream file(path);
+            cereal::JSONInputArchive archive(file);
+            Ref<T> resource;
+            archive(resource);
+            return resource;
+        }
     };
-
 }
 
 /** @} */

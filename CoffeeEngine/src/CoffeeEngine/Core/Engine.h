@@ -7,6 +7,7 @@
 #include "CoffeeEngine/Project/ProjectManager.h"
 #include "CoffeeEngine/Rendering/Renderer.h"
 #include "CoffeeEngine/Rendering/RendererAPI.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "Window.h"
 #include "LayerStack.h"
@@ -38,6 +39,7 @@ namespace Coffee
         Audio audio; ///< The audio system used by the engine.
         SceneManager sceneManager; ///< The sceneManager used by the engine.
         ProjectManager projectManager; ///< The project manager used by the engine.
+        ResourceManager resources; ///< The resource manager used by the engine.
         
       public:
         using EventCallbackFn = std::function<void(Event&)>; ///< Type definition for event callback function.
@@ -74,7 +76,7 @@ namespace Coffee
          */
         void PushOverlay(Layer* layer);
 
-        EngineContext GetContext() { return { &renderer, &rendererAPI, &input, &resources, &jobs };
+        EngineContext GetContext() { return EngineContext{ &renderer, &rendererAPI, &input, &resources, &sceneManager, &projectManager, &audio }; }
 
         /**
          * @brief Gets the main engine window.

@@ -19,7 +19,7 @@ namespace Coffee
      * @class ResourceSaver
      * @brief Handles saving resources to disk and cache.
      */
-	class ResourceSaver
+	class ResourceSaver // TODO: Consider converting this to a namespace with free functions instead of a class with static functions
 	{
       public:
         /**

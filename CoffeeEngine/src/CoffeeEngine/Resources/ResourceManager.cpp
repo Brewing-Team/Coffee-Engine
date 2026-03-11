@@ -1,42 +1,33 @@
-#include "ResourceLoader.h"
+#include "ResourceManager.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/IO/ImportData/ImportData.h"
 #include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
 #include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/IO/ResourceLoader.h"
 #include "CoffeeEngine/Rendering/Material.h"
 #include "CoffeeEngine/Rendering/Model.h"
 #include "CoffeeEngine/Rendering/Shader.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/IO/ResourceImporter.h"
 #include "CoffeeEngine/IO/ResourceUtils.h"
 #include <filesystem>
 #include <string>
 
 namespace Coffee {
 
-    std::filesystem::path ResourceLoader::s_EngineAssetsDirectory = std::filesystem::current_path() / "assets";
-/* 
-    bool ResourceLoader::isInternalResource(const std::filesystem::path& path) {
-            return std::filesystem::equivalent(path.parent_path(), s_EngineAssetsDirectory);
-        } */
-    
-    bool ResourceLoader::isInternalResource(const std::filesystem::path& path)
+    ResourceManager::ResourceManager()
     {
-        if (path.is_absolute()) {
-            return std::filesystem::equivalent(path.parent_path(), s_EngineAssetsDirectory);
-        } else {
-            return path.string().find("assets/") == 0; // Think if this is the best way...
-        }
+        m_EngineAssetsDirectory = std::filesystem::current_path() / "assets";
+        m_WorkingDirectory = std::filesystem::current_path();
+
+        m_Registry = ResourceRegistry();
+        m_Loader = ResourceLoader();
     }
 
-    std::filesystem::path ResourceLoader::s_WorkingDirectory = std::filesystem::current_path();
-    ResourceImporter ResourceLoader::s_Importer = ResourceImporter();
-
-    void ResourceLoader::LoadFile(const std::filesystem::path& path)
+    void ResourceManager::LoadFile(const std::filesystem::path& path)
     {
-        if (!is_regular_file(path))
+        if (!im_regular_file(path))
         {
             COFFEE_CORE_ERROR("ResourceLoader::LoadResources: {0} is not a file!", path.string());
             return;
@@ -129,13 +120,13 @@ namespace Coffee {
         }
     }
 
-    void ResourceLoader::LoadDirectory(const std::filesystem::path& directory)
+    void ResourceManager::LoadDirectory(const std::filesystem::path& directory)
     {
         std::vector<std::filesystem::path> files;
 
         for (const auto& entry : std::filesystem::recursive_directory_iterator(directory))
         {
-            if (!entry.is_regular_file() || GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
+            if (!entry.im_regular_file() || GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
             {
                 continue;
             }
@@ -157,7 +148,7 @@ namespace Coffee {
         }
     }
 
-    void ResourceLoader::RemoveResource(const Ref<Resource>& resource)
+    void ResourceManager::RemoveResource(const Ref<Resource>& resource)
     {   
         std::filesystem::path importFilePath = resource->GetPath();
         importFilePath += ".import";
@@ -189,10 +180,10 @@ namespace Coffee {
         
         // Remove the resource from the registry
         
-        ResourceRegistry::Remove(resource->GetUUID());
+        m_Registry.Remove(resource->GetUUID());
     }
 
-    void ResourceLoader::ReimportResource(const Ref<Resource>& resource)
+    void ResourceManager::ReimportResource(const Ref<Resource>& resource)
     {
         std::filesystem::path importFilePath = resource->GetPath();
         importFilePath += ".import";
@@ -207,7 +198,7 @@ namespace Coffee {
         }
 
         // Remove from the registry
-        ResourceRegistry::Remove(resource->GetUUID());
+        m_Registry.Remove(resource->GetUUID());
 
         // Reimport the resource
 
@@ -248,6 +239,15 @@ namespace Coffee {
                 COFFEE_CORE_ERROR("ResourceLoader::ReimportResource: Unsupported resource type {0}", ResourceTypeToString(importData->type));
                 break;
             }
+        }
+    }
+
+    bool ResourceManager::isInternalResource(const std::filesystem::path& path)
+    {
+        if (path.im_absolute()) {
+            return std::filesystem::equivalent(path.parent_path(), m_EngineAssetsDirectory);
+        } else {
+            return path.string().find("assets/") == 0; // Think if this is the best way...
         }
     }
 
