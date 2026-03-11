@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Audio/Audio.h"
 #include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Core/Input.h"
+#include "CoffeeEngine/Project/ProjectManager.h"
 #include "CoffeeEngine/Rendering/Renderer.h"
 #include "CoffeeEngine/Rendering/RendererAPI.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
@@ -36,6 +37,7 @@ namespace Coffee
         Input input; ///< The input system used by the engine.
         Audio audio; ///< The audio system used by the engine.
         SceneManager sceneManager; ///< The sceneManager used by the engine.
+        ProjectManager projectManager; ///< The project manager used by the engine.
         
       public:
         using EventCallbackFn = std::function<void(Event&)>; ///< Type definition for event callback function.

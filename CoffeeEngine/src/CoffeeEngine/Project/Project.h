@@ -19,6 +19,9 @@ namespace Coffee {
     class Project {
     public:
 
+        Project(const std::string& name, const std::filesystem::path& projectDirectory, const std::filesystem::path& cacheDirectory)
+            : m_Name(name), m_ProjectDirectory(projectDirectory), m_CacheDirectory(cacheDirectory) {}
+
         /**
          * @brief Gets the directory of the project.
          * @return The path to the project directory.
@@ -63,13 +66,6 @@ namespace Coffee {
         static std::filesystem::path GetRelativeAudioDirectory() { return m_AudioFolderPath; }
 
         /**
-         * @brief Sets the project's audio directory to the path specified
-         *
-         * @param path The relative path to the audio directory
-         */
-        static void SetRelativeAudioDirectory(const std::filesystem::path& path) { m_AudioFolderPath = path; }
-
-        /**
          * @brief Serializes the project data.
          * @tparam Archive The type of the archive.
          * @param archive The archive to serialize to.
@@ -83,6 +79,9 @@ namespace Coffee {
 
         std::filesystem::path m_StartScenePath; ///< The path to the start scene.
         std::filesystem::path m_AudioFolderPath; ///< The path to the audio folder
+
+        // INFO: This is for making the Project read-only outside of the ProjectManager, which is responsible for managing project creation, loading, and saving operations.
+        friend class ProjectManager; ///< Granting access to private members for ProjectManager.
     };
 
     /** @} */
