@@ -1,7 +1,7 @@
 #include "UIToggleComponent.h"
 
 #include "CoffeeEngine/Rendering/Texture.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>

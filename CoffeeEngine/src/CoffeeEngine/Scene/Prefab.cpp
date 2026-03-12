@@ -8,7 +8,7 @@
 #include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 
 namespace Coffee {

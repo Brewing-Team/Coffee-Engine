@@ -1,5 +1,5 @@
 #include "WorldEnvironmentComponent.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 

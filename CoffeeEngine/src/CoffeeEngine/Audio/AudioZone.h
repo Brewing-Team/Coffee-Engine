@@ -78,16 +78,6 @@ namespace Coffee
     private:
 
         /**
-         * @brief Enabled effect level.
-         */
-        constexpr float EFFECT_LEVEL_ENABLED = 1.0f;
-
-        /**
-         * @brief Disabled effect level.
-         */
-        constexpr float EFFECT_LEVEL_DISABLED = 0.0f;
-
-        /**
          * @brief Cleans up a zone.
          * @param zoneID The zone ID.
          */

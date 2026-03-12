@@ -4,8 +4,8 @@
 #include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/Resource.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Navigation/NavMesh.h"
 #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
 #include "CoffeeEngine/Physics/Collider.h"
@@ -447,14 +447,14 @@ namespace Coffee
                         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
 
                         Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
-                        auto& parentRenderItem = UIManager::GetUIRenderItem(parentEntity);
-                        glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentRenderItem);
+                        auto& parentRenderItem = UISystem::GetUIRenderItem(parentEntity);
+                        glm::vec2 parentSize = UISystem::GetParentSize(m_Context->m_Registry, parentRenderItem);
 
                         glm::vec4 currentRect = anchor.CalculateRect(parentSize);
 
-                        AnchorPreset preset = UIManager::GetAnchorPreset(row, col);
+                        AnchorPreset preset = UISystem::GetAnchorPreset(row, col);
                         anchor.SetAnchorPreset(preset, currentRect, parentSize, preservePosition);
-                        UIManager::MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
 
                         ImGui::CloseCurrentPopup();
                     }
@@ -520,11 +520,11 @@ namespace Coffee
         {
             ImGui::Text("Min");
             if (ImGui::DragFloat2("##AnchorMin", glm::value_ptr(anchor.AnchorMin), 0.01f, 0.0f, 1.0f))
-                UIManager::MarkDirty(entity);
+                UISystem::MarkDirty(entity);
 
             ImGui::Text("Max");
             if (ImGui::DragFloat2("##AnchorMax", glm::value_ptr(anchor.AnchorMax), 0.01f, 0.0f, 1.0f))
-                UIManager::MarkDirty(entity);
+                UISystem::MarkDirty(entity);
 
             ImGui::TreePop();
         }
@@ -534,8 +534,8 @@ namespace Coffee
 
         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
         Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
-        auto& parentRenderItem = UIManager::GetUIRenderItem(parentEntity);
-        glm::vec2 parentSize = UIManager::GetParentSize(m_Context->m_Registry, parentRenderItem);
+        auto& parentRenderItem = UISystem::GetUIRenderItem(parentEntity);
+        glm::vec2 parentSize = UISystem::GetParentSize(m_Context->m_Registry, parentRenderItem);
 
         if (!isStretchingX && !isStretchingY)
         {
@@ -544,7 +544,7 @@ namespace Coffee
             if (ImGui::DragFloat2("##Position", glm::value_ptr(anchoredPos), 1.0f))
             {
                 anchor.SetAnchoredPosition(anchoredPos, parentSize);
-                UIManager::MarkDirty(entity);
+                UISystem::MarkDirty(entity);
             }
 
             glm::vec2 size = anchor.GetSize();
@@ -552,7 +552,7 @@ namespace Coffee
             if (ImGui::DragFloat2("##Size", glm::value_ptr(size), 1.0f, 0.0f, FLT_MAX, "%.0f"))
             {
                 anchor.SetSize(size, parentSize);
-                UIManager::MarkDirty(entity);
+                UISystem::MarkDirty(entity);
             }
         }
 
@@ -564,22 +564,22 @@ namespace Coffee
                 {
                     ImGui::Text("Left");
                     if (ImGui::DragFloat("##OffsetMinX", &anchor.OffsetMin.x, 1.0f))
-                        UIManager::MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
 
                     ImGui::Text("Right");
                     if (ImGui::DragFloat("##OffsetMaxX", &anchor.OffsetMax.x, 1.0f))
-                        UIManager::MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
                 }
 
                 if (isStretchingY)
                 {
                     ImGui::Text("Top");
                     if (ImGui::DragFloat("##OffsetMinY", &anchor.OffsetMin.y, 1.0f))
-                        UIManager::MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
 
                     ImGui::Text("Bottom");
                     if (ImGui::DragFloat("##OffsetMaxY", &anchor.OffsetMax.y, 1.0f))
-                        UIManager::MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
                 }
                 ImGui::TreePop();
             }
@@ -591,7 +591,7 @@ namespace Coffee
         if (ImGui::DragFloat("##Rotation", &rotation, 0.1f))
         {
             transformComponent.SetLocalRotation(glm::vec3(0.f, 0.f, rotation));
-            UIManager::MarkDirty(entity);
+            UISystem::MarkDirty(entity);
         }
     }
 
@@ -736,42 +736,42 @@ namespace Coffee
                     DrawUITransform(transformComponent, uiImageComponent.Anchor, entity);
 
                     if (ImGui::DragInt("Layer", &uiImageComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        UIManager::MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UITextComponent>())
                 {
                     auto& uiTextComponent = entity.GetComponent<UITextComponent>();
                     DrawUITransform(transformComponent, uiTextComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiTextComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        UIManager::MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIToggleComponent>())
                 {
                     auto& uiToggleComponent = entity.GetComponent<UIToggleComponent>();
                     DrawUITransform(transformComponent, uiToggleComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiToggleComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        UIManager::MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIButtonComponent>())
                 {
                     auto& uiButtonComponent = entity.GetComponent<UIButtonComponent>();
                     DrawUITransform(transformComponent, uiButtonComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiButtonComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        UIManager::MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UISliderComponent>())
                 {
                     auto& uiSliderComponent = entity.GetComponent<UISliderComponent>();
                     DrawUITransform(transformComponent, uiSliderComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiSliderComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        UIManager::MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIComponent>())
                 {
                     auto& uiComponent = entity.GetComponent<UIComponent>();
                     DrawUITransform(transformComponent, uiComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        UIManager::MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else
                 {

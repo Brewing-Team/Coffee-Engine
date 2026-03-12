@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "CoffeeEngine/IO/CacheManager.h"
 #include "ResourceRegistry.h"
 #include "ResourceLoader.h"
 

@@ -1,11 +1,11 @@
 #include "ImportPanel.h"
 
 #include "CoffeeEngine/Core/Application.h"
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
-#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/IO/ResourceUtils.h"
+#include "CoffeeEngine/Resources/ImportData/ImportData.h"
+#include "CoffeeEngine/Resources/ImportData/Texture2DImportData.h"
+#include "CoffeeEngine/Resources/Resource.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
+#include "CoffeeEngine/Resources/ResourceUtils.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "imgui.h"
 

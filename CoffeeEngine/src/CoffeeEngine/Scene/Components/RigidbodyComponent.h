@@ -2,7 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Physics/CollisionCallback.h"
-#include "CoffeeEngine/Physics/RigidBody.h"
+#include "CoffeeEngine/Physics/Components/RigidBody.h"
 #include <cereal/cereal.hpp>
 
 namespace Coffee {

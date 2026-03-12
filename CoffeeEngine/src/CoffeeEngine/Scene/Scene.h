@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
-#include "CoffeeEngine/Physics/PhysicsWorld.h" // Think removing it using Scope<PhysicsWorld> instead
+#include "CoffeeEngine/Physics/Runtime/PhysicsWorld.h" // Think removing it using Scope<PhysicsWorld> instead
 
 #include <cereal/cereal.hpp>
 

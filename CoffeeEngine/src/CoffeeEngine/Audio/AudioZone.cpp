@@ -13,6 +13,15 @@
 
 namespace Coffee
 {
+    /**
+    * @brief Enabled effect level.
+    */
+    constexpr float EFFECT_LEVEL_ENABLED = 1.0f;
+    /**
+    * @brief Disabled effect level.
+    */
+    constexpr float EFFECT_LEVEL_DISABLED = 0.0f;
+
     void AudioZone::Shutdown()
     {
         RemoveAllReverbZones();

@@ -6,8 +6,8 @@
 
 namespace Coffee 
 {
-    UIComponent::UIComponent() { UIManager::MarkForSorting(); }
-    UIComponent::~UIComponent() { UIManager::MarkForSorting(); }
+    UIComponent::UIComponent() { UISystem::MarkForSorting(); }
+    UIComponent::~UIComponent() { UISystem::MarkForSorting(); }
 
     template <class Archive> 
     void UIComponent::save(Archive& archive, std::uint32_t const version) const
@@ -20,7 +20,7 @@ namespace Coffee
     {
         archive(cereal::make_nvp("Anchor", Anchor), cereal::make_nvp("Layer", Layer));
 
-        UIManager::MarkForSorting();
+        UISystem::MarkForSorting();
     }
 
     // Explicit template instantiations for common cereal archives

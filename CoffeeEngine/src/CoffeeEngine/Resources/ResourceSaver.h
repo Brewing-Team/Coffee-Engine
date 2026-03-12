@@ -7,8 +7,8 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/ResourceUtils.h"
-#include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/Resources/ResourceUtils.h"
+#include "CoffeeEngine/Resources/CacheManager.h"
 #include <cereal/archives/json.hpp>
 #include <fstream>
 

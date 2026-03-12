@@ -5,7 +5,7 @@
 #include <cereal/cereal.hpp>
 #include <cereal/types/polymorphic.hpp>
 #include <filesystem>
-#include <CoffeeEngine/IO/Resource.h>
+#include <CoffeeEngine/Resources/Resource.h>
 
 namespace Coffee {
 

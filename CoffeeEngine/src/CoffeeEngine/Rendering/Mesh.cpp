@@ -1,9 +1,9 @@
 #include "Mesh.h"
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
-#include "CoffeeEngine/IO/ImportData/MeshImportData.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/ImportData/ImportData.h"
+#include "CoffeeEngine/Resources/ImportData/MeshImportData.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Buffer.h"
 #include "CoffeeEngine/Rendering/Material.h"
 #include "CoffeeEngine/Rendering/VertexArray.h"

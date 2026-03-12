@@ -1,9 +1,9 @@
 #include "ProjectManager.h"
 #include "Project.h"
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/CacheManager.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/CacheManager.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 
 #include <fstream>
 

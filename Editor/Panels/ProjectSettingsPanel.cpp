@@ -5,8 +5,8 @@
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Audio/Audio.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/IO/ResourceUtils.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/ResourceUtils.h"
 #include "CoffeeEngine/Rendering/Renderer.h"
 #include "CoffeeEngine/Rendering/Renderer3D.h"
 

@@ -1,5 +1,5 @@
 #include "UIImageComponent.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 
 #include <cereal/archives/json.hpp>

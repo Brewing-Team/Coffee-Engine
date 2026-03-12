@@ -748,7 +748,7 @@ namespace Coffee {
 
         {
             ZoneScopedN("UIManager::UpdateUI");
-            UIManager::UpdateUI(m_Registry);
+            UISystem::UpdateUI(m_Registry);
         }
 
         // Debug Draw
@@ -1027,7 +1027,7 @@ namespace Coffee {
             }
         }
 
-        UIManager::UpdateUI(m_Registry);
+        UISystem::UpdateUI(m_Registry);
     }
 
     void Scene::OnEvent(Event& e)

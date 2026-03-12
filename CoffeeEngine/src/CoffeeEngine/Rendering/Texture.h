@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/Resources/Resource.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 
 #include <cereal/access.hpp>

@@ -2,7 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/UUID.h"
-#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/Resources/Resource.h"
 #include "CoffeeEngine/Scene/Entity.h"
 
 #include <entt/entt.hpp>

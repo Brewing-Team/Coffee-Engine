@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoffeeEngine/IO/ResourceUtils.h"
+#include "CoffeeEngine/Resources/ResourceUtils.h"
 
 #include <filesystem>
 

@@ -5,14 +5,14 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/UUID.h"
-#include "CoffeeEngine/IO/CacheManager.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/CacheManager.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 
 // Import data includes
-#include "CoffeeEngine/IO/ImportData/MaterialImportData.h"
-#include "CoffeeEngine/IO/ImportData/MeshImportData.h"
-#include "CoffeeEngine/IO/ImportData/ModelImportData.h"
-#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
+#include "CoffeeEngine/Resources/ImportData/MaterialImportData.h"
+#include "CoffeeEngine/Resources/ImportData/MeshImportData.h"
+#include "CoffeeEngine/Resources/ImportData/ModelImportData.h"
+#include "CoffeeEngine/Resources/ImportData/Texture2DImportData.h"
 
 // Renderer includes
 #include "CoffeeEngine/Rendering/Material.h"

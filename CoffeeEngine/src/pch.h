@@ -67,16 +67,16 @@
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 
 // IO
-#include "CoffeeEngine/IO/ResourceImporter.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/IO/ResourceSaver.h"
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceFormat.h"
-#include "CoffeeEngine/IO/ResourceUtils.h"
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
-#include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
-#include "CoffeeEngine/IO/CacheManager.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
+#include "CoffeeEngine/Resources/ResourceSaver.h"
+#include "CoffeeEngine/Resources/Resource.h"
+#include "CoffeeEngine/Resources/ResourceFormat.h"
+#include "CoffeeEngine/Resources/ResourceUtils.h"
+#include "CoffeeEngine/Resources/ImportData/ImportData.h"
+#include "CoffeeEngine/Resources/ImportData/ImportDataUtils.h"
+#include "CoffeeEngine/Resources/CacheManager.h"
 
 // Core systems
 #include "CoffeeEngine/Core/SystemInfo.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/Resources/Resource.h"
 #include "CoffeeEngine/Math/BoundingBox.h"
 
 #include <glm/glm.hpp>

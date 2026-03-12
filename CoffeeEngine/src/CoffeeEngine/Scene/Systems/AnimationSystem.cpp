@@ -4,7 +4,7 @@
 #define BT_NO_SIMD_OPERATOR_OVERLOADS
 
 #include "CoffeeEngine/Rendering/Model.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Rendering/Shader.h"
 #include "CoffeeEngine/Scene/Components/AnimatorComponent.h"
 #include "ozz/animation/runtime/skeleton_utils.h"

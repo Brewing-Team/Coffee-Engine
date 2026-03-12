@@ -1,4 +1,4 @@
-#include "UIManager.h"
+#include "UISystem.h"
 
 #include "CoffeeEngine/Rendering/Renderer.h"
 #include "CoffeeEngine/Rendering/Renderer2D.h"
@@ -15,18 +15,18 @@
 
 namespace Coffee {
 
-    glm::vec2 UIManager::WindowSize;
-    glm::vec2 UIManager::m_lastWindowSize = { 0.0f, 0.0f };
-    bool UIManager::s_NeedsSorting = true;
-    std::vector<UIManager::UIRenderItem> UIManager::s_SortedUIItems;
-    std::unordered_map<entt::entity, UIManager::AnchoredTransform> UIManager::s_LastTransforms;
+    glm::vec2 UISystem::WindowSize;
+    glm::vec2 UISystem::m_lastWindowSize = { 0.0f, 0.0f };
+    bool UISystem::s_NeedsSorting = true;
+    std::vector<UISystem::UIRenderItem> UISystem::s_SortedUIItems;
+    std::unordered_map<entt::entity, UISystem::AnchoredTransform> UISystem::s_LastTransforms;
 
-    glm::vec2 UIManager::CanvasReferenceSize = { 1920.0f, 1080.0f };
-    float UIManager::UIScale = 1.0f;
+    glm::vec2 UISystem::m_CanvasReferenceSize = { 1920.0f, 1080.0f };
+    float UISystem::m_UIScale = 1.0f;
 
-    std::unordered_map<entt::entity, std::vector<UIManager::TransformOperation>> UIManager::s_PendingTransforms;
+    std::unordered_map<entt::entity, std::vector<UISystem::TransformOperation>> UISystem::s_PendingTransforms;
 
-    void UIManager::UpdateUI(entt::registry& registry)
+    void UISystem::UpdateUI(entt::registry& registry)
     {
         WindowSize = Renderer::GetCurrentRenderTarget()->GetSize();
 
@@ -81,14 +81,14 @@ namespace Coffee {
         }
     }
 
-    template<typename T, UIManager::UIComponentType Type>
-    void AddUIItems(entt::registry& registry, std::vector<UIManager::UIRenderItem>& items) {
+    template<typename T, UISystem::UIComponentType Type>
+    void AddUIItems(entt::registry& registry, std::vector<UISystem::UIRenderItem>& items) {
         auto view = registry.view<T, TransformComponent>();
         for (auto entity : view) {
             auto& uiComponent = view.template get<T>(entity);
             auto& transformComponent = view.template get<TransformComponent>(entity);
 
-            UIManager::UIRenderItem item;
+            UISystem::UIRenderItem item;
             item.Entity = entity;
             item.Layer = uiComponent.Layer;
             item.ComponentType = Type;
@@ -107,7 +107,7 @@ namespace Coffee {
         }
     }
 
-    void UIManager::SortUIElements(entt::registry& registry)
+    void UISystem::SortUIElements(entt::registry& registry)
     {
         s_SortedUIItems.clear();
 
@@ -171,7 +171,7 @@ namespace Coffee {
         }
     }
 
-    void UIManager::RenderUIImage(entt::registry& registry, UIRenderItem& item)
+    void UISystem::RenderUIImage(entt::registry& registry, UIRenderItem& item)
     {
         entt::entity entity = item.Entity;
         auto& uiImageComponent = registry.get<UIImageComponent>(entity);
@@ -179,7 +179,7 @@ namespace Coffee {
         Renderer2D::DrawQuad(item.WorldTransform, uiImageComponent.Texture, 1.0f, uiImageComponent.Color, Renderer2D::RenderMode::Screen, (uint32_t)entity, uiImageComponent.UVRect);
     }
 
-    void UIManager::RenderUIText(entt::registry& registry, UIRenderItem& item)
+    void UISystem::RenderUIText(entt::registry& registry, UIRenderItem& item)
     {
         entt::entity entity = item.Entity;
         auto& uiTextComponent = registry.get<UITextComponent>(entity);
@@ -192,7 +192,7 @@ namespace Coffee {
 
         float scaledFontSize = uiTextComponent.FontSize;
 
-        scaledFontSize *= UIScale;
+        scaledFontSize *= m_UIScale;
 
         const float minFontSize = 8.0f;
         scaledFontSize = std::max(scaledFontSize, minFontSize);
@@ -207,7 +207,7 @@ namespace Coffee {
         Renderer2D::DrawTextString(uiTextComponent.Text, uiTextComponent.UIFont, item.WorldTransform, textParams, Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
-    void UIManager::RenderUIToggle(entt::registry& registry, UIRenderItem& item)
+    void UISystem::RenderUIToggle(entt::registry& registry, UIRenderItem& item)
     {
         entt::entity entity = item.Entity;
         auto& toggleComponent = registry.get<UIToggleComponent>(entity);
@@ -218,7 +218,7 @@ namespace Coffee {
             Renderer2D::DrawQuad(item.WorldTransform, currentTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
-    void UIManager::RenderUIButton(entt::registry& registry, UIRenderItem& item)
+    void UISystem::RenderUIButton(entt::registry& registry, UIRenderItem& item)
     {
         entt::entity entity = item.Entity;
         auto& button = registry.get<UIButtonComponent>(entity);
@@ -254,7 +254,7 @@ namespace Coffee {
             Renderer2D::DrawQuad(item.WorldTransform, currentTexture, 1.0f, currentColor, Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
-    void UIManager::RenderUISlider(entt::registry& registry, UIRenderItem& item)
+    void UISystem::RenderUISlider(entt::registry& registry, UIRenderItem& item)
     {
         entt::entity entity = item.Entity;
         auto& sliderComponent = registry.get<UISliderComponent>(entity);
@@ -289,7 +289,7 @@ namespace Coffee {
         }
     }
 
-    glm::vec2 UIManager::GetParentSize(entt::registry& registry, UIRenderItem& item)
+    glm::vec2 UISystem::GetParentSize(entt::registry& registry, UIRenderItem& item)
     {
         if (item.Parent == entt::null)
         {
@@ -359,7 +359,7 @@ namespace Coffee {
         return WindowSize;
     }
 
-    AnchorPreset UIManager::GetAnchorPreset(int row, int column)
+    AnchorPreset UISystem::GetAnchorPreset(int row, int column)
     {
         // Row: 0=top, 1=middle, 2=bottom, 3=stretch
         // Column: 0=left, 1=center, 2=right, 3=stretch
@@ -387,11 +387,11 @@ namespace Coffee {
         return AnchorPreset(x, y);
     }
 
-    UIManager::AnchoredTransform UIManager::CalculateAnchoredTransform(entt::registry& registry, const RectAnchor& anchor, UIRenderItem& item)
+    UISystem::AnchoredTransform UISystem::CalculateAnchoredTransform(entt::registry& registry, const RectAnchor& anchor, UIRenderItem& item)
     {
         AnchoredTransform result;
 
-        glm::vec2 referenceSize = CanvasReferenceSize;
+        glm::vec2 referenceSize = m_CanvasReferenceSize;
         glm::vec2 parentSize = referenceSize;
         glm::vec2 parentPosition = glm::vec2(WindowSize.x / 2, WindowSize.y / 2);
         bool hasParent = false;
@@ -469,10 +469,10 @@ namespace Coffee {
             float right = 0.0f;
             float bottom = 0.0f;
 
-            left = WindowSize.x * anchor.AnchorMin.x + anchor.OffsetMin.x * UIScale;
-            top = WindowSize.y * anchor.AnchorMin.y + anchor.OffsetMin.y * UIScale;
-            right = WindowSize.x * anchor.AnchorMax.x + anchor.OffsetMax.x * UIScale;
-            bottom = WindowSize.y * anchor.AnchorMax.y + anchor.OffsetMax.y * UIScale;
+            left = WindowSize.x * anchor.AnchorMin.x + anchor.OffsetMin.x * m_UIScale;
+            top = WindowSize.y * anchor.AnchorMin.y + anchor.OffsetMin.y * m_UIScale;
+            right = WindowSize.x * anchor.AnchorMax.x + anchor.OffsetMax.x * m_UIScale;
+            bottom = WindowSize.y * anchor.AnchorMax.y + anchor.OffsetMax.y * m_UIScale;
 
             result.Position.x = (left + right) * 0.5f;
             result.Position.y = (top + bottom) * 0.5f;
@@ -483,7 +483,7 @@ namespace Coffee {
         return result;
     }
 
-    void UIManager::MarkChildrenForUpdate(entt::entity parentEntity)
+    void UISystem::MarkChildrenForUpdate(entt::entity parentEntity)
     {
         for (auto& item : s_SortedUIItems)
         {
@@ -496,34 +496,34 @@ namespace Coffee {
         }
     }
 
-    void UIManager::SetReferenceCanvasSize(const glm::vec2& referenceSize)
+    void UISystem::SetReferenceCanvasSize(const glm::vec2& referenceSize)
     {
-        CanvasReferenceSize = referenceSize;
+        m_CanvasReferenceSize = referenceSize;
         CalculateUIScaleFactor();
     }
 
-    void UIManager::CalculateUIScaleFactor()
+    void UISystem::CalculateUIScaleFactor()
     {
-        float heightScale = WindowSize.y / CanvasReferenceSize.y;
-        float widthScale = WindowSize.x / CanvasReferenceSize.x;
+        float heightScale = WindowSize.y / m_CanvasReferenceSize.y;
+        float widthScale = WindowSize.x / m_CanvasReferenceSize.x;
 
-        UIScale = std::min(heightScale, widthScale);
+        m_UIScale = std::min(heightScale, widthScale);
     }
 
-    glm::vec2 UIManager::ScaleSize(const glm::vec2& size)
+    glm::vec2 UISystem::ScaleSize(const glm::vec2& size)
     {
-        return size * UIScale;
+        return size * m_UIScale;
     }
 
-    glm::vec2 UIManager::ScalePosition(const glm::vec2& position)
+    glm::vec2 UISystem::ScalePosition(const glm::vec2& position)
     {
-        float normalizedX = position.x / CanvasReferenceSize.x;
-        float normalizedY = position.y / CanvasReferenceSize.y;
+        float normalizedX = position.x / m_CanvasReferenceSize.x;
+        float normalizedY = position.y / m_CanvasReferenceSize.y;
 
         return { normalizedX * WindowSize.x, normalizedY * WindowSize.y };
     }
 
-    UIManager::UIRenderItem& UIManager::GetUIRenderItem(entt::entity entity)
+    UISystem::UIRenderItem& UISystem::GetUIRenderItem(entt::entity entity)
     {
         for (auto& item : s_SortedUIItems)
         {
@@ -535,14 +535,14 @@ namespace Coffee {
         return defaultItem;
     }
 
-    void UIManager::MarkDirty(entt::entity entity)
+    void UISystem::MarkDirty(entt::entity entity)
     {
         UIRenderItem& item = GetUIRenderItem(entity);
         item.TransformDirty = true;
         MarkChildrenForUpdate(entity);
     }
 
-    void UIManager::UpdateUITranform(entt::registry& registry, UIRenderItem& item)
+    void UISystem::UpdateUITranform(entt::registry& registry, UIRenderItem& item)
     {
         AnchoredTransform anchored;
 
@@ -609,7 +609,7 @@ namespace Coffee {
         }
     }
 
-    void UIManager::UpdateUITranformRecursive(entt::registry& registry, UIRenderItem& item)
+    void UISystem::UpdateUITranformRecursive(entt::registry& registry, UIRenderItem& item)
     {
         UpdateUITranform(registry, item);
 
@@ -620,7 +620,7 @@ namespace Coffee {
         }
     }
 
-    RectAnchor* UIManager::GetComponentAnchor(entt::registry& registry, entt::entity entity, UIComponentType componentType)
+    RectAnchor* UISystem::GetComponentAnchor(entt::registry& registry, entt::entity entity, UIComponentType componentType)
     {
         switch (componentType) {
             case UIComponentType::Image:
@@ -647,7 +647,7 @@ namespace Coffee {
         return nullptr;
     }
 
-    void UIManager::ScaleUIElement(entt::registry& registry, entt::entity entity, const glm::vec2& scale)
+    void UISystem::ScaleUIElement(entt::registry& registry, entt::entity entity, const glm::vec2& scale)
     {
         UIRenderItem& item = GetUIRenderItem(entity);
         if (item.Entity == entt::null) return;
@@ -678,7 +678,7 @@ namespace Coffee {
         }
     }
 
-    void UIManager::MoveUIElement(entt::registry& registry, entt::entity entity, const glm::vec2& offset)
+    void UISystem::MoveUIElement(entt::registry& registry, entt::entity entity, const glm::vec2& offset)
     {
         UIRenderItem& item = GetUIRenderItem(entity);
         if (item.Entity == entt::null) return;
@@ -695,7 +695,7 @@ namespace Coffee {
         }
     }
 
-    void UIManager::RotateUIElement(entt::registry& registry, entt::entity entity, float angle)
+    void UISystem::RotateUIElement(entt::registry& registry, entt::entity entity, float angle)
     {
         UIRenderItem& item = GetUIRenderItem(entity);
         if (item.Entity == entt::null) return;
@@ -720,7 +720,7 @@ namespace Coffee {
         }
     }
 
-    void UIManager::ProcessPendingTransforms(entt::registry& registry)
+    void UISystem::ProcessPendingTransforms(entt::registry& registry)
     {
         for (auto& [entity, operations] : s_PendingTransforms)
         {

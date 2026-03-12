@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
+#include "CoffeeEngine/Resources/ImportData/ImportData.h"
 #include <cereal/cereal.hpp>
 #include <cereal/types/unordered_map.hpp>
 #include <cereal/types/string.hpp>

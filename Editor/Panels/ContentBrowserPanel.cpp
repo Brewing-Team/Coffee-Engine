@@ -1,13 +1,13 @@
 #include "ContentBrowserPanel.h"
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/Resource.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Rendering/Model.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/Scene/Prefab.h"
 #include "CoffeeEngine/Scene/Scene.h"
-#include <CoffeeEngine/IO/ResourceUtils.h>
+#include <CoffeeEngine/Resources/ResourceUtils.h>
 #include <IconsLucide.h>
 #include <SDL3/SDL_misc.h>
 #include <filesystem>

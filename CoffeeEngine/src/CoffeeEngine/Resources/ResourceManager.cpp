@@ -1,16 +1,16 @@
 #include "ResourceManager.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
-#include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/ImportData/ImportData.h"
+#include "CoffeeEngine/Resources/ImportData/ImportDataUtils.h"
+#include "CoffeeEngine/Resources/Resource.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Material.h"
 #include "CoffeeEngine/Rendering/Model.h"
 #include "CoffeeEngine/Rendering/Shader.h"
 #include "CoffeeEngine/Rendering/Texture.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
-#include "CoffeeEngine/IO/ResourceUtils.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/ResourceUtils.h"
 #include <filesystem>
 #include <string>
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/Resource.h"
+#include "CoffeeEngine/Resources/Resource.h"
 #include <string>
 #include <glm/ext/vector_float4.hpp>
 #include <glm/ext/vector_float3.hpp>

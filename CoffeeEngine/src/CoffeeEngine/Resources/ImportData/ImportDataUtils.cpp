@@ -1,11 +1,11 @@
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/IO/ImportData/ImportDataUtils.h"
-#include "CoffeeEngine/IO/ImportData/CubemapImportData.h"
-#include "CoffeeEngine/IO/ImportData/MaterialImportData.h"
-#include "CoffeeEngine/IO/ImportData/ModelImportData.h"
-#include "CoffeeEngine/IO/ImportData/ShaderImportData.h"
-#include "CoffeeEngine/IO/ImportData/Texture2DImportData.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/ImportData/ImportDataUtils.h"
+#include "CoffeeEngine/Resources/ImportData/CubemapImportData.h"
+#include "CoffeeEngine/Resources/ImportData/MaterialImportData.h"
+#include "CoffeeEngine/Resources/ImportData/ModelImportData.h"
+#include "CoffeeEngine/Resources/ImportData/ShaderImportData.h"
+#include "CoffeeEngine/Resources/ImportData/Texture2DImportData.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "ImportData.h"
 
 #include <cereal/cereal.hpp>

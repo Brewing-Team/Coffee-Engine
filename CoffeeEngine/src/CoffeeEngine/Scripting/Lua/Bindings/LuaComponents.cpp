@@ -216,14 +216,14 @@ void Coffee::RegisterComponentsBindings(sol::state& luaState)
 
     luaState.set_function("scale_ui_element", [](const Entity entity, float scaleX, sol::optional<float> optScaleY) {
         float scaleY = optScaleY.value_or(scaleX);
-        UIManager::MarkToTransform(entity, glm::vec2(scaleX, scaleY));
+        UISystem::MarkToTransform(entity, glm::vec2(scaleX, scaleY));
     });
 
     luaState.set_function("move_ui_element", [](const Entity entity, float offsetX, float offsetY) {
-        UIManager::MarkToTransform(entity, glm::vec2(offsetX, offsetY), true);
+        UISystem::MarkToTransform(entity, glm::vec2(offsetX, offsetY), true);
     });
 
     luaState.set_function("rotate_ui_element", [](const Entity entity, float angle) {
-        UIManager::MarkToTransform(entity, angle);
+        UISystem::MarkToTransform(entity, angle);
     });
 }

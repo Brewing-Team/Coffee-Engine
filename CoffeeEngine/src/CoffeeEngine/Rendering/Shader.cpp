@@ -1,7 +1,7 @@
 #include "Shader.h"
-#include "CoffeeEngine/IO/ImportData/ImportData.h"
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/ImportData/ImportData.h"
+#include "CoffeeEngine/Resources/Resource.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 
 #include <glad/glad.h>
 #include <glm/vec2.hpp>

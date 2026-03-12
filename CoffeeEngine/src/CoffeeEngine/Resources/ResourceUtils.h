@@ -1,8 +1,8 @@
 ﻿#pragma once
 
 #include <filesystem>
-#include "CoffeeEngine/IO/Resource.h"
-#include "CoffeeEngine/IO/ResourceFormat.h"
+#include "CoffeeEngine/Resources/Resource.h"
+#include "CoffeeEngine/Resources/ResourceFormat.h"
 #include "CoffeeEngine/Rendering/Shader.h"
 
 namespace Coffee {

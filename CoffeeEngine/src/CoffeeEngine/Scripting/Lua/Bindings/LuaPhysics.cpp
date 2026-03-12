@@ -1,7 +1,7 @@
 #include "LuaPhysics.h"
 
 #include "CoffeeEngine/Physics/Collider.h"
-#include "CoffeeEngine/Physics/RigidBody.h"
+#include "CoffeeEngine/Physics/Components/RigidBody.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scene/Entity.h"
 

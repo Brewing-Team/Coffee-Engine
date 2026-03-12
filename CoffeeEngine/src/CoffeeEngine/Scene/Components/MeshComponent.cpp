@@ -1,6 +1,6 @@
 #include "MeshComponent.h"
 #include "AnimatorComponent.h"
-#include "CoffeeEngine/IO/ResourceRegistry.h"
+#include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
 
 #include <cereal/archives/json.hpp>

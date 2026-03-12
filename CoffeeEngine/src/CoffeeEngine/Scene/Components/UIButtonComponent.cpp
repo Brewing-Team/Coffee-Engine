@@ -1,7 +1,7 @@
 #include "UIButtonComponent.h"
 
 #include "CoffeeEngine/Core/UUID.h"
-#include "CoffeeEngine/IO/ResourceLoader.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 
 #include <cereal/archives/json.hpp>
