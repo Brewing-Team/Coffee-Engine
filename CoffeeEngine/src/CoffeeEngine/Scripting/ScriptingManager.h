@@ -7,6 +7,7 @@
 namespace Coffee {
 
     class IScriptingBackend;
+    class Script;
 
     enum class ScriptingLanguage {
         Lua,
@@ -19,19 +20,11 @@ namespace Coffee {
         const IScriptingBackend& GetBackend(ScriptingLanguage language);
         void RemoveBackend(ScriptingLanguage language);
 
-        Ref<Script> CreateScript(const std::filesystem::path& path, ScriptingLanguage language) {
-            return m_Backends[language]->CreateScript(path);
-        }
+        Ref<Script> CreateScript(const std::filesystem::path& path, ScriptingLanguage language);
 
-        void ExecuteScript(Script& script, ScriptingLanguage language) {
-            m_Backends[language]->ExecuteScript(script);
-        }
+        void ExecuteScript(Script& script, ScriptingLanguage language);
 
-        void SetWorkingDirectory(const std::filesystem::path& path) {
-            for (auto& backend : m_Backends) {
-                backend.second->SetWorkingDirectory(path);
-            }
-        }
+        void SetWorkingDirectory(const std::filesystem::path& path);
 
     private:
         std::unordered_map<ScriptingLanguage, Ref<IScriptingBackend>> m_Backends;

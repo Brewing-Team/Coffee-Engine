@@ -83,9 +83,9 @@ namespace Coffee {
     class RendererAPI {
     public:
         /**
-         * @brief Initializes the Renderer API.
+         * @brief Initializes the renderer API.
          */
-        void Init();
+        RendererAPI();
 
         void SetViewport(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
 

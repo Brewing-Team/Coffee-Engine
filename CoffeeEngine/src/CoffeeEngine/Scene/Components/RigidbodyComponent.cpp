@@ -1,5 +1,5 @@
 #include "RigidbodyComponent.h"
-#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/Components/Collider.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 
 #include <cereal/archives/json.hpp>

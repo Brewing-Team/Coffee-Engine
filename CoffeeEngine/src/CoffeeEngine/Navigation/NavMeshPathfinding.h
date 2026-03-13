@@ -37,12 +37,6 @@ namespace Coffee
          */
         std::vector<glm::vec3> FindPath(const glm::vec3& start, const glm::vec3& end) const;
 
-        /**
-         * @brief Renders the path for debugging purposes.
-         * @param path The path to render.
-         */
-        void RenderPath(const std::vector<glm::vec3>& path) const;
-
         void SetNavMesh(const Ref<NavMesh>& navMesh) { m_NavMesh = navMesh; }
 
     private:

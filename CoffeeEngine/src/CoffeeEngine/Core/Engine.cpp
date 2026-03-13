@@ -1,12 +1,14 @@
 #include "CoffeeEngine/Core/Engine.h"
 
 #include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Events/ControllerEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
+#include "CoffeeEngine/ImGui/ImGuiLayer.h"
 #include "CoffeeEngine/Rendering/Renderer.h"
 #include "CoffeeEngine/Audio/Audio.h"
 
@@ -26,38 +28,40 @@ extern "C"
 namespace Coffee
 {
     Engine::Engine()
+        : m_Window(Window::Create(WindowProps("Coffee Engine")))
+        , m_RendererAPI()
+        , m_Renderer(&m_RendererAPI)
+        , m_Input(m_Window.get())
+        , m_Audio()
+        , m_ResourceManager()
+        , m_SceneManager()
+        , m_ProjectManager(&m_SceneManager, &m_ResourceManager, &m_Scripting, &m_Audio) // Info: I know with this design project manager should go after scripting but is temporal until we have a event system.
+        , m_Scripting()
+
     {
         ZoneScoped;
 
-        m_Window = Window::Create(WindowProps("Coffee Engine"));
         SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
 
-        Input::Init();
-        Renderer::Init();
-        Audio::Init();
+        auto imguiLayer = CreateScope<ImGuiLayer>();
+        m_ImGuiLayer = imguiLayer.get();
 
-        m_ImGuiLayer = new ImGuiLayer();
-		PushOverlay(m_ImGuiLayer);
+		PushOverlay(std::move(imguiLayer));
     }
 
-    Engine::~Engine()
-    {
-        Audio::Shutdown();
-    }
-
-    void Engine::PushLayer(Layer* layer)
+    void Engine::PushLayer(Scope<Layer> layer)
     {
         ZoneScoped;
 
-        m_LayerStack.PushLayer(layer);
+        m_LayerStack.PushLayer(std::move(layer));
         layer->OnAttach();
     }
 
-    void Engine::PushOverlay(Layer* layer)
+    void Engine::PushOverlay(Scope<Layer> layer)
     {
         ZoneScoped;
         
-        m_LayerStack.PushOverlay(layer);
+        m_LayerStack.PushOverlay(std::move(layer));
         layer->OnAttach();
     }
 
@@ -80,7 +84,7 @@ namespace Coffee
                 break;
         }
 
-        Input::OnEvent(e);
+        m_Input.OnEvent(e);
     }
 
     void Engine::Run(Application& app)
@@ -105,10 +109,10 @@ namespace Coffee
             ProcessEvents();
 
             //Process audio
-            Audio::ProcessAudio();
+            m_Audio.ProcessAudio();
 
             //Prepare input frame
-            Input::OnFrameUpdate();
+            m_Input.OnFrameUpdate();
 
             app.OnUpdate(deltaTime);
 
@@ -116,18 +120,18 @@ namespace Coffee
             {
                 ZoneScopedN("LayerStack Update");
 
-                for(Layer* layer : m_LayerStack)
+                for(Scope<Layer>& layer : m_LayerStack)
                     layer->OnUpdate(deltaTime);
             }
 
-            Renderer::Render();
+            m_Renderer.Render();
 
             //Render ImGui
             m_ImGuiLayer->Begin();
             {
                 ZoneScopedN("LayerStack ImGuiRender");
 
-                for(Layer* layer : m_LayerStack)
+                for(Scope<Layer>& layer : m_LayerStack)
                     layer->OnImGuiRender();
             }
             m_ImGuiLayer->End();

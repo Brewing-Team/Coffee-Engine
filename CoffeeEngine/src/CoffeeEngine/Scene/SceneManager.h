@@ -25,13 +25,13 @@ namespace Coffee {
         void ChangeScene(const Ref<Scene>& scene);
         void ChangeSceneAsync(const std::filesystem::path& scenePath);
 
-        Ref<Scene>& GetActiveScene() { return s_ActiveScene; }
+        Ref<Scene>& GetActiveScene() { return m_ActiveScene; }
 
-        void SetWorkingDirectory(const std::filesystem::path& workingDirectory) { s_WorkingDirectory = workingDirectory; }
+        void SetWorkingDirectory(const std::filesystem::path& workingDirectory) { m_WorkingDirectory = workingDirectory; }
 
-        void SetSceneState(SceneState state) { s_SceneState = state; }
-        SceneState GetSceneState() { return s_SceneState; }
-        std::string GetSceneName() { return s_ActiveScene ? s_ActiveScene->GetFilePath().filename().string() : ""; }
+        void SetSceneState(SceneState state) { m_SceneState = state; }
+        SceneState GetSceneState() { return m_SceneState; }
+        std::string GetSceneName() { return m_ActiveScene ? m_ActiveScene->GetFilePath().filename().string() : ""; }
     private:
         void ExitCurrentScene();
         void InitNewScene();

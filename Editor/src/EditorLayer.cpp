@@ -1,18 +1,18 @@
 #include "EditorLayer.h"
 
-#include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
+#include "CoffeeEngine/Core/Window.h"
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
-#include "CoffeeEngine/Resources/ResourceManager.h"
-#include "CoffeeEngine/Resources/ResourceRegistry.h"
-#include "CoffeeEngine/Resources/ResourceUtils.h"
 #include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Project/ProjectManager.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
+#include "CoffeeEngine/Resources/ResourceUtils.h"
 #include "CoffeeEngine/Rendering/EditorCamera.h"
 #include "CoffeeEngine/Rendering/Framebuffer.h"
 #include "CoffeeEngine/Rendering/Material.h"
@@ -22,8 +22,7 @@
 #include "CoffeeEngine/Rendering/Renderer2D.h"
 #include "CoffeeEngine/Rendering/Renderer3D.h"
 #include "CoffeeEngine/Rendering/Texture.h"
-#include "CoffeeEngine/Scene/Components.h"
-#include "CoffeeEngine/Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/Rendering/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
@@ -51,7 +50,7 @@
 
 namespace Coffee {
 
-    EditorLayer::EditorLayer() : Layer("Example")
+    EditorLayer::EditorLayer(const EngineContext& ctx) : Layer("Example"), m_Context(ctx)
     {
 
     }
@@ -102,21 +101,21 @@ namespace Coffee {
         m_ViewportRenderTarget->AddFramebuffer("PostProcessingA", postProcessingFramebufferA);
         m_ViewportRenderTarget->AddFramebuffer("PostProcessingB", postProcessingFramebufferB);
 
-        Renderer::AddRenderTarget(m_ViewportRenderTarget);
+        m_Context.renderer->AddRenderTarget(m_ViewportRenderTarget);
 
-        ScriptManager::RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
+        m_Context.scripting->RegisterBackend(ScriptingLanguage::Lua, CreateRef<LuaBackend>());
 
-        Application::Get().GetWindow().SetIcon("icon.png");
+        m_Context.window->SetIcon("icon.png");
 
         m_EditorScene = CreateRef<Scene>();
             
-        SceneManager::SetSceneState(SceneManager::SceneState::Edit);
-        SceneManager::ChangeScene(m_EditorScene);
+        m_Context.sceneManager->SetSceneState(SceneManager::SceneState::Edit);
+        m_Context.sceneManager->ChangeScene(m_EditorScene);
 
-        m_EditorCamera = EditorCamera(45.0f);
+        m_EditorCamera = EditorCamera(m_Context.input, 45.0f);
 
-        m_SceneTreePanel.SetContext(SceneManager::GetActiveScene());
-        m_ContentBrowserPanel.SetContext(SceneManager::GetActiveScene());
+        m_SceneTreePanel.SetContext(m_Context.sceneManager->GetActiveScene());
+        m_ContentBrowserPanel.SetContext(m_Context.sceneManager->GetActiveScene());
     }
 
     void EditorLayer::OnUpdate(float dt)
@@ -125,24 +124,24 @@ namespace Coffee {
         
         // Idk if this is the best place or is better in each switch case for flexibility
         // Is possible that this is does not what I think it does. It should be revised.
-        Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget.get());
+        m_Context.renderer->SetCurrentRenderTarget(m_ViewportRenderTarget.get());
 
-        switch (SceneManager::GetSceneState())
+        switch (m_Context.sceneManager->GetSceneState())
         {
             using enum SceneManager::SceneState;
 
             case Edit:
                 m_EditorCamera.OnUpdate(dt);
-                SceneManager::GetActiveScene()->OnUpdateEditor(m_EditorCamera, dt);
+                m_Context.sceneManager->GetActiveScene()->OnUpdateEditor(m_EditorCamera, dt);
                 OnOverlayRender();
             break;
             case Play:
-                SceneManager::GetActiveScene()->OnUpdateRuntime(dt);
+                m_Context.sceneManager->GetActiveScene()->OnUpdateRuntime(dt);
             break;
 
         }
         
-        Renderer::SetCurrentRenderTarget(nullptr);
+        m_Context.renderer->SetCurrentRenderTarget(nullptr);
     }
 
     void EditorLayer::OnEvent(Coffee::Event& event)
@@ -151,7 +150,7 @@ namespace Coffee {
 
         m_EditorCamera.OnEvent(event);
 
-        SceneManager::GetActiveScene()->OnEvent(event);
+        m_Context.sceneManager->GetActiveScene()->OnEvent(event);
 
         EventDispatcher dispatcher(event);
         dispatcher.Dispatch<KeyPressedEvent>(COFFEE_BIND_EVENT_FN(EditorLayer::OnKeyPressed));
@@ -195,7 +194,7 @@ namespace Coffee {
             if (m_ViewportHovered && !ImGuizmo::IsOver() && !ImGuizmo::IsUsing())
             {
                 //TODO: Clean this up and wrap it in a function
-                glm::vec2 mousePos = Input::GetMousePosition();
+                glm::vec2 mousePos = m_Context.input->GetMousePosition();
                 mousePos.x -= m_ViewportBounds[0].x;
                 mousePos.y -= m_ViewportBounds[0].y;
                 glm::vec2 viewportSize = m_ViewportBounds[1] - m_ViewportBounds[0];
@@ -214,7 +213,7 @@ namespace Coffee {
 
                     uint32_t entityID = (r << 0) | (g << 8) | (b << 16);
 
-                    Entity hoveredEntity = entityID == 16777215 ? Entity() : Entity((entt::entity)entityID, SceneManager::GetActiveScene().get());
+                    Entity hoveredEntity = entityID == 16777215 ? Entity() : Entity((entt::entity)entityID, m_Context.sceneManager->GetActiveScene().get());
 
                     m_SceneTreePanel.SetSelectedEntity(hoveredEntity);
                 }
@@ -227,18 +226,18 @@ namespace Coffee {
     {
         // Take the file path from the event and check if it is a folder or a file
         //Then copy it to the project folder
-        const std::filesystem::path& projectDirectory = Project::GetActive()->GetProjectDirectory();
+        const std::filesystem::path& projectDirectory = m_Context.projectManager->GetCurrentProject()->GetDirectory();
         const std::filesystem::path& originPath = event.GetFile();
         const std::filesystem::path& destFilePath = projectDirectory / originPath.filename();
         std::filesystem::copy(originPath, destFilePath, std::filesystem::copy_options::recursive);
         
         if(std::filesystem::is_directory(destFilePath))
         {
-            ResourceLoader::LoadDirectory(destFilePath);
+            m_Context.resourceManager->LoadDirectory(destFilePath);
         }
         else
         {
-            ResourceLoader::LoadFile(destFilePath);
+            m_Context.resourceManager->LoadFile(destFilePath);
         }
         return false;
     }
@@ -247,7 +246,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        SceneManager::GetActiveScene()->OnExitEditor();
+        m_Context.sceneManager->GetActiveScene()->OnExitEditor();
     }
 
     void EditorLayer::OnImGuiRender()
@@ -319,7 +318,7 @@ namespace Coffee {
             }
             if (ImGui::BeginMenu("Debug"))
             {
-                Ref<Scene> activeScene = SceneManager::GetActiveScene();
+                Ref<Scene> activeScene = m_Context.sceneManager->GetActiveScene();
                 bool isSceneActive = activeScene != nullptr;
 
                 if (!isSceneActive)
@@ -375,7 +374,7 @@ namespace Coffee {
             //Play and Stop buttons
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() * 0.5f - 50);
 
-            switch (SceneManager::GetSceneState())
+            switch (m_Context.sceneManager->GetSceneState())
             {
                 using enum SceneManager::SceneState;
 
@@ -456,7 +455,7 @@ namespace Coffee {
         //Guizmo
         Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
 
-        if(selectedEntity and m_GizmoType != -1 and SceneManager::GetSceneState() == SceneManager::SceneState::Edit)
+        if(selectedEntity and m_GizmoType != -1 and m_Context.sceneManager->GetSceneState() == SceneManager::SceneState::Edit)
         {
             if (selectedEntity.HasComponent<UIImageComponent>())
             {
@@ -540,7 +539,7 @@ namespace Coffee {
                     auto& parentEntity = selectedEntity.GetComponent<HierarchyComponent>().m_Parent;
                     if(parentEntity != entt::null)
                     {
-                        Entity e{parentEntity, SceneManager::GetActiveScene().get()};
+                        Entity e{parentEntity, m_Context.sceneManager->GetActiveScene().get()};
                         glm::mat4 parentGlobalTransform = e.GetComponent<TransformComponent>().GetWorldTransform();
                         glm::mat4 inverseParentGlobalTransform = glm::inverse(parentGlobalTransform);
                         localTransform = inverseParentGlobalTransform * transform;
@@ -565,9 +564,9 @@ namespace Coffee {
 
         ImGui::Begin("Renderer Stats", NULL, window_flags);
         ImGui::Text("Size: %.0f x %.0f (%0.1fMP)", m_ViewportSize.x, m_ViewportSize.y, m_ViewportSize.x * m_ViewportSize.y / 1000000.0f);
-        ImGui::Text("Draw Calls: %d", Renderer3D::GetStats().DrawCalls);
-        ImGui::Text("Vertex Count: %d", Renderer3D::GetStats().VertexCount);
-        ImGui::Text("Index Count: %d", Renderer3D::GetStats().IndexCount);
+        ImGui::Text("Draw Calls: %d", m_Context.renderer->Get3DRenderer().GetStats().DrawCalls);
+        ImGui::Text("Vertex Count: %d", m_Context.renderer->Get3DRenderer().GetStats().VertexCount);
+        ImGui::Text("Index Count: %d", m_Context.renderer->Get3DRenderer().GetStats().IndexCount);
         ImGui::End();
 
         // Display EditorCamera speed vertical slider & zoom vertical slider at the center left
@@ -628,8 +627,8 @@ namespace Coffee {
             ImGui::EndDisabled();
             static bool normals = false;
             ImGui::Checkbox("Normals", &normals);
-            Renderer3D::GetRenderSettings().showNormals = normals;
-            Renderer::GetRenderSettings().PostProcessing = !normals;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().showNormals = normals;
+            m_Context.renderer->GetRenderSettings().PostProcessing = !normals;
             ImGui::EndPopup();
         }
         ImGui::End();
@@ -640,7 +639,7 @@ namespace Coffee {
 
     void EditorLayer::OnOverlayRender()
     {
-        Renderer::SetCurrentRenderTarget(m_ViewportRenderTarget.get());
+        m_Context.renderer->SetCurrentRenderTarget(m_ViewportRenderTarget.get());
 
         Entity selectedEntity = m_SceneTreePanel.GetSelectedEntity();
         static Entity lastSelectedEntity;  
@@ -656,13 +655,13 @@ namespace Coffee {
                 if(meshComponent.drawAABB)
                 {
                     const AABB& aabb = meshComponent.mesh ? meshComponent.mesh->GetAABB().CalculateTransformedAABB(transform) : AABB();
-                    Renderer2D::DrawBox(aabb, {0.27f, 0.52f, 0.53f, 1.0f});
+                    m_Context.renderer->Get2DRenderer().DrawBox(aabb, {0.27f, 0.52f, 0.53f, 1.0f});
                 }
 
                 // ----------------------------------
 
                 OBB obb = meshComponent.mesh ? meshComponent.mesh->GetOBB(transform) : OBB();
-                Renderer2D::DrawBox(obb, {0.99f, 0.50f, 0.09f, 1.0f});
+                m_Context.renderer->Get2DRenderer().DrawBox(obb, {0.99f, 0.50f, 0.09f, 1.0f});
 
 
             }
@@ -675,7 +674,7 @@ namespace Coffee {
 
         }
 
-        auto view = SceneManager::GetActiveScene()->GetAllEntitiesWithComponents<LightComponent, TransformComponent>();
+        auto view = m_Context.sceneManager->GetActiveScene()->GetAllEntitiesWithComponents<LightComponent, TransformComponent>();
 
         for(auto entity : view)
         {
@@ -684,14 +683,14 @@ namespace Coffee {
 
             switch (lightComponent.type) {
                 case LightComponent::Type::DirectionalLight:
-                    //Renderer2D::DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, lightComponent.Intensity);
-                    Renderer2D::DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, 1.5f);
+                    //m_Context.renderer->Get2DRenderer().DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, lightComponent.Intensity);
+                    m_Context.renderer->Get2DRenderer().DrawArrow(transformComponent.GetWorldTransform()[3], lightComponent.Direction, 1.5f);
                 break;
 
                 case LightComponent::Type::PointLight:
                     glm::vec3 worldPosition = transformComponent.GetWorldTransform()[3];
                     float radius = lightComponent.Range;
-                    Renderer2D::DrawSphere(worldPosition, radius);
+                    m_Context.renderer->Get2DRenderer().DrawSphere(worldPosition, radius);
                 break;
 
                 /* case LightComponent::Type::SpotLight:
@@ -699,7 +698,7 @@ namespace Coffee {
             }
         }
 
-        auto cameraView = SceneManager::GetActiveScene()->GetAllEntitiesWithComponents<CameraComponent, TransformComponent>();
+        auto cameraView = m_Context.sceneManager->GetActiveScene()->GetAllEntitiesWithComponents<CameraComponent, TransformComponent>();
 
         for(auto entity : cameraView)
         {
@@ -708,12 +707,12 @@ namespace Coffee {
 
             glm::mat4 viewProjection = cameraComponent.Camera.GetProjection() * glm::inverse(transformComponent.GetWorldTransform());
 
-            Renderer2D::DrawFrustum(viewProjection, {0.99f, 0.50f, 0.09f, 1.0f});
+            m_Context.renderer->Get2DRenderer().DrawFrustum(viewProjection, {0.99f, 0.50f, 0.09f, 1.0f});
         }
 
-        Renderer2D::DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);
-        Renderer2D::DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);
-        Renderer2D::DrawLine({0.0f, 0.0f, -1000.0f}, {0.0f, 0.0f, 1000.0f}, {0.153f, 0.525f, 0.918f, 1.0f}, 2);
+        m_Context.renderer->Get2DRenderer().DrawLine({-1000.0f, 0.0f, 0.0f}, {1000.0f, 0.0f, 0.0f}, {0.918f, 0.196f, 0.310f, 1.0f}, 2);
+        m_Context.renderer->Get2DRenderer().DrawLine({0.0f, -1000.0f, 0.0f}, {0.0f, 1000.0f, 0.0f}, {0.502f, 0.800f, 0.051f, 1.0f}, 2);
+        m_Context.renderer->Get2DRenderer().DrawLine({0.0f, 0.0f, -1000.0f}, {0.0f, 0.0f, 1000.0f}, {0.153f, 0.525f, 0.918f, 1.0f}, 2);
 
         static Ref<Mesh> gridPlane = PrimitiveMesh::CreatePlane({1000.0f, 1000.0f});
         static Ref<Shader> gridShader = Shader::Create("assets/shaders/SimpleGridShader.glsl");
@@ -723,7 +722,7 @@ namespace Coffee {
         gridMaterialRenderSettings.cullMode = MaterialRenderSettings::CullMode::None;
         gridMaterialRenderSettings.transparencyMode = MaterialRenderSettings::TransparencyMode::Alpha;
 
-        Renderer3D::Submit(RenderCommand{.mesh = gridPlane, .material = gridShaderMaterial});
+        m_Context.renderer->Get3DRenderer().Submit(RenderCommand{.mesh = gridPlane, .material = gridShaderMaterial});
     }
 
     void EditorLayer::ResizeViewport(float width, float height)
@@ -734,7 +733,7 @@ namespace Coffee {
             m_EditorCamera.SetViewportSize(width, height);
             
             // Apply render scale to actual framebuffer resolution
-            float renderScale = Renderer::GetRenderSettings().RenderScale;
+            float renderScale = m_Context.renderer->GetRenderSettings().RenderScale;
             uint32_t scaledWidth = static_cast<uint32_t>(width * renderScale);
             uint32_t scaledHeight = static_cast<uint32_t>(height * renderScale);
             m_ViewportRenderTarget->Resize(scaledWidth, scaledHeight);
@@ -745,35 +744,35 @@ namespace Coffee {
 
     void EditorLayer::OnScenePlay()
     {
-        if(SceneManager::GetActiveScene()->GetFilePath().empty())
+        if(m_Context.sceneManager->GetActiveScene()->GetFilePath().empty())
         {
             COFFEE_ERROR("Scene is not saved! Please save the scene before playing.");
             return;
         }
 
-        SceneManager::SetSceneState(SceneManager::SceneState::Play);
+        m_Context.sceneManager->SetSceneState(SceneManager::SceneState::Play);
 
-        Scene::Save(SceneManager::GetActiveScene()->GetFilePath(), SceneManager::GetActiveScene());
+        Scene::Save(m_Context.sceneManager->GetActiveScene()->GetFilePath(), m_Context.sceneManager->GetActiveScene());
 
-        SceneManager::ChangeScene(SceneManager::GetActiveScene()->GetFilePath());
+        m_Context.sceneManager->ChangeScene(m_Context.sceneManager->GetActiveScene()->GetFilePath());
 
-        m_SceneTreePanel.SetContext(SceneManager::GetActiveScene());
+        m_SceneTreePanel.SetContext(m_Context.sceneManager->GetActiveScene());
         m_SceneTreePanel.SetSelectedEntity(Entity());
-        m_ContentBrowserPanel.SetContext(SceneManager::GetActiveScene());
+        m_ContentBrowserPanel.SetContext(m_Context.sceneManager->GetActiveScene());
     }
 
     void EditorLayer::OnSceneStop()
     {
-        COFFEE_CORE_ASSERT(SceneManager::GetSceneState() == SceneManager::SceneState::Play)
+        COFFEE_CORE_ASSERT(m_Context.sceneManager->GetSceneState() == m_Context.sceneManager->SceneState::Play)
         
 
-        SceneManager::SetSceneState(SceneManager::SceneState::Edit);
+        m_Context.sceneManager->SetSceneState(SceneManager::SceneState::Edit);
 
-        SceneManager::ChangeScene(m_EditorScene);
+        m_Context.sceneManager->ChangeScene(m_EditorScene);
 
-        m_SceneTreePanel.SetContext(SceneManager::GetActiveScene());
+        m_SceneTreePanel.SetContext(m_Context.sceneManager->GetActiveScene());
         m_SceneTreePanel.SetSelectedEntity(Entity());
-        m_ContentBrowserPanel.SetContext(SceneManager::GetActiveScene());
+        m_ContentBrowserPanel.SetContext(m_Context.sceneManager->GetActiveScene());
     }
 
     void EditorLayer::NewProject()
@@ -785,10 +784,10 @@ namespace Coffee {
 
         if (!path.empty())
         {
-            Project::New(path);
-            Project::SaveActive();
-            Project::Load(path);
-            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - Coffee Engine");
+            m_Context.projectManager->NewProject(path);
+            m_Context.projectManager->SaveCurrentProject();
+            m_Context.projectManager->LoadProject(path);
+            m_Context.window->SetTitle(m_Context.projectManager->GetCurrentProject()->GetName() + " - Coffee Engine");
         }
         else
         {
@@ -804,8 +803,8 @@ namespace Coffee {
 
         if (!path.empty())
         {
-            Project::Load(path);
-            Application::Get().GetWindow().SetTitle(Project::GetActive()->GetProjectName() + " - Coffee Engine");
+            m_Context.projectManager->LoadProject(path);
+            m_Context.window->SetTitle(m_Context.projectManager->GetCurrentProject()->GetName() + " - Coffee Engine");
         }
         else
         {
@@ -815,21 +814,18 @@ namespace Coffee {
 
     void EditorLayer::SaveProject()
     {
-        Project::SaveActive();
+        m_Context.projectManager->SaveCurrentProject();
     }
 
     void EditorLayer::NewScene()
     {
-        AudioZone::RemoveAllReverbZones();
-        Audio::UnregisterAllGameObjects();
-
         m_EditorScene = CreateRef<Scene>();
-        SceneManager::ChangeScene(m_EditorScene);
+        m_Context.sceneManager->ChangeScene(m_EditorScene);
 
         m_SceneTreePanel = SceneTreePanel();
 
-        m_SceneTreePanel.SetContext(SceneManager::GetActiveScene());
-        m_ContentBrowserPanel.SetContext(SceneManager::GetActiveScene());
+        m_SceneTreePanel.SetContext(m_Context.sceneManager->GetActiveScene());
+        m_ContentBrowserPanel.SetContext(m_Context.sceneManager->GetActiveScene());
     }
 
     void EditorLayer::OpenScene()
@@ -841,12 +837,12 @@ namespace Coffee {
         if (!path.empty() and path.extension() == ".TeaScene")
         {
             m_EditorScene = Scene::Load(path);
-            SceneManager::ChangeScene(m_EditorScene);
+            m_Context.sceneManager->ChangeScene(m_EditorScene);
 
             m_SceneTreePanel = SceneTreePanel();
 
-            m_SceneTreePanel.SetContext(SceneManager::GetActiveScene());
-            m_ContentBrowserPanel.SetContext(SceneManager::GetActiveScene());
+            m_SceneTreePanel.SetContext(m_Context.sceneManager->GetActiveScene());
+            m_ContentBrowserPanel.SetContext(m_Context.sceneManager->GetActiveScene());
         }
         else
         {
@@ -861,14 +857,14 @@ namespace Coffee {
 
         if (!path.empty())
         {
-            Scene::Save(path, SceneManager::GetActiveScene());
+            Scene::Save(path, m_Context.sceneManager->GetActiveScene());
         }
         else
         {
             COFFEE_CORE_WARN("Save Scene: No file selected");
         }
 
-        /* Scene::Save(Project::GetActive()->GetProjectDirectory() / "Untitled.TeaScene", SceneManager::GetActiveScene()); */
+        /* Scene::Save(m_Context.projectManager->GetCurrentProject()->GetProjectDirectory() / "Untitled.TeaScene", m_Context.sceneManager->GetActiveScene()); */
     }
     void EditorLayer::SaveSceneAs() {}
 

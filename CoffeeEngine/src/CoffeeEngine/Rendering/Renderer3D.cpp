@@ -1,6 +1,6 @@
 #include "Renderer3D.h"
 #include "CoffeeEngine/Rendering/Material.h"
-#include "CoffeeEngine/Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/Rendering/PrimitiveMesh.h"
 #include "CoffeeEngine/Rendering/Framebuffer.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Rendering/Model.h"
@@ -10,13 +10,13 @@
 #include "CoffeeEngine/Rendering/UniformBuffer.h"
 #include "CoffeeEngine/Rendering/RenderTarget.h"
 #include "CoffeeEngine/Rendering/VertexArray.h"
-#include "CoffeeEngine/Animation/AnimationSystem.h"
+#include "CoffeeEngine/Scene/Systems/AnimationSystem.h"
 
-#include "CoffeeEngine/Embedded/ToneMappingShader.inl"
-#include "CoffeeEngine/Embedded/FinalPassShader.inl"
-#include "CoffeeEngine/Embedded/MissingShader.inl"
-#include "CoffeeEngine/Embedded/SimpleDepthShader.inl"
-#include "CoffeeEngine/Embedded/BRDFLUTShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/ToneMappingShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/FinalPassShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/MissingShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/SimpleDepthShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/BRDFLUTShader.inl"
 
 #include <stdint.h>
 #include <glm/fwd.hpp>
@@ -25,7 +25,7 @@
 
 namespace Coffee {
 
-    void Renderer3D::Init(RendererAPI* api)
+    Renderer3D::Renderer3D(RendererAPI* api)
     {
         ZoneScoped;
 
@@ -215,10 +215,11 @@ namespace Coffee {
     
                 for (const auto& command : m_RendererData.opaqueRenderQueue)
                 {
-                    if (command.animator)
+                    // TODO: Remove this, refactor the animation system to have two queues or even better have a SSBO with a boneBuffer and only store boneOffset in the renderCommand.
+/*                     if (command.animator)
                         AnimationSystem::SetBoneTransformations(depthShader, command.animator);
                     else
-                        depthShader->setBool("animated", false);
+                        depthShader->setBool("animated", false); */
 
                     // Set the model matrix
                     depthShader->setMat4("model", command.transform);
@@ -312,10 +313,10 @@ namespace Coffee {
                 shader->setInt("shadowMaps[" + std::to_string(i) + "]", 9 + i);
             }
 
-            if (command.animator)
+/*             if (command.animator)
                 AnimationSystem::SetBoneTransformations(shader, command.animator);
             else
-                shader->setBool("animated", false);
+                shader->setBool("animated", false); */
 
             shader->setMat4("model", command.transform);
             shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(command.transform))));
@@ -455,10 +456,10 @@ namespace Coffee {
             shader->setInt("prefilterMap", 7);
             shader->setInt("brdfLUT", 8);
 
-            if (command.animator)
+/*             if (command.animator)
                 AnimationSystem::SetBoneTransformations(shader, command.animator);
             else
-                shader->setBool("animated", false);
+                shader->setBool("animated", false); */
 
             shader->setMat4("model", command.transform);
             shader->setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(command.transform))));

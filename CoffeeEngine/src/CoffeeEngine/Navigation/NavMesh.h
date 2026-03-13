@@ -55,7 +55,7 @@ namespace Coffee
         /**
          * @brief Renders the walkable areas for debugging purposes.
          */
-        void RenderWalkableAreas() const;
+        void RenderWalkableAreas(Renderer2D& renderer) const;
 
         /**
          * @brief Clears the navigation mesh data.

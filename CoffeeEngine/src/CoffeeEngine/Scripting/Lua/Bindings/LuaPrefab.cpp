@@ -9,7 +9,7 @@
 namespace Coffee {
     void RegisterPrefabBindings(sol::state& luaState)
     {
-        // Helper function to load and instantiate a prefab in one call
+/*         // Helper function to load and instantiate a prefab in one call
         luaState.set_function("instantiate_prefab", [](const std::string& path, sol::optional<glm::mat4> transform) -> Entity {
             auto scene = SceneManager::GetActiveScene().get();
             if (!scene) {
@@ -31,6 +31,6 @@ namespace Coffee {
             }
 
             return prefab->Instantiate(scene, transform.value_or(glm::mat4(1.0f)));
-        });
+        }); */
     }
 }

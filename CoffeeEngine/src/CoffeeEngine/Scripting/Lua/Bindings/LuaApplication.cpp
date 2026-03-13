@@ -3,7 +3,7 @@
 
 void Coffee::RegisterApplicationBindings(sol::state& luaState)
 {
-    sol::table appTable = luaState.create_table();
+/*     sol::table appTable = luaState.create_table();
 
     appTable.set_function("quit", []() {
         Application::Get().Close();
@@ -49,5 +49,5 @@ void Coffee::RegisterApplicationBindings(sol::state& luaState)
         }
     );
 
-    luaState["App"] = appTable;
+    luaState["App"] = appTable; */
 }

@@ -26,7 +26,7 @@ namespace Coffee
                 position = other.position;
                 radius = other.radius;
 
-                AudioZone::CreateZone(*this);
+                //AudioZone::CreateZone(*this);
             }
             return *this;
         }

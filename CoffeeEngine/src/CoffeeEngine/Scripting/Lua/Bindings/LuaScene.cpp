@@ -7,7 +7,7 @@
 
 void Coffee::RegisterSceneBindings(sol::state& luaState)
 {
-    luaState.new_usertype<Scene>("Scene",
+/*     luaState.new_usertype<Scene>("Scene",
         "create_entity", &Scene::CreateEntity,
         "destroy_entity", &Scene::DestroyEntity,
         "duplicate_entity", &Scene::Duplicate,
@@ -54,5 +54,5 @@ void Coffee::RegisterSceneBindings(sol::state& luaState)
         "get_scene_name", []() {
             return SceneManager::GetSceneName();
         }
-    );
+    ); */
 }

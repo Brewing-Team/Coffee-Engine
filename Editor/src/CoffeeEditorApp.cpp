@@ -16,8 +16,8 @@ namespace Coffee {
     public:
         void OnInit(Engine &engine) override
         {
-            engine.GetContext(context);
-            engine.PushLayer(new EditorLayer());
+            context = engine.GetContext();
+            engine.PushLayer(CreateScope<EditorLayer>());
         }
 
         void OnUpdate(float dt) override

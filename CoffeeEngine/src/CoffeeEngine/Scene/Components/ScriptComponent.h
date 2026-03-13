@@ -12,18 +12,7 @@ namespace Coffee
         Ref<Script> script;
 
         ScriptComponent() = default;
-        ScriptComponent(const std::filesystem::path& path, ScriptingLanguage language)
-        {
-            switch (language)
-            {
-                using enum ScriptingLanguage;
-            case Lua:
-                script = ScriptingManager::CreateScript(path, language);
-                break;
-            case cSharp:
-                break;
-            }
-        }
+        ScriptComponent(Ref<Script> script) : script(script) {}
 
         /**
          * @brief Serializes the ScriptComponent.

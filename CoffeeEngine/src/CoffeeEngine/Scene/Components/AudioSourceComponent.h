@@ -45,7 +45,8 @@ namespace Coffee
 
         void SetVolume(float volumen)
         {
-            if (volumen > 1)
+            // Move this logic to an AudioSystem in the scene
+            /* if (volumen > 1)
             {
                 volumen = 1;
             }
@@ -54,11 +55,11 @@ namespace Coffee
                 volumen = 0;
             }
             volume = volumen;
-            Audio::SetVolume(this->gameObjectID, this->volume);
+            Audio::SetVolume(this->gameObjectID, this->volume); */
         }
 
-        void Play() { Audio::PlayEvent(*this); }
-        void Stop() { Audio::StopEvent(*this); }
+        void Play() { /* Audio::PlayEvent(*this); */ }
+        void Stop() { /* Audio::StopEvent(*this); */ }
 
         template <class Archive> void save(Archive& archive, std::uint32_t const version) const;
         template <class Archive> void load(Archive& archive, std::uint32_t const version);

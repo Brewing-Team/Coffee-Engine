@@ -45,7 +45,7 @@ namespace Coffee {
     {
     public:
         
-        void Init(RendererAPI* api);
+        Renderer(RendererAPI* api);
         void Render();
         void Shutdown();
 
@@ -69,6 +69,9 @@ namespace Coffee {
         RenderTarget* GetCurrentRenderTarget() { return m_RendererData.CurrentRenderTarget; }
 
         RendererSettings& GetRenderSettings() { return m_RenderSettings; }
+
+        Renderer3D& Get3DRenderer() { return m_Renderer3D; }
+        Renderer2D& Get2DRenderer() { return m_Renderer2D; }
 
     private:
         RendererAPI* m_API; ///< The renderer API used by the renderer.

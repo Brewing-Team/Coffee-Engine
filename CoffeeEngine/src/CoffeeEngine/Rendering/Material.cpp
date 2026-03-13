@@ -8,7 +8,7 @@
 #include "CoffeeEngine/Rendering/Shader.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/Project/Project.h"
-#include "CoffeeEngine/Embedded/StandardShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/StandardShader.inl"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 #include <cereal/types/polymorphic.hpp>

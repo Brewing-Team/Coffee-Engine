@@ -9,6 +9,7 @@
 #include "CoffeeEngine/Rendering/RendererAPI.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
+#include "CoffeeEngine/Scripting/ScriptingManager.h"
 #include "Window.h"
 #include "LayerStack.h"
 #include "CoffeeEngine/Events/ApplicationEvent.h"
@@ -20,117 +21,114 @@ namespace Coffee
 {
 	class Application;
 
-    /**
-     * @defgroup core Core
-     * @brief Core components of the CoffeeEngine.
-     * @{
-     */
+	/**
+	 * @defgroup core Core
+	 * @brief Core components of the CoffeeEngine.
+	 * @{
+	 */
 
-    /**
-     * @brief The Engine class is responsible for managing the main engine loop,
-     * handling events, and managing layers and overlays.
-     */
-    class Engine
-    {
-      public:
-        Renderer renderer; ///< The renderer used by the engine.
-        RendererAPI rendererAPI; ///< The renderer API used by the engine.
-        Input input; ///< The input system used by the engine.
-        Audio audio; ///< The audio system used by the engine.
-        SceneManager sceneManager; ///< The sceneManager used by the engine.
-        ProjectManager projectManager; ///< The project manager used by the engine.
-        ResourceManager resources; ///< The resource manager used by the engine.
-        
-      public:
-        using EventCallbackFn = std::function<void(Event&)>; ///< Type definition for event callback function.
-        /**
-         * @brief Constructs the Engine object.
-         */
-        Engine();
+	/**
+	 * @brief The Engine class is responsible for managing the main engine loop,
+	 * handling events, and managing layers and overlays.
+	 */
+	class Engine
+	{
+	public:
+		using EventCallbackFn = std::function<void(Event&)>; ///< Type definition for event callback function.
+		/**
+		 * @brief Constructs the Engine object.
+		 */
+		Engine();
 
-        /**
-         * @brief Destroys the Engine object.
-         */
-        virtual ~Engine();
+		/**
+		 * @brief Starts the main Engine loop.
+		 */
+		void Run(Application& app);
 
-        /**
-         * @brief Starts the main Engine loop.
-         */
-        void Run(Application& app);
+		/**
+		 * @brief Handles incoming events.
+		 * @param e The event to handle.
+		 */
+		void OnEvent(Event& e);
 
-        /**
-         * @brief Handles incoming events.
-         * @param e The event to handle.
-         */
-        void OnEvent(Event& e);
+		/**
+		 * @brief Pushes a layer onto the layer stack.
+		 * @param layer The layer to push.
+		 */
+		void PushLayer(Scope<Layer> layer);
 
-        /**
-         * @brief Pushes a layer onto the layer stack.
-         * @param layer The layer to push.
-         */
-        void PushLayer(Layer* layer);
+		/**
+		 * @brief Pushes an overlay onto the layer stack.
+		 * @param layer The overlay to push.
+		 */
+		void PushOverlay(Scope<Layer> layer);
 
-        /**
-         * @brief Pushes an overlay onto the layer stack.
-         * @param layer The overlay to push.
-         */
-        void PushOverlay(Layer* layer);
+		EngineContext GetContext() { return { m_Window.get(), &m_Renderer, &m_RendererAPI, &m_Input,
+						&m_ResourceManager, &m_SceneManager, &m_ProjectManager, &m_Scripting, &m_Audio }; }
 
-        EngineContext GetContext() { return EngineContext{ &renderer, &rendererAPI, &input, &resources, &sceneManager, &projectManager, &audio }; }
+		/**
+		 * @brief Gets the main engine window.
+		 * @return A reference to the main engine window.
+		 */
+		Window& GetWindow() { return *m_Window; }
 
-        /**
-         * @brief Gets the main engine window.
-         * @return A reference to the main engine window.
-         */
-        Window& GetWindow() { return *m_Window; }
+		/**
+		 * @brief Sets the event callback function.
+		 * @param callback The event callback function.
+		 */
+		void SetEventCallback(const EventCallbackFn& callback) { m_EventCallback = callback; }
 
-        /**
-         * @brief Sets the event callback function.
-         * @param callback The event callback function.
-         */
-        void SetEventCallback(const EventCallbackFn& callback) { m_EventCallback = callback; }
+		/**
+		 * @brief Closes the Engine.
+		 */
+		void Close();
 
-        /**
-         * @brief Closes the Engine.
-         */
-        void Close();
+		/**
+		 * @brief Gets the ImGui layer.
+		 * @return A pointer to the ImGui layer.
+		 */
+		ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
 
-        /**
-         * @brief Gets the ImGui layer.
-         * @return A pointer to the ImGui layer.
-         */
-        ImGuiLayer* GetImGuiLayer() { return m_ImGuiLayer; }
+		// Temporary until we have a proper way to get the FPS and FrameTime
+		float GetFrameTime() const { return m_LastFrameTime * 1000.0f; }
+		float GetFPS() const { return 1.0f / m_LastFrameTime; }
 
-        // Temporary until we have a proper way to get the FPS and FrameTime
-        float GetFrameTime() const { return m_LastFrameTime * 1000.0f; }
-        float GetFPS() const { return 1.0f / m_LastFrameTime; }
+	private:
 
-      private:
+		/**
+		 * @brief Polls and processes events.
+		 * 
+		 * This function retrieves and handles events such as input from the keyboard,
+		 * mouse, window, and other devices.
+		 */
+		void ProcessEvents();
 
-        /**
-         * @brief Polls and processes events.
-         * 
-         * This function retrieves and handles events such as input from the keyboard,
-         * mouse, window, and other devices.
-         */
-        void ProcessEvents();
+		/**
+		 * @brief Handles the window close event.
+		 * @param e The window close event.
+		 * @return True if the event was handled, false otherwise.
+		 */
+		bool OnWindowClose(WindowCloseEvent& e);
 
-        /**
-         * @brief Handles the window close event.
-         * @param e The window close event.
-         * @return True if the event was handled, false otherwise.
-         */
-        bool OnWindowClose(WindowCloseEvent& e);
+	private:
+		Scope<Window> m_Window; ///< The main engine window.
 
-      private:
+		RendererAPI m_RendererAPI; ///< The renderer API used by the engine.
+		Renderer m_Renderer; ///< The renderer used by the engine.
+		Input m_Input; ///< The input system used by the engine.
+		Audio m_Audio; ///< The audio system used by the engine.
 
-        Scope<Window> m_Window; ///< The main engine window.
-        ImGuiLayer* m_ImGuiLayer; ///< The ImGui layer.
-        bool m_Running = true; ///< Indicates whether the engine is running.
-        LayerStack m_LayerStack; ///< The stack of layers.
-        double m_LastFrameTime = 0.0f; ///< The time of the last frame.
-        EventCallbackFn m_EventCallback; ///< The event callback function.
-    };
+		ResourceManager m_ResourceManager; ///< The resource manager used by the engine.
+		SceneManager m_SceneManager; ///< The scene manager used by the engine.
+		ProjectManager m_ProjectManager; ///< The project manager used by the engine.
+		ScriptingManager m_Scripting; ///< The scripting manager used by the engine.
 
-    /** @} */
+		ImGuiLayer* m_ImGuiLayer; ///< The ImGui layer.
+		bool m_Running = true; ///< Indicates whether the engine is running.
+		LayerStack m_LayerStack; ///< The stack of layers.
+		double m_LastFrameTime = 0.0f; ///< The time of the last frame.
+		EventCallbackFn m_EventCallback; ///< The event callback function.
+	};
+
+	/** @} */
 } // namespace Coffee

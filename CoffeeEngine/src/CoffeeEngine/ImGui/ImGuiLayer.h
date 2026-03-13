@@ -5,6 +5,8 @@
 
 namespace Coffee {
 
+    class Window;
+
     /**
      * @defgroup imgui ImGui
      * @brief ImGui components of the CoffeeEngine.
@@ -20,7 +22,7 @@ namespace Coffee {
         /**
          * @brief Constructs the ImGuiLayer object.
          */
-        ImGuiLayer();
+        ImGuiLayer(Window* window);
 
         /**
          * @brief Destroys the ImGuiLayer object.
@@ -82,6 +84,8 @@ namespace Coffee {
         void SetCoffeeColorStyle();
 
       private:
+        Window* m_Window; ///< Pointer to the application window.
+
         bool m_BlockEvents = true; ///< Indicates whether events are blocked.
     };
 

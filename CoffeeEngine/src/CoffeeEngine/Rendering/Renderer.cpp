@@ -3,7 +3,7 @@
 #include "Renderer3D.h"
 #include "Renderer2D.h"
 #include "CoffeeEngine/Rendering/RendererAPI.h"
-#include "CoffeeEngine/Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/Rendering/PrimitiveMesh.h"
 #include "CoffeeEngine/Rendering/UniformBuffer.h"
 
 #include <glm/matrix.hpp>
@@ -12,15 +12,9 @@
 
 namespace Coffee {
 
-    void Renderer::Init(RendererAPI* api)
+    Renderer::Renderer(RendererAPI* api) : m_API(api), m_Renderer2D(api), m_Renderer3D(api)
     {
         ZoneScoped;
-        
-        m_API = api;
-        m_API->Init();
-
-        m_Renderer2D.Init(api);
-        m_Renderer3D.Init(api);
 
         m_RendererData.CameraUniformBuffer = UniformBuffer::Create(sizeof(CameraData), 0);
 

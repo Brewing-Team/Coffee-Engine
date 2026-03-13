@@ -6,12 +6,12 @@
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Rendering/Shader.h"
-#include "CoffeeEngine/Embedded/EquirectToCubemap.inl"
-#include "CoffeeEngine/Embedded/IrradianceConvolution.inl"
-#include "CoffeeEngine/Embedded/PreFilterConvolutionShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/EquirectToCubemap.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/IrradianceConvolution.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/PreFilterConvolutionShader.inl"
 #include "CoffeeEngine/Rendering/VertexArray.h"
 #include "CoffeeEngine/Rendering/Buffer.h"
-#include "CoffeeEngine/Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/Rendering/PrimitiveMesh.h"
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>

@@ -1,8 +1,9 @@
 #pragma once
 
+#include "CoffeeEngine/UI/UIAnchor.h"
+
 #include <entt/entity/fwd.hpp>
 #include <unordered_map>
-#include "UIAnchor.h"
 
 namespace Coffee {
 
@@ -61,21 +62,21 @@ namespace Coffee {
                 float angle;
             };
 
-            TransformOperation CreateScale(const glm::vec2& scale) {
+            static TransformOperation CreateScale(const glm::vec2& scale) {
                 TransformOperation op;
                 op.type = Type::Scale;
                 op.scale = scale;
                 return op;
             }
 
-            TransformOperation CreateMove(const glm::vec2& offset) {
+            static TransformOperation CreateMove(const glm::vec2& offset) {
                 TransformOperation op;
                 op.type = Type::Move;
                 op.offset = offset;
                 return op;
             }
 
-            TransformOperation CreateRotate(float angle) {
+            static TransformOperation CreateRotate(float angle) {
                 TransformOperation op;
                 op.type = Type::Rotate;
                 op.angle = angle;

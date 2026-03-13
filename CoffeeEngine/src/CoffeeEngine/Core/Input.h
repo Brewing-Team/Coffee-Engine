@@ -83,11 +83,11 @@ namespace Coffee {
         /**
          * Initializes the module
          */
-        void Init(Window* window);
+        Input(Window* window);
 
-        void Save();
+/*         void Save();
 
-        void Load();
+        void Load(); */
 
         /**
          * Checks if a specific key is currently being pressed.

@@ -9,27 +9,22 @@
 
 namespace Coffee {
 
-    EditorCamera::EditorCamera(float fov, ProjectionType projection, float aspectRatio, float nearClip, float farClip)
+    EditorCamera::EditorCamera(Input* input, float fov, ProjectionType projection, float aspectRatio, float nearClip, float farClip)
+        : Camera(fov, projection, aspectRatio, nearClip, farClip)
+        , m_Input(input)
     {
-        m_FOV = fov;
-        m_ProjectionType = projection;
-        m_AspectRatio = aspectRatio;
-        m_NearClip = nearClip;
-        m_FarClip = farClip;
-
         UpdateView();
-        UpdateProjection();
     }
 
     void EditorCamera::OnUpdate(float dt)
     {
-        glm::vec2 mousePos = Input::GetMousePosition();
+        glm::vec2 mousePos = m_Input->GetMousePosition();
         glm::vec2 delta = (mousePos - m_InitialMousePosition) * 0.01f;
         m_InitialMousePosition = mousePos;
 
-        if (Input::IsMouseButtonPressed(Mouse::ButtonMiddle))
+        if (m_Input->IsMouseButtonPressed(Mouse::ButtonMiddle))
         {
-            if (Input::IsKeyPressed(Key::LShift))
+            if (m_Input->IsKeyPressed(Key::LShift))
             {
                 MousePan(delta);
             }
@@ -38,7 +33,7 @@ namespace Coffee {
                 MouseRotate(delta);
             }
         }
-        else if (Input::IsMouseButtonPressed(Mouse::ButtonRight))
+        else if (m_Input->IsMouseButtonPressed(Mouse::ButtonRight))
         {
             m_CurrentState = CameraState::FLY;
             Fly(delta);
@@ -101,7 +96,7 @@ namespace Coffee {
         glm::vec3 right = GetRightDirection();
         glm::vec3 up = GetUpDirection();
 
-        if (Input::IsKeyPressed(Key::LShift))
+        if (m_Input->IsKeyPressed(Key::LShift))
         {
             m_CurrentSpeed = m_BaseSpeed * 2.0f;
         }
@@ -110,27 +105,27 @@ namespace Coffee {
             m_CurrentSpeed = m_BaseSpeed;
         }
 
-        if (Input::IsKeyPressed(Key::W))
+        if (m_Input->IsKeyPressed(Key::W))
         {
             m_Position += forward * m_CurrentSpeed;
         }
-        if (Input::IsKeyPressed(Key::S))
+        if (m_Input->IsKeyPressed(Key::S))
         {
             m_Position -= forward * m_CurrentSpeed;
         }
-        if (Input::IsKeyPressed(Key::A))
+        if (m_Input->IsKeyPressed(Key::A))
         {
             m_Position -= right * m_CurrentSpeed;
         }
-        if (Input::IsKeyPressed(Key::D))
+        if (m_Input->IsKeyPressed(Key::D))
         {
             m_Position += right * m_CurrentSpeed;
         }
-        if (Input::IsKeyPressed(Key::Q))
+        if (m_Input->IsKeyPressed(Key::Q))
         {
             m_Position -= up * m_CurrentSpeed;
         }
-        if (Input::IsKeyPressed(Key::E))
+        if (m_Input->IsKeyPressed(Key::E))
         {
             m_Position += up * m_CurrentSpeed;
         }

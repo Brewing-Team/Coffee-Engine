@@ -14,6 +14,7 @@ namespace Coffee {
     constexpr float GRAVITY = -9.81f;
 
     class Entity;
+    class Scene;
 
     struct RaycastHit {
         bool hasHit = false;
@@ -26,7 +27,7 @@ namespace Coffee {
     class PhysicsWorld {
 
     public:
-        PhysicsWorld();
+        PhysicsWorld(const Scene& scene);
         ~PhysicsWorld();
 
         void addRigidBody(btRigidBody* body) const;
@@ -38,9 +39,10 @@ namespace Coffee {
 
         btDiscreteDynamicsWorld* getDynamicsWorld() const;
 
-        void drawCollisionShapes() const;
+        void drawCollisionShapes(Renderer2D& renderer) const;
         
-        void DebugDrawRaycast(const glm::vec3& origin, const glm::vec3& direction, float maxDistance = 1000.0f, 
+        // This function should be rewritten and the current solution is only a patch to support the old code.
+        void DebugDrawRaycast(Renderer2D& renderer, const glm::vec3& origin, const glm::vec3& direction, float maxDistance = 1000.0f, 
                               const glm::vec4& rayColor = glm::vec4(1.0f, 0.0f, 0.0f, 1.0f),
                               const glm::vec4& hitColor = glm::vec4(0.0f, 1.0f, 0.0f, 1.0f)) const;
 
@@ -54,6 +56,8 @@ namespace Coffee {
         bool RaycastAny(const glm::vec3& origin, const glm::vec3& direction, float maxDistance = 1000.0f) const;
 
     private:
+        const Scene& m_CurrentScene;
+
         btDefaultCollisionConfiguration* collisionConfig;
         btCollisionDispatcher* dispatcher;
         btBroadphaseInterface* broadphase;

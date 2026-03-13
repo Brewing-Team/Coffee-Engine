@@ -126,23 +126,6 @@ namespace Coffee
         return FindClosestPointOnTriangle(point, triangle);
     }
 
-    void NavMeshPathfinding::RenderPath(const std::vector<glm::vec3>& path) const
-    {
-        constexpr glm::vec4 pathColor(1.0f, 0.0f, 0.0f, 1.0f);
-
-        if (path.size() < 2)
-            return;
-
-        for (size_t i = 0; i < path.size() - 1; i++)
-        {
-            Renderer2D::DrawLine(path[i], path[i + 1], pathColor, 30.0f);
-
-            Renderer2D::DrawSphere(path[i], 0.1f, glm::identity<glm::quat>(), pathColor);
-        }
-
-        Renderer2D::DrawSphere(path.back(), 0.1f, glm::identity<glm::quat>(), pathColor);
-    }
-
     int NavMeshPathfinding::FindTriangleContaining(const glm::vec3& point) const
     {
         const std::vector<NavMeshTriangle>& triangles = m_NavMesh->GetTriangles();

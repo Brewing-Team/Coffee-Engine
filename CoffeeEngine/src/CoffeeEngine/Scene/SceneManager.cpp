@@ -1,6 +1,4 @@
 #include "SceneManager.h"
-#include "CoffeeEngine/Audio/Audio.h"
-#include "CoffeeEngine/Audio/AudioZone.h"
 #include <filesystem>
 #include <tracy/Tracy.hpp>
 #include <future>
@@ -39,11 +37,11 @@ namespace Coffee {
     {
         ZoneScoped;
     
-        std::filesystem::path fullPath = s_WorkingDirectory / scenePath;
+        std::filesystem::path fullPath = m_WorkingDirectory / scenePath;
     
         ExitCurrentScene();
     
-        s_ActiveScene = Scene::Load(fullPath);
+        m_ActiveScene = Scene::Load(fullPath);
     
         InitNewScene();
     }
@@ -54,7 +52,7 @@ namespace Coffee {
     
         ExitCurrentScene();
     
-        s_ActiveScene = scene;
+        m_ActiveScene = scene;
     
         InitNewScene();
     }
@@ -63,10 +61,10 @@ namespace Coffee {
     void SceneManager::ChangeSceneAsync(const std::filesystem::path& scenePath)
     {
         // Store the future returned by std::async
-        auto future = std::async(std::launch::async, [scenePath]() -> Ref<Scene> {
+        auto future = std::async(std::launch::async, [scenePath, this]() -> Ref<Scene> {
             ZoneScoped;
     
-            std::filesystem::path fullPath = s_WorkingDirectory / scenePath;
+            std::filesystem::path fullPath = m_WorkingDirectory / scenePath;
             Ref<Scene> scene = Scene::Load(fullPath);
             return scene;
         });
@@ -86,32 +84,28 @@ namespace Coffee {
 
     void SceneManager::ExitCurrentScene()
     {
-        if (s_ActiveScene)
+        if (m_ActiveScene)
         {
-            if (s_SceneState == SceneState::Play)
+            if (m_SceneState == SceneState::Play)
             {
-                s_ActiveScene->OnExitRuntime();
+                m_ActiveScene->OnExitRuntime();
             }
-            else if (s_SceneState == SceneState::Edit)
+            else if (m_SceneState == SceneState::Edit)
             {
-                s_ActiveScene->OnExitEditor();
+                m_ActiveScene->OnExitEditor();
             }
-
-            Audio::StopAllEvents();
-            AudioZone::RemoveAllReverbZones();
-            Audio::UnregisterAllGameObjects();
         }
     }
 
     void SceneManager::InitNewScene()
     {
-        if (s_SceneState == SceneState::Play)
+        if (m_SceneState == SceneState::Play)
         {
-            s_ActiveScene->OnInitRuntime();
+            m_ActiveScene->OnInitRuntime();
         }
-        else if (s_SceneState == SceneState::Edit)
+        else if (m_SceneState == SceneState::Edit)
         {
-            s_ActiveScene->OnInitEditor();
+            m_ActiveScene->OnInitEditor();
         }
     }
 }

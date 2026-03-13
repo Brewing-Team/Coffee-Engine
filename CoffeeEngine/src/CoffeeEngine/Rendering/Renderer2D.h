@@ -111,7 +111,7 @@ namespace Coffee {
             Screen
         };
     public:
-        void Init(RendererAPI* api);
+        Renderer2D(RendererAPI* api);
 
         /*
         Render();
@@ -170,6 +170,8 @@ namespace Coffee {
         void DrawCone(glm::vec3 vec, glm::quat qua, float radius, float height, glm::vec4 vec4);
         void DrawTruncatedCone(glm::vec3 position, glm::quat rotation, float baseRadius, float topRadius,
                                       float height, glm::vec4 color);
+
+        void DrawPath(const std::vector<glm::vec3>& path);
 
         enum class TextAlignment
         {

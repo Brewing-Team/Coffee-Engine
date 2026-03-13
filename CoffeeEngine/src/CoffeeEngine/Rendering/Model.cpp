@@ -1,10 +1,11 @@
 #include "CoffeeEngine/Rendering/Model.h"
 
 // Core engine includes
-#include "CoffeeEngine/Animation/Animation.h"
+#include "CoffeeEngine/Resources/Animation/AnimationClip.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/Resources/Animation/Skeleton.h"
 #include "CoffeeEngine/Resources/CacheManager.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 
@@ -18,7 +19,6 @@
 #include "CoffeeEngine/Rendering/Material.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Rendering/Texture.h"
-#include "CoffeeEngine/Animation/AnimationSystem.h"
 
 // Heavy external dependencies - only in .cpp
 #include <assimp/Importer.hpp>
@@ -167,13 +167,13 @@ namespace Coffee {
             if(!ExtractAnimations(scene, boneMap))
                 std::cerr << "Error extracting animations" << std::endl;
 
-            if (m_Skeleton && m_AnimationController && m_AnimationController->GetAnimationCount() > 0)
+            if (m_Skeleton && m_AnimationController && m_AnimationController->GetAnimationClipCount() > 0)
             {
-                std::cout << "AnimationsCount: " << m_AnimationController->GetAnimationCount() << ", BonesCount: " << m_Skeleton->GetNumJoints() << std::endl;
+                std::cout << "AnimationsCount: " << m_AnimationController->GetAnimationClipCount() << ", BonesCount: " << m_Skeleton->GetNumJoints() << std::endl;
 
-                for (const auto& [name, index] : m_AnimationController->GetAnimationMap())
+                for (const auto& [name, index] : m_AnimationController->GetAnimationClipMap())
                 {
-                    std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationController->GetAnimation(index)->GetDuration() << std::endl;
+                    std::cout << "AnimationName: " << name << ", Index: " << index << ", Duration: " << m_AnimationController->GetAnimationClip(index)->GetDuration() << std::endl;
                 }
             }
         }
@@ -620,7 +620,7 @@ namespace Coffee {
                 m_Skeleton->Save(oArchive);
             }
 
-            for (const auto& anim : m_AnimationController->GetAnimations())
+            for (const auto& anim : m_AnimationController->GetAnimationClips())
             {
                 ozz::io::File animationFile((CacheManager::GetCachePath().string() + anim.GetAnimationName() + std::to_string(uuid) + ".ozz").c_str(), "wb");
                 if (animationFile.opened())
@@ -660,7 +660,7 @@ namespace Coffee {
 
                     auto animation = ozz::make_unique<ozz::animation::Animation>();
                     m_AnimationController->AddAnimation(animName, std::move(animation));
-                    m_AnimationController->GetAnimation(animName)->Load(iArchive);
+                    m_AnimationController->GetAnimationClip(animName)->Load(iArchive);
                 }
             }
         }

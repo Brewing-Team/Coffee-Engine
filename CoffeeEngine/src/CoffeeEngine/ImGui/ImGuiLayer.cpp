@@ -16,8 +16,9 @@
 
 namespace Coffee {
 
-    ImGuiLayer::ImGuiLayer()
+    ImGuiLayer::ImGuiLayer(Window* window)
         : Layer("ImGuiLayer")
+		, m_Window(window)
     {
     }
 
@@ -53,8 +54,7 @@ namespace Coffee {
 
         SetCoffeeColorStyle();
 
-        Engine& app = Engine::Get();
-        SDL_Window* window = static_cast<SDL_Window*>(app.GetWindow().GetNativeWindow());
+        SDL_Window* window = static_cast<SDL_Window*>(m_Window->GetNativeWindow());
 
         ImGui_ImplSDL3_InitForOpenGL(window, SDL_GL_GetCurrentContext());
         ImGui_ImplOpenGL3_Init("#version 410");
@@ -93,8 +93,7 @@ namespace Coffee {
         ZoneScoped;
 
 		ImGuiIO& io = ImGui::GetIO();
-		Engine& app = Engine::Get();
-		io.DisplaySize = ImVec2((float)app.GetWindow().GetWidth(), (float)app.GetWindow().GetHeight());
+		io.DisplaySize = ImVec2((float)m_Window->GetWidth(), (float)m_Window->GetHeight());
 
 		// Rendering
 		ImGui::Render();

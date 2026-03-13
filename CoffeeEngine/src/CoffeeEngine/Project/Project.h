@@ -26,13 +26,13 @@ namespace Coffee {
          * @brief Gets the directory of the project.
          * @return The path to the project directory.
          */
-        const std::filesystem::path& GetDirectory() { return m_ProjectDirectory; }
+        const std::filesystem::path& GetDirectory() const { return m_ProjectDirectory; }
 
         /**
          * @brief Gets the name of the project.
          * @return The name of the project.
          */
-        const std::string& GetName() { return m_Name; }
+        const std::string& GetName() const { return m_Name; }
 
         /**
          * @brief Retrieves the cache directory path of the project.
@@ -42,7 +42,7 @@ namespace Coffee {
          * 
          * @return std::filesystem::path Reference to the cache directory path.
          */
-        static std::filesystem::path GetCacheDirectory() { return GetDirectory() / m_CacheDirectory; }
+        std::filesystem::path GetCacheDirectory() { return GetDirectory() / m_CacheDirectory; }
 
         /**
          * @brief Retrieves de audio directory path of the project
@@ -53,7 +53,7 @@ namespace Coffee {
          *
          * @return audio directory absolute path
          */
-        static std::filesystem::path GetAudioDirectory() { return GetDirectory() / GetRelativeAudioDirectory(); }
+        std::filesystem::path GetAudioDirectory() { return GetDirectory() / GetRelativeAudioDirectory(); }
 
         /**
          * @brief Retrieves the audio directory relative path of the active object
@@ -63,7 +63,7 @@ namespace Coffee {
          *
          * @return The audio directory relative path
          */
-        static std::filesystem::path GetRelativeAudioDirectory() { return m_AudioFolderPath; }
+        std::filesystem::path GetRelativeAudioDirectory() { return m_AudioFolderPath; }
 
         /**
          * @brief Serializes the project data.

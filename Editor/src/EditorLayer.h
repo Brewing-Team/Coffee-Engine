@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
+#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Rendering/EditorCamera.h"
 
@@ -25,7 +26,7 @@ namespace Coffee {
     class EditorLayer : public Coffee::Layer
     {
     public:
-        EditorLayer();
+        EditorLayer(const EngineContext& ctx);
         virtual ~EditorLayer() = default;
 
         void OnAttach() override;
@@ -61,6 +62,8 @@ namespace Coffee {
         void SaveScene();
         void SaveSceneAs();
     private:
+        const EngineContext& m_Context;
+
         Ref<RenderTarget> m_ViewportRenderTarget;
 
         Ref<Scene> m_EditorScene;

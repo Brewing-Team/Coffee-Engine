@@ -393,7 +393,7 @@ namespace Coffee
 
 void Coffee::RegisterInputBindings(sol::state& luaState)
 {
-    sol::table inputTable = luaState.create_table();
+/*     sol::table inputTable = luaState.create_table();
     BindKeyCodesToLua(luaState, inputTable);
     BindMouseCodesToLua(luaState, inputTable);
     BindControllerCodesToLua(luaState, inputTable);
@@ -455,5 +455,5 @@ void Coffee::RegisterInputBindings(sol::state& luaState)
        Input::SendRumble(glm::clamp<uint16_t>(low_freq_pwr*65535, 0, 65535), glm::clamp<uint16_t>(high_freq_power*65535,0,65535), glm::max<uint32_t>(duration, 0));
     });
 
-    luaState["Input"] = inputTable;
+    luaState["Input"] = inputTable; */
 }

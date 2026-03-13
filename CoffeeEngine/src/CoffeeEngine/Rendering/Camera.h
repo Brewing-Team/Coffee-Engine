@@ -44,6 +44,11 @@ namespace Coffee
          */
         Camera(const glm::mat4& projection)
             : m_Projection(projection) {}
+        Camera(float fov, ProjectionType projection = ProjectionType::PERSPECTIVE, float aspectRatio = 1.778, float nearClip = 0.1f, float farClip = 1000.0f)
+            : m_FOV(fov), m_AspectRatio(aspectRatio), m_NearClip(nearClip), m_FarClip(farClip), m_ProjectionType(projection)
+        {
+            UpdateProjection();
+        }
 
         /**
          * @brief Virtual destructor for the Camera class.

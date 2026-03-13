@@ -1,13 +1,13 @@
 #include "LuaPhysics.h"
 
-#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/Components/Collider.h"
 #include "CoffeeEngine/Physics/Components/RigidBody.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scene/Entity.h"
 
 void Coffee::RegisterPhysicsBindings(sol::state& luaState)
 {
-    // Bind RigidBody::Type enum
+/*     // Bind RigidBody::Type enum
     luaState.new_enum<RigidBody::Type>("RigidBodyType",
     {
         {"Static", RigidBody::Type::Static},
@@ -467,5 +467,5 @@ void Coffee::RegisterPhysicsBindings(sol::state& luaState)
         glm::vec4 hColor = hitColor.value_or(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
         scene->GetPhysicsWorld().DebugDrawRaycast(origin, direction, maxDistance, rColor, hColor);
-    };
+    }; */
 }

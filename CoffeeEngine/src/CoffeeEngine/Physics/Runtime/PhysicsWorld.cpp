@@ -1,7 +1,6 @@
-#include "CoffeeEngine/Physics/PhysicsWorld.h"
-#include "CoffeeEngine/Physics/CollisionSystem.h"
+#include "CoffeeEngine/Physics/Runtime/PhysicsWorld.h"
 #include "CoffeeEngine/Rendering/Renderer2D.h"
-#include "CoffeeEngine/Scene/SceneManager.h"
+#include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/Entity.h"
 
 #include <glm/fwd.hpp>
@@ -10,7 +9,7 @@
 
 namespace Coffee {
 
-    PhysicsWorld::PhysicsWorld() {
+    PhysicsWorld::PhysicsWorld(const Scene& scene) : m_CurrentScene(scene){
         collisionConfig = new btDefaultCollisionConfiguration();
         dispatcher = new btCollisionDispatcher(collisionConfig);
         broadphase = new btDbvtBroadphase();
@@ -50,7 +49,6 @@ namespace Coffee {
     void PhysicsWorld::stepSimulation(const float dt) const {
         ZoneScoped;
         dynamicsWorld->stepSimulation(dt);
-        CollisionSystem::checkCollisions(*this);
     }
 
     void PhysicsWorld::setGravity(const float gravity) const {
@@ -66,7 +64,7 @@ namespace Coffee {
         return dynamicsWorld;
     }
 
-    void PhysicsWorld::drawCollisionShapes() const
+    void PhysicsWorld::drawCollisionShapes(Renderer2D& renderer) const
     {
         ZoneScoped;
         if (!dynamicsWorld)
@@ -102,7 +100,7 @@ namespace Coffee {
                 btVector3 halfExtents = boxShape->getHalfExtentsWithMargin();
                 glm::vec3 size((halfExtents.x() + margin) * 2.0f, (halfExtents.y() + margin) * 2.0f,
                                (halfExtents.z() + margin) * 2.0f);
-                Renderer2D::DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                renderer.DrawBox(position, orientation, size, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
             }
             case SPHERE_SHAPE_PROXYTYPE: {
@@ -111,7 +109,7 @@ namespace Coffee {
                     continue;
 
                 const float radius = sphereShape->getRadius() + margin;
-                Renderer2D::DrawSphere(position, radius, orientation, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+                renderer.DrawSphere(position, radius, orientation, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
             }
             case CAPSULE_SHAPE_PROXYTYPE: {
@@ -122,7 +120,7 @@ namespace Coffee {
                 const float radius = capsuleShape->getRadius() + margin;
                 const float cylinderHeight = capsuleShape->getHalfHeight() * 2.0f + margin;
 
-                Renderer2D::DrawCapsule(position, orientation, radius, cylinderHeight,
+                renderer.DrawCapsule(position, orientation, radius, cylinderHeight,
                                         glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
             }
@@ -134,7 +132,7 @@ namespace Coffee {
                 const float radius = coneShape->getRadius() + margin;
                 const float height = coneShape->getHeight() + margin;
             
-                Renderer2D::DrawCone(position, orientation, radius, height,
+                renderer.DrawCone(position, orientation, radius, height,
                                      glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
             }
@@ -147,7 +145,7 @@ namespace Coffee {
                 float radius = halfExtents.x() + margin; // x and z are equal for Y-axis cylinder
                 float height = (halfExtents.y() + margin) * 2.0f;
             
-                Renderer2D::DrawCylinder(position, orientation, radius, height,
+                renderer.DrawCylinder(position, orientation, radius, height,
                                          glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
                 break;
             }
@@ -157,7 +155,7 @@ namespace Coffee {
         }
     }
 
-    void PhysicsWorld::DebugDrawRaycast(const glm::vec3& origin, const glm::vec3& direction, float maxDistance, 
+    void PhysicsWorld::DebugDrawRaycast(Renderer2D& renderer, const glm::vec3& origin, const glm::vec3& direction, float maxDistance, 
                                         const glm::vec4& rayColor, const glm::vec4& hitColor) const 
     {
         // Normalize direction
@@ -174,11 +172,11 @@ namespace Coffee {
             
             // Draw the hit point
             const float hitPointSize = 0.1f;
-            Renderer2D::DrawSphere(hit.hitPoint, hitPointSize, glm::quat(), hitColor);
+            renderer.DrawSphere(hit.hitPoint, hitPointSize, glm::quat(), hitColor);
             
             // Draw the hit normal
             const float normalLength = 0.5f;
-            Renderer2D::DrawLine(
+            renderer.DrawLine(
                 hit.hitPoint, 
                 hit.hitPoint + hit.hitNormal * normalLength,
                 glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 
@@ -190,7 +188,7 @@ namespace Coffee {
         }
         
         // Draw the ray itself
-        Renderer2D::DrawLine(origin, endPoint, rayColor, 0.03f);
+        renderer.DrawLine(origin, endPoint, rayColor, 0.03f);
     }
 
     RaycastHit PhysicsWorld::Raycast(const glm::vec3& origin, const glm::vec3& direction, float maxDistance) const {
@@ -215,7 +213,7 @@ namespace Coffee {
             // Get the entity associated with the hit body
             const btCollisionObject* obj = rayCallback.m_collisionObject;
             if (obj && obj->getUserPointer()) {
-                result.hitEntity = CreateRef<Entity>(static_cast<entt::entity>(reinterpret_cast<size_t>(obj->getUserPointer())), SceneManager::GetActiveScene().get());
+                result.hitEntity = CreateRef<Entity>(static_cast<entt::entity>(reinterpret_cast<size_t>(obj->getUserPointer())), m_CurrentScene);
             }
         }
 
@@ -248,7 +246,7 @@ namespace Coffee {
 
             const btCollisionObject* obj = rayCallback.m_collisionObjects[i];
             if (obj && obj->getUserPointer()) {
-                result.hitEntity = CreateRef<Entity>(static_cast<entt::entity>(reinterpret_cast<size_t>(obj->getUserPointer())), SceneManager::GetActiveScene().get());
+                result.hitEntity = CreateRef<Entity>(static_cast<entt::entity>(reinterpret_cast<size_t>(obj->getUserPointer())), m_CurrentScene);
             }
 
             results.push_back(result);

@@ -5,12 +5,12 @@
 #include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Scripting/GameSaver.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
-#include "CoffeeEngine/UI/UIManager.h"
+#include "CoffeeEngine/Scene/Systems/UISystem.h"
 #include <memory>
 
 void Coffee::RegisterComponentsBindings(sol::state& luaState)
 {
-    luaState.new_usertype<TagComponent>("TagComponent",
+/*     luaState.new_usertype<TagComponent>("TagComponent",
         sol::constructors<TagComponent(), TagComponent(const std::string&)>(),
         "tag", &TagComponent::Tag
     );
@@ -225,5 +225,5 @@ void Coffee::RegisterComponentsBindings(sol::state& luaState)
 
     luaState.set_function("rotate_ui_element", [](const Entity entity, float angle) {
         UISystem::MarkToTransform(entity, angle);
-    });
+    }); */
 }

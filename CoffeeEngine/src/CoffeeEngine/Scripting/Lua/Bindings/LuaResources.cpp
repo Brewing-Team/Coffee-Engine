@@ -249,7 +249,7 @@ namespace Coffee
 
     void RegisterResourceLoadingBindings(sol::state& luaState)
     {
-        luaState.set_function("load", [&](const std::string& path) -> sol::object
+/*         luaState.set_function("load", [&](const std::string& path) -> sol::object
         {
             std::filesystem::path filePath = Project::GetActive()->GetProjectDirectory() / path;
             ResourceType type = GetResourceTypeFromExtension(filePath);
@@ -281,6 +281,6 @@ namespace Coffee
                     return sol::make_object(luaState, sol::nil);
                 }
             }
-        });
+        }); */
     }
 }

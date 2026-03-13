@@ -1,10 +1,10 @@
 #include "Prefab.h"
 
-#include "CoffeeEngine/Animation/Animation.h"
+#include "CoffeeEngine/Resources/Animation/AnimationClip.h"
 #include "CoffeeEngine/Animation/AnimationSystem.h"
-#include "CoffeeEngine/Animation/Skeleton.h"
+#include "CoffeeEngine/Resources/Animation/Skeleton.h"
 #include "CoffeeEngine/Core/Log.h"
-#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/Components/Collider.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Scene/Components.h"
 #include "CoffeeEngine/Scene/SceneManager.h"

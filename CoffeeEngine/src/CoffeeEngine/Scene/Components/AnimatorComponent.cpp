@@ -1,7 +1,6 @@
 #include "AnimatorComponent.h"
-#include "CoffeeEngine/Animation/Animation.h"
-#include "CoffeeEngine/Animation/AnimationSystem.h"
-#include "CoffeeEngine/Animation/Skeleton.h"
+#include "CoffeeEngine/Resources/Animation/AnimationClip.h"
+#include "CoffeeEngine/Resources/Animation/Skeleton.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>
@@ -19,9 +18,9 @@ namespace Coffee
     {
         m_BlendJob.layers = ozz::make_span(m_BlendLayers);
         const std::string rootJointName = GetSkeleton()->GetJoints()[UpperBodyRootJoint].name;
-        AnimationSystem::SetupPartialBlending(UpperAnimation->CurrentAnimation, LowerAnimation->CurrentAnimation,
-                                                rootJointName, this);
-        AnimationSystem::AddAnimator(this);
+        //AnimationSystem::SetupPartialBlending(UpperAnimation->CurrentAnimation, LowerAnimation->CurrentAnimation,
+                                                //rootJointName, this);
+        //AnimationSystem::AddAnimator(this);
     }
 
     AnimatorComponent::AnimatorComponent(Ref<Skeleton> skeleton, Ref<AnimationController> animationController)
@@ -34,18 +33,18 @@ namespace Coffee
 
     void AnimatorComponent::SetCurrentAnimation(unsigned int index)
     {
-        AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get());
-        AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get());
+        //AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get());
+        //AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get());
     }
 
     void AnimatorComponent::SetUpperAnimation(unsigned int index)
     {
-        AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get());
+        //AnimationSystem::SetCurrentAnimation(index, this, UpperAnimation.get());
     }
 
     void AnimatorComponent::SetLowerAnimation(unsigned int index)
     {
-        AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get());
+        //AnimationSystem::SetCurrentAnimation(index, this, LowerAnimation.get());
     }
 
 
@@ -76,7 +75,7 @@ namespace Coffee
                 cereal::make_nvp("LowerBodyWeight", LowerBodyWeight),
                 cereal::make_nvp("UpperBodyRootJoint", UpperBodyRootJoint));
 
-        AnimationSystem::LoadAnimator(this);
+        //AnimationSystem::LoadAnimator(this);
     }
 
     // Explicit template instantiations for common cereal archives

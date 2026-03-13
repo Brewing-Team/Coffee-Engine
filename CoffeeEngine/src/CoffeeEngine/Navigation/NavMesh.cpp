@@ -74,7 +74,7 @@ namespace Coffee
         }
     }
 
-    void NavMesh::RenderWalkableAreas() const
+    void NavMesh::RenderWalkableAreas(Renderer2D& renderer) const
     {
         constexpr glm::vec4 edgeColor(0.2f, 0.7f, 1.0f, 1.0f);
 
@@ -83,7 +83,7 @@ namespace Coffee
             for (int i = 0; i < 3; i++)
             {
                 const int next = (i + 1) % 3;
-                Renderer2D::DrawLine(tri.vertices[i], tri.vertices[next], edgeColor, 20.0f);
+                renderer.DrawLine(tri.vertices[i], tri.vertices[next], edgeColor, 20.0f);
             }
         }
     }

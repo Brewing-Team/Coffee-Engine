@@ -31,7 +31,7 @@ namespace Coffee {
 		COFFEE_CORE_ASSERT(false, "Unknown severity level!");
 	}
 
-    void RendererAPI::Init()
+    RendererAPI::RendererAPI()
     {
         ZoneScoped;
 

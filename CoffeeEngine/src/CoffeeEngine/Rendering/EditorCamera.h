@@ -7,6 +7,7 @@
 namespace Coffee {
     
     class Event;
+    class Input;
     class MouseScrolledEvent;
 
     /**
@@ -43,7 +44,7 @@ namespace Coffee {
          * @param nearClip The near clipping plane distance.
          * @param farClip The far clipping plane distance.
          */
-        EditorCamera(float fov, ProjectionType projection = ProjectionType::PERSPECTIVE, float aspectRatio = 1.778, float nearClip = 0.1f, float farClip = 1000.0f);
+        EditorCamera(Input* input, float fov, ProjectionType projection = ProjectionType::PERSPECTIVE, float aspectRatio = 1.778, float nearClip = 0.1f, float farClip = 1000.0f);
 
         /**
          * @brief Updates the camera's view matrix.
@@ -158,6 +159,8 @@ namespace Coffee {
         void Fly(const glm::vec2& mouseDelta);
 
     private:
+        Input* m_Input; ///< Pointer to the input system.
+
         glm::mat4 m_ViewMatrix; ///< The view matrix of the camera.
 
         glm::vec3 m_Position = glm::vec3(0.0f, 0.0f, 0.0f); ///< The position of the camera.

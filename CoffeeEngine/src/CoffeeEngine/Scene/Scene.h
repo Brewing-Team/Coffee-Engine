@@ -2,6 +2,9 @@
 
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Physics/Runtime/PhysicsWorld.h" // Think removing it using Scope<PhysicsWorld> instead
+#include "CoffeeEngine/Scene/Systems/AnimationSystem.h"
+#include "CoffeeEngine/Scene/Systems/CollisionSystem.h"
+#include "CoffeeEngine/Scene/Systems/UISystem.h"
 
 #include <cereal/cereal.hpp>
 
@@ -18,15 +21,17 @@ namespace Coffee {
 
 namespace Coffee {
 
-    /**
-     * @defgroup scene Scene
-     * @{
-     */
+    class EngineContext;
 
     struct AnimatorComponent;
     struct MeshComponent;
     class Entity;
     class Model;
+
+    /**
+     * @defgroup scene Scene
+     * @{
+     */
 
     struct SceneDebugFlags
     {
@@ -48,7 +53,7 @@ namespace Coffee {
         /**
          * @brief Constructor for Scene.
          */
-        Scene();
+        Scene(EngineContext& context);;
 
         /**
          * @brief Default destructor.
@@ -112,6 +117,7 @@ namespace Coffee {
         /**
          * @brief Exit the scene.
          */
+        void OnExit();
         void OnExitEditor();
         void OnExitRuntime();
 
@@ -123,6 +129,7 @@ namespace Coffee {
          * @param path The path to the file.
          * @return The loaded scene.
          */
+        // TODO: Move this out of the Scene class. It should be managed by the ResourceManager when the Scene class becomes a Resource.
         static Ref<Scene> Load(const std::filesystem::path& path);
 
         /**
@@ -130,6 +137,7 @@ namespace Coffee {
          * @param path The path to the file.
          * @param scene The scene to save.
          */
+        // TODO: Move this out of the Scene class. It should be managed by the ResourceManager when the Scene class becomes a Resource.
         static void Save(const std::filesystem::path& path, Ref<Scene> scene);
 
         const std::filesystem::path& GetFilePath() const { return m_FilePath; }
@@ -176,20 +184,19 @@ namespace Coffee {
         template <class Archive> void load(Archive& archive, std::uint32_t const version);
 
     private:
-        // NOTE: this macro should be modified when adding new components
-        #define ALL_COMPONENTS \
-            TagComponent, TransformComponent, HierarchyComponent, CameraComponent, \
-            MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, \
-            ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, \
-            AnimatorComponent, ActiveComponent, StaticComponent, \
-            UIComponent, UIImageComponent, UITextComponent, UIToggleComponent, UIButtonComponent, UISliderComponent, \
-            WorldEnvironmentComponent
+        // INFO: I'm still learning how to use the new architecture, but I think that the Scene should not have a reference to the EngineContext. The Scene should be a Resource that is managed by the ResourceManager and should not have direct access to the EngineContext. However, for now, I'm adding it here to avoid having to refactor a lot of code that relies on the Scene having access to the EngineContext. In the future, when we refactor the code, we should remove this reference and find a better way to access the EngineContext from the Scene when needed.
+        EngineContext& m_Context;
 
         entt::registry m_Registry;
         Scope<SceneTree> m_SceneTree;
         Scope<Octree<entt::entity>> m_Octree;
         PhysicsWorld m_PhysicsWorld;
         SceneDebugFlags m_SceneDebugFlags;
+
+        // Systems
+        AnimationSystem m_AnimationSystem;
+        CollisionSystem m_CollisionSystem;
+        UISystem m_UISystem;
 
         // Temporal: Scenes should be Resources and the Base Resource class already has a path variable.
         std::filesystem::path m_FilePath;
@@ -200,6 +207,15 @@ namespace Coffee {
         friend class SceneTree;
         friend class SceneTreePanel;
         friend class CollisionSystem;
+
+        // NOTE: this macro should be modified when adding new components
+        #define ALL_COMPONENTS \
+            TagComponent, TransformComponent, HierarchyComponent, CameraComponent, \
+            MeshComponent, MaterialComponent, LightComponent, RigidbodyComponent, \
+            ScriptComponent, AudioSourceComponent, AudioListenerComponent, AudioZoneComponent, \
+            AnimatorComponent, ActiveComponent, StaticComponent, \
+            UIComponent, UIImageComponent, UITextComponent, UIToggleComponent, UIButtonComponent, UISliderComponent, \
+            WorldEnvironmentComponent
     };
 
     /**

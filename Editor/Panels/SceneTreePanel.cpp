@@ -1,6 +1,6 @@
 #include "SceneTreePanel.h"
 
-#include "CoffeeEngine/Animation/Animation.h"
+#include "CoffeeEngine/Resources/Animation/AnimationClip.h"
 #include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
@@ -8,7 +8,7 @@
 #include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Navigation/NavMesh.h"
 #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
-#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/Components/Collider.h"
 #include "CoffeeEngine/Rendering/Camera.h"
 #include "CoffeeEngine/Rendering/Material.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
@@ -20,7 +20,7 @@
 #include "CoffeeEngine/Scene/Components.h" // TODO: Think if I should remove this include and replace it with individual components
 #include "CoffeeEngine/Scene/Entity.h"
 #include "CoffeeEngine/Scene/Prefab.h"
-#include "CoffeeEngine/Scene/PrimitiveMesh.h"
+#include "CoffeeEngine/Rendering/PrimitiveMesh.h"
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
@@ -1638,7 +1638,7 @@ namespace Coffee
 
             if (!isCollapsingHeaderOpen)
             {
-                AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
+                //AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
                 Audio::UnregisterAudioSourceComponent(audioSourceComponent);
                 entity.RemoveComponent<AudioSourceComponent>();
             }
@@ -1667,7 +1667,7 @@ namespace Coffee
             {
                 if (ImGui::BeginCombo("Bus Channels", audioZoneComponent.audioBusName.c_str()))
                 {
-                    for (auto& busName : AudioZone::busNames)
+                    for (auto& busName : //AudioZone::busNames)
                     {
                         const bool isSelected = (audioZoneComponent.audioBusName == busName);
 
@@ -1676,7 +1676,7 @@ namespace Coffee
                             if (audioZoneComponent.audioBusName != busName)
                             {
                                 audioZoneComponent.audioBusName = busName;
-                                AudioZone::UpdateReverbZone(audioZoneComponent);
+                                //AudioZone::UpdateReverbZone(audioZoneComponent);
                             }
                         }
 
@@ -1689,16 +1689,16 @@ namespace Coffee
 
                 ImGui::Text("Position");
                 if (ImGui::DragFloat3("##ZonePosition", glm::value_ptr(audioZoneComponent.position), 0.1f) == true)
-                    AudioZone::UpdateReverbZone(audioZoneComponent);
+                    //AudioZone::UpdateReverbZone(audioZoneComponent);
 
                 ImGui::Text("Radius");
                 if (ImGui::SliderFloat("##ZoneRadius", &audioZoneComponent.radius, 1.f, 100.f))
-                    AudioZone::UpdateReverbZone(audioZoneComponent);
+                    //AudioZone::UpdateReverbZone(audioZoneComponent);
             }
 
             if (!isCollapsingHeaderOpen)
             {
-                AudioZone::RemoveReverbZone(audioZoneComponent);
+                //AudioZone::RemoveReverbZone(audioZoneComponent);
                 entity.RemoveComponent<AudioZoneComponent>();
             }
         }
@@ -2809,7 +2809,7 @@ namespace Coffee
                     {
                         entity.AddComponent<AudioSourceComponent>();
                         Audio::RegisterAudioSourceComponent(entity.GetComponent<AudioSourceComponent>());
-                        AudioZone::RegisterObject(entity.GetComponent<AudioSourceComponent>().gameObjectID,
+                        //AudioZone::RegisterObject(entity.GetComponent<AudioSourceComponent>().gameObjectID,
                                                   entity.GetComponent<AudioSourceComponent>().transform[3]);
                     }
 
@@ -2830,7 +2830,7 @@ namespace Coffee
                     if (!entity.HasComponent<AudioZoneComponent>())
                     {
                         entity.AddComponent<AudioZoneComponent>();
-                        AudioZone::CreateZone(entity.GetComponent<AudioZoneComponent>());
+                        //AudioZone::CreateZone(entity.GetComponent<AudioZoneComponent>());
                     }
 
                     ImGui::CloseCurrentPopup();
@@ -3036,7 +3036,7 @@ namespace Coffee
                         scriptFile.close();
 
                         // Add the script component to the entity
-                        entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
+                        entity.AddComponent<ScriptComponent>(ScriptingManager::CreateScript(path, ScriptingLanguage::Lua));
                     }
                     else
                     {
@@ -3056,7 +3056,7 @@ namespace Coffee
                 if (!path.empty())
                 {
                     // Add the script component to the entity with the selected script
-                    entity.AddComponent<ScriptComponent>(path.string(), ScriptingLanguage::Lua);
+                    entity.AddComponent<ScriptComponent>(ScriptingManager::CreateScript(path, ScriptingLanguage::Lua));
                 }
 
                 ImGui::CloseCurrentPopup();

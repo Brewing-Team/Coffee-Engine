@@ -9,18 +9,24 @@
 
 namespace Coffee {
 
-    Ref<Project> ProjectManager::NewProject(const std::filesystem::path& path)
+        ProjectManager::ProjectManager(SceneManager* sceneManager, ResourceManager* resourceManager, ScriptingManager* scriptingManager, Audio* audio)
+            : m_SceneManager(sceneManager), m_ResourceManager(resourceManager), m_ScriptingManager(scriptingManager), m_Audio(audio)
+        {
+        }
+
+    Ref<const Project> ProjectManager::NewProject(const std::filesystem::path& path)
     {
-        m_ActiveProject = CreateRef<Project>(path.filename().string(), path.parent_path(), ".CoffeeEngine/Cache/");
+        m_CurrentProject = CreateRef<Project>(path.filename().string(), path.parent_path(), ".CoffeeEngine/Cache/");
+        
+        // TODO: Move this logic to and event that is fired when a project is loaded or created. It should be handled by the ResourceManager or something like that.
+        CacheManager::SetCachePath(m_CurrentProject->m_ProjectDirectory / m_CurrentProject->m_CacheDirectory);
+        m_ResourceManager->SetWorkingDirectory(m_CurrentProject->m_ProjectDirectory);
+        m_SceneManager->SetWorkingDirectory(m_CurrentProject->m_ProjectDirectory);
 
-        CacheManager::SetCachePath(m_ActiveProject->m_ProjectDirectory / m_ActiveProject->m_CacheDirectory);
-        ResourceLoader::SetWorkingDirectory(m_ActiveProject->m_ProjectDirectory);
-        SceneManager::SetWorkingDirectory(m_ActiveProject->m_ProjectDirectory);
-
-        return m_ActiveProject;
+        return m_CurrentProject;
     }
 
-    Ref<Project> ProjectManager::LoadProject(const std::filesystem::path& path)
+    Ref<const Project> ProjectManager::LoadProject(const std::filesystem::path& path)
     {
         Ref<Project> project = CreateRef<Project>();
 
@@ -31,33 +37,32 @@ namespace Coffee {
 
         project->m_ProjectDirectory = path.parent_path();
 
-        m_ActiveProject = project;
+        m_CurrentProject = project;
 
-        ResourceRegistry::Clear();
+        // TODO: Move the next logic to and event that is fired when a project is loaded or created. It should be handled by the ResourceManager or something like that.
+
+        m_ResourceManager->ClearRegistry();
 
         CacheManager::SetCachePath(project->m_ProjectDirectory / project->m_CacheDirectory);
-        ResourceLoader::SetWorkingDirectory(m_ActiveProject->m_ProjectDirectory);
-        ResourceLoader::LoadDirectory(project->m_ProjectDirectory);
-        SceneManager::SetWorkingDirectory(m_ActiveProject->m_ProjectDirectory);
-        ScriptingManager::SetWorkingDirectory(m_ActiveProject->m_ProjectDirectory);
-        Input::Load();
-        Audio::OnProjectLoad();
+        m_ResourceManager->SetWorkingDirectory(m_CurrentProject->m_ProjectDirectory);
+        m_ResourceManager->LoadDirectory(project->m_ProjectDirectory);
+        m_SceneManager->SetWorkingDirectory(m_CurrentProject->m_ProjectDirectory);
+        m_ScriptingManager->SetWorkingDirectory(m_CurrentProject->m_ProjectDirectory);
+        m_Audio->OnProjectLoad();
 
         return project;
     }
 
-    void ProjectManager::SaveActive()
+    void ProjectManager::SaveCurrentProject()
     {
-        if (m_ActiveProject)
+        if (m_CurrentProject)
         {
-            std::filesystem::path path = m_ActiveProject->m_ProjectDirectory / m_ActiveProject->m_Name;
+            std::filesystem::path path = m_CurrentProject->m_ProjectDirectory / m_CurrentProject->m_Name;
 
             std::ofstream projectFile(path);
             cereal::JSONOutputArchive archive(projectFile);
 
-            archive(cereal::make_nvp("Project", *m_ActiveProject));
-
-            Input::Save();
+            archive(cereal::make_nvp("Project", *m_CurrentProject));
         }
     }
 

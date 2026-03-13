@@ -50,7 +50,7 @@ namespace Coffee
     // Global pointer for the low-level IO (This should be inside the class but I will remove Wwise in the future so i don't care.)
     CAkFilePackageLowLevelIODeferred* g_lowLevelIO = nullptr;
 
-    void Audio::Init()
+    Audio::Audio()
     {
         Audio::m_ActiveAudioPath = Audio::DefaultAudioPath;
 
@@ -82,7 +82,7 @@ namespace Coffee
         else
             COFFEE_CORE_ERROR("Failed to load audio banks");
 
-        AudioZone::SearchAvailableBusChannels();
+        //AudioZone::SearchAvailableBusChannels();
     }
 
     void Audio::RegisterGameObject(uint64_t gameObjectID)
@@ -182,7 +182,7 @@ namespace Coffee
         if (!audioSourceComponent.eventName.empty() && audioSourceComponent.isPlaying)
             StopEvent(audioSourceComponent);
 
-        AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
+        //AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
 
         UnregisterGameObject(audioSourceComponent.gameObjectID);
 
@@ -253,7 +253,7 @@ namespace Coffee
     }
     void Audio::OnProjectLoad()
     {
-        std::filesystem::path audioPath = Project::GetAudioDirectory();
+/*         std::filesystem::path audioPath = Project::GetAudioDirectory();
 
         std::filesystem::path projectPath = Project::GetProjectDirectory() / "";
         // Don't try to load
@@ -266,7 +266,7 @@ namespace Coffee
 
 
         m_ActiveAudioPath = audioPath;
-        ReloadAudioBanks();
+        ReloadAudioBanks(); */
     }
     void Audio::OnProjectUnload()
     {
@@ -452,7 +452,7 @@ namespace Coffee
 
     void Audio::Shutdown()
     {
-        AudioZone::Shutdown();
+        //AudioZone::Shutdown();
 
         UnregisterAllGameObjects();
 

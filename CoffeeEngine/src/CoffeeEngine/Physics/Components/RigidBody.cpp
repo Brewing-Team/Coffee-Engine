@@ -2,7 +2,6 @@
 
 #include "CoffeeEngine/Math/BoundingBox.h"
 #include "Collider.h"
-#include "CoffeeEngine/Physics/PhysicsWorld.h"
 
 namespace Coffee {
 

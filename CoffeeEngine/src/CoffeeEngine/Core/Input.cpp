@@ -22,7 +22,7 @@ namespace Coffee {
 
     constexpr const char* MAPPING_FILE_PATH = "InputMapping.json";
 
-    void Input::Init(Window* window)
+    Input::Input(Window* window)
     {
         SDL_InitSubSystem(SDL_INIT_GAMEPAD);
 
@@ -43,7 +43,7 @@ namespace Coffee {
         m_Timestamp = Input::OnFrameUpdate();
     }
 
-    void Input::Save()
+/*     void Input::Save()
     {
         // Can't save project input mapping if there's no project
         if (Project::GetActive() == nullptr)
@@ -79,7 +79,7 @@ namespace Coffee {
         archive(m_BindingsMap);
 
         COFFEE_INFO("Loaded input mappings");
-    }
+    } */
 
     bool Input::IsKeyPressed(const KeyCode key)
     {
@@ -525,7 +525,7 @@ namespace Coffee {
 
         #pragma endregion
 
-        Input::Save();
+        //Input::Save();
     }
 
 } // namespace Coffee

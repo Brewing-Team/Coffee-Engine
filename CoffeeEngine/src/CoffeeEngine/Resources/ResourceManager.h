@@ -124,6 +124,8 @@ namespace Coffee {
         void RemoveResource(const Ref<Resource>& resource);
         void ReimportResource(const Ref<Resource>& resource);
 
+        void ClearRegistry() { m_Registry.Clear(); }
+
         void SetWorkingDirectory(const std::filesystem::path& path) { m_WorkingDirectory = path; }
         const std::filesystem::path& GetWorkingDirectory() { return m_WorkingDirectory; }
     

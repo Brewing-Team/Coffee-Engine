@@ -11,9 +11,9 @@
 #include "CoffeeEngine/Rendering/Font.h"
 #include "CoffeeEngine/Rendering/MSDFData.h"
 
-#include "CoffeeEngine/Embedded/QuadShader.inl"
-#include "CoffeeEngine/Embedded/TextShader.inl"
-#include "CoffeeEngine/Embedded/LineShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/QuadShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/TextShader.inl"
+#include "CoffeeEngine/Rendering/Embedded/Shaders/LineShader.inl"
 
 #include <array>
 #include <cstddef>
@@ -30,7 +30,7 @@
 
 namespace Coffee {
 
-    void Renderer2D::Init(RendererAPI* api)
+    Renderer2D::Renderer2D(RendererAPI* api)
     {
         m_API = api;
 
@@ -882,6 +882,22 @@ namespace Coffee {
         }
     }
 
+    void Renderer2D::DrawPath(const std::vector<glm::vec3>& path) 
+    {
+        constexpr glm::vec4 pathColor(1.0f, 0.0f, 0.0f, 1.0f);
+
+        if (path.size() < 2)
+            return;
+
+        for (size_t i = 0; i < path.size() - 1; i++)
+        {
+            DrawLine(path[i], path[i + 1], pathColor, 30.0f);
+
+            DrawSphere(path[i], 0.1f, glm::identity<glm::quat>(), pathColor);
+        }
+
+        DrawSphere(path.back(), 0.1f, glm::identity<glm::quat>(), pathColor);
+    }
 
     void Renderer2D::DrawTextString(const std::string &text, Ref<Font> font, const glm::mat4 &transform, const TextParams &textParams, RenderMode mode, uint32_t entityID)
     {

@@ -39,7 +39,7 @@ namespace Coffee {
         std::vector<int> objectIDs; // Store only object IDs
         std::array<Scope<OctreeNode>, 8> children;
 
-        void DebugDrawAABB(const std::unordered_map<int, Ref<ObjectContainer<T>>>& objectMap);
+        void DebugDrawAABB(const std::unordered_map<int, Ref<ObjectContainer<T>>>& objectMap, Renderer2D& renderer);
     };
 
     template <typename T>
@@ -51,7 +51,7 @@ namespace Coffee {
         ~Octree();
 
         void Insert(Ref<ObjectContainer<T>> object);
-        void DebugDraw();
+        void DebugDraw(Renderer2D& renderer);
         void Clear();
 
         std::vector<T> Query(const Frustum& frustum) const;
@@ -83,10 +83,10 @@ namespace Coffee {
     }
 
     template <typename T>
-    void Octree<T>::DebugDraw()
+    void Octree<T>::DebugDraw(Renderer2D& renderer)
     {
         ZoneScoped;
-        rootNode.DebugDrawAABB(objectMap);
+        rootNode.DebugDrawAABB(objectMap, renderer);
     }
 
     template <typename T>
@@ -230,7 +230,7 @@ namespace Coffee {
     }
 
     template <typename T>
-    void OctreeNode<T>::DebugDrawAABB(const std::unordered_map<int, Ref<ObjectContainer<T>>>& objectMap)
+    void OctreeNode<T>::DebugDrawAABB(const std::unordered_map<int, Ref<ObjectContainer<T>>>& objectMap, Renderer2D& renderer)
     {
             int numObjects = objectIDs.size();
 
@@ -238,13 +238,13 @@ namespace Coffee {
             float red = glm::clamp(1.0f - (numObjects / 10.0f), 0.0f, 1.0f);
             glm::vec4 color(red, green, 0.0f, 1.0f);
 
-            Renderer2D::DrawBox(aabb.min, aabb.max, color);
+            renderer.DrawBox(aabb.min, aabb.max, color);
 
             for (int id : objectIDs)
             {
                 const auto& obj = objectMap.at(id);
                 AABB aabb = obj->transformedAABB;
-                Renderer2D::DrawBox(aabb.min, aabb.max, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                renderer.DrawBox(aabb.min, aabb.max, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
             }
 
             for (const auto& child : children)

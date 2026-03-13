@@ -33,7 +33,6 @@ namespace Coffee {
         Ref<Mesh> mesh;
         Ref<Material> material;
         uint32_t entityID = 4294967295;
-        AnimatorComponent* animator;
     };
 
     /**
@@ -129,7 +128,7 @@ namespace Coffee {
         /**
          * @brief Initializes the renderer.
          */
-        void Init(RendererAPI* api);
+        Renderer3D(RendererAPI* api);
 
         /**
          * @brief Shuts down the renderer.

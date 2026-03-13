@@ -27,7 +27,7 @@ namespace Coffee {
         /**
          * @brief Initializes the audio system.
          */
-        void Init();
+        Audio();
 
         /**
          * @brief Shuts down the audio system.

@@ -1,14 +1,15 @@
 #include "Scene.h"
 
-#include "CoffeeEngine/Animation/Animation.h"
+#include "CoffeeEngine/Resources/Animation/AnimationClip.h"
 #include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
+#include "CoffeeEngine/Core/Engine.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Math/Frustum.h"
 #include "CoffeeEngine/Navigation/NavMesh.h"
 #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
-#include "CoffeeEngine/Physics/Collider.h"
+#include "CoffeeEngine/Physics/Components/Collider.h"
 #include "CoffeeEngine/Physics/CollisionCallback.h"
 #include "CoffeeEngine/Physics/CollisionSystem.h"
 #include "CoffeeEngine/Physics/PhysicsWorld.h"
@@ -191,16 +192,18 @@ namespace Coffee {
                 .template get<UIComponent>(archive);
         }
 
-        AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
+        AssignAnimatorsToMeshes(m_AnimationSystem.GetAnimators());
 
         m_IsLoading = false;
     }
 
-    Scene::Scene()
+    Scene::Scene(EngineContext& context) : m_Context(context)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
 
-        AnimationSystem::ResetAnimators();
+        ////AudioZone::RemoveAllReverbZones();
+        m_Context.audio->UnregisterAllGameObjects();
+        m_AnimationSystem.ResetAnimators();
     }
 
     template <typename T>
@@ -255,14 +258,14 @@ namespace Coffee {
             newComponent.UpperAnimation = CreateRef<AnimationLayer>(*srcComponent.UpperAnimation);
             newComponent.LowerAnimation = CreateRef<AnimationLayer>(*srcComponent.LowerAnimation);
 
-            AnimationSystem::LoadAnimator(&newComponent);
+            m_AnimationSystem.LoadAnimator(&newComponent);
 
             UUID newUUID = UUID();
             Scene::s_UUIDMap[srcComponent.animatorUUID] = newUUID;
             newComponent.animatorUUID = newUUID;
 
             const std::string rootJointName = newComponent.GetSkeleton()->GetJoints()[newComponent.UpperBodyRootJoint].name;
-            AnimationSystem::SetupPartialBlending(
+            m_AnimationSystem.SetupPartialBlending(
                 newComponent.UpperAnimation->CurrentAnimation,
                 newComponent.LowerAnimation->CurrentAnimation,
                 rootJointName,
@@ -306,7 +309,7 @@ namespace Coffee {
 
             auto& audioSourceComponent = registry.get<AudioSourceComponent>(destinyEntity);
             Audio::RegisterAudioSourceComponent(audioSourceComponent);
-            AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
+            //AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
         }
     }
 
@@ -527,7 +530,7 @@ namespace Coffee {
         {
             auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
             Audio::RegisterAudioSourceComponent(audioSourceComponent);
-            AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
+            //AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
         }
     }
 
@@ -605,7 +608,7 @@ namespace Coffee {
         {
             auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
             Audio::RegisterAudioSourceComponent(audioSourceComponent);
-            AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
+            //AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
         }
         Audio::PlayInitialAudios();
 
@@ -666,7 +669,7 @@ namespace Coffee {
                 if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() &&
                     navMeshComponent.GetNavMesh()->IsCalculated())
                 {
-                    navMeshComponent.GetNavMesh()->RenderWalkableAreas();
+                    navMeshComponent.GetNavMesh()->RenderWalkableAreas(m_Context.renderer->Get2DRenderer());
                 }
             }
         }
@@ -696,7 +699,7 @@ namespace Coffee {
                 AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
                 if (animatorComponent->NeedsUpdate)
                 {
-                    AnimationSystem::Update(dt, animatorComponent);
+                    m_AnimationSystem.Update(dt, animatorComponent);
                     animatorComponent->NeedsUpdate = false;
                 }
             }
@@ -752,7 +755,6 @@ namespace Coffee {
         }
 
         // Debug Draw
-        // if (m_SceneDebugFlags.ShowOctree) m_Octree->DebugDraw();
         if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes();
         if (m_SceneDebugFlags.ShowNavMesh) {
             auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
@@ -856,7 +858,7 @@ namespace Coffee {
                 auto& navMeshComponent = navMeshView.get<NavMeshComponent>(entity);
                 if (navMeshComponent.ShowDebug && navMeshComponent.GetNavMesh() && navMeshComponent.GetNavMesh()->IsCalculated())
                 {
-                    navMeshComponent.GetNavMesh()->RenderWalkableAreas();
+                    navMeshComponent.GetNavMesh()->RenderWalkableAreas(m_Context.renderer->Get2DRenderer());
                 }
             }
         }
@@ -869,11 +871,14 @@ namespace Coffee {
             {
                 auto& navAgentComponent = navigationAgentView.get<NavigationAgentComponent>(agent);
                 if (navAgentComponent.ShowDebug && navAgentComponent.GetPathFinder())
-                    navAgentComponent.GetPathFinder()->RenderPath(navAgentComponent.Path);
+                {
+                    m_Context.renderer->Get2DRenderer().DrawPath(navAgentComponent.Path);
+                }
             }
         }
 
         m_PhysicsWorld.stepSimulation(dt);
+        m_CollisionSystem.checkCollisions(m_PhysicsWorld);
 
         {
             // Update transforms from physics
@@ -937,7 +942,7 @@ namespace Coffee {
                     continue;*/
 
                 AnimatorComponent* animatorComponent = &animatorView.get<AnimatorComponent>(entity);
-                AnimationSystem::Update(dt, animatorComponent);
+                m_AnimationSystem.Update(dt, animatorComponent);
             }
         }
 
@@ -986,7 +991,7 @@ namespace Coffee {
         }
 
         // Debug Draw
-        if (m_SceneDebugFlags.ShowOctree) m_Octree->DebugDraw();
+        if (m_SceneDebugFlags.ShowOctree) m_Octree->DebugDraw(m_Context.renderer->Get2DRenderer());
         if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes();
         if (m_SceneDebugFlags.ShowNavMesh) {
             auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
@@ -1035,6 +1040,15 @@ namespace Coffee {
         ZoneScoped;
     }
 
+    void Scene::OnExit()
+    {
+        ZoneScoped;
+
+        Audio::StopAllEvents();
+        //AudioZone::RemoveAllReverbZones();
+        Audio::UnregisterAllGameObjects();
+    }
+
     void Scene::OnExitEditor()
     {
         ZoneScoped;
@@ -1049,12 +1063,16 @@ namespace Coffee {
                 scriptComponent.script.reset();
             }
         }
+
+        OnExit();
     }
 
     void Scene::OnExitRuntime()
     {
         // Clear collision system state
         CollisionSystem::Shutdown();
+
+        OnExit();
     }
 
     Ref<Scene> Scene::Load(const std::filesystem::path& path)
@@ -1129,7 +1147,7 @@ namespace Coffee {
             if (it == joints.end())
                 jointName = joints[0].name;
 
-            AnimationSystem::SetupPartialBlending(0, 0, jointName, animatorComponent);
+            m_AnimationSystem.SetupPartialBlending(0, 0, jointName, animatorComponent);
 
             animatorComponent->modelUUID = model->GetUUID();
             animatorComponent->animatorUUID = UUID();
@@ -1209,7 +1227,7 @@ namespace Coffee {
                 glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
                 glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
                 );
-                AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
+                //AudioZone::UpdateObjectPosition(audioSourceComponent.gameObjectID, transformComponent.GetWorldTransform()[3]);
             }
         }
 

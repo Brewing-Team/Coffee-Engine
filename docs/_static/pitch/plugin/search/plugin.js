@@ -28,7 +28,7 @@ const Plugin = () => {
 		searchElement.style.right = '10px';
 		searchElement.style.zIndex = 10;
 
-		//embedded base64 search icon Designed by Sketchdock - http://www.sketchdock.com/:
+		//Rendering/Embedded base64 search icon Designed by Sketchdock - http://www.sketchdock.com/:
 		searchElement.innerHTML = `<input type="search" class="searchinput" placeholder="Search..." style="vertical-align: top;"/>
 		</span>`;
 
