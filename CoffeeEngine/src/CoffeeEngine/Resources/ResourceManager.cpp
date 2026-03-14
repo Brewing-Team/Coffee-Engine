@@ -27,7 +27,7 @@ namespace Coffee {
 
     void ResourceManager::LoadFile(const std::filesystem::path& path)
     {
-        if (!im_regular_file(path))
+        if (!std::filesystem::is_regular_file(path))
         {
             COFFEE_CORE_ERROR("ResourceLoader::LoadResources: {0} is not a file!", path.string());
             return;
@@ -126,7 +126,7 @@ namespace Coffee {
 
         for (const auto& entry : std::filesystem::recursive_directory_iterator(directory))
         {
-            if (!entry.im_regular_file() || GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
+            if (!entry.is_regular_file() || GetResourceTypeFromExtension(entry.path()) == ResourceType::Unknown and entry.path().extension() != ".import")
             {
                 continue;
             }
@@ -244,7 +244,7 @@ namespace Coffee {
 
     bool ResourceManager::isInternalResource(const std::filesystem::path& path)
     {
-        if (path.im_absolute()) {
+        if (path.is_absolute()) {
             return std::filesystem::equivalent(path.parent_path(), m_EngineAssetsDirectory);
         } else {
             return path.string().find("assets/") == 0; // Think if this is the best way...

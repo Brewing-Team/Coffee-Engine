@@ -19,6 +19,8 @@ namespace Coffee {
     class Project {
     public:
 
+        Project() = default;
+
         Project(const std::string& name, const std::filesystem::path& projectDirectory, const std::filesystem::path& cacheDirectory)
             : m_Name(name), m_ProjectDirectory(projectDirectory), m_CacheDirectory(cacheDirectory) {}
 
