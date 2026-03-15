@@ -36,12 +36,16 @@ namespace Coffee {
         /**
          * @brief Adds a layer to the stack.
          * @param layer Pointer to the layer to be added.
+         *
+         * Takes ownership of the layer and calls Layer::OnAttach().
          */
         void PushLayer(Scope<Layer> layer);
 
         /**
          * @brief Adds an overlay to the stack.
          * @param overlay Pointer to the overlay to be added.
+         *
+         * Takes ownership of the overlay and calls Layer::OnAttach().
          */
         void PushOverlay(Scope<Layer> overlay);
 

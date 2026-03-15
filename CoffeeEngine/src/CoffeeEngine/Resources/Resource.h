@@ -5,16 +5,46 @@
  */
 
 #pragma once
+#include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 #include <cereal/access.hpp>
 #include <cereal/archives/binary.hpp>
+#include <cstdint>
 #include <filesystem>
 
 #include <cereal/types/polymorphic.hpp>
 
 namespace Coffee {
+
+    using ResourceID = UUID;
+
+    template<typename T>
+    using ResourceRef = Ref<T>;
+
+    template<typename T, typename ... Args>
+    constexpr ResourceRef<T> CreateResourceRef(Args&& ... args)
+    {
+        return CreateRef<T>(std::forward<Args>(args)...);
+    }
+
+    enum class ResourceLoadState
+    {
+        Unloaded,
+        Loading,
+        Loaded,
+        Failed,
+        Stale
+    };
+
+    struct ResourceHandle
+    {
+        ResourceID id = ResourceID::null;
+        std::uint32_t generation = 0;
+
+        explicit operator bool() const { return id != ResourceID::null; }
+    };
 
     /**
      * @enum ResourceType
@@ -89,13 +119,13 @@ namespace Coffee {
          * @brief Sets the UUID of the resource.
          * @param uuid The UUID to set.
          */
-        void SetUUID(UUID uuid) { m_UUID = uuid; }
+        void SetUUID(ResourceID uuid) { m_UUID = uuid; }
 
         /**
          * @brief Gets the UUID of the resource.
          * @return The UUID of the resource.
          */
-        UUID GetUUID() const { return m_UUID; }
+        ResourceID GetUUID() const { return m_UUID; }
 
         /**
          * @brief Sets the embedded status of the resource.
@@ -148,7 +178,7 @@ namespace Coffee {
         std::string m_Name; ///< The name of the resource.
         std::filesystem::path m_FilePath; ///< The file path of the resource.
         ResourceType m_Type; ///< The type of the resource.
-        UUID m_UUID; ///< The UUID of the resource.
+        ResourceID m_UUID; ///< The UUID of the resource.
         bool m_isEmbedded = false; ///< Flag indicating if the resource is embedded. // TODO: Revise if this is the right place for this
     };
 

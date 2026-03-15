@@ -251,7 +251,7 @@ namespace Coffee {
             {
                 if (child)
                 {
-                    child->DebugDrawAABB(objectMap);
+                    child->DebugDrawAABB(objectMap, renderer);
                 }
             }
     }

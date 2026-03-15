@@ -6,6 +6,7 @@
 namespace Coffee
 {
     class Material;
+    struct EngineContext;
 }
 
 namespace Coffee
@@ -16,11 +17,16 @@ namespace Coffee
      */
     struct MaterialComponent
     {
-        Ref<Material> material; ///< The material reference.
+        ResourceRef<Material> material; ///< The material reference.
+
+        ResourceID pendingMaterialID = ResourceID::null;
+        ResourceType pendingMaterialType = ResourceType::Unknown;
 
         MaterialComponent() {}
         MaterialComponent(const MaterialComponent&) = default;
-        MaterialComponent(Ref<Material> material) : material(material) {}
+        MaterialComponent(ResourceRef<Material> material) : material(material) {}
+
+        void ResolveResources(EngineContext& context);
 
       private:
         friend class cereal::access;

@@ -3,6 +3,7 @@
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Project/ProjectManager.h"
 #include "CoffeeEngine/Rendering/Model.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/Scene/Prefab.h"
@@ -32,11 +33,20 @@ namespace Coffee {
 
         ImGui::Begin("Content Browser");
 
-        if(Project::GetActive() and !Project::GetActive()->GetProjectDirectory().empty())
+        if (!m_EngineContext || !m_EngineContext->projectManager)
         {
-            if(m_CurrentDirectory != Project::GetActive()->GetProjectDirectory())
+            ImGui::TextWrapped("Editor context unavailable");
+            ImGui::End();
+            return;
+        }
+
+        Ref<const Project> project = m_EngineContext->projectManager->GetCurrentProject();
+
+        if (project && !project->GetDirectory().empty())
+        {
+            if (m_CurrentDirectory != project->GetDirectory())
             {
-                m_CurrentDirectory = Project::GetActive()->GetProjectDirectory();
+                m_CurrentDirectory = project->GetDirectory();
             }
 
             DisplayDirectoryContents(m_CurrentDirectory, 0);
@@ -138,7 +148,7 @@ namespace Coffee {
                     // Only load non-prefab resources immediately
                     if (GetResourceTypeFromExtension(path) != ResourceType::Prefab)
                     {
-                        Ref<Resource> resource = ResourceRegistry::Get<Resource>(path.filename().string());
+                        Ref<Resource> resource = m_EngineContext->resourceManager->GetResource<Resource>(path.filename().string());
                         if (resource)
                         {
                             ImGui::SetDragDropPayload("RESOURCE", &resource, sizeof(Ref<Resource>));
@@ -167,7 +177,7 @@ namespace Coffee {
                     }
                     else
                     {
-                        Ref<Resource> resource = ResourceRegistry::Get<Resource>(path.filename().string());
+                        Ref<Resource> resource = m_EngineContext->resourceManager->GetResource<Resource>(path.filename().string());
                         
                         ImGui::BeginTooltip();
                         
@@ -224,7 +234,7 @@ namespace Coffee {
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Left))
                 {
                     m_SelectedDirectory = path;
-                    m_SelectedResource = directoryEntry.is_directory() ? nullptr : ResourceRegistry::Get<Resource>(path.filename().string());
+                    m_SelectedResource = directoryEntry.is_directory() ? nullptr : m_EngineContext->resourceManager->GetResource<Resource>(path.filename().string());
                 }
                 if (ImGui::IsItemClicked(ImGuiMouseButton_Right))
                 {
@@ -265,8 +275,9 @@ namespace Coffee {
 
                 if (ImGui::MenuItem("Copy UUID"))
                 {
-                    const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(path.filename().string());
-                    ImGui::SetClipboardText(std::to_string(resource->GetUUID()).c_str());
+                    const Ref<Resource>& resource = m_EngineContext->resourceManager->GetResource<Resource>(path.filename().string());
+                    if (resource)
+                        ImGui::SetClipboardText(std::to_string(resource->GetUUID()).c_str());
                 }
 
                 if (ImGui::MenuItem("Rename", nullptr, false, false))
@@ -281,16 +292,18 @@ namespace Coffee {
 
                 if (ImGui::MenuItem("Delete"))
                 {
-                    const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(path.filename().string());
-                    ResourceLoader::RemoveResource(resource);
+                    const Ref<Resource>& resource = m_EngineContext->resourceManager->GetResource<Resource>(path.filename().string());
+                    if (resource)
+                        m_EngineContext->resourceManager->RemoveResource(resource);
                 }
 
                 ImGui::Separator();
 
                 if (ImGui::MenuItem("Reimport"))
                 {
-                    const Ref<Resource>& resource = ResourceRegistry::Get<Resource>(path.filename().string());
-                    ResourceLoader::ReimportResource(resource);
+                    const Ref<Resource>& resource = m_EngineContext->resourceManager->GetResource<Resource>(path.filename().string());
+                    if (resource)
+                        m_EngineContext->resourceManager->ReimportResource(resource);
                 }
 
                 ImGui::Separator();

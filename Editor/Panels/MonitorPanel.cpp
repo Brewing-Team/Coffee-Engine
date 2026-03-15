@@ -1,7 +1,6 @@
 #include "MonitorPanel.h"
 #include "CoffeeEngine/Core/DataStructures/CircularBuffer.h"
 #include "CoffeeEngine/Core/SystemInfo.h"
-#include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Timer.h"
 #include <stdint.h>
 #include <imgui.h>
@@ -15,8 +14,8 @@ namespace Coffee {
         static float FrameTime = 0.0f;
         static uint64_t MemoryUsage = 0.0f;
 
-        FPS = Application::Get().GetFPS();
-        FrameTime = Application::Get().GetFrameTime();
+        FPS = ImGui::GetIO().Framerate;
+        FrameTime = FPS > 0.0f ? 1000.0f / FPS : 0.0f;
         MemoryUsage = SystemInfo::GetProcessMemoryUsage();
 
 

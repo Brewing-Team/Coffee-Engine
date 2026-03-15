@@ -11,6 +11,7 @@
 
 namespace Coffee {
     class Font;
+    struct EngineContext;
 }
 
 namespace Coffee
@@ -31,6 +32,8 @@ namespace Coffee
         template <class Archive> void save(Archive& archive, std::uint32_t const version) const;
 
         template <class Archive> void load(Archive& archive, std::uint32_t const version);
+
+        void ResolveResources(EngineContext& context);
     };
 }
 

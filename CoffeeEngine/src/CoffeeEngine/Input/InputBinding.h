@@ -8,6 +8,8 @@
 
 namespace Coffee
 {
+    class Input;
+
     using ButtonState = uint8_t;
     namespace ButtonStates
     {
@@ -94,6 +96,7 @@ namespace Coffee
         InputBinding& SetAxis(const AxisCode code) { Axis = code; return *this; }
 
         ButtonState m_State = ButtonStates::IDLE;
+        Input* m_Input = nullptr;
 
         friend class Input;
         friend class cereal::access;

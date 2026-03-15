@@ -72,22 +72,22 @@ namespace Coffee {
         m_FilePath = meshImportData.cachedPath;
     }
 
-    const Ref<VertexArray>& Mesh::GetVertexArray() const
+    const ResourceRef<VertexArray>& Mesh::GetVertexArray() const
     {
         return m_VertexArray;
     }
 
-    const Ref<VertexBuffer>& Mesh::GetVertexBuffer() const
+    const ResourceRef<VertexBuffer>& Mesh::GetVertexBuffer() const
     {
         return m_VertexBuffer;
     }
 
-    const Ref<IndexBuffer>& Mesh::GetIndexBuffer() const
+    const ResourceRef<IndexBuffer>& Mesh::GetIndexBuffer() const
     {
         return m_IndexBuffer;
     }
 
-    void Mesh::SetMaterial(Ref<Material>& material)
+    void Mesh::SetMaterial(ResourceRef<Material>& material)
     {
         m_Material = material;
     }
@@ -107,7 +107,7 @@ namespace Coffee {
         return {transform, GetAABB()};
     }
 
-    const Ref<Material>& Mesh::GetMaterial() const
+    const ResourceRef<Material>& Mesh::GetMaterial() const
     {
         return m_Material;
     }
@@ -125,18 +125,17 @@ namespace Coffee {
     template<class Archive>
     void Mesh::save(Archive& archive) const
     {
-        UUID materialUUID = m_Material ? m_Material->GetUUID() : UUID::null;
+        ResourceID materialUUID = m_Material ? m_Material->GetUUID() : ResourceID::null;
         archive(m_Vertices, m_Indices, m_AABB, materialUUID, cereal::base_class<Resource>(this));
     }
 
     template<class Archive>
     void Mesh::load(Archive& archive)
     {
-        UUID materialUUID;
+        ResourceID materialUUID;
         archive(m_Vertices, m_Indices, m_AABB, materialUUID, cereal::base_class<Resource>(this));
 
-        if (materialUUID != UUID::null)
-            m_Material = ResourceLoader::GetResource<PBRMaterial>(materialUUID);
+        m_PendingMaterialID = materialUUID;
     }
 
     template<class Archive>
@@ -147,14 +146,21 @@ namespace Coffee {
         data(vertices, indices);
         construct(vertices, indices);
 
-        UUID materialUUID;
+        ResourceID materialUUID;
         data(construct->m_AABB, materialUUID, cereal::base_class<Resource>(construct.ptr()));
         
         construct->m_Vertices = vertices;
         construct->m_Indices = indices;
-        
-        if (materialUUID != UUID::null)
-            construct->m_Material = ResourceLoader::GetResource<PBRMaterial>(materialUUID);
+        construct->m_PendingMaterialID = materialUUID;
+    }
+
+    void Mesh::ResolveResources(ResourceManager& resourceManager)
+    {
+        if (m_PendingMaterialID == ResourceID::null)
+            return;
+
+        m_Material = resourceManager.GetResource<PBRMaterial>(m_PendingMaterialID);
+        m_PendingMaterialID = ResourceID::null;
     }
 
     // Explicit template instantiations for Vertex

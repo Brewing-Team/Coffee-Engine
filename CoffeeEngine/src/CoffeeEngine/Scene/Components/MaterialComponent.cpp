@@ -1,4 +1,5 @@
 #include "MaterialComponent.h"
+#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Material.h"
 
@@ -47,9 +48,8 @@ namespace Coffee
         {
             UUID materialUUID;
             archive(cereal::make_nvp("Material", materialUUID));
-
-            Ref<Material> material = ResourceLoader::GetResource<Material>(materialUUID);
-            this->material = material;
+            pendingMaterialID = materialUUID;
+            pendingMaterialType = ResourceType::Material;
             return;
         }
 
@@ -65,22 +65,35 @@ namespace Coffee
         {
             int typeInt;
             archive(cereal::make_nvp("Type", typeInt));
-            ResourceType type = static_cast<ResourceType>(typeInt);
+            pendingMaterialType = static_cast<ResourceType>(typeInt);
 
             UUID materialUUID;
             archive(cereal::make_nvp("MaterialUUID", materialUUID));
-
-            if (type == ResourceType::PBRMaterial)
-            {
-                Ref<PBRMaterial> material = ResourceLoader::GetResource<PBRMaterial>(materialUUID);
-                this->material = material;
-            }
-            else if (type == ResourceType::ShaderMaterial)
-            {
-                Ref<ShaderMaterial> material = ResourceLoader::GetResource<ShaderMaterial>(materialUUID);
-                this->material = material;
-            }
+            pendingMaterialID = materialUUID;
         }
+    }
+
+    void MaterialComponent::ResolveResources(EngineContext& context)
+    {
+        if (material || pendingMaterialID == ResourceID::null || !context.resourceManager)
+            return;
+
+        switch (pendingMaterialType)
+        {
+            case ResourceType::PBRMaterial:
+                material = context.resourceManager->GetResource<PBRMaterial>(pendingMaterialID);
+                break;
+            case ResourceType::ShaderMaterial:
+                material = context.resourceManager->GetResource<ShaderMaterial>(pendingMaterialID);
+                break;
+            case ResourceType::Material:
+                material = context.resourceManager->GetResource<Material>(pendingMaterialID);
+                break;
+            default:
+                break;
+        }
+
+        pendingMaterialID = ResourceID::null;
     }
 
     // Explicit template instantiations for common cereal archives

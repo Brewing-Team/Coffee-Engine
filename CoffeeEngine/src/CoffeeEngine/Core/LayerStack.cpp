@@ -15,13 +15,19 @@ namespace Coffee {
 
 	void LayerStack::PushLayer(Scope<Layer> layer)
 	{
+		Layer* rawLayer = layer.get();
 		m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, std::move(layer));
+		if (rawLayer)
+			rawLayer->OnAttach();
 		m_LayerInsertIndex++;
 	}
 
 	void LayerStack::PushOverlay(Scope<Layer> overlay)
 	{
+		Layer* rawLayer = overlay.get();
 		m_Layers.emplace_back(std::move(overlay));
+		if (rawLayer)
+			rawLayer->OnAttach();
 	}
 
 	void LayerStack::PopLayer(Scope<Layer> layer)

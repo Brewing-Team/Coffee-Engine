@@ -10,6 +10,9 @@ namespace Coffee {
 
     namespace ImportDataUtils
     {
+        void SetWorkingDirectory(const std::filesystem::path& workingDirectory);
+        const std::filesystem::path& GetWorkingDirectory();
+
         void SaveImportData(Scope<ImportData>& importData);
         // TODO: Think if the path should be the .import path or the resource and replace the extension inside the function
         Scope<ImportData> LoadImportData(const std::filesystem::path& path);

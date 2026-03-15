@@ -17,12 +17,67 @@
 namespace Coffee {
 
     ResourceManager::ResourceManager()
+        : m_ImportService(&m_Loader)
+        , m_Resolver(this)
     {
         m_EngineAssetsDirectory = std::filesystem::current_path() / "assets";
         m_WorkingDirectory = std::filesystem::current_path();
 
         m_Registry = ResourceRegistry();
         m_Loader = ResourceLoader();
+
+        ImportDataUtils::SetWorkingDirectory(m_WorkingDirectory);
+        m_Database.SetDatabasePath(m_WorkingDirectory / ".CoffeeEngine" / "resource_database.json");
+        m_Database.Load();
+    }
+
+    ResourceHandle ResourceManager::LoadResource(const std::filesystem::path& path, ResourceType type)
+    {
+        switch (type)
+        {
+            case ResourceType::Texture2D:
+            {
+                const ResourceRef<Texture2D>& resource = Load<Texture2D>(path);
+                return resource ? ResourceHandle{resource->GetUUID(), ++m_Generation} : ResourceHandle{};
+            }
+            case ResourceType::Cubemap:
+            {
+                const ResourceRef<Cubemap>& resource = Load<Cubemap>(path);
+                return resource ? ResourceHandle{resource->GetUUID(), ++m_Generation} : ResourceHandle{};
+            }
+            case ResourceType::Model:
+            {
+                const ResourceRef<Model>& resource = Load<Model>(path);
+                return resource ? ResourceHandle{resource->GetUUID(), ++m_Generation} : ResourceHandle{};
+            }
+            case ResourceType::Shader:
+            {
+                const ResourceRef<Shader>& resource = Load<Shader>(path);
+                return resource ? ResourceHandle{resource->GetUUID(), ++m_Generation} : ResourceHandle{};
+            }
+            case ResourceType::PBRMaterial:
+            {
+                const ResourceRef<PBRMaterial>& resource = Load<PBRMaterial>(path);
+                return resource ? ResourceHandle{resource->GetUUID(), ++m_Generation} : ResourceHandle{};
+            }
+            case ResourceType::ShaderMaterial:
+            {
+                const ResourceRef<ShaderMaterial>& resource = Load<ShaderMaterial>(path);
+                return resource ? ResourceHandle{resource->GetUUID(), ++m_Generation} : ResourceHandle{};
+            }
+            default:
+            {
+                COFFEE_CORE_ERROR("ResourceManager::LoadResource: Unsupported resource type {0}", ResourceTypeToString(type));
+                return {};
+            }
+        }
+    }
+
+    std::future<ResourceHandle> ResourceManager::LoadResourceAsync(const std::filesystem::path& path, ResourceType type)
+    {
+        return std::async(std::launch::async, [this, path, type]() {
+            return this->LoadResource(path, type);
+        });
     }
 
     void ResourceManager::LoadFile(const std::filesystem::path& path)
@@ -116,6 +171,10 @@ namespace Coffee {
                     Load<Shader>(path);
                     break;
                 }
+                default:
+                {
+                    break;
+                }
             }
         }
     }
@@ -148,7 +207,7 @@ namespace Coffee {
         }
     }
 
-    void ResourceManager::RemoveResource(const Ref<Resource>& resource)
+    void ResourceManager::RemoveResource(const ResourceRef<Resource>& resource)
     {   
         std::filesystem::path importFilePath = resource->GetPath();
         importFilePath += ".import";
@@ -183,7 +242,7 @@ namespace Coffee {
         m_Registry.Remove(resource->GetUUID());
     }
 
-    void ResourceManager::ReimportResource(const Ref<Resource>& resource)
+    void ResourceManager::ReimportResource(const ResourceRef<Resource>& resource)
     {
         std::filesystem::path importFilePath = resource->GetPath();
         importFilePath += ".import";
@@ -249,6 +308,18 @@ namespace Coffee {
         } else {
             return path.string().find("assets/") == 0; // Think if this is the best way...
         }
+    }
+
+    void ResourceManager::SetWorkingDirectory(const std::filesystem::path& path)
+    {
+        m_WorkingDirectory = path;
+        ImportDataUtils::SetWorkingDirectory(path);
+        m_Database.SetDatabasePath(path / ".CoffeeEngine" / "resource_database.json");
+    }
+
+    void ResourceManager::ResolveSceneResourceReferences(Scene& scene)
+    {
+        m_Resolver.ResolveSceneResourceReferences(scene);
     }
 
 }

@@ -1,4 +1,5 @@
 #include "WorldEnvironmentComponent.h"
+#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
@@ -30,7 +31,7 @@ namespace Coffee
     {
         UUID skyboxUUID;
         archive(cereal::make_nvp("Skybox", skyboxUUID));
-        if(skyboxUUID != UUID::null) this->Skybox = ResourceLoader::GetResource<Cubemap>(skyboxUUID);
+        PendingSkyboxID = skyboxUUID;
         archive(cereal::make_nvp("SkyboxIntensity", SkyboxIntensity));
 
         if (version >= 1)
@@ -49,6 +50,15 @@ namespace Coffee
                     cereal::make_nvp("BloomRadius", BloomRadius),
                     cereal::make_nvp("MaxMipLevels", BloomMaxMipLevels));
         }
+    }
+
+    void WorldEnvironmentComponent::ResolveResources(EngineContext& context)
+    {
+        if (Skybox || PendingSkyboxID == ResourceID::null || !context.resourceManager)
+            return;
+
+        Skybox = context.resourceManager->GetResource<Cubemap>(PendingSkyboxID);
+        PendingSkyboxID = ResourceID::null;
     }
 
     // Explicit template instantiations for common cereal archives

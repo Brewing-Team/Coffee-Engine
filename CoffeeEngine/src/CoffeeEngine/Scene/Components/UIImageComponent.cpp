@@ -1,4 +1,5 @@
 #include "UIImageComponent.h"
+#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 
@@ -7,7 +8,7 @@
 
 namespace Coffee 
 {
-    UIImageComponent::UIImageComponent() { Texture = Texture2D::Load("assets/textures/UVMap-Grid.jpg"); }
+    UIImageComponent::UIImageComponent() = default;
 
     template <class Archive> 
     void UIImageComponent::save(Archive& archive, std::uint32_t const version) const
@@ -26,9 +27,17 @@ namespace Coffee
         {
             archive(cereal::make_nvp("Color", Color), cereal::make_nvp("UVRect", UVRect));
         }
-        if (textureUUID != UUID(0))
-            Texture = ResourceLoader::GetResource<Texture2D>(textureUUID);
+        PendingTextureID = textureUUID;
         UIComponent::load(archive, version);
+    }
+
+    void UIImageComponent::ResolveResources(EngineContext& context)
+    {
+        if (Texture || PendingTextureID == ResourceID::null || !context.resourceManager)
+            return;
+
+        Texture = context.resourceManager->GetResource<Texture2D>(PendingTextureID);
+        PendingTextureID = ResourceID::null;
     }
 
     // Explicit template instantiations for common cereal archives

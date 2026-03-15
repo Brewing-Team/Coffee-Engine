@@ -1,5 +1,6 @@
 #include "UIToggleComponent.h"
 
+#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 
@@ -8,11 +9,7 @@
 
 namespace Coffee 
 {
-    UIToggleComponent::UIToggleComponent()
-    {
-        OnTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
-        OffTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
-    }
+    UIToggleComponent::UIToggleComponent() = default;
 
     template <class Archive> 
     void UIToggleComponent::save(Archive& archive, std::uint32_t const version) const
@@ -30,11 +27,23 @@ namespace Coffee
         UUID offTextureUUID;
         archive(cereal::make_nvp("Value", Value), cereal::make_nvp("OnTextureUUID", onTextureUUID),
                 cereal::make_nvp("OffTextureUUID", offTextureUUID));
-        if (onTextureUUID != UUID(0))
-            OnTexture = ResourceLoader::GetResource<Texture2D>(onTextureUUID);
-        if (offTextureUUID != UUID(0))
-            OffTexture = ResourceLoader::GetResource<Texture2D>(offTextureUUID);
+        PendingOnTextureID = onTextureUUID;
+        PendingOffTextureID = offTextureUUID;
         UIComponent::load(archive, version);
+    }
+
+    void UIToggleComponent::ResolveResources(EngineContext& context)
+    {
+        if (!context.resourceManager)
+            return;
+
+        if (!OnTexture && PendingOnTextureID != ResourceID::null)
+            OnTexture = context.resourceManager->GetResource<Texture2D>(PendingOnTextureID);
+        if (!OffTexture && PendingOffTextureID != ResourceID::null)
+            OffTexture = context.resourceManager->GetResource<Texture2D>(PendingOffTextureID);
+
+        PendingOnTextureID = ResourceID::null;
+        PendingOffTextureID = ResourceID::null;
     }
 
     // Explicit template instantiations for common cereal archives

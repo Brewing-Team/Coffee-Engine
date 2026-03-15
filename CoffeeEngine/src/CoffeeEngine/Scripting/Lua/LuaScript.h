@@ -16,17 +16,20 @@ namespace Coffee {
     class LuaScript : public Script
     {
     public:
-        LuaScript(const std::filesystem::path& path) : Script(path)
+        LuaScript(const std::filesystem::path& path, const LuaBackend* backend) : Script(path), m_Backend(backend)
         {
-            //TODO: Think if this is a good way or store it in another way is better
-            const LuaBackend& backend = static_cast<const LuaBackend&>(ScriptingManager::GetBackend(ScriptingLanguage::Lua));
-            m_Environment = sol::environment(backend.GetLuaState(), sol::create, backend.GetLuaState().globals());
+            if (!m_Backend)
+                return;
+
+            m_Environment = sol::environment(m_Backend->GetLuaState(), sol::create, m_Backend->GetLuaState().globals());
         }
         ~LuaScript() = default;
 
         void OnReady() override
         {
-            ScriptingManager::ExecuteScript(*this, ScriptingLanguage::Lua);
+            if (m_Backend)
+                const_cast<LuaBackend*>(m_Backend)->ExecuteScript(*this);
+
             const sol::protected_function& onReady = m_Environment["on_ready"];
             if (!onReady.valid()) {
                 COFFEE_CORE_ERROR("Lua: on_ready function is not valid.");
@@ -219,6 +222,7 @@ namespace Coffee {
             }
         }
     private:
+        const LuaBackend* m_Backend = nullptr;
         sol::environment m_Environment;
     };
 

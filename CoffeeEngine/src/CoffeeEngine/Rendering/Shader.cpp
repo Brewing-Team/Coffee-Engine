@@ -161,7 +161,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        return ResourceLoader::Load<Shader>(shaderPath);
+        return CreateRef<Shader>(shaderPath);
     }
 
     /*Ref<Shader> Shader::Create(const std::string& shaderSource)

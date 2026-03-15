@@ -13,6 +13,7 @@ namespace Coffee {
     class Project;
     class ImportData;
     class ResourceLoader;
+    class ResourceManager;
     struct UUID;
 }
 
@@ -141,12 +142,22 @@ namespace Coffee {
      */
     struct PBRMaterialTextures // Temporal
     {
-        Ref<Texture2D> albedo; ///< The albedo texture.
-        Ref<Texture2D> normal; ///< The normal map texture.
-        Ref<Texture2D> metallic; ///< The metallic texture.
-        Ref<Texture2D> roughness; ///< The roughness texture.
-        Ref<Texture2D> ao; ///< The ambient occlusion texture.
-        Ref<Texture2D> emissive; ///< The emissive texture.
+        Ref<Texture2D> albedo;
+        Ref<Texture2D> normal;
+        Ref<Texture2D> metallic;
+        Ref<Texture2D> roughness;
+        Ref<Texture2D> ao;
+        Ref<Texture2D> emissive;
+
+        // Pending UUIDs for deferred resource resolution
+        ResourceID m_PendingAlbedoID    = ResourceID::null;
+        ResourceID m_PendingNormalID    = ResourceID::null;
+        ResourceID m_PendingMetallicID  = ResourceID::null;
+        ResourceID m_PendingRoughnessID = ResourceID::null;
+        ResourceID m_PendingAOID        = ResourceID::null;
+        ResourceID m_PendingEmissiveID  = ResourceID::null;
+
+        void ResolveResources(ResourceManager& manager);
 
     private:
         friend class cereal::access;
@@ -212,6 +223,8 @@ namespace Coffee {
 
         //TODO: Remove the PBRMaterialTextures parameter and make a function that set the PBRMaterialTextures and the shader too
         static Ref<PBRMaterial> Create(const std::string& name = "", PBRMaterialTextures* textures = nullptr);
+
+        void ResolveResources(ResourceManager& manager);
 
     private:
         friend class cereal::access;

@@ -2,6 +2,7 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Resources/Resource.h"
+#include "CoffeeEngine/Resources/Animation/Skeleton.h"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 
 #include <assimp/material.h>
@@ -29,9 +30,8 @@ namespace Coffee {
     class Texture2D;
     class Material;
     class ImportData;
-    class Skeleton;
+    class ResourceManager;
     class AnimationController;
-    struct Joint;
     struct PBRMaterialTextures;
 
     /**
@@ -67,13 +67,13 @@ namespace Coffee {
          * @brief Gets the meshes of the model.
          * @return A reference to the vector of meshes.
          */
-        const std::vector<Ref<Mesh>>& GetMeshes() const { return m_Meshes; };
+        const std::vector<ResourceRef<Mesh>>& GetMeshes() const { return m_Meshes; };
 
         /**
          * @brief Adds a mesh to the model.
          * @param mesh A reference to the mesh to add.
          */
-        void AddMesh(const Ref<Mesh> mesh) { m_Meshes.push_back(mesh); };
+        void AddMesh(const ResourceRef<Mesh> mesh) { m_Meshes.push_back(mesh); };
 
         /**
          * @brief Gets the name of the node.
@@ -91,7 +91,7 @@ namespace Coffee {
          * @brief Gets the children models.
          * @return A reference to the vector of children models.
          */
-        const std::vector<Ref<Model>> GetChildren() const { return m_Children; }
+        const std::vector<ResourceRef<Model>> GetChildren() const { return m_Children; }
 
         /**
          * @brief Gets the transformation matrix of the model.
@@ -104,7 +104,7 @@ namespace Coffee {
         * @param path The path to the model file.
         * @return A reference to the loaded model.
         */
-        static Ref<Model> Load(const std::filesystem::path& path);
+        static ResourceRef<Model> Load(const std::filesystem::path& path);
 
         /**
          * @brief Checks if the model has animations.
@@ -116,13 +116,13 @@ namespace Coffee {
          * @brief Gets the skeleton of the model.
          * @return A reference to the skeleton.
          */
-        const Ref<Skeleton>& GetSkeleton() const { return m_Skeleton; };
+        const ResourceRef<Skeleton>& GetSkeleton() const { return m_Skeleton; };
 
         /**
          * @brief Gets the animation controller of the model.
          * @return A reference to the animation controller.
          */
-        const Ref<AnimationController>& GetAnimationController() const { return m_AnimationController; };
+        const ResourceRef<AnimationController>& GetAnimationController() const { return m_AnimationController; };
 
         /**
          * @brief Saves the animations of the model.
@@ -136,6 +136,8 @@ namespace Coffee {
          */
         void ImportAnimations(const UUID uuid);
 
+        void ResolveResources(ResourceManager& resourceManager);
+
     private:
 
         /**
@@ -146,7 +148,7 @@ namespace Coffee {
          * @param boneMap The bone map.
          * @return A reference to the processed mesh.
          */
-        Ref<Mesh> processMesh(aiMesh* mesh, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap);
+        ResourceRef<Mesh> processMesh(aiMesh* mesh, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap);
 
         /**
          * @brief Processes a node from the Assimp node and scene.
@@ -163,7 +165,7 @@ namespace Coffee {
          * @param type The Assimp texture type.
          * @return A reference to the loaded texture.
          */
-        Ref<Texture2D> LoadTexture2D(aiMaterial* material, aiTextureType type);
+        ResourceRef<Texture2D> LoadTexture2D(aiMaterial* material, aiTextureType type);
 
         /**
          * @brief Loads material textures from the Assimp material.
@@ -230,20 +232,21 @@ namespace Coffee {
         void ProcessAnimationChannel(aiNodeAnim* channel, ozz::animation::offline::RawAnimation::JointTrack& track, float ticksPerSecond);
 
     private:
-        std::vector<Ref<Mesh>> m_Meshes; ///< The meshes of the model.
+        std::vector<ResourceRef<Mesh>> m_Meshes; ///< The meshes of the model.
 
         std::weak_ptr<Model> m_Parent; ///< The parent model.
-        std::vector<Ref<Model>> m_Children; ///< The children models.
+        std::vector<ResourceRef<Model>> m_Children; ///< The children models.
 
         glm::mat4 m_Transform; ///< The transformation matrix of the model.
 
         std::string m_NodeName; ///< The name of the node.
 
         bool m_hasAnimations = false; ///< Indicates if the model has animations.
-        Ref<Skeleton> m_Skeleton; ///< The skeleton of the model.
-        Ref<AnimationController> m_AnimationController; ///< The animation controller of the model.
+        ResourceRef<Skeleton> m_Skeleton; ///< The skeleton of the model.
+        ResourceRef<AnimationController> m_AnimationController; ///< The animation controller of the model.
 
         std::vector<std::string> m_AnimationsNames; ///< The names of the animations.
+        std::vector<ResourceID> m_PendingMeshIDs;
         std::vector<Joint> m_Joints; ///< The joints of the model.
     };
 

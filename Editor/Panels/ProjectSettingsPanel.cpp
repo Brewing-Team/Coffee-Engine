@@ -2,8 +2,9 @@
 
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/Core/Input.h"
-#include "CoffeeEngine/Core/Application.h"
+#include "CoffeeEngine/Core/Window.h"
 #include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Project/ProjectManager.h"
 #include "CoffeeEngine/Audio/Audio.h"
 #include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Resources/ResourceUtils.h"
@@ -12,12 +13,13 @@
 
 #include <imgui.h>
 #include <algorithm>
+#include <cstring>
 
 namespace Coffee {
 
     void ProjectSettingsPanel::SetSelectedAction(const std::string& actionName)
     {
-        auto& bindings = Input::GetAllBindings();
+        auto& bindings = m_Context->input->GetAllBindings();
         auto it = bindings.find(actionName);
         if (it != bindings.end())
         {
@@ -143,7 +145,7 @@ namespace Coffee {
     {
         ImGui::BeginChild("ActionsList", ImVec2(300, -30), true);
         
-        auto& bindings = Input::GetAllBindings();
+        auto& bindings = m_Context->input->GetAllBindings();
         
         ImGui::Text("Actions");
         ImGui::Separator();
@@ -219,7 +221,7 @@ namespace Coffee {
                 std::string newActionName(m_NewActionNameBuffer.data());
                 if (!newActionName.empty())
                 {
-                    auto& bindings = Input::GetAllBindings();
+                    auto& bindings = m_Context->input->GetAllBindings();
                     if (bindings.find(newActionName) == bindings.end())
                     {
                         bindings[newActionName] = InputBinding();
@@ -254,7 +256,7 @@ namespace Coffee {
             return;
         }
         
-        auto& bindings = Input::GetAllBindings();
+        auto& bindings = m_Context->input->GetAllBindings();
         
         ImGui::Text("Action: %s", m_SelectedActionName.c_str());
         ImGui::Separator();
@@ -284,11 +286,11 @@ namespace Coffee {
         // Positive Key
         ImGui::Text("Positive Key:");
         ImGui::SameLine(150);
-        ImGui::Text("%s", Input::GetKeyLabel(m_SelectedAction->KeyPos));
+        ImGui::Text("%s", m_Context->input->GetKeyLabel(m_SelectedAction->KeyPos));
         ImGui::SameLine();
         if (ImGui::Button("Set##PosKey"))
         {
-            Input::StartRebindMode(m_SelectedActionName, RebindState::PosKey);
+            m_Context->input->StartRebindMode(m_SelectedActionName, RebindState::PosKey);
         }
         ImGui::SameLine();
         if (ImGui::Button("Clear##PosKey"))
@@ -299,11 +301,11 @@ namespace Coffee {
         // Negative Key
         ImGui::Text("Negative Key:");
         ImGui::SameLine(150);
-        ImGui::Text("%s", Input::GetKeyLabel(m_SelectedAction->KeyNeg));
+        ImGui::Text("%s", m_Context->input->GetKeyLabel(m_SelectedAction->KeyNeg));
         ImGui::SameLine();
         if (ImGui::Button("Set##NegKey"))
         {
-            Input::StartRebindMode(m_SelectedActionName, RebindState::NegKey);
+            m_Context->input->StartRebindMode(m_SelectedActionName, RebindState::NegKey);
         }
         ImGui::SameLine();
         if (ImGui::Button("Clear##NegKey"))
@@ -316,11 +318,11 @@ namespace Coffee {
         // Positive Button
         ImGui::Text("Positive Button:");
         ImGui::SameLine(150);
-        ImGui::Text("%s", Input::GetButtonLabel(m_SelectedAction->ButtonPos));
+        ImGui::Text("%s", m_Context->input->GetButtonLabel(m_SelectedAction->ButtonPos));
         ImGui::SameLine();
         if (ImGui::Button("Set##PosButton"))
         {
-            Input::StartRebindMode(m_SelectedActionName, RebindState::PosButton);
+            m_Context->input->StartRebindMode(m_SelectedActionName, RebindState::PosButton);
         }
         ImGui::SameLine();
         if (ImGui::Button("Clear##PosButton"))
@@ -331,11 +333,11 @@ namespace Coffee {
         // Negative Button
         ImGui::Text("Negative Button:");
         ImGui::SameLine(150);
-        ImGui::Text("%s", Input::GetButtonLabel(m_SelectedAction->ButtonNeg));
+        ImGui::Text("%s", m_Context->input->GetButtonLabel(m_SelectedAction->ButtonNeg));
         ImGui::SameLine();
         if (ImGui::Button("Set##NegButton"))
         {
-            Input::StartRebindMode(m_SelectedActionName, RebindState::NegButton);
+            m_Context->input->StartRebindMode(m_SelectedActionName, RebindState::NegButton);
         }
         ImGui::SameLine();
         if (ImGui::Button("Clear##NegButton"))
@@ -348,11 +350,11 @@ namespace Coffee {
         // Axis
         ImGui::Text("Axis:");
         ImGui::SameLine(150);
-        ImGui::Text("%s", Input::GetAxisLabel(m_SelectedAction->Axis));
+        ImGui::Text("%s", m_Context->input->GetAxisLabel(m_SelectedAction->Axis));
         ImGui::SameLine();
         if (ImGui::Button("Set##Axis"))
         {
-            Input::StartRebindMode(m_SelectedActionName, RebindState::Axis);
+            m_Context->input->StartRebindMode(m_SelectedActionName, RebindState::Axis);
         }
         ImGui::SameLine();
         if (ImGui::Button("Clear##Axis"))
@@ -369,11 +371,11 @@ namespace Coffee {
         // Current values (for debugging)
         if (ImGui::CollapsingHeader("Debug Values"))
         {
-            ImGui::Text("Positive Key Value: %d", Input::IsKeyPressed(m_SelectedAction->KeyPos));
-            ImGui::Text("Negative Key Value: %d", Input::IsKeyPressed(m_SelectedAction->KeyNeg));
-            ImGui::Text("Positive Button Value: %d", Input::GetButtonRaw(m_SelectedAction->ButtonPos));
-            ImGui::Text("Negative Button Value: %d", Input::GetButtonRaw(m_SelectedAction->ButtonNeg));
-            ImGui::Text("Axis Value: %.2f", Input::GetAxisRaw(m_SelectedAction->Axis));
+            ImGui::Text("Positive Key Value: %d", m_Context->input->IsKeyPressed(m_SelectedAction->KeyPos));
+            ImGui::Text("Negative Key Value: %d", m_Context->input->IsKeyPressed(m_SelectedAction->KeyNeg));
+            ImGui::Text("Positive Button Value: %d", m_Context->input->GetButtonRaw(m_SelectedAction->ButtonPos));
+            ImGui::Text("Negative Button Value: %d", m_Context->input->GetButtonRaw(m_SelectedAction->ButtonNeg));
+            ImGui::Text("Axis Value: %.2f", m_Context->input->GetAxisRaw(m_SelectedAction->Axis));
         }
         
         ImGui::EndChild();
@@ -385,7 +387,7 @@ namespace Coffee {
         ImGui::SameLine();
         if (ImGui::Button("Save"))
         {
-            Input::Save();
+            m_Context->projectManager->SaveCurrentProject();
         }
         ImGui::Separator();
         
@@ -405,33 +407,27 @@ namespace Coffee {
         // Project Name
         ImGui::Text("Project Name:");
         ImGui::SameLine(150);
-        Ref<Project> project = Project::GetActive();
+        Ref<Project> project = std::const_pointer_cast<Project>(m_Context->projectManager->GetCurrentProject());
         if (project)
         {
-            ImGui::TextDisabled("%s", project->GetProjectName().c_str());
+            ImGui::TextDisabled("%s", project->GetName().c_str());
         }
         
         ImGui::Spacing();
         
         // Audio Directory
         ImGui::Text("Audio Banks Path:");
-        std::string audioPath = Coffee::Project::GetRelativeAudioDirectory().string();
+        std::string audioPath = project ? project->GetRelativeAudioDirectory().string() : std::string();
         ImGui::SameLine(150);
         ImGui::SetNextItemWidth(300);
         ImGui::InputText("##AudioBanksPath", audioPath.data(), audioPath.size(), ImGuiInputTextFlags_ReadOnly);
         ImGui::SameLine();
+        ImGui::BeginDisabled();
         if (ImGui::Button("Browse..."))
         {
-            FileDialogArgs args;
-            args.DefaultPath = Project::GetProjectDirectory().string();
-            std::filesystem::path path = FileDialog::PickFolder(args);
-            if (is_directory(path))
-            {
-                path = std::filesystem::relative(path, Project::GetProjectDirectory());
-                Project::SetRelativeAudioDirectory(path);
-                Audio::OnProjectLoad();
-            }
+            // Read-only for now: project mutation is managed by ProjectManager.
         }
+        ImGui::EndDisabled();
         
         ImGui::Spacing();
         ImGui::Separator();
@@ -444,8 +440,8 @@ namespace Coffee {
         ImGui::Separator();
         ImGui::Spacing();
         
-        auto& window = Application::Get().GetWindow();
-        auto& rendererSettings = Renderer::GetRenderSettings();
+        auto& window = *m_Context->window;
+        auto& rendererSettings = m_Context->renderer->GetRenderSettings();
         
         // VSync
         bool vsync = window.IsVSync();
@@ -491,7 +487,7 @@ namespace Coffee {
         ImGui::SetNextItemWidth(200);
         if (ImGui::SliderFloat("##MusicVolume", &musicVolume, 0.0f, 1.0f, "%.2f"))
         {
-            Audio::SetBusVolume("Music", musicVolume);
+            m_Context->audio->SetBusVolume("Music", musicVolume);
         }
         if (ImGui::IsItemHovered())
         {
@@ -509,7 +505,7 @@ namespace Coffee {
         ImGui::SetNextItemWidth(200);
         if (ImGui::SliderFloat("##SFXVolume", &sfxVolume, 0.0f, 1.0f, "%.2f"))
         {
-            Audio::SetBusVolume("SFX", sfxVolume);
+            m_Context->audio->SetBusVolume("SFX", sfxVolume);
         }
         if (ImGui::IsItemHovered())
         {
@@ -535,8 +531,8 @@ namespace Coffee {
         ImGui::Separator();
         ImGui::Spacing();
         
-        auto& rendererSettings = Renderer::GetRenderSettings();
-        auto& renderer3DSettings = Renderer3D::GetRenderSettings();
+        auto& rendererSettings = m_Context->renderer->GetRenderSettings();
+        auto& renderer3DSettings = m_Context->renderer->Get3DRenderer().GetRenderSettings();
         
         // Post Processing
         if (ImGui::Checkbox("Post Processing", &rendererSettings.PostProcessing))
@@ -604,7 +600,7 @@ namespace Coffee {
                 ImGui::TableSetupColumn("Use Count", ImGuiTableColumnFlags_DefaultSort);
                 ImGui::TableHeadersRow();
             
-                auto& resources = ResourceRegistry::GetResourceRegistry();
+                auto& resources = m_Context->resourceManager->GetRegistry().GetResourceRegistry();
                 for (auto& resource : resources)
                 {
                     // Filter resources based on the search query
@@ -633,7 +629,10 @@ namespace Coffee {
     {
         if (!m_Visible) return;
 
-        Ref<Project> project = Project::GetActive();
+        if (!m_Context)
+            return;
+
+        Ref<Project> project = std::const_pointer_cast<Project>(m_Context->projectManager->GetCurrentProject());
 
         if (!project)
         {

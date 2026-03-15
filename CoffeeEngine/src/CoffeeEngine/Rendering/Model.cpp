@@ -50,7 +50,7 @@ namespace Coffee {
     void Model::save(Archive& archive) const
     {
         // convert this to UUIDs
-        std::vector<UUID> meshUUIDs;
+        std::vector<ResourceID> meshUUIDs;
         for(const auto& mesh : m_Meshes)
         {
             meshUUIDs.push_back(mesh->GetUUID());
@@ -62,12 +62,9 @@ namespace Coffee {
     template<class Archive>
     void Model::load(Archive& archive)
     {
-        std::vector<UUID> meshUUIDs;
+        std::vector<ResourceID> meshUUIDs;
         archive(meshUUIDs, m_Parent, m_Children, m_Transform, m_NodeName, m_hasAnimations, m_AnimationsNames, m_Joints, cereal::base_class<Resource>(this));
-        for (const auto& data : meshUUIDs)
-        {
-            m_Meshes.push_back(ResourceLoader::GetResource<Mesh>(data));
-        }
+        m_PendingMeshIDs = meshUUIDs;
         ImportAnimations(m_UUID);
     }
 
@@ -188,12 +185,12 @@ namespace Coffee {
         }
     }
 
-    Ref<Model> Model::Load(const std::filesystem::path& path)
+    ResourceRef<Model> Model::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::Load<Model>(path);
+        return CreateRef<Model>(path);
     }
 
-    Ref<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
+    ResourceRef<Mesh> Model::processMesh(aiMesh* mesh, const aiScene* scene, std::vector<Joint>& joints, std::map<std::string, int>& boneMap)
     {
         ZoneScoped;
 
@@ -304,7 +301,7 @@ namespace Coffee {
             std::string materialName = (material->GetName().length > 0) ? material->GetName().C_Str() : m_Name;
             std::string referenceName = materialName + "_Mat" + std::to_string(mesh->mMaterialIndex);
 
-            UUID materialUUID;
+            ResourceID materialUUID;
 
             if(s_ModelMaterialsUUIDs.find(referenceName) != s_ModelMaterialsUUIDs.end())
             {
@@ -324,7 +321,7 @@ namespace Coffee {
             materialImportData.uuid = materialUUID;
             materialImportData.cachedPath = CacheManager::GetCachedFilePath(materialUUID, ResourceType::PBRMaterial);
             
-            meshMaterial = ResourceLoader::LoadEmbedded<PBRMaterial>(materialImportData);
+            meshMaterial = CreateRef<PBRMaterial>(materialImportData);
         }
         else
         {
@@ -338,7 +335,7 @@ namespace Coffee {
 
         std::string nameReference = m_FilePath.stem().string() + "_" + mesh->mName.C_Str();
 
-        UUID meshUUID;
+        ResourceID meshUUID;
 
         if(s_ModelMeshesUUIDs.find(nameReference) != s_ModelMeshesUUIDs.end())
         {
@@ -360,7 +357,7 @@ namespace Coffee {
         // Think if this is the most comfortable way to do this
         meshImportData.cachedPath = CacheManager::GetCachedFilePath(meshUUID, ResourceType::Mesh);
 
-        Ref<Mesh> resultMesh = ResourceLoader::LoadEmbedded<Mesh>(meshImportData);
+        ResourceRef<Mesh> resultMesh = CreateRef<Mesh>(meshImportData);
 
         return resultMesh;
     }
@@ -391,7 +388,7 @@ namespace Coffee {
 
         for(uint32_t i = 0; i < node->mNumChildren; i++)
         {
-            Ref<Model> child = CreateRef<Model>();
+            ResourceRef<Model> child = CreateRef<Model>();
             child->m_Name = node->mChildren[i]->mName.C_Str();
             child->m_FilePath = m_FilePath;
             child->m_Parent = weak_from_this();
@@ -401,7 +398,7 @@ namespace Coffee {
         }
     }
 
-    Ref<Texture2D> Model::LoadTexture2D(aiMaterial* material, aiTextureType type)
+    ResourceRef<Texture2D> Model::LoadTexture2D(aiMaterial* material, aiTextureType type)
     {
         aiString textureName;
         material->GetTexture(type, 0, &textureName);
@@ -431,10 +428,33 @@ namespace Coffee {
             importData.cachedPath = CacheManager::GetCachedFilePath(importData.uuid, ResourceType::Texture2D);
             Scope<ImportData> importDataPtr = CreateScope<Texture2DImportData>(importData);
             ImportDataUtils::SaveImportData(importDataPtr);
-            return ResourceLoader::Load<Texture2D>(importData);
+            return CreateRef<Texture2D>(importData);
         }
 
         return Texture2D::Load(texturePath);
+    }
+
+    void Model::ResolveResources(ResourceManager& resourceManager)
+    {
+        for (ResourceID id : m_PendingMeshIDs)
+        {
+            ResourceRef<Mesh> mesh = resourceManager.GetResource<Mesh>(id);
+            if (mesh)
+            {
+                mesh->ResolveResources(resourceManager);
+                m_Meshes.push_back(mesh);
+            }
+        }
+
+        m_PendingMeshIDs.clear();
+
+        for (const auto& child : m_Children)
+        {
+            if (child)
+            {
+                child->ResolveResources(resourceManager);
+            }
+        }
     }
 
     PBRMaterialTextures Model::LoadMaterialTextures(aiMaterial* material)

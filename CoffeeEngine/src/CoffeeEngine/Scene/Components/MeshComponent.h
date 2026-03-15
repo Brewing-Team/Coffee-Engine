@@ -8,6 +8,7 @@ namespace Coffee
 {
     // Forward declaration
     struct AnimatorComponent;
+  struct EngineContext;
     class Mesh;
 
     /**
@@ -16,22 +17,26 @@ namespace Coffee
      */
     struct MeshComponent
     {
-        Ref<Mesh> mesh;        ///< The mesh reference.
+        ResourceRef<Mesh> mesh;        ///< The mesh reference.
         bool drawAABB = false; ///< Flag to draw the axis-aligned bounding box (AABB).
+
+        ResourceID pendingMeshID = ResourceID::null;
 
         AnimatorComponent* animator = nullptr; ///< The animator component.
         UUID animatorUUID = 0;                 ///< The UUID of the animator.
 
         MeshComponent() {}
         MeshComponent(const MeshComponent&) = default;
-        MeshComponent(Ref<Mesh> mesh) : mesh(mesh) {}
+        MeshComponent(ResourceRef<Mesh> mesh) : mesh(mesh) {}
         ~MeshComponent() { animator = nullptr; }
 
         /**
          * @brief Gets the mesh reference.
          * @return The mesh reference.
          */
-        const Ref<Mesh>& GetMesh() const { return mesh; }
+        const ResourceRef<Mesh>& GetMesh() const { return mesh; }
+
+        void ResolveResources(EngineContext& context);
 
       private:
         friend class cereal::access;

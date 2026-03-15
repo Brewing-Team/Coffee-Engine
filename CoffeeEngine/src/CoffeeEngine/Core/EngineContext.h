@@ -11,6 +11,7 @@ namespace Coffee
     class ProjectManager;
     class ScriptingManager;
     class Audio;
+    class ImGuiLayer;
 
     struct EngineContext
     {
@@ -23,5 +24,6 @@ namespace Coffee
         ProjectManager* projectManager; ///< Pointer to the project manager used by the engine.
         ScriptingManager* scripting; ///< Pointer to the scripting manager used by the engine.
         Audio* audio; ///< Pointer to the audio system used by the engine.
+        ImGuiLayer* imguiLayer; ///< Pointer to the ImGui layer.
     };
 }

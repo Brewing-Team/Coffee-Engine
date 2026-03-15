@@ -8,6 +8,7 @@
 namespace Coffee
 {
     class Cubemap;
+    struct EngineContext;
 
 }
 
@@ -16,7 +17,8 @@ namespace Coffee
     struct WorldEnvironmentComponent
     {
         // Skybox
-        Ref<Cubemap> Skybox; ///< The skybox reference.
+        ResourceRef<Cubemap> Skybox; ///< The skybox reference.
+        ResourceID PendingSkyboxID = ResourceID::null;
         float SkyboxIntensity = 1.0f; ///< The exposure of the skybox.
 
         // Tonemapping
@@ -43,6 +45,8 @@ namespace Coffee
 
         WorldEnvironmentComponent() = default;
         WorldEnvironmentComponent(const WorldEnvironmentComponent&) = default;
+
+        void ResolveResources(EngineContext& context);
 
         template <class Archive> void save(Archive& archive, std::uint32_t const version) const;
         template <class Archive> void load(Archive& archive, std::uint32_t const version);

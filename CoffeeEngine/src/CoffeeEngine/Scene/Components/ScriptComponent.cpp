@@ -1,7 +1,10 @@
 #include "ScriptComponent.h"
-#include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Core/Log.h"
+#include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Project/ProjectManager.h"
 #include "CoffeeEngine/Scripting/Script.h"
+#include "CoffeeEngine/Scripting/ScriptingManager.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>
@@ -9,58 +12,46 @@
 
 namespace Coffee 
 {
+    ScriptComponent::ScriptComponent(Ref<Script> script) : script(script)
+    {
+        if (script)
+            ScriptPath = script->GetPath();
+    }
+
     template <class Archive> 
     void ScriptComponent::save(Archive& archive, std::uint32_t const version) const
     {
-        std::filesystem::path relativePath;
-        if (Project::GetActive())
-        {
-            relativePath =
-                std::filesystem::relative(script->GetPath(), Project::GetActive()->GetProjectDirectory());
-        }
-        else
-        {
-            relativePath = script->GetPath();
-            COFFEE_CORE_ERROR("ScriptComponent::save: Project is not active, script path is not relative to the "
-                              "project directory!");
-        }
-        archive(cereal::make_nvp("ScriptPath", relativePath.generic_string()),
-                cereal::make_nvp("Language", ScriptingLanguage::Lua));
+        const std::filesystem::path serializedPath = !ScriptPath.empty() ? ScriptPath : (script ? script->GetPath() : std::filesystem::path{});
+        archive(cereal::make_nvp("ScriptPath", serializedPath.generic_string()),
+                cereal::make_nvp("Language", Language));
     }
 
     template <class Archive> 
     void ScriptComponent::load(Archive& archive, std::uint32_t const version)
     {
         std::string relativePath;
-        ScriptingLanguage language;
 
-        archive(cereal::make_nvp("ScriptPath", relativePath), cereal::make_nvp("Language", language));
+        archive(cereal::make_nvp("ScriptPath", relativePath), cereal::make_nvp("Language", Language));
 
-        if (!relativePath.empty())
+        ScriptPath = relativePath;
+    }
+
+    void ScriptComponent::ResolveResources(EngineContext& context)
+    {
+        if (script || ScriptPath.empty() || !context.scripting)
+            return;
+
+        std::filesystem::path resolvedPath = ScriptPath;
+        if (context.projectManager)
         {
-            std::filesystem::path scriptPath;
-            if (Project::GetActive())
+            if (const Ref<const Project> project = context.projectManager->GetCurrentProject())
             {
-                scriptPath = Project::GetActive()->GetProjectDirectory() / relativePath;
-            }
-            else
-            {
-                scriptPath = relativePath;
-                COFFEE_CORE_ERROR("ScriptComponent::load: Project is not active, script path is not relative to "
-                                  "the project directory!");
-            }
-
-            switch (language)
-            {
-                using enum ScriptingLanguage;
-            case Lua:
-                script = ScriptingManager::CreateScript(scriptPath, language);
-                break;
-            case cSharp:
-                // Handle cSharp script loading if needed
-                break;
+                if (!resolvedPath.is_absolute())
+                    resolvedPath = project->GetDirectory() / resolvedPath;
             }
         }
+
+        script = context.scripting->CreateScript(resolvedPath, Language);
     }
 
     // Explicit template instantiations for common cereal archives

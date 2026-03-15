@@ -1,10 +1,7 @@
 #include "AnimationSystem.h"
 #include "CoffeeEngine/Resources/Animation/AnimationClip.h"
-
-#define BT_NO_SIMD_OPERATOR_OVERLOADS
-
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Model.h"
-#include "CoffeeEngine/Resources/ResourceRegistry.h"
 #include "CoffeeEngine/Rendering/Shader.h"
 #include "CoffeeEngine/Scene/Components/AnimatorComponent.h"
 #include "ozz/animation/runtime/skeleton_utils.h"
@@ -278,7 +275,10 @@ namespace Coffee {
 
     void AnimationSystem::LoadAnimator(AnimatorComponent* animator)
     {
-        Ref<Model> model = ResourceRegistry::Get<Model>(animator->modelUUID);
+        if (!m_ResourceManager) return;
+
+        Ref<Model> model = m_ResourceManager->GetResource<Model>(animator->modelUUID);
+        if (!model) return;
         animator->SetSkeleton(model->GetSkeleton());
         animator->SetAnimationController(model->GetAnimationController());
         animator->JointMatrices = animator->GetSkeleton()->GetJointMatrices();
@@ -324,7 +324,7 @@ namespace Coffee {
 
     void AnimationSystem::SetCurrentAnimation(unsigned int index, AnimatorComponent* animator, AnimationLayer* layer)
     {
-        if (index < animator->GetAnimationController()->GetAnimationCount())
+        if (index < animator->GetAnimationController()->GetAnimationClipCount())
         {
             layer->NextAnimation = index;
             layer->BlendTime = 0.f;

@@ -219,17 +219,17 @@ namespace Coffee {
         glGenerateTextureMipmap(m_textureID);
     }
 
-    Ref<Texture2D> Texture2D::Load(const std::filesystem::path& path)
+    ResourceRef<Texture2D> Texture2D::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::Load<Texture2D>(path);
+        return CreateRef<Texture2D>(path);
     }
 
-    Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)
+    ResourceRef<Texture2D> Texture2D::Create(uint32_t width, uint32_t height, ImageFormat format)
     {
         return CreateRef<Texture2D>(width, height, format);
     }
 
-    Ref<Texture2D> Texture2D::Create(const TextureProperties& properties)
+    ResourceRef<Texture2D> Texture2D::Create(const TextureProperties& properties)
     {
         return CreateRef<Texture2D>(properties);
     }
@@ -379,12 +379,12 @@ namespace Coffee {
         }
     }
 
-    Ref<Texture3D> Texture3D::Create(uint32_t width, uint32_t height, uint32_t depth, ImageFormat format)
+    ResourceRef<Texture3D> Texture3D::Create(uint32_t width, uint32_t height, uint32_t depth, ImageFormat format)
     {
         return CreateRef<Texture3D>(width, height, depth, format);
     }
 
-    Ref<Texture3D> Texture3D::Create(const TextureProperties& properties)
+    ResourceRef<Texture3D> Texture3D::Create(const TextureProperties& properties)
     {
         return CreateRef<Texture3D>(properties);
     }
@@ -426,7 +426,7 @@ namespace Coffee {
         glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
         };
 
-    Ref<Mesh> Cubemap::m_CubeMesh;
+    ResourceRef<Mesh> Cubemap::m_CubeMesh;
 
     Cubemap::Cubemap()
         : Texture(ResourceType::Cubemap)
@@ -664,11 +664,11 @@ namespace Coffee {
         glDeleteRenderbuffers(1, &rbo);
     }
 
-    Ref<Cubemap> Cubemap::Load(const std::filesystem::path& path)
+    ResourceRef<Cubemap> Cubemap::Load(const std::filesystem::path& path)
     {
-        return ResourceLoader::Load<Cubemap>(path);
+        return CreateRef<Cubemap>(path);
     }
-    Ref<Cubemap> Cubemap::Create(const std::filesystem::path& path)
+    ResourceRef<Cubemap> Cubemap::Create(const std::filesystem::path& path)
     {
         return CreateRef<Cubemap>(path);
     }

@@ -1,6 +1,8 @@
 #include "UITextComponent.h"
 
+#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Project/Project.h"
+#include "CoffeeEngine/Project/ProjectManager.h"
 #include "CoffeeEngine/Rendering/Font.h"
 
 #include <cereal/archives/json.hpp>
@@ -14,9 +16,7 @@ namespace Coffee
     {
         archive(
             cereal::make_nvp("Text", Text),
-            cereal::make_nvp(
-                "FontPath",
-                std::filesystem::relative(FontPath, Project::GetActive()->GetProjectDirectory()).generic_string()),
+            cereal::make_nvp("FontPath", FontPath.generic_string()),
             cereal::make_nvp("Color", Color), cereal::make_nvp("Kerning", Kerning),
             cereal::make_nvp("LineSpacing", LineSpacing), cereal::make_nvp("FontSize", FontSize),
             cereal::make_nvp("Alignment", Alignment));
@@ -32,14 +32,29 @@ namespace Coffee
                 cereal::make_nvp("LineSpacing", LineSpacing), cereal::make_nvp("FontSize", FontSize),
                 cereal::make_nvp("Alignment", Alignment));
 
-        if (!relativePath.empty())
-        {
-            FontPath = Project::GetActive()->GetProjectDirectory() / relativePath;
-            UIFont = CreateRef<Coffee::Font>(FontPath);
-        }
-        else
-            UIFont = Font::GetDefault();
+        FontPath = relativePath;
         UIComponent::load(archive, version);
+    }
+
+    void UITextComponent::ResolveResources(EngineContext& context)
+    {
+        if (UIFont)
+            return;
+
+        if (FontPath.empty())
+        {
+            UIFont = Font::GetDefault();
+            return;
+        }
+
+        std::filesystem::path resolvedPath = FontPath;
+        if (!resolvedPath.is_absolute() && context.projectManager)
+        {
+            if (const Ref<const Project> project = context.projectManager->GetCurrentProject())
+                resolvedPath = project->GetDirectory() / resolvedPath;
+        }
+
+        UIFont = CreateRef<Coffee::Font>(resolvedPath);
     }
 
     // Explicit template instantiations for common cereal archives

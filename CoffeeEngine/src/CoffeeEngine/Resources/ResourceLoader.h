@@ -39,7 +39,7 @@ namespace Coffee {
         // TODO: Consider changing the name of functions to Load instead of Import.
 
         template<typename T>
-        Ref<T> Import(const ImportData& importData)
+        ResourceRef<T> Import(const ImportData& importData)
         {
             ImportData& data = const_cast<ImportData&>(importData);
 
@@ -48,7 +48,7 @@ namespace Coffee {
                 // Check if the resource is cached
                 if(std::filesystem::exists(data.cachedPath))
                 {
-                    const Ref<T>& resource = LoadFromCache<T>(data.cachedPath);
+                    const ResourceRef<T>& resource = LoadFromCache<T>(data.cachedPath);
                     return resource;
                 }
                 // If the resource is not cached, import it
@@ -58,7 +58,7 @@ namespace Coffee {
 
                     // TODO: Think about passing the import data to the resource constructor!!! Can simplify a lot of things
 
-                    Ref<T> resource = CreateRef<T>(data);
+                    ResourceRef<T> resource = CreateRef<T>(data);
                     
                     if(data.cache)
                         ResourceSaver::Save<T>(data.cachedPath, resource);
@@ -68,7 +68,7 @@ namespace Coffee {
             }
             else
             {
-                Ref<T> resource = CreateRef<T>(data);
+                ResourceRef<T> resource = CreateRef<T>(data);
 
                 data.uuid = resource->GetUUID();
 
@@ -85,7 +85,7 @@ namespace Coffee {
         }
 
         template<typename T>
-        Ref<T> ImportEmbedded(const ImportData& importData)
+        ResourceRef<T> ImportEmbedded(const ImportData& importData)
         {
             ImportData& data = const_cast<ImportData&>(importData);
 
@@ -94,14 +94,14 @@ namespace Coffee {
                 // Check if the resource is cached
                 if (std::filesystem::exists(data.cachedPath))
                 {
-                    const Ref<T>& resource = LoadFromCache<T>(data.cachedPath);
+                    const ResourceRef<T>& resource = LoadFromCache<T>(data.cachedPath);
                     return resource;
                 }
                 // If the resource is not cached, import it
                 else
                 {
                     // Create the resource from the embedded data
-                    Ref<T> resource = CreateRef<T>(data);
+                    ResourceRef<T> resource = CreateRef<T>(data);
 
                     // Save the resource to the cache
                     ResourceSaver::Save<T>(data.cachedPath, resource);
@@ -117,13 +117,13 @@ namespace Coffee {
         }
 
         template<typename T>
-        Ref<T> ImportFromCache(UUID uuid)
+        ResourceRef<T> ImportFromCache(ResourceID uuid)
         {
             std::filesystem::path cachedFilePath = CacheManager::GetCachedFilePath(uuid, GetResourceType<T>());
 
             if (std::filesystem::exists(cachedFilePath))
             {
-                const Ref<Resource>& resource = LoadFromCache<T>(cachedFilePath);
+                const ResourceRef<Resource>& resource = LoadFromCache<T>(cachedFilePath);
                 return std::static_pointer_cast<T>(resource);
             }
             else
@@ -141,7 +141,7 @@ namespace Coffee {
          * @return A reference to the loaded resource.
          */
         template<typename T>
-        Ref<T> LoadFromCache(const std::filesystem::path& path)
+        ResourceRef<T> LoadFromCache(const std::filesystem::path& path)
         {
             COFFEE_INFO("Loading resource from cache: {0}", path.string());
 
@@ -164,11 +164,11 @@ namespace Coffee {
          * @return A reference to the deserialized resource.
          */
         template<typename T>
-        Ref<T> BinaryDeserialization(const std::filesystem::path& path)
+        ResourceRef<T> BinaryDeserialization(const std::filesystem::path& path)
         {
             std::ifstream file(path, std::ios::binary);
             cereal::BinaryInputArchive archive(file);
-            Ref<T> resource;
+            ResourceRef<T> resource;
             archive(resource);
             return resource;
         }
@@ -179,11 +179,11 @@ namespace Coffee {
          * @return A reference to the deserialized resource.
          */
         template<typename T>
-        Ref<T> JSONDeserialization(const std::filesystem::path& path)
+        ResourceRef<T> JSONDeserialization(const std::filesystem::path& path)
         {
             std::ifstream file(path);
             cereal::JSONInputArchive archive(file);
-            Ref<T> resource;
+            ResourceRef<T> resource;
             archive(resource);
             return resource;
         }

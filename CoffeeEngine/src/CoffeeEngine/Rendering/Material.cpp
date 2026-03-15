@@ -7,7 +7,6 @@
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Shader.h"
 #include "CoffeeEngine/Rendering/Texture.h"
-#include "CoffeeEngine/Project/Project.h"
 #include "CoffeeEngine/Rendering/Embedded/Shaders/StandardShader.inl"
 #include "CoffeeEngine/IO/Serialization/GLMSerialization.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
@@ -69,12 +68,7 @@ namespace Coffee {
     template<class Archive>
     void Material::save(Archive& archive) const
     {
-        std::filesystem::path shaderPath = m_Shader ? m_Shader->GetPath() : "";
-        
-        if (Project::GetActive())
-            shaderPath = std::filesystem::relative(m_Shader->GetPath(), Project::GetActive()->GetProjectDirectory());
-        else
-            shaderPath = m_Shader->GetPath();
+        const std::filesystem::path shaderPath = m_Shader ? m_Shader->GetPath() : std::filesystem::path{};
 
         archive(cereal::base_class<Resource>(this), 
                 cereal::make_nvp("Shader Path", shaderPath.generic_string()), 
@@ -88,9 +82,6 @@ namespace Coffee {
         archive(cereal::base_class<Resource>(this), 
                 cereal::make_nvp("Shader Path", shaderPath), 
                 cereal::make_nvp("Render Settings", m_RenderSettings));
-
-        if (Project::GetActive())
-            shaderPath = (Project::GetActive()->GetProjectDirectory() / shaderPath).string();
 
         if (!shaderPath.empty() && std::filesystem::is_regular_file(shaderPath)) 
             m_Shader = Shader::Create(shaderPath);
@@ -190,12 +181,13 @@ namespace Coffee {
             cereal::make_nvp("EmissiveUUID", emissiveUUID)
         );
 
-        albedo = ResourceLoader::GetResource<Texture2D>(albedoUUID);
-        normal = ResourceLoader::GetResource<Texture2D>(normalUUID);
-        metallic = ResourceLoader::GetResource<Texture2D>(metallicUUID);
-        roughness = ResourceLoader::GetResource<Texture2D>(roughnessUUID);
-        ao = ResourceLoader::GetResource<Texture2D>(aoUUID);
-        emissive = ResourceLoader::GetResource<Texture2D>(emissiveUUID);
+        // Store UUIDs as pending; textures will be resolved by PBRMaterial::ResolveResources.
+        m_PendingAlbedoID = albedoUUID;
+        m_PendingNormalID = normalUUID;
+        m_PendingMetallicID = metallicUUID;
+        m_PendingRoughnessID = roughnessUUID;
+        m_PendingAOID = aoUUID;
+        m_PendingEmissiveID = emissiveUUID;
     }
 
     // PBRMaterialTextureFlags implementation
@@ -368,7 +360,7 @@ namespace Coffee {
         importData.uuid = UUID();
         importData.cachedPath = CacheManager::GetCachedFilePath(importData.uuid, ResourceType::PBRMaterial);
 
-        return ResourceLoader::LoadEmbedded<PBRMaterial>(importData);
+        return CreateRef<PBRMaterial>(importData);
     }
 
     template<class Archive>
@@ -448,6 +440,33 @@ namespace Coffee {
     template void PBRMaterial::save<cereal::BinaryOutputArchive>(cereal::BinaryOutputArchive&) const;
     template void PBRMaterial::load<cereal::JSONInputArchive>(cereal::JSONInputArchive&);
     template void PBRMaterial::load<cereal::BinaryInputArchive>(cereal::BinaryInputArchive&);
+
+    // -----------------------------------------------------------------------
+    // ResolveResources implementations
+    // -----------------------------------------------------------------------
+
+    void PBRMaterialTextures::ResolveResources(ResourceManager& manager)
+    {
+        if (!albedo   && m_PendingAlbedoID    != ResourceID::null) { albedo    = manager.GetResource<Texture2D>(m_PendingAlbedoID);    m_PendingAlbedoID    = ResourceID::null; }
+        if (!normal   && m_PendingNormalID    != ResourceID::null) { normal    = manager.GetResource<Texture2D>(m_PendingNormalID);    m_PendingNormalID    = ResourceID::null; }
+        if (!metallic && m_PendingMetallicID  != ResourceID::null) { metallic  = manager.GetResource<Texture2D>(m_PendingMetallicID);  m_PendingMetallicID  = ResourceID::null; }
+        if (!roughness&& m_PendingRoughnessID != ResourceID::null) { roughness = manager.GetResource<Texture2D>(m_PendingRoughnessID); m_PendingRoughnessID = ResourceID::null; }
+        if (!ao       && m_PendingAOID        != ResourceID::null) { ao        = manager.GetResource<Texture2D>(m_PendingAOID);        m_PendingAOID        = ResourceID::null; }
+        if (!emissive && m_PendingEmissiveID  != ResourceID::null) { emissive  = manager.GetResource<Texture2D>(m_PendingEmissiveID);  m_PendingEmissiveID  = ResourceID::null; }
+    }
+
+    void PBRMaterial::ResolveResources(ResourceManager& manager)
+    {
+        m_Textures.ResolveResources(manager);
+
+        // Sync texture flags after resolution
+        m_TextureFlags.hasAlbedo    = (m_Textures.albedo    != nullptr);
+        m_TextureFlags.hasNormal    = (m_Textures.normal    != nullptr);
+        m_TextureFlags.hasMetallic  = (m_Textures.metallic  != nullptr);
+        m_TextureFlags.hasRoughness = (m_Textures.roughness != nullptr);
+        m_TextureFlags.hasAO        = (m_Textures.ao        != nullptr);
+        m_TextureFlags.hasEmissive  = (m_Textures.emissive  != nullptr);
+    }
 
 } // namespace Coffee
 

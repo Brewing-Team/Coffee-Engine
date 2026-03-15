@@ -44,7 +44,7 @@ namespace Coffee {
     }
 
     Ref<Script> LuaBackend::CreateScript(const std::filesystem::path& path) {
-        return CreateRef<LuaScript>(path);
+        return CreateRef<LuaScript>(path, this);
     }
 
     void LuaBackend::ExecuteScript(Script& script) {

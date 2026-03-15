@@ -1,5 +1,6 @@
 #include "UIButtonComponent.h"
 
+#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Core/UUID.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Texture.h"
@@ -10,13 +11,7 @@
 namespace Coffee 
 {
 
-    UIButtonComponent::UIButtonComponent()
-    {
-        NormalTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
-        HoverTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
-        PressedTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
-        DisabledTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
-    }
+    UIButtonComponent::UIButtonComponent() = default;
 
     template <class Archive> 
     void UIButtonComponent::save(Archive& archive, std::uint32_t const version) const
@@ -46,15 +41,31 @@ namespace Coffee
                 cereal::make_nvp("DisabledTextureUUID", DisabledTextureUUID),
                 cereal::make_nvp("NormalColor", NormalColor), cereal::make_nvp("HoverColor", HoverColor),
                 cereal::make_nvp("PressedColor", PressedColor), cereal::make_nvp("DisabledColor", DisabledColor));
-        if (NormalTextureUUID != UUID(0))
-            NormalTexture = ResourceLoader::GetResource<Texture2D>(NormalTextureUUID);
-        if (HoverTextureUUID != UUID(0))
-            HoverTexture = ResourceLoader::GetResource<Texture2D>(HoverTextureUUID);
-        if (PressedTextureUUID != UUID(0))
-            PressedTexture = ResourceLoader::GetResource<Texture2D>(PressedTextureUUID);
-        if (DisabledTextureUUID != UUID(0))
-            DisabledTexture = ResourceLoader::GetResource<Texture2D>(DisabledTextureUUID);
+        PendingNormalTextureID = NormalTextureUUID;
+        PendingHoverTextureID = HoverTextureUUID;
+        PendingPressedTextureID = PressedTextureUUID;
+        PendingDisabledTextureID = DisabledTextureUUID;
         UIComponent::load(archive, version);
+    }
+
+    void UIButtonComponent::ResolveResources(EngineContext& context)
+    {
+        if (!context.resourceManager)
+            return;
+
+        if (!NormalTexture && PendingNormalTextureID != ResourceID::null)
+            NormalTexture = context.resourceManager->GetResource<Texture2D>(PendingNormalTextureID);
+        if (!HoverTexture && PendingHoverTextureID != ResourceID::null)
+            HoverTexture = context.resourceManager->GetResource<Texture2D>(PendingHoverTextureID);
+        if (!PressedTexture && PendingPressedTextureID != ResourceID::null)
+            PressedTexture = context.resourceManager->GetResource<Texture2D>(PendingPressedTextureID);
+        if (!DisabledTexture && PendingDisabledTextureID != ResourceID::null)
+            DisabledTexture = context.resourceManager->GetResource<Texture2D>(PendingDisabledTextureID);
+
+        PendingNormalTextureID = ResourceID::null;
+        PendingHoverTextureID = ResourceID::null;
+        PendingPressedTextureID = ResourceID::null;
+        PendingDisabledTextureID = ResourceID::null;
     }
 
     // Explicit template instantiations for common cereal archives

@@ -60,7 +60,8 @@ namespace Coffee {
                         if (ImGui::Button("Reimport"))
                         {
                             ImportDataUtils::SaveImportData(m_CachedImportData);
-                            ResourceLoader::ReimportResource(m_SelectedResource);
+                            if (m_EngineContext && m_EngineContext->resourceManager)
+                                m_EngineContext->resourceManager->ReimportResource(m_SelectedResource);
                             //m_SelectedResource = ResourceLoader::Load<Texture2D>(*m_CachedImportData);
                         }
 

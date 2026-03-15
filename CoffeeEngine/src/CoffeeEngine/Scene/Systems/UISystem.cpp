@@ -15,25 +15,16 @@
 
 namespace Coffee {
 
-    glm::vec2 UISystem::WindowSize;
-    glm::vec2 UISystem::m_lastWindowSize = { 0.0f, 0.0f };
-    bool UISystem::s_NeedsSorting = true;
-    std::vector<UISystem::UIRenderItem> UISystem::s_SortedUIItems;
-    std::unordered_map<entt::entity, UISystem::AnchoredTransform> UISystem::s_LastTransforms;
-
-    glm::vec2 UISystem::m_CanvasReferenceSize = { 1920.0f, 1080.0f };
-    float UISystem::m_UIScale = 1.0f;
-
-    std::unordered_map<entt::entity, std::vector<UISystem::TransformOperation>> UISystem::s_PendingTransforms;
-
     void UISystem::UpdateUI(entt::registry& registry)
     {
-        WindowSize = Renderer::GetCurrentRenderTarget()->GetSize();
+        if (!m_Renderer) return;
+
+        WindowSize = m_Renderer->GetCurrentRenderTarget()->GetSize();
 
         if (WindowSize != m_lastWindowSize)
         {
             CalculateUIScaleFactor();
-            for (auto& item : s_SortedUIItems)
+            for (auto& item : m_SortedUIItems)
             {
                 item.TransformDirty = true;
                 item.ParentSizeDirty = true;
@@ -41,21 +32,21 @@ namespace Coffee {
             m_lastWindowSize = WindowSize;
         }
 
-        if (s_NeedsSorting)
+        if (m_NeedsSorting)
         {
             SortUIElements(registry);
-            s_NeedsSorting = false;
+            m_NeedsSorting = false;
         }
 
         ProcessPendingTransforms(registry);
 
-        for (auto& item : s_SortedUIItems)
+        for (auto& item : m_SortedUIItems)
         {
             if (item.Parent == entt::null)
                 UpdateUITranformRecursive(registry, item);
         }
 
-        for (auto& item : s_SortedUIItems)
+        for (auto& item : m_SortedUIItems)
         {
             entt::entity entity = item.Entity;
 
@@ -109,16 +100,16 @@ namespace Coffee {
 
     void UISystem::SortUIElements(entt::registry& registry)
     {
-        s_SortedUIItems.clear();
+        m_SortedUIItems.clear();
 
-        AddUIItems<UIImageComponent, UIComponentType::Image>(registry, s_SortedUIItems);
-        AddUIItems<UITextComponent, UIComponentType::Text>(registry, s_SortedUIItems);
-        AddUIItems<UIToggleComponent, UIComponentType::Toggle>(registry, s_SortedUIItems);
-        AddUIItems<UIButtonComponent, UIComponentType::Button>(registry, s_SortedUIItems);
-        AddUIItems<UISliderComponent, UIComponentType::Slider>(registry, s_SortedUIItems);
-        AddUIItems<UIComponent, UIComponentType::Empty>(registry, s_SortedUIItems);
+        AddUIItems<UIImageComponent, UIComponentType::Image>(registry, m_SortedUIItems);
+        AddUIItems<UITextComponent, UIComponentType::Text>(registry, m_SortedUIItems);
+        AddUIItems<UIToggleComponent, UIComponentType::Toggle>(registry, m_SortedUIItems);
+        AddUIItems<UIButtonComponent, UIComponentType::Button>(registry, m_SortedUIItems);
+        AddUIItems<UISliderComponent, UIComponentType::Slider>(registry, m_SortedUIItems);
+        AddUIItems<UIComponent, UIComponentType::Empty>(registry, m_SortedUIItems);
 
-        std::sort(s_SortedUIItems.begin(), s_SortedUIItems.end(), [&registry](const UIRenderItem& a, const UIRenderItem& b) {
+        std::sort(m_SortedUIItems.begin(), m_SortedUIItems.end(), [&registry](const UIRenderItem& a, const UIRenderItem& b) {
             if (a.Layer != b.Layer)
                 return a.Layer < b.Layer;
 
@@ -164,7 +155,7 @@ namespace Coffee {
             return static_cast<uint32_t>(a.Entity) < static_cast<uint32_t>(b.Entity);
         });
 
-        for (auto& item : s_SortedUIItems)
+        for (auto& item : m_SortedUIItems)
         {
             item.TransformDirty = true;
             item.ParentSizeDirty = true;
@@ -176,7 +167,7 @@ namespace Coffee {
         entt::entity entity = item.Entity;
         auto& uiImageComponent = registry.get<UIImageComponent>(entity);
 
-        Renderer2D::DrawQuad(item.WorldTransform, uiImageComponent.Texture, 1.0f, uiImageComponent.Color, Renderer2D::RenderMode::Screen, (uint32_t)entity, uiImageComponent.UVRect);
+        m_Renderer->Get2DRenderer().DrawQuad(item.WorldTransform, uiImageComponent.Texture, 1.0f, uiImageComponent.Color, Renderer2D::RenderMode::Screen, (uint32_t)entity, uiImageComponent.UVRect);
     }
 
     void UISystem::RenderUIText(entt::registry& registry, UIRenderItem& item)
@@ -204,7 +195,7 @@ namespace Coffee {
         textParams.Size = scaledFontSize;
         textParams.Alignment = uiTextComponent.Alignment;
 
-        Renderer2D::DrawTextString(uiTextComponent.Text, uiTextComponent.UIFont, item.WorldTransform, textParams, Renderer2D::RenderMode::Screen, (uint32_t)entity);
+        m_Renderer->Get2DRenderer().DrawTextString(uiTextComponent.Text, uiTextComponent.UIFont, item.WorldTransform, textParams, Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
     void UISystem::RenderUIToggle(entt::registry& registry, UIRenderItem& item)
@@ -215,7 +206,7 @@ namespace Coffee {
         Ref<Texture2D> currentTexture = toggleComponent.Value ? toggleComponent.OnTexture : toggleComponent.OffTexture;
 
         if (currentTexture)
-            Renderer2D::DrawQuad(item.WorldTransform, currentTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
+            m_Renderer->Get2DRenderer().DrawQuad(item.WorldTransform, currentTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
     void UISystem::RenderUIButton(entt::registry& registry, UIRenderItem& item)
@@ -251,7 +242,7 @@ namespace Coffee {
         }
 
         if (currentTexture)
-            Renderer2D::DrawQuad(item.WorldTransform, currentTexture, 1.0f, currentColor, Renderer2D::RenderMode::Screen, (uint32_t)entity);
+            m_Renderer->Get2DRenderer().DrawQuad(item.WorldTransform, currentTexture, 1.0f, currentColor, Renderer2D::RenderMode::Screen, (uint32_t)entity);
     }
 
     void UISystem::RenderUISlider(entt::registry& registry, UIRenderItem& item)
@@ -265,7 +256,7 @@ namespace Coffee {
         float rotation = transformComponent.GetLocalRotation().z;
 
         if (sliderComponent.BackgroundTexture)
-            Renderer2D::DrawQuad(item.WorldTransform, sliderComponent.BackgroundTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
+            m_Renderer->Get2DRenderer().DrawQuad(item.WorldTransform, sliderComponent.BackgroundTexture, 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
 
         float normalizedValue = (sliderComponent.Value - sliderComponent.MinValue) / (sliderComponent.MaxValue - sliderComponent.MinValue);
         normalizedValue = glm::clamp(normalizedValue, 0.0f, 1.0f);
@@ -283,7 +274,7 @@ namespace Coffee {
 
         if ((sliderComponent.Selected && sliderComponent.HandleTexture) || sliderComponent.DisabledHandleTexture)
         {
-            Renderer2D::DrawQuad(handleTransform,
+            m_Renderer->Get2DRenderer().DrawQuad(handleTransform,
                 sliderComponent.Selected ? sliderComponent.HandleTexture : sliderComponent.DisabledHandleTexture,
                 1.0f, glm::vec4(1.0f), Renderer2D::RenderMode::Screen, (uint32_t)entity);
         }
@@ -301,7 +292,7 @@ namespace Coffee {
         if (!item.ParentSizeDirty)
             return item.ParentSize;
 
-        for (auto& parentItem : s_SortedUIItems)
+        for (auto& parentItem : m_SortedUIItems)
         {
             if (parentItem.Entity == item.Parent)
             {
@@ -414,7 +405,7 @@ namespace Coffee {
                 if (parentIsUIElement)
                 {
                     UIRenderItem* parentItem = nullptr;
-                    for (auto& renderItem : s_SortedUIItems)
+                    for (auto& renderItem : m_SortedUIItems)
                     {
                         if (renderItem.Entity == item.Parent)
                         {
@@ -485,7 +476,7 @@ namespace Coffee {
 
     void UISystem::MarkChildrenForUpdate(entt::entity parentEntity)
     {
-        for (auto& item : s_SortedUIItems)
+        for (auto& item : m_SortedUIItems)
         {
             if (item.Parent == parentEntity)
             {
@@ -525,7 +516,7 @@ namespace Coffee {
 
     UISystem::UIRenderItem& UISystem::GetUIRenderItem(entt::entity entity)
     {
-        for (auto& item : s_SortedUIItems)
+        for (auto& item : m_SortedUIItems)
         {
             if (item.Entity == entity)
                 return item;
@@ -613,7 +604,7 @@ namespace Coffee {
     {
         UpdateUITranform(registry, item);
 
-        for (auto& childItem : s_SortedUIItems)
+        for (auto& childItem : m_SortedUIItems)
         {
             if (childItem.Parent == item.Entity)
                 UpdateUITranformRecursive(registry, childItem);
@@ -668,7 +659,7 @@ namespace Coffee {
 
             item.TransformDirty = true;
 
-            for (auto& childItem : s_SortedUIItems)
+            for (auto& childItem : m_SortedUIItems)
             {
                 if (childItem.Parent == entity)
                 {
@@ -710,7 +701,7 @@ namespace Coffee {
 
             item.TransformDirty = true;
 
-            for (auto& childItem : s_SortedUIItems)
+            for (auto& childItem : m_SortedUIItems)
             {
                 if (childItem.Parent == entity)
                 {
@@ -722,7 +713,7 @@ namespace Coffee {
 
     void UISystem::ProcessPendingTransforms(entt::registry& registry)
     {
-        for (auto& [entity, operations] : s_PendingTransforms)
+        for (auto& [entity, operations] : m_PendingTransforms)
         {
             for (auto& operation : operations)
             {
@@ -740,7 +731,7 @@ namespace Coffee {
                 }
             }
         }
-        s_PendingTransforms.clear();
+        m_PendingTransforms.clear();
     }
 
 } // Coffee

@@ -1,7 +1,7 @@
 #include "Prefab.h"
 
 #include "CoffeeEngine/Resources/Animation/AnimationClip.h"
-#include "CoffeeEngine/Animation/AnimationSystem.h"
+#include "CoffeeEngine/Scene/Systems/AnimationSystem.h"
 #include "CoffeeEngine/Resources/Animation/Skeleton.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Physics/Components/Collider.h"
@@ -104,8 +104,6 @@ namespace Coffee {
             .template get<UISliderComponent>(archive)
             .template get<UIComponent>(archive);
         }
-
-        SceneManager::GetActiveScene()->AssignAnimatorsToMeshes(AnimationSystem::GetAnimators());
 
     }
 
@@ -282,10 +280,10 @@ namespace Coffee {
             m_EntityMap[oldUUID] = newUUID;  // Store mapping for mesh references
             newAnimatorComp.animatorUUID = newUUID;
             
-            AnimationSystem::LoadAnimator(&newAnimatorComp);
+            scene->LoadAnimator(&newAnimatorComp);
             
             const std::string rootJointName = newAnimatorComp.GetSkeleton()->GetJoints()[newAnimatorComp.UpperBodyRootJoint].name;
-            AnimationSystem::SetupPartialBlending(
+            scene->SetupPartialBlending(
                 newAnimatorComp.UpperAnimation->CurrentAnimation,
                 newAnimatorComp.LowerAnimation->CurrentAnimation,
                 rootJointName,
@@ -301,7 +299,7 @@ namespace Coffee {
             const auto& scriptComp = m_Registry.get<ScriptComponent>(prefabEntity);
             std::filesystem::path scriptPath = scriptComp.script->GetPath();
             ScriptComponent newScriptComp;
-            newScriptComp.script = ScriptManager::CreateScript(scriptPath, ScriptingLanguage::Lua);
+            newScriptComp.script = scene->GetScriptingManager()->CreateScript(scriptPath, ScriptingLanguage::Lua);
             entity.AddComponent<ScriptComponent>(newScriptComp);
             
             // Initialize the script
@@ -369,8 +367,7 @@ namespace Coffee {
             entity.AddComponent<AudioSourceComponent>(newAudioSourceComp);
 
             auto& audioSourceComponent = entity.GetComponent<AudioSourceComponent>();
-            Audio::RegisterAudioSourceComponent(audioSourceComponent);
-            AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
+            scene->GetAudio()->RegisterAudioSourceComponent(audioSourceComponent);
         }
 
         if (m_Registry.all_of<AudioListenerComponent>(prefabEntity))
@@ -380,7 +377,7 @@ namespace Coffee {
             entity.AddComponent<AudioListenerComponent>(newAudioListenerComp);
 
             auto& audioListenerComponent = entity.GetComponent<AudioListenerComponent>();
-            Audio::RegisterAudioListenerComponent(audioListenerComponent);
+            scene->GetAudio()->RegisterAudioListenerComponent(audioListenerComponent);
         }
         
         // Copy standard components
@@ -471,8 +468,6 @@ namespace Coffee {
 
             cereal::JSONInputArchive archive(file);
             archive(*prefab);
-
-            ResourceRegistry::Add(UUID(), prefab);
 
             return prefab;
         }

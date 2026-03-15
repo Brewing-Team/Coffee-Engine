@@ -1,7 +1,7 @@
 #include "Scene.h"
 
 #include "CoffeeEngine/Resources/Animation/AnimationClip.h"
-#include "CoffeeEngine/Animation/AnimationSystem.h"
+#include "CoffeeEngine/Scene/Systems/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Core/Engine.h"
@@ -11,8 +11,8 @@
 #include "CoffeeEngine/Navigation/NavMeshPathfinding.h"
 #include "CoffeeEngine/Physics/Components/Collider.h"
 #include "CoffeeEngine/Physics/CollisionCallback.h"
-#include "CoffeeEngine/Physics/CollisionSystem.h"
-#include "CoffeeEngine/Physics/PhysicsWorld.h"
+#include "CoffeeEngine/Scene/Systems/CollisionSystem.h"
+#include "CoffeeEngine/Physics/Runtime/PhysicsWorld.h"
 #include "CoffeeEngine/Rendering/EditorCamera.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Rendering/Model.h"
@@ -26,7 +26,7 @@
 #include "CoffeeEngine/Scene/SceneTree.h"
 #include <CoffeeEngine/Scripting/Script.h>
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
-#include "CoffeeEngine/UI/UIManager.h"
+#include "CoffeeEngine/Scene/Systems/UISystem.h"
 #include "entt/entity/fwd.hpp"
 
 #include "entt/entity/snapshot.hpp"
@@ -44,6 +44,11 @@
 
 
 namespace Coffee {
+
+    namespace {
+        AnimationSystem* g_CopyAnimationSystem = nullptr;
+        Audio* g_CopyAudio = nullptr;
+    }
 
     std::map <UUID, UUID> Scene::s_UUIDMap;
     std::vector<MeshComponent*> Scene::s_MeshComponents;
@@ -197,9 +202,11 @@ namespace Coffee {
         m_IsLoading = false;
     }
 
-    Scene::Scene(EngineContext& context) : m_Context(context)
+    Scene::Scene(EngineContext& context) : m_Context(context), m_PhysicsWorld(*this)
     {
         m_SceneTree = CreateScope<SceneTree>(this);
+        g_CopyAnimationSystem = &m_AnimationSystem;
+        g_CopyAudio = m_Context.audio;
 
         ////AudioZone::RemoveAllReverbZones();
         m_Context.audio->UnregisterAllGameObjects();
@@ -258,19 +265,21 @@ namespace Coffee {
             newComponent.UpperAnimation = CreateRef<AnimationLayer>(*srcComponent.UpperAnimation);
             newComponent.LowerAnimation = CreateRef<AnimationLayer>(*srcComponent.LowerAnimation);
 
-            m_AnimationSystem.LoadAnimator(&newComponent);
+            if (g_CopyAnimationSystem)
+                g_CopyAnimationSystem->LoadAnimator(&newComponent);
 
             UUID newUUID = UUID();
             Scene::s_UUIDMap[srcComponent.animatorUUID] = newUUID;
             newComponent.animatorUUID = newUUID;
 
             const std::string rootJointName = newComponent.GetSkeleton()->GetJoints()[newComponent.UpperBodyRootJoint].name;
-            m_AnimationSystem.SetupPartialBlending(
-                newComponent.UpperAnimation->CurrentAnimation,
-                newComponent.LowerAnimation->CurrentAnimation,
-                rootJointName,
-                &newComponent
-            );
+            if (g_CopyAnimationSystem)
+                g_CopyAnimationSystem->SetupPartialBlending(
+                    newComponent.UpperAnimation->CurrentAnimation,
+                    newComponent.LowerAnimation->CurrentAnimation,
+                    rootJointName,
+                    &newComponent
+                );
 
             registry.emplace<AnimatorComponent>(destinyEntity, std::move(newComponent));
 
@@ -308,7 +317,8 @@ namespace Coffee {
             registry.emplace<AudioSourceComponent>(destinyEntity, std::move(newComponent));
 
             auto& audioSourceComponent = registry.get<AudioSourceComponent>(destinyEntity);
-            Audio::RegisterAudioSourceComponent(audioSourceComponent);
+            if (g_CopyAudio)
+                g_CopyAudio->RegisterAudioSourceComponent(audioSourceComponent);
             //AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
         }
     }
@@ -325,7 +335,8 @@ namespace Coffee {
             registry.emplace<AudioListenerComponent>(destinyEntity, std::move(newComponent));
 
             auto& audioListenerComponent = registry.get<AudioListenerComponent>(destinyEntity);
-            Audio::RegisterAudioListenerComponent(audioListenerComponent);
+            if (g_CopyAudio)
+                g_CopyAudio->RegisterAudioListenerComponent(audioListenerComponent);
         }
     }
 
@@ -462,13 +473,13 @@ namespace Coffee {
         if (entity.HasComponent<AudioSourceComponent>())
         {
             auto& audioSourceComponent = entity.GetComponent<AudioSourceComponent>();
-            Audio::UnregisterAudioSourceComponent(audioSourceComponent);
+            m_Context.audio->UnregisterAudioSourceComponent(audioSourceComponent);
         }
 
         if (entity.HasComponent<AudioListenerComponent>())
         {
             auto& audioListenerComponent = entity.GetComponent<AudioListenerComponent>();
-            Audio::UnregisterAudioListenerComponent(audioListenerComponent);
+            m_Context.audio->UnregisterAudioListenerComponent(audioListenerComponent);
         }
 
         auto& hierarchyComponent = m_Registry.get<HierarchyComponent>(entity);
@@ -517,19 +528,22 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        CollisionSystem::Initialize(this);
+        m_UISystem.SetRenderer(m_Context.renderer);
+        m_AnimationSystem.SetResourceManager(m_Context.resourceManager);
+
+        m_CollisionSystem.Initialize(this);
 
         auto audioListenerView = m_Registry.view<AudioListenerComponent>();
         for (auto& entity : audioListenerView)
         {
             auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
-            Audio::RegisterAudioListenerComponent(audioListenerComponent);
+            m_Context.audio->RegisterAudioListenerComponent(audioListenerComponent);
         }
         auto audioSourceView = m_Registry.view<AudioSourceComponent>();
         for (auto& entity : audioSourceView)
         {
             auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
-            Audio::RegisterAudioSourceComponent(audioSourceComponent);
+            m_Context.audio->RegisterAudioSourceComponent(audioSourceComponent);
             //AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
         }
     }
@@ -538,9 +552,12 @@ namespace Coffee {
     {
         ZoneScoped;
 
+        m_UISystem.SetRenderer(m_Context.renderer);
+        m_AnimationSystem.SetResourceManager(m_Context.resourceManager);
+
         m_SceneTree->Update();
 
-        CollisionSystem::Initialize(this);
+        m_CollisionSystem.Initialize(this);
 
         auto staticView = m_Registry.view<StaticComponent, TransformComponent>();
 
@@ -601,16 +618,16 @@ namespace Coffee {
         for (auto& entity : audioListenerView)
         {
             auto& audioListenerComponent = audioListenerView.get<AudioListenerComponent>(entity);
-            Audio::RegisterAudioListenerComponent(audioListenerComponent);
+            m_Context.audio->RegisterAudioListenerComponent(audioListenerComponent);
         }
         auto audioSourceView = m_Registry.view<AudioSourceComponent>();
         for (auto& entity : audioSourceView)
         {
             auto& audioSourceComponent = audioSourceView.get<AudioSourceComponent>(entity);
-            Audio::RegisterAudioSourceComponent(audioSourceComponent);
+            m_Context.audio->RegisterAudioSourceComponent(audioSourceComponent);
             //AudioZone::RegisterObject(audioSourceComponent.gameObjectID, audioSourceComponent.transform[3]);
         }
-        Audio::PlayInitialAudios();
+        m_Context.audio->PlayInitialAudios();
 
         // Get all entities with ScriptComponent
         auto scriptView = m_Registry.view<ScriptComponent>();
@@ -634,28 +651,28 @@ namespace Coffee {
 
         m_SceneTree->Update();
 
-        Renderer::GetCurrentRenderTarget()->SetCamera(camera, glm::inverse(camera.GetViewMatrix()));
+        m_Context.renderer->GetCurrentRenderTarget()->SetCamera(camera, glm::inverse(camera.GetViewMatrix()));
 
         // TODO test change cubemap
         auto cubemapView = m_Registry.view<WorldEnvironmentComponent>();
         if (!cubemapView.empty<WorldEnvironmentComponent>())
         {
             auto& firstWorldEnv = cubemapView.get<WorldEnvironmentComponent>(cubemapView.front());
-            Renderer3D::SetEnvironmentMap(firstWorldEnv.Skybox);
-            Renderer3D::GetRenderSettings().EnvironmentExposure = firstWorldEnv.SkyboxIntensity;
+            m_Context.renderer->Get3DRenderer().SetEnvironmentMap(firstWorldEnv.Skybox);
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().EnvironmentExposure = firstWorldEnv.SkyboxIntensity;
 
             // FOG
-            Renderer3D::GetRenderSettings().DepthFog = firstWorldEnv.Fog;
-            Renderer3D::GetRenderSettings().FogColor = firstWorldEnv.FogColor;
-            Renderer3D::GetRenderSettings().FogDensity = firstWorldEnv.FogDensity;
-            Renderer3D::GetRenderSettings().FogHeight = firstWorldEnv.FogHeight;
-            Renderer3D::GetRenderSettings().FogHeightDensity = firstWorldEnv.FogHeightDensity;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().DepthFog = firstWorldEnv.Fog;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().FogColor = firstWorldEnv.FogColor;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().FogDensity = firstWorldEnv.FogDensity;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().FogHeight = firstWorldEnv.FogHeight;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().FogHeightDensity = firstWorldEnv.FogHeightDensity;
 
             // Bloom
-            Renderer3D::GetRenderSettings().Bloom = firstWorldEnv.Bloom;
-            Renderer3D::GetRenderSettings().BloomIntensity = firstWorldEnv.BloomIntensity;
-            Renderer3D::GetRenderSettings().BloomRadius = firstWorldEnv.BloomRadius;
-            Renderer3D::GetRenderSettings().BloomMaxMipLevels = firstWorldEnv.BloomMaxMipLevels;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().Bloom = firstWorldEnv.Bloom;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().BloomIntensity = firstWorldEnv.BloomIntensity;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().BloomRadius = firstWorldEnv.BloomRadius;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().BloomMaxMipLevels = firstWorldEnv.BloomMaxMipLevels;
         }
 
         // TEMPORAL - Navigation
@@ -727,7 +744,7 @@ namespace Coffee {
                 Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
                 //Renderer::Submit(material, mesh, transformComponent.GetWorldTransform(), (uint32_t)entity);
-                Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
+                m_Context.renderer->Get3DRenderer().Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
             }
         }
 
@@ -745,17 +762,17 @@ namespace Coffee {
                 lightComponent.Position = transformComponent.GetWorldTransform()[3];
                 lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
-                Renderer3D::Submit(lightComponent);
+                m_Context.renderer->Get3DRenderer().Submit(lightComponent);
             }
         }
 
         {
             ZoneScopedN("UIManager::UpdateUI");
-            UISystem::UpdateUI(m_Registry);
+            m_UISystem.UpdateUI(m_Registry);
         }
 
         // Debug Draw
-        if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes();
+        if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes(m_Context.renderer->Get2DRenderer());
         if (m_SceneDebugFlags.ShowNavMesh) {
             auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
             ZoneScopedN("NavMesh Debug View");
@@ -806,21 +823,21 @@ namespace Coffee {
         if (!cubemapView.empty<WorldEnvironmentComponent>())
         {
             auto& firstWorldEnv = cubemapView.get<WorldEnvironmentComponent>(cubemapView.front());
-            Renderer3D::SetEnvironmentMap(firstWorldEnv.Skybox);
-            Renderer3D::GetRenderSettings().EnvironmentExposure = firstWorldEnv.SkyboxIntensity;
+            m_Context.renderer->Get3DRenderer().SetEnvironmentMap(firstWorldEnv.Skybox);
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().EnvironmentExposure = firstWorldEnv.SkyboxIntensity;
 
             // FOG
-            Renderer3D::GetRenderSettings().DepthFog = firstWorldEnv.Fog;
-            Renderer3D::GetRenderSettings().FogColor = firstWorldEnv.FogColor;
-            Renderer3D::GetRenderSettings().FogDensity = firstWorldEnv.FogDensity;
-            Renderer3D::GetRenderSettings().FogHeight = firstWorldEnv.FogHeight;
-            Renderer3D::GetRenderSettings().FogHeightDensity = firstWorldEnv.FogHeightDensity;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().DepthFog = firstWorldEnv.Fog;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().FogColor = firstWorldEnv.FogColor;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().FogDensity = firstWorldEnv.FogDensity;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().FogHeight = firstWorldEnv.FogHeight;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().FogHeightDensity = firstWorldEnv.FogHeightDensity;
 
             // Bloom
-            Renderer3D::GetRenderSettings().Bloom = firstWorldEnv.Bloom;
-            Renderer3D::GetRenderSettings().BloomIntensity = firstWorldEnv.BloomIntensity;
-            Renderer3D::GetRenderSettings().BloomRadius = firstWorldEnv.BloomRadius;
-            Renderer3D::GetRenderSettings().BloomMaxMipLevels = firstWorldEnv.BloomMaxMipLevels;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().Bloom = firstWorldEnv.Bloom;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().BloomIntensity = firstWorldEnv.BloomIntensity;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().BloomRadius = firstWorldEnv.BloomRadius;
+            m_Context.renderer->Get3DRenderer().GetRenderSettings().BloomMaxMipLevels = firstWorldEnv.BloomMaxMipLevels;
         }
 
         Camera* camera = nullptr;
@@ -921,16 +938,16 @@ namespace Coffee {
                 ZoneScoped;
                 //ZoneText(scriptComponent.script->GetPath().filename().string().c_str(), scriptComponent.script->GetPath().filename().string().length());
                 scriptComponent.script->OnUpdate(dt);
-                if(SceneManager::GetActiveScene().get() != this)
+                if (m_Context.sceneManager->GetActiveScene().get() != this)
                     return;
             }
         }
 
-        if(SceneManager::GetActiveScene().get() != this)
+        if (m_Context.sceneManager->GetActiveScene().get() != this)
             return;
 
         //TODO: Add this to a function bc it is repeated in OnUpdateEditor
-        Renderer::GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
+        m_Context.renderer->GetCurrentRenderTarget()->SetCamera(*camera, cameraTransform);
 
         {
             auto animatorView = m_Registry.view<ActiveComponent, AnimatorComponent>();
@@ -965,7 +982,7 @@ namespace Coffee {
                 Ref<Mesh> mesh = meshComponent.GetMesh();
                 Ref<Material> material = (materialComponent) ? materialComponent->material : nullptr;
 
-                Renderer3D::Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity, meshComponent.animator});
+                m_Context.renderer->Get3DRenderer().Submit(RenderCommand{transformComponent.GetWorldTransform(), mesh, material, (uint32_t)entity});
             }
         }
 
@@ -986,13 +1003,13 @@ namespace Coffee {
                 lightComponent.Position = transformComponent.GetWorldTransform()[3];
                 lightComponent.Direction = glm::normalize(glm::vec3(-transformComponent.GetWorldTransform()[1]));
 
-                Renderer3D::Submit(lightComponent);
+                m_Context.renderer->Get3DRenderer().Submit(lightComponent);
             }
         }
 
         // Debug Draw
         if (m_SceneDebugFlags.ShowOctree) m_Octree->DebugDraw(m_Context.renderer->Get2DRenderer());
-        if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes();
+        if (m_SceneDebugFlags.ShowColliders) m_PhysicsWorld.drawCollisionShapes(m_Context.renderer->Get2DRenderer());
         if (m_SceneDebugFlags.ShowNavMesh) {
             auto navMeshViewDebug = m_Registry.view<ActiveComponent, NavMeshComponent>();
             ZoneScopedN("NavMesh Debug View");
@@ -1032,7 +1049,7 @@ namespace Coffee {
             }
         }
 
-        UISystem::UpdateUI(m_Registry);
+        m_UISystem.UpdateUI(m_Registry);
     }
 
     void Scene::OnEvent(Event& e)
@@ -1044,9 +1061,9 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        Audio::StopAllEvents();
+        m_Context.audio->StopAllEvents();
         //AudioZone::RemoveAllReverbZones();
-        Audio::UnregisterAllGameObjects();
+        m_Context.audio->UnregisterAllGameObjects();
     }
 
     void Scene::OnExitEditor()
@@ -1070,16 +1087,16 @@ namespace Coffee {
     void Scene::OnExitRuntime()
     {
         // Clear collision system state
-        CollisionSystem::Shutdown();
+        m_CollisionSystem.Shutdown();
 
         OnExit();
     }
 
-    Ref<Scene> Scene::Load(const std::filesystem::path& path)
+    Ref<Scene> Scene::Load(const std::filesystem::path& path, EngineContext& context)
     {
         ZoneScoped;
 
-        Ref<Scene> scene = CreateRef<Scene>();
+        Ref<Scene> scene = CreateRef<Scene>(context);
 
         std::ifstream sceneFile(path);
         cereal::JSONInputArchive archive(sceneFile);
@@ -1110,9 +1127,9 @@ namespace Coffee {
         }
 
         // TODO: Think where this could be done instead of the Load function
-        for (auto& audioSource : Audio::audioSources)
+        for (auto& audioSource : scene->m_Context.audio->audioSources)
         {
-            Audio::SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
+            scene->m_Context.audio->SetVolume(audioSource->gameObjectID, audioSource->mute ? 0.f : audioSource->volume);
         }
 
         return scene;
@@ -1147,7 +1164,7 @@ namespace Coffee {
             if (it == joints.end())
                 jointName = joints[0].name;
 
-            m_AnimationSystem.SetupPartialBlending(0, 0, jointName, animatorComponent);
+            scene->SetupPartialBlending(0, 0, jointName, animatorComponent);
 
             animatorComponent->modelUUID = model->GetUUID();
             animatorComponent->animatorUUID = UUID();
@@ -1222,7 +1239,7 @@ namespace Coffee {
             {
                 audioSourceComponent.transform = transformComponent.GetWorldTransform();
 
-                Audio::Set3DPosition(audioSourceComponent.gameObjectID,
+                m_Context.audio->Set3DPosition(audioSourceComponent.gameObjectID,
                 transformComponent.GetWorldTransform()[3],
                 glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
                 glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))
@@ -1242,7 +1259,7 @@ namespace Coffee {
             {
                 audioListenerComponent.transform = transformComponent.GetWorldTransform();
 
-                Audio::Set3DPosition(audioListenerComponent.gameObjectID,
+                m_Context.audio->Set3DPosition(audioListenerComponent.gameObjectID,
                     transformComponent.GetWorldTransform()[3],
                     glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[2])),
                     glm::normalize(glm::vec3(transformComponent.GetWorldTransform()[1]))

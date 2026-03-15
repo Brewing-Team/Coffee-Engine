@@ -1,6 +1,7 @@
 #include "MeshComponent.h"
 #include "AnimatorComponent.h"
-#include "CoffeeEngine/Resources/ResourceRegistry.h"
+#include "CoffeeEngine/Core/EngineContext.h"
+#include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
 
 #include <cereal/archives/json.hpp>
@@ -23,8 +24,19 @@ namespace Coffee
         UUID meshUUID;
         archive(cereal::make_nvp("Mesh", meshUUID), cereal::make_nvp("AnimatorUUID", animatorUUID));
 
-        Ref<Mesh> mesh = ResourceRegistry::Get<Mesh>(meshUUID);
-        this->mesh = mesh;
+        pendingMeshID = meshUUID;
+    }
+
+    void MeshComponent::ResolveResources(EngineContext& context)
+    {
+        if (mesh || pendingMeshID == ResourceID::null || !context.resourceManager)
+            return;
+
+        mesh = context.resourceManager->GetResource<Mesh>(pendingMeshID);
+        if (mesh)
+            mesh->ResolveResources(*context.resourceManager);
+
+        pendingMeshID = ResourceID::null;
     }
 
     // Explicit template instantiations for common cereal archives

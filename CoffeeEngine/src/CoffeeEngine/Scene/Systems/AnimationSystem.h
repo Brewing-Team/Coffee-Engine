@@ -15,6 +15,7 @@ namespace Coffee {
     struct AnimationLayer;
     struct AnimatorComponent;
     class Shader;
+    class ResourceManager;
 
     /**
      * @brief System responsible for handling animations.
@@ -61,6 +62,12 @@ namespace Coffee {
          * @brief Resets the animators vector.
          */
         void ResetAnimators() { m_Animators.clear(); }
+
+        /**
+         * @brief Sets the resource manager used for loading resources.
+         * @param manager Pointer to the ResourceManager instance.
+         */
+        void SetResourceManager(ResourceManager* manager) { m_ResourceManager = manager; }
 
         /**
          * @brief Loads the animator.
@@ -158,5 +165,6 @@ namespace Coffee {
     private:
         // When refactoring this system this should not exist anymore...
         std::vector<AnimatorComponent*> m_Animators; ///< The list of animator components.
+        ResourceManager* m_ResourceManager = nullptr; ///< Resource manager for loading model resources.
     };
 } // namespace Coffee

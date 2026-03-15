@@ -213,7 +213,7 @@ namespace Coffee {
             // Get the entity associated with the hit body
             const btCollisionObject* obj = rayCallback.m_collisionObject;
             if (obj && obj->getUserPointer()) {
-                result.hitEntity = CreateRef<Entity>(static_cast<entt::entity>(reinterpret_cast<size_t>(obj->getUserPointer())), m_CurrentScene);
+                result.hitEntity = CreateRef<Entity>(static_cast<entt::entity>(reinterpret_cast<size_t>(obj->getUserPointer())), const_cast<Scene*>(&m_CurrentScene));
             }
         }
 
@@ -246,7 +246,7 @@ namespace Coffee {
 
             const btCollisionObject* obj = rayCallback.m_collisionObjects[i];
             if (obj && obj->getUserPointer()) {
-                result.hitEntity = CreateRef<Entity>(static_cast<entt::entity>(reinterpret_cast<size_t>(obj->getUserPointer())), m_CurrentScene);
+                result.hitEntity = CreateRef<Entity>(static_cast<entt::entity>(reinterpret_cast<size_t>(obj->getUserPointer())), const_cast<Scene*>(&m_CurrentScene));
             }
 
             results.push_back(result);

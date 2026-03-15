@@ -2,17 +2,25 @@
 
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Scripting/ScriptingManager.h"
+#include "CoffeeEngine/Scripting/Script.h"
 #include <cereal/cereal.hpp>
 #include <filesystem>
 
 namespace Coffee
 {
+    struct EngineContext;
+
     struct ScriptComponent
     {
         Ref<Script> script;
+        std::filesystem::path ScriptPath;
+        ScriptingLanguage Language = ScriptingLanguage::Lua;
 
         ScriptComponent() = default;
-        ScriptComponent(Ref<Script> script) : script(script) {}
+        ScriptComponent(Ref<Script> script);
+        ~ScriptComponent() = default;
+
+        void ResolveResources(EngineContext& context);
 
         /**
          * @brief Serializes the ScriptComponent.
