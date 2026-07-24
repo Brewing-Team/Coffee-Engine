@@ -1,7 +1,7 @@
 {
   "name" : "coffee-engine",
   "version-string" : "1.0.0",
-  "builtin-baseline" : "b2012a0b9df97aafde760c422223c6a4254d34c7",
+  "builtin-baseline" : "97b19caab97ab0c8d36c93230046c8c45fcd41d0",
   "dependencies" : [ {
     "name" : "cereal",
     "version>=" : "1.3.2#1"
@@ -24,10 +24,10 @@
   },
   {
     "name" : "imguizmo",
-    "version>=" : "2024-05-29#1"
+    "version>=" : "1.10#0"
   }, {
     "name" : "tracy",
-    "version>=" : "0.11.1#2",
+    "version>=" : "0.13.1#0",
     "features" : [ "gui-tools", "on-demand" ]
   }, {
     "name" : "nativefiledialog-extended",
