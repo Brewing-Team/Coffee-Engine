@@ -10,45 +10,24 @@
 
 namespace Coffee
 {
-    SystemInfo* SystemInfo::instance = []() -> SystemInfo* {
-        #ifdef _WIN32
-            return new WindowsSystemInfo();
-        #elif __linux__
-            return new LinuxSystemInfo();
-        /* #elif __APPLE__
-            return new SystemInfoMac(); */
-        #else
-            #error "Unsupported platform"
-        #endif
-    }();
+Scope<SystemInfo> SystemInfo::GetSystemInfoInstanceForCurrentPlatform()
+{
+#ifdef _WIN32
+    return CreateScope<WindowsSystemInfo>();
+#elif __linux__
+    return CreateScope<LinuxSystemInfo>();
+#else
+#error "Unsupported platform"
+#endif
+}
 
-    uint32_t SystemInfo::GetLogicalProcessorCount()
+uint32_t SystemInfo::GetLogicalProcessorCount() const
     {
         return SDL_GetNumLogicalCPUCores();
     }
 
-    uint64_t SystemInfo::GetTotalMemory()
+    uint64_t SystemInfo::GetTotalMemory() const
     {
         return SDL_GetSystemRAM();
-    }
-
-    uint32_t SystemInfo::GetPhysicalProcessorCount()
-    {
-        return instance->GetPhysicalProcessorCountImpl();
-    }
-
-    uint64_t SystemInfo::GetAvailableMemory()
-    {
-        return instance->GetAvailableMemoryImpl();
-    }
-
-    uint64_t SystemInfo::GetUsedMemory()
-    {
-        return instance->GetUsedMemoryImpl();
-    }
-
-    uint64_t SystemInfo::GetProcessMemoryUsage()
-    {
-        return instance->GetProcessMemoryUsageImpl();
     }
 }

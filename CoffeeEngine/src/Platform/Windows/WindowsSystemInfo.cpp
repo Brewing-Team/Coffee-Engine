@@ -6,22 +6,22 @@
 
 namespace Coffee {
 
-    uint32_t WindowsSystemInfo::GetPhysicalProcessorCountImpl() const
+    uint32_t WindowsSystemInfo::GetPhysicalProcessorCount() const
     {
         return 0;
     }
 
-    uint64_t WindowsSystemInfo::GetAvailableMemoryImpl() const
+    uint64_t WindowsSystemInfo::GetAvailableMemory() const
     {
         return 0;
     }
 
-    uint64_t WindowsSystemInfo::GetUsedMemoryImpl() const
+    uint64_t WindowsSystemInfo::GetUsedMemory() const
     {
         return 0;
     }
 
-    uint64_t WindowsSystemInfo::GetProcessMemoryUsageImpl() const
+    uint64_t WindowsSystemInfo::GetProcessMemoryUsage() const
     {
         PROCESS_MEMORY_COUNTERS pmc;
         GetProcessMemoryInfo(GetCurrentProcess(), &pmc, sizeof(pmc));

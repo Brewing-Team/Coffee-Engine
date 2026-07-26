@@ -4,6 +4,7 @@
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
+#include "CoffeeEngine/Core/SystemInfo.h"
 #include "CoffeeEngine/Core/Input.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
@@ -28,6 +29,7 @@ namespace Coffee
 {
     Engine::Engine()
         : m_Window(Window::Create(WindowProps("Coffee Engine")))
+        , m_SystemInfo(SystemInfo::GetSystemInfoInstanceForCurrentPlatform())
         , m_RendererAPI()
         , m_Renderer(&m_RendererAPI)
         , m_Input(*m_Window)
@@ -52,16 +54,16 @@ namespace Coffee
     {
         ZoneScoped;
 
-        m_LayerStack.PushLayer(std::move(layer));
         layer->OnAttach();
+        m_LayerStack.PushLayer(std::move(layer));
     }
 
     void Engine::PushOverlay(Scope<Layer> layer)
     {
         ZoneScoped;
-        
-        m_LayerStack.PushOverlay(std::move(layer));
+
         layer->OnAttach();
+        m_LayerStack.PushOverlay(std::move(layer));
     }
 
     void Engine::Close()
@@ -227,5 +229,4 @@ namespace Coffee
         m_Running = false;
         return true;
     }
-
 } // namespace Coffee

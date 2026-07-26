@@ -7,10 +7,10 @@ namespace Coffee {
     class LinuxSystemInfo : public SystemInfo
     {
     public:
-        uint32_t GetPhysicalProcessorCountImpl() const override;
-        uint64_t GetAvailableMemoryImpl() const override;
-        uint64_t GetUsedMemoryImpl() const override;
-        uint64_t GetProcessMemoryUsageImpl() const override;
+        uint32_t GetPhysicalProcessorCount() const override;
+        uint64_t GetAvailableMemory() const override;
+        uint64_t GetUsedMemory() const override;
+        uint64_t GetProcessMemoryUsage() const override;
     };
 
 }

@@ -7,22 +7,22 @@
 
 namespace Coffee {
 
-    uint32_t LinuxSystemInfo::GetPhysicalProcessorCountImpl() const
+    uint32_t LinuxSystemInfo::GetPhysicalProcessorCount() const
     {
         return 0;
     }
 
-    uint64_t LinuxSystemInfo::GetAvailableMemoryImpl() const
+    uint64_t LinuxSystemInfo::GetAvailableMemory() const
     {
         return 0;
     }
 
-    uint64_t LinuxSystemInfo::GetUsedMemoryImpl() const
+    uint64_t LinuxSystemInfo::GetUsedMemory() const
     {
         return 0;
     }
 
-    uint64_t LinuxSystemInfo::GetProcessMemoryUsageImpl() const
+    uint64_t LinuxSystemInfo::GetProcessMemoryUsage() const
     {
         FILE *file = fopen("/proc/self/status", "r");
         uint64_t result = 0;

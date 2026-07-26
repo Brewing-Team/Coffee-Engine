@@ -4,16 +4,17 @@
 #include "CoffeeEngine/Audio/Audio.h"
 #include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Core/Input.h"
+#include "CoffeeEngine/Events/ApplicationEvent.h"
+#include "CoffeeEngine/ImGui/ImGuiLayer.h"
 #include "CoffeeEngine/Project/ProjectManager.h"
 #include "CoffeeEngine/Rendering/Renderer.h"
 #include "CoffeeEngine/Rendering/RendererAPI.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 #include "CoffeeEngine/Scene/SceneManager.h"
 #include "CoffeeEngine/Scripting/ScriptingManager.h"
-#include "Window.h"
 #include "LayerStack.h"
-#include "CoffeeEngine/Events/ApplicationEvent.h"
-#include "CoffeeEngine/ImGui/ImGuiLayer.h"
+#include "SystemInfo.h"
+#include "Window.h"
 
 #include <functional>
 
@@ -112,6 +113,7 @@ namespace Coffee
 
 	private:
 		Scope<Window> m_Window; ///< The main engine window.
+	    Scope<SystemInfo> m_SystemInfo; ///< The system information provider class.
 
 		RendererAPI m_RendererAPI; ///< The renderer API used by the engine.
 		Renderer m_Renderer; ///< The renderer used by the engine.
