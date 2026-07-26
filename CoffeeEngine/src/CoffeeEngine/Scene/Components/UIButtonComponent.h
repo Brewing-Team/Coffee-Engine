@@ -6,7 +6,6 @@
 namespace Coffee
 {
     class Texture2D;
-    struct EngineContext;
 }
 
 namespace Coffee
@@ -26,15 +25,10 @@ namespace Coffee
         State CurrentState = State::Normal; ///< The current state of the button.
         bool Interactable = true;           ///< Flag to indicate if the button is interactable.
 
-        ResourceRef<Texture2D> NormalTexture;   ///< The texture when the button is normal.
-        ResourceRef<Texture2D> HoverTexture;    ///< The texture when the button is hovered.
-        ResourceRef<Texture2D> PressedTexture;  ///< The texture when the button is pressed.
-        ResourceRef<Texture2D> DisabledTexture; ///< The texture when the button is disabled.
-
-        ResourceID PendingNormalTextureID = ResourceID::null;
-        ResourceID PendingHoverTextureID = ResourceID::null;
-        ResourceID PendingPressedTextureID = ResourceID::null;
-        ResourceID PendingDisabledTextureID = ResourceID::null;
+        Ref<Texture2D> NormalTexture;   ///< The texture when the button is normal.
+        Ref<Texture2D> HoverTexture;    ///< The texture when the button is hovered.
+        Ref<Texture2D> PressedTexture;  ///< The texture when the button is pressed.
+        Ref<Texture2D> DisabledTexture; ///< The texture when the button is disabled.
 
         glm::vec4 NormalColor{1.0f};   ///< The color when the button is normal.
         glm::vec4 HoverColor{1.0f};    ///< The color when the button is hovered.
@@ -44,8 +38,6 @@ namespace Coffee
         template <class Archive> void save(Archive& archive, std::uint32_t const version) const;
 
         template <class Archive> void load(Archive& archive, std::uint32_t const version);
-
-        void ResolveResources(EngineContext& context);
     };
 }
 

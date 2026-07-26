@@ -1,13 +1,13 @@
 #include "UIComponent.h"
-#include "CoffeeEngine/Scene/Systems/UISystem.h"
+#include "CoffeeEngine/UI/UIManager.h"
 
 #include <cereal/archives/json.hpp>
 #include <cereal/archives/binary.hpp>
 
 namespace Coffee 
 {
-    UIComponent::UIComponent() {}
-    UIComponent::~UIComponent() {}
+    UIComponent::UIComponent() { UISystem::MarkForSorting(); }
+    UIComponent::~UIComponent() { UISystem::MarkForSorting(); }
 
     template <class Archive> 
     void UIComponent::save(Archive& archive, std::uint32_t const version) const
@@ -19,6 +19,8 @@ namespace Coffee
     void UIComponent::load(Archive& archive, std::uint32_t const version)
     {
         archive(cereal::make_nvp("Anchor", Anchor), cereal::make_nvp("Layer", Layer));
+
+        UISystem::MarkForSorting();
     }
 
     // Explicit template instantiations for common cereal archives

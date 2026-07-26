@@ -1,6 +1,5 @@
 #pragma once
 
-#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Core/DataStructures/Octree.h"
 #include "CoffeeEngine/Physics/Runtime/PhysicsWorld.h" // Think removing it using Scope<PhysicsWorld> instead
 #include "CoffeeEngine/Scene/Systems/AnimationSystem.h"
@@ -23,8 +22,6 @@ namespace Coffee {
 namespace Coffee {
 
     class EngineContext;
-    class Audio;
-    class ScriptingManager;
 
     struct AnimatorComponent;
     struct MeshComponent;
@@ -133,7 +130,7 @@ namespace Coffee {
          * @return The loaded scene.
          */
         // TODO: Move this out of the Scene class. It should be managed by the ResourceManager when the Scene class becomes a Resource.
-        static Ref<Scene> Load(const std::filesystem::path& path, EngineContext& context);
+        static Ref<Scene> Load(const std::filesystem::path& path);
 
         /**
          * @brief Save a scene to a file.
@@ -157,11 +154,6 @@ namespace Coffee {
 
         SceneDebugFlags& GetDebugFlags() { return m_SceneDebugFlags; }
 
-        ScriptingManager* GetScriptingManager() const { return m_Context.scripting; }
-        Audio* GetAudio() const { return m_Context.audio; }
-        Renderer* GetRenderer() const { return m_Context.renderer; }
-        ResourceManager* GetResourceManager() const { return m_Context.resourceManager; }
-
 
 
         /**
@@ -169,11 +161,6 @@ namespace Coffee {
          * @param animators The vector of animator components.
          */
         void AssignAnimatorsToMeshes(const std::vector<AnimatorComponent*> animators);
-
-        void LoadAnimator(AnimatorComponent* animator) { m_AnimationSystem.LoadAnimator(animator); }
-        void SetupPartialBlending(unsigned int upper, unsigned int lower, const std::string& joint, AnimatorComponent* animator) { m_AnimationSystem.SetupPartialBlending(upper, lower, joint, animator); }
-        std::vector<AnimatorComponent*> GetAnimators() { return m_AnimationSystem.GetAnimators(); }
-        UISystem& GetUISystem() { return m_UISystem; }
 
         static std::map<UUID, UUID> s_UUIDMap;
         static std::vector<MeshComponent*> s_MeshComponents;
@@ -220,7 +207,6 @@ namespace Coffee {
         friend class SceneTree;
         friend class SceneTreePanel;
         friend class CollisionSystem;
-        friend class ResourceResolver;
 
         // NOTE: this macro should be modified when adding new components
         #define ALL_COMPONENTS \

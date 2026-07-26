@@ -16,7 +16,7 @@ namespace Coffee {
     class IndexBuffer;
     class Material;
     class PBRMaterial;
-        class ResourceManager;
+    class ResourceLoader;
     struct ImportData;
     struct MeshImportData;
     struct AABB;
@@ -73,25 +73,25 @@ namespace Coffee {
          * @brief Gets the vertex array of the mesh.
          * @return A reference to the vertex array.
          */
-        const ResourceRef<VertexArray>& GetVertexArray() const;
+        const Ref<VertexArray>& GetVertexArray() const;
 
         /**
          * @brief Gets the vertex buffer of the mesh.
          * @return A reference to the vertex buffer.
          */
-        const ResourceRef<VertexBuffer>& GetVertexBuffer() const;
+        const Ref<VertexBuffer>& GetVertexBuffer() const;
 
         /**
          * @brief Gets the index buffer of the mesh.
          * @return A reference to the index buffer.
          */
-        const ResourceRef<IndexBuffer>& GetIndexBuffer() const;
+        const Ref<IndexBuffer>& GetIndexBuffer() const;
 
         /**
          * @brief Sets the material of the mesh.
          * @param material A reference to the material.
          */
-        void SetMaterial(ResourceRef<Material>& material);
+        void SetMaterial(Ref<Material>& material);
 
         /**
          * @brief Sets the axis-aligned bounding box (AABB) of the mesh.
@@ -116,7 +116,7 @@ namespace Coffee {
          * @brief Gets the material of the mesh.
          * @return A reference to the material.
          */
-        const ResourceRef<Material>& GetMaterial() const;
+        const Ref<Material>& GetMaterial() const;
 
         /**
          * @brief Gets the vertices of the mesh.
@@ -129,7 +129,6 @@ namespace Coffee {
          * @return A reference to the vector of indices.
          */
         const std::vector<uint32_t>& GetIndices() const;
-    void ResolveResources(ResourceManager& resourceManager);
 
     private:
         friend class cereal::access;
@@ -144,12 +143,11 @@ namespace Coffee {
         static void load_and_construct(Archive& data, cereal::construct<Mesh>& construct);
 
     private:
-        ResourceRef<VertexArray> m_VertexArray; ///< The vertex array of the mesh.
-        ResourceRef<VertexBuffer> m_VertexBuffer; ///< The vertex buffer of the mesh.
-        ResourceRef<IndexBuffer> m_IndexBuffer; ///< The index buffer of the mesh.
+        Ref<VertexArray> m_VertexArray; ///< The vertex array of the mesh.
+        Ref<VertexBuffer> m_VertexBuffer; ///< The vertex buffer of the mesh.
+        Ref<IndexBuffer> m_IndexBuffer; ///< The index buffer of the mesh.
 
-        ResourceRef<Material> m_Material; ///< The material of the mesh.
-            ResourceID m_PendingMaterialID = ResourceID::null;
+        Ref<Material> m_Material; ///< The material of the mesh.
         AABB m_AABB; ///< The axis-aligned bounding box of the mesh.
 
         std::vector<uint32_t> m_Indices; ///< The indices of the mesh.

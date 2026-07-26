@@ -7,8 +7,6 @@
 
 namespace Coffee {
 
-    class Renderer;
-
     class UISystem
     {
     public:
@@ -96,12 +94,6 @@ namespace Coffee {
          * @brief Marks the UI elements for sorting.
          */
         void MarkForSorting() { m_NeedsSorting = true; }
-
-        /**
-         * @brief Sets the renderer used for UI rendering.
-         * @param renderer Pointer to the Renderer instance.
-         */
-        void SetRenderer(Renderer* renderer) { m_Renderer = renderer; }
 
         /**
          * @brief Gets an anchor preset based on row and column indices.
@@ -308,8 +300,6 @@ namespace Coffee {
         glm::vec2 m_lastWindowSize = { 0.0f, 0.0f };
 
         std::unordered_map<entt::entity, std::vector<TransformOperation>> m_PendingTransforms;
-
-        Renderer* m_Renderer = nullptr;
     };
 
 } // Coffee

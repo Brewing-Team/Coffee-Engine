@@ -15,20 +15,6 @@
 
 namespace Coffee {
 
-    namespace {
-        std::filesystem::path s_WorkingDirectory = std::filesystem::current_path();
-    }
-
-    void ImportDataUtils::SetWorkingDirectory(const std::filesystem::path& workingDirectory)
-    {
-        s_WorkingDirectory = workingDirectory;
-    }
-
-    const std::filesystem::path& ImportDataUtils::GetWorkingDirectory()
-    {
-        return s_WorkingDirectory;
-    }
-
     void ImportDataUtils::SaveImportData(Scope<ImportData>& importData)
     {
         std::filesystem::path importFilePath = importData->originalPath;
@@ -38,7 +24,7 @@ namespace Coffee {
         std::filesystem::path originalPathCopy = importData->originalPath;
         std::filesystem::path cachedPathCopy = importData->cachedPath;
 
-        std::filesystem::path fileDirectory = importData->internal ? std::filesystem::current_path() : GetWorkingDirectory();
+        std::filesystem::path fileDirectory = importData->internal ? std::filesystem::current_path() : ResourceLoader::GetWorkingDirectory();
 
         importData->originalPath = std::filesystem::relative(importData->originalPath, fileDirectory);
         importData->cachedPath = std::filesystem::relative(importData->cachedPath, fileDirectory);
@@ -89,7 +75,7 @@ namespace Coffee {
             throw;
         }
 
-        std::filesystem::path fileDirectory = importData->internal ? std::filesystem::current_path() : GetWorkingDirectory();
+        std::filesystem::path fileDirectory = importData->internal ? std::filesystem::current_path() : ResourceLoader::GetWorkingDirectory();
     
         // Convert the relative path to an absolute path
         importData->originalPath = fileDirectory / importData->originalPath;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Core/EngineContext.h"
 #include "Panel.h"
 
 #include <filesystem>
@@ -21,7 +20,6 @@ namespace Coffee {
         ContentBrowserPanel(const Ref<Scene>& scene);
 
         void SetContext(const Ref<Scene>& scene);
-        void SetEngineContext(const EngineContext& context) { m_EngineContext = &context; }
 
         const Ref<Resource>& GetSelectedResource() const { return m_SelectedResource; }
 
@@ -34,7 +32,6 @@ namespace Coffee {
         std::filesystem::path m_CurrentDirectory;
         std::filesystem::path m_SelectedDirectory;
         Ref<Scene> m_Context;
-        const EngineContext* m_EngineContext = nullptr;
         Ref<Resource> m_SelectedResource;
     };
 

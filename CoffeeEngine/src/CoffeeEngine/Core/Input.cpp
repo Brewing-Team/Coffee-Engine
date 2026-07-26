@@ -135,15 +135,11 @@ namespace Coffee {
     }
     InputBinding& Input::GetBinding(const std::string& actionName)
     {
-        InputBinding& binding = m_BindingsMap[actionName];
-        binding.m_Input = this;
-        return binding;
+        return m_BindingsMap[actionName];
     }
 
     std::unordered_map<std::string, InputBinding>& Input::GetAllBindings()
     {
-        for (auto& [_, binding] : m_BindingsMap)
-            binding.m_Input = this;
         return m_BindingsMap;
     }
 

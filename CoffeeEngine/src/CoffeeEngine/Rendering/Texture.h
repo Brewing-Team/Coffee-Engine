@@ -135,9 +135,9 @@ namespace Coffee {
         void Clear(glm::vec4 color);
         void SetData(void* data, uint32_t size);
 
-        static ResourceRef<Texture2D> Load(const std::filesystem::path& path);
-        static ResourceRef<Texture2D> Create(uint32_t width, uint32_t height, ImageFormat format);
-        static ResourceRef<Texture2D> Create(const TextureProperties& properties);
+        static Ref<Texture2D> Load(const std::filesystem::path& path);
+        static Ref<Texture2D> Create(uint32_t width, uint32_t height, ImageFormat format);
+        static Ref<Texture2D> Create(const TextureProperties& properties);
 
     private:
         void LoadFromFile(const std::filesystem::path& path);
@@ -198,8 +198,8 @@ namespace Coffee {
         void Clear(glm::vec4 color);
         void SetData(void* data, uint32_t size);
 
-        static ResourceRef<Texture3D> Create(uint32_t width, uint32_t height, uint32_t depth, ImageFormat format);
-        static ResourceRef<Texture3D> Create(const TextureProperties& properties);
+        static Ref<Texture3D> Create(uint32_t width, uint32_t height, uint32_t depth, ImageFormat format);
+        static Ref<Texture3D> Create(const TextureProperties& properties);
 
     private:
         void InitializeTexture3D();
@@ -258,8 +258,8 @@ namespace Coffee {
         uint32_t GetHeight() override { return m_Properties.Height; };
         ImageFormat GetImageFormat() override { return m_Properties.Format; };
 
-        static ResourceRef<Cubemap> Load(const std::filesystem::path& path);
-        static ResourceRef<Cubemap> Create(const std::filesystem::path& path);
+        static Ref<Cubemap> Load(const std::filesystem::path& path);
+        static Ref<Cubemap> Create(const std::filesystem::path& path);
     private:
         void LoadFromFile(const std::filesystem::path& path);
         void LoadFromData(const std::vector<float>& data);
@@ -405,7 +405,7 @@ namespace Coffee {
         
         // common variables for map generation
         uint32_t fbo, rbo;
-        static ResourceRef<Mesh> m_CubeMesh;
+        static Ref<Mesh> m_CubeMesh;
     };
 
 }

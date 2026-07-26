@@ -14,7 +14,7 @@ namespace Coffee {
     {
         ZoneScoped;
 
-        auto scene = Scene::Load(scenePath, m_Context);
+        auto scene = Scene::Load(scenePath);
 
         return scene;
     }
@@ -23,10 +23,10 @@ namespace Coffee {
     std::future<Ref<Scene>> SceneManager::PreloadSceneAsync(const std::filesystem::path& scenePath)
     {
         // Store the future returned by std::async
-        auto future = std::async(std::launch::async, [scenePath, this]() -> Ref<Scene> {
+        auto future = std::async(std::launch::async, [scenePath]() -> Ref<Scene> {
             ZoneScoped;
 
-            Ref<Scene> scene = Scene::Load(scenePath, m_Context);
+            Ref<Scene> scene = Scene::Load(scenePath);
             return scene;
         });
 
@@ -41,7 +41,7 @@ namespace Coffee {
     
         ExitCurrentScene();
     
-        m_ActiveScene = Scene::Load(fullPath, m_Context);
+        m_ActiveScene = Scene::Load(fullPath);
     
         InitNewScene();
     }
@@ -65,7 +65,7 @@ namespace Coffee {
             ZoneScoped;
     
             std::filesystem::path fullPath = m_WorkingDirectory / scenePath;
-            Ref<Scene> scene = Scene::Load(fullPath, m_Context);
+            Ref<Scene> scene = Scene::Load(fullPath);
             return scene;
         });
     

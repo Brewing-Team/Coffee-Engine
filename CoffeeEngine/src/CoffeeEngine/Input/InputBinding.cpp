@@ -6,15 +6,12 @@ namespace Coffee {
 
     float InputBinding::AsAxis(bool digital) const
     {
-        if (!m_Input)
-            return 0.0f;
-
-        float value = m_Input->GetAxisRaw(Axis);
+        float value = Input::GetAxisRaw(Axis);
         if (invertedAxis)
             value = -value;
 
-        value += (m_Input->IsKeyPressed(KeyPos) || m_Input->GetButtonRaw(ButtonPos));
-        value -= (m_Input->IsKeyPressed(KeyNeg) || m_Input->GetButtonRaw(ButtonNeg));
+        value += (Input::IsKeyPressed(KeyPos) || Input::GetButtonRaw(ButtonPos));
+        value -= (Input::IsKeyPressed(KeyNeg) || Input::GetButtonRaw(ButtonNeg));
 
         value = glm::clamp(value, -1.0f, 1.0f);
 
@@ -25,28 +22,23 @@ namespace Coffee {
     }
     bool InputBinding::AsBool()
     {
-        if (!m_Input)
-            return false;
-
-        bool value = glm::abs(m_Input->GetAxisRaw(Axis)) != 0.0f;
-        value |= m_Input->GetButtonRaw(ButtonPos);
-        value |= m_Input->IsKeyPressed(KeyPos);
+        bool value = glm::abs(Input::GetAxisRaw(Axis)) != 0.0f;
+        value |= Input::GetButtonRaw(ButtonPos);
+        value |= Input::IsKeyPressed(KeyPos);
 
         // "Negative" buttons and keys used as alternatives to the main button and key
-        value |= m_Input->GetButtonRaw(ButtonNeg);
-        value |= m_Input->IsKeyPressed(KeyNeg);
+        value |= Input::GetButtonRaw(ButtonNeg);
+        value |= Input::IsKeyPressed(KeyNeg);
 
         return value;
     }
 
     ButtonState InputBinding::AsButton()
     {
-        if (!m_Input)
-            return m_State;
 
         // If already called this update, return cached value, otherwise recalculate state and update timestamp
-        if (latestUpdate >= m_Input->m_Timestamp) return m_State;
-        latestUpdate = m_Input->m_Timestamp;
+        if (latestUpdate >= Input::m_Timestamp) return m_State;
+        latestUpdate = Input::m_Timestamp;
 
         bool value = this->AsBool();
 

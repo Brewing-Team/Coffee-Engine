@@ -1,5 +1,4 @@
 #include "UISliderComponent.h"
-#include "CoffeeEngine/Core/EngineContext.h"
 #include "CoffeeEngine/Rendering/Texture.h"
 #include "CoffeeEngine/Resources/ResourceManager.h"
 
@@ -8,7 +7,13 @@
 
 namespace Coffee 
 {
-    UISliderComponent::UISliderComponent() { HandleScale = {1.0f, 1.0f}; }
+    UISliderComponent::UISliderComponent()
+    {
+        BackgroundTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+        HandleTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+        DisabledHandleTexture = Texture2D::Load("assets/textures/UVMap-Grid.jpg");
+        HandleScale = {1.0f, 1.0f};
+    }
 
     template <class Archive> 
     void UISliderComponent::save(Archive& archive, std::uint32_t const version) const
@@ -38,33 +43,19 @@ namespace Coffee
                 cereal::make_nvp("BackgroundTextureUUID", BackgroundTextureUUID),
                 cereal::make_nvp("HandleTextureUUID", HandleTextureUUID));
 
-        PendingBackgroundTextureID = BackgroundTextureUUID;
-        PendingHandleTextureID = HandleTextureUUID;
+        if (BackgroundTextureUUID != UUID(0))
+            BackgroundTexture = ResourceLoader::GetResource<Texture2D>(BackgroundTextureUUID);
+        if (HandleTextureUUID != UUID(0))
+            HandleTexture = ResourceLoader::GetResource<Texture2D>(HandleTextureUUID);
 
         if (version >= 1)
         {
             archive(cereal::make_nvp("DisabledHandleTextureUUID", DisabledHandleTextureUUID));
 
-            PendingDisabledHandleTextureID = DisabledHandleTextureUUID;
+            if (DisabledHandleTextureUUID != UUID(0))
+                DisabledHandleTexture = ResourceLoader::GetResource<Texture2D>(DisabledHandleTextureUUID);
         }
         UIComponent::load(archive, version);
-    }
-
-    void UISliderComponent::ResolveResources(EngineContext& context)
-    {
-        if (!context.resourceManager)
-            return;
-
-        if (!BackgroundTexture && PendingBackgroundTextureID != ResourceID::null)
-            BackgroundTexture = context.resourceManager->GetResource<Texture2D>(PendingBackgroundTextureID);
-        if (!HandleTexture && PendingHandleTextureID != ResourceID::null)
-            HandleTexture = context.resourceManager->GetResource<Texture2D>(PendingHandleTextureID);
-        if (!DisabledHandleTexture && PendingDisabledHandleTextureID != ResourceID::null)
-            DisabledHandleTexture = context.resourceManager->GetResource<Texture2D>(PendingDisabledHandleTextureID);
-
-        PendingBackgroundTextureID = ResourceID::null;
-        PendingHandleTextureID = ResourceID::null;
-        PendingDisabledHandleTextureID = ResourceID::null;
     }
 
     // Explicit template instantiations for common cereal archives

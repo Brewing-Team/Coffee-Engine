@@ -41,11 +41,9 @@ namespace Coffee
     {
         ZoneScoped;
 
-        m_SceneManager.SetContext(GetContext());
-
         SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
 
-        auto imguiLayer = CreateScope<ImGuiLayer>(m_Window.get());
+        auto imguiLayer = CreateScope<ImGuiLayer>();
         m_ImGuiLayer = imguiLayer.get();
 
 		PushOverlay(std::move(imguiLayer));
@@ -56,6 +54,7 @@ namespace Coffee
         ZoneScoped;
 
         m_LayerStack.PushLayer(std::move(layer));
+        layer->OnAttach();
     }
 
     void Engine::PushOverlay(Scope<Layer> layer)
@@ -63,6 +62,7 @@ namespace Coffee
         ZoneScoped;
         
         m_LayerStack.PushOverlay(std::move(layer));
+        layer->OnAttach();
     }
 
     void Engine::Close()
@@ -77,15 +77,14 @@ namespace Coffee
         EventDispatcher dispacher(e);
         dispacher.Dispatch<WindowCloseEvent>(COFFEE_BIND_EVENT_FN(OnWindowClose));
 
-        // Input needs raw events before UI/layers can mark them as handled.
-        m_Input.OnEvent(e);
-
         for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();)
         {
             (*--it)->OnEvent(e);
             if(e.Handled)
                 break;
         }
+
+        m_Input.OnEvent(e);
     }
 
     void Engine::Run(Application& app)

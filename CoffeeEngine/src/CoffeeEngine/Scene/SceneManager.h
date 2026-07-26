@@ -27,8 +27,6 @@ namespace Coffee {
 
         Ref<Scene>& GetActiveScene() { return m_ActiveScene; }
 
-        void SetContext(const EngineContext& context) { m_Context = context; }
-
         void SetWorkingDirectory(const std::filesystem::path& workingDirectory) { m_WorkingDirectory = workingDirectory; }
 
         void SetSceneState(SceneState state) { m_SceneState = state; }
@@ -39,7 +37,6 @@ namespace Coffee {
         void InitNewScene();
     private:
         SceneState m_SceneState = SceneState::Edit;
-        EngineContext m_Context{};
         std::filesystem::path m_WorkingDirectory;
         Ref<Scene> m_ActiveScene;
     };

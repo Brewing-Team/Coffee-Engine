@@ -28,7 +28,7 @@ namespace Coffee
          * @param resource A reference to the resource to save.
          */
         template<typename T>
-        static void Save(const std::filesystem::path& path, const ResourceRef<T>& resource)
+        static void Save(const std::filesystem::path& path, const Ref<T>& resource)
         {
             std::filesystem::create_directories(path.parent_path());
             ResourceFormat format = GetResourceSaveFormatFromType(GetResourceType<T>());
@@ -51,7 +51,7 @@ namespace Coffee
          * @param resource A reference to the resource to save to cache.
          */
         template<typename T>
-        static void SaveToCache(const std::string& filename, const ResourceRef<T>& resource)
+        static void SaveToCache(const std::string& filename, const Ref<T>& resource)
         {
             std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(filename);
 
@@ -63,7 +63,7 @@ namespace Coffee
          * @param resource A reference to the resource to save to cache.
          */
          template<typename T>
-         static void SaveToCache(ResourceID uuid, const ResourceRef<T>& resource)
+         static void SaveToCache(UUID uuid, const Ref<T>& resource)
          {
              std::filesystem::path cacheFilePath = CacheManager::GetCachedFilePath(uuid, GetResourceType<T>());
  
@@ -76,7 +76,7 @@ namespace Coffee
          * @param resource A reference to the resource to serialize.
          */
         template<typename T>
-        static void BinarySerialization(const std::filesystem::path& path, const ResourceRef<T>& resource)
+        static void BinarySerialization(const std::filesystem::path& path, const Ref<T>& resource)
         {
             std::ofstream file{path, std::ios::binary};
             cereal::BinaryOutputArchive oArchive(file);
@@ -89,7 +89,7 @@ namespace Coffee
          * @param resource A reference to the resource to serialize.
          */
         template<typename T>
-        static void JSONSerialization(const std::filesystem::path& path, const ResourceRef<T>& resource)
+        static void JSONSerialization(const std::filesystem::path& path, const Ref<T>& resource)
         {
             std::ofstream file{path};
             cereal::JSONOutputArchive oArchive(file);

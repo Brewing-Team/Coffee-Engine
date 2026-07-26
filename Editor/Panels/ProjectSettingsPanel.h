@@ -1,7 +1,6 @@
 #pragma once
 
 #include "CoffeeEngine/Core/Base.h"
-#include "CoffeeEngine/Core/EngineContext.h"
 #include "Panel.h"
 #include "imgui.h"
 
@@ -28,8 +27,6 @@ namespace Coffee {
     {
     public:
         ProjectSettingsPanel() = default;
-
-        void SetContext(const EngineContext& context) { m_Context = &context; }
 
         void OnImGuiRender() override;
 
@@ -72,8 +69,6 @@ namespace Coffee {
         bool m_ShowAddActionPopup = false;
         bool m_WaitingForInput = false;
         int m_RebindingIndex = -1;
-
-        const EngineContext* m_Context = nullptr;
     };
 
 } // Coffee

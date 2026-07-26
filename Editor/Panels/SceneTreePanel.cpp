@@ -1,7 +1,7 @@
 #include "SceneTreePanel.h"
 
 #include "CoffeeEngine/Resources/Animation/AnimationClip.h"
-#include "CoffeeEngine/Scene/Systems/AnimationSystem.h"
+#include "CoffeeEngine/Animation/AnimationSystem.h"
 #include "CoffeeEngine/Core/Base.h"
 #include "CoffeeEngine/Core/FileDialog.h"
 #include "CoffeeEngine/Resources/Resource.h"
@@ -13,7 +13,6 @@
 #include "CoffeeEngine/Rendering/Material.h"
 #include "CoffeeEngine/Rendering/Mesh.h"
 #include "CoffeeEngine/Rendering/Model.h"
-#include "CoffeeEngine/Rendering/Renderer.h"
 #include "CoffeeEngine/Rendering/Renderer3D.h"
 #include "CoffeeEngine/Rendering/Shader.h"
 #include "CoffeeEngine/Rendering/Texture.h"
@@ -25,10 +24,9 @@
 #include "CoffeeEngine/Scene/Scene.h"
 #include "CoffeeEngine/Scene/SceneCamera.h"
 #include "CoffeeEngine/Scene/SceneTree.h"
-#include "CoffeeEngine/Scripting/ScriptingManager.h"
 #include "CoffeeEngine/Scripting/Lua/LuaScript.h"
 #include "CoffeeEngine/UI/UIAnchor.h"
-#include "CoffeeEngine/Scene/Systems/UISystem.h"
+#include "CoffeeEngine/UI/UIManager.h"
 #include "entt/entity/entity.hpp"
 #include "entt/entity/fwd.hpp"
 #include "imgui_internal.h"
@@ -449,14 +447,14 @@ namespace Coffee
                         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
 
                         Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
-                        auto& parentRenderItem = m_Context->GetUISystem().GetUIRenderItem(parentEntity);
-                        glm::vec2 parentSize = m_Context->GetUISystem().GetParentSize(m_Context->m_Registry, parentRenderItem);
+                        auto& parentRenderItem = UISystem::GetUIRenderItem(parentEntity);
+                        glm::vec2 parentSize = UISystem::GetParentSize(m_Context->m_Registry, parentRenderItem);
 
                         glm::vec4 currentRect = anchor.CalculateRect(parentSize);
 
-                        AnchorPreset preset = m_Context->GetUISystem().GetAnchorPreset(row, col);
+                        AnchorPreset preset = UISystem::GetAnchorPreset(row, col);
                         anchor.SetAnchorPreset(preset, currentRect, parentSize, preservePosition);
-                        m_Context->GetUISystem().MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
 
                         ImGui::CloseCurrentPopup();
                     }
@@ -522,11 +520,11 @@ namespace Coffee
         {
             ImGui::Text("Min");
             if (ImGui::DragFloat2("##AnchorMin", glm::value_ptr(anchor.AnchorMin), 0.01f, 0.0f, 1.0f))
-                m_Context->GetUISystem().MarkDirty(entity);
+                UISystem::MarkDirty(entity);
 
             ImGui::Text("Max");
             if (ImGui::DragFloat2("##AnchorMax", glm::value_ptr(anchor.AnchorMax), 0.01f, 0.0f, 1.0f))
-                m_Context->GetUISystem().MarkDirty(entity);
+                UISystem::MarkDirty(entity);
 
             ImGui::TreePop();
         }
@@ -536,8 +534,8 @@ namespace Coffee
 
         auto& hierarchyComponent = entity.GetComponent<HierarchyComponent>();
         Entity parentEntity{hierarchyComponent.m_Parent, m_Context.get()};
-        auto& parentRenderItem = m_Context->GetUISystem().GetUIRenderItem(parentEntity);
-        glm::vec2 parentSize = m_Context->GetUISystem().GetParentSize(m_Context->m_Registry, parentRenderItem);
+        auto& parentRenderItem = UISystem::GetUIRenderItem(parentEntity);
+        glm::vec2 parentSize = UISystem::GetParentSize(m_Context->m_Registry, parentRenderItem);
 
         if (!isStretchingX && !isStretchingY)
         {
@@ -546,7 +544,7 @@ namespace Coffee
             if (ImGui::DragFloat2("##Position", glm::value_ptr(anchoredPos), 1.0f))
             {
                 anchor.SetAnchoredPosition(anchoredPos, parentSize);
-                m_Context->GetUISystem().MarkDirty(entity);
+                UISystem::MarkDirty(entity);
             }
 
             glm::vec2 size = anchor.GetSize();
@@ -554,7 +552,7 @@ namespace Coffee
             if (ImGui::DragFloat2("##Size", glm::value_ptr(size), 1.0f, 0.0f, FLT_MAX, "%.0f"))
             {
                 anchor.SetSize(size, parentSize);
-                m_Context->GetUISystem().MarkDirty(entity);
+                UISystem::MarkDirty(entity);
             }
         }
 
@@ -566,22 +564,22 @@ namespace Coffee
                 {
                     ImGui::Text("Left");
                     if (ImGui::DragFloat("##OffsetMinX", &anchor.OffsetMin.x, 1.0f))
-                        m_Context->GetUISystem().MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
 
                     ImGui::Text("Right");
                     if (ImGui::DragFloat("##OffsetMaxX", &anchor.OffsetMax.x, 1.0f))
-                        m_Context->GetUISystem().MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
                 }
 
                 if (isStretchingY)
                 {
                     ImGui::Text("Top");
                     if (ImGui::DragFloat("##OffsetMinY", &anchor.OffsetMin.y, 1.0f))
-                        m_Context->GetUISystem().MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
 
                     ImGui::Text("Bottom");
                     if (ImGui::DragFloat("##OffsetMaxY", &anchor.OffsetMax.y, 1.0f))
-                        m_Context->GetUISystem().MarkDirty(entity);
+                        UISystem::MarkDirty(entity);
                 }
                 ImGui::TreePop();
             }
@@ -593,7 +591,7 @@ namespace Coffee
         if (ImGui::DragFloat("##Rotation", &rotation, 0.1f))
         {
             transformComponent.SetLocalRotation(glm::vec3(0.f, 0.f, rotation));
-            m_Context->GetUISystem().MarkDirty(entity);
+            UISystem::MarkDirty(entity);
         }
     }
 
@@ -738,42 +736,42 @@ namespace Coffee
                     DrawUITransform(transformComponent, uiImageComponent.Anchor, entity);
 
                     if (ImGui::DragInt("Layer", &uiImageComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        m_Context->GetUISystem().MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UITextComponent>())
                 {
                     auto& uiTextComponent = entity.GetComponent<UITextComponent>();
                     DrawUITransform(transformComponent, uiTextComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiTextComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        m_Context->GetUISystem().MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIToggleComponent>())
                 {
                     auto& uiToggleComponent = entity.GetComponent<UIToggleComponent>();
                     DrawUITransform(transformComponent, uiToggleComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiToggleComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        m_Context->GetUISystem().MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIButtonComponent>())
                 {
                     auto& uiButtonComponent = entity.GetComponent<UIButtonComponent>();
                     DrawUITransform(transformComponent, uiButtonComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiButtonComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        m_Context->GetUISystem().MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UISliderComponent>())
                 {
                     auto& uiSliderComponent = entity.GetComponent<UISliderComponent>();
                     DrawUITransform(transformComponent, uiSliderComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiSliderComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        m_Context->GetUISystem().MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else if (entity.HasComponent<UIComponent>())
                 {
                     auto& uiComponent = entity.GetComponent<UIComponent>();
                     DrawUITransform(transformComponent, uiComponent.Anchor, entity);
                     if (ImGui::DragInt("Layer", &uiComponent.Layer, 1.0f, 0.0f, 100.0f))
-                        m_Context->GetUISystem().MarkForSorting();
+                        UISystem::MarkForSorting();
                 }
                 else
                 {
@@ -945,8 +943,6 @@ namespace Coffee
                     case ImageFormat::DEPTH24STENCIL8:
                         return "DEPTH24STENCIL8";
                     }
-
-                    return "Unknown";
                 };
 
                 if (ImGui::IsItemHovered() and texture)
@@ -1005,7 +1001,7 @@ namespace Coffee
                 }
                 if(ImGui::TreeNode("Tonemap"))
                 {
-                    ImGui::DragFloat("Exposure", &m_Context->GetRenderer()->Get3DRenderer().GetRenderSettings().Exposure, 0.001f, 100.0f);
+                    ImGui::DragFloat("Exposure", &Renderer3D::GetRenderSettings().Exposure, 0.001f, 100.0f);
 
                     ImGui::TreePop();
                 }
@@ -1120,13 +1116,11 @@ namespace Coffee
                     case ImageFormat::DEPTH24STENCIL8:
                         return "DEPTH24STENCIL8";
                     }
-
-                    return "Unknown";
                 };
 
                 if (ImGui::IsItemHovered() and texture)
                 {
-                    ImGui::SetTooltip("Name: %s\nSize: %d x %d\nFormat: %s\nPath: %s", texture->GetName().c_str(),
+                    ImGui::SetTooltip("Name: %s\nSize: %d x %d\nPath: %s", texture->GetName().c_str(),
                                       texture->GetWidth(), texture->GetHeight(),
                                       textureImageFormat(texture->GetImageFormat()).c_str(),
                                       texture->GetPath().c_str());
@@ -1169,7 +1163,7 @@ namespace Coffee
                                             const glm::vec2& size = {100, 32}) {
                 // ImGui::ColorEdit4("##Albedo Color", glm::value_ptr(materialProperties.color),
                 // ImGuiColorEditFlags_NoInputs);
-                if (ImGui::ColorButton(label.c_str(), ImVec4(color.r, color.g, color.b, color.a), 0,
+                if (ImGui::ColorButton(label.c_str(), ImVec4(color.r, color.g, color.b, color.a), NULL,
                                        {size.x, size.y}))
                 {
                     ImGui::OpenPopup("AlbedoColorPopup");
@@ -1517,7 +1511,7 @@ namespace Coffee
             {
                 ImGui::Text("Quick Load");
                 ImGui::Separator();
-                auto& registry = m_Context->GetResourceManager()->GetRegistry().GetResourceRegistry();
+                auto& registry = ResourceRegistry::GetResourceRegistry();
                 for (auto& shader : registry)
                 {
                     if (shader.second->GetType() == ResourceType::Shader)
@@ -1545,10 +1539,10 @@ namespace Coffee
             bool isCollapsingHeaderOpen = true;
             if (ImGui::CollapsingHeader("Audio Source", &isCollapsingHeaderOpen, ImGuiTreeNodeFlags_DefaultOpen))
             {
-                if (!m_Context->GetAudio()->audioBanks.empty() &&
+                if (!Audio::audioBanks.empty() &&
                     ImGui::BeginCombo("Audio Bank", audioSourceComponent.audioBankName.c_str()))
                 {
-                    for (auto& bank : m_Context->GetAudio()->audioBanks)
+                    for (auto& bank : Audio::audioBanks)
                     {
                         const bool isSelected = (audioSourceComponent.audioBankName == bank->name);
 
@@ -1562,7 +1556,7 @@ namespace Coffee
                                 if (!audioSourceComponent.eventName.empty())
                                 {
                                     audioSourceComponent.eventName.clear();
-                                    m_Context->GetAudio()->StopEvent(audioSourceComponent);
+                                    Audio::StopEvent(audioSourceComponent);
                                 }
                             }
                         }
@@ -1584,7 +1578,7 @@ namespace Coffee
                         if (ImGui::Selectable(event.c_str()))
                         {
                             if (!audioSourceComponent.eventName.empty())
-                                m_Context->GetAudio()->StopEvent(audioSourceComponent);
+                                Audio::StopEvent(audioSourceComponent);
 
                             audioSourceComponent.eventName = event;
                         }
@@ -1598,7 +1592,7 @@ namespace Coffee
                 ImGui::Checkbox("Play On Awake", &audioSourceComponent.playOnAwake);
 
                 if (ImGui::Checkbox("Mute", &audioSourceComponent.mute))
-                    m_Context->GetAudio()->SetVolume(audioSourceComponent.gameObjectID,
+                    Audio::SetVolume(audioSourceComponent.gameObjectID,
                                      audioSourceComponent.mute ? 0.f : audioSourceComponent.volume);
 
                 if (ImGui::SliderFloat("Volume", &audioSourceComponent.volume, 0.f, 1.f))
@@ -1606,7 +1600,7 @@ namespace Coffee
                     if (audioSourceComponent.mute)
                         audioSourceComponent.mute = false;
 
-                    m_Context->GetAudio()->SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
+                    Audio::SetVolume(audioSourceComponent.gameObjectID, audioSourceComponent.volume);
                 }
 
                 if (audioSourceComponent.audioBank && !audioSourceComponent.eventName.empty())
@@ -1615,7 +1609,7 @@ namespace Coffee
                     {
                         if (ImGui::SmallButton("Play"))
                         {
-                            m_Context->GetAudio()->PlayEvent(audioSourceComponent);
+                            Audio::PlayEvent(audioSourceComponent);
                         }
                     }
                     else
@@ -1624,19 +1618,19 @@ namespace Coffee
                         {
                             if (ImGui::SmallButton("Pause"))
                             {
-                                m_Context->GetAudio()->PauseEvent(audioSourceComponent);
+                                Audio::PauseEvent(audioSourceComponent);
                             }
                         }
                         else if (ImGui::SmallButton("Resume"))
                         {
-                            m_Context->GetAudio()->ResumeEvent(audioSourceComponent);
+                            Audio::ResumeEvent(audioSourceComponent);
                         }
 
                         ImGui::SameLine();
 
                         if (ImGui::SmallButton("Stop"))
                         {
-                            m_Context->GetAudio()->StopEvent(audioSourceComponent);
+                            Audio::StopEvent(audioSourceComponent);
                         }
                     }
                 }
@@ -1645,7 +1639,7 @@ namespace Coffee
             if (!isCollapsingHeaderOpen)
             {
                 //AudioZone::UnregisterObject(audioSourceComponent.gameObjectID);
-                m_Context->GetAudio()->UnregisterAudioSourceComponent(audioSourceComponent);
+                Audio::UnregisterAudioSourceComponent(audioSourceComponent);
                 entity.RemoveComponent<AudioSourceComponent>();
             }
         }
@@ -1660,7 +1654,7 @@ namespace Coffee
 
             if (!isCollapsingHeaderOpen)
             {
-                m_Context->GetAudio()->UnregisterAudioListenerComponent(audioListenerComponent);
+                Audio::UnregisterAudioListenerComponent(audioListenerComponent);
                 entity.RemoveComponent<AudioListenerComponent>();
             }
         }
@@ -1673,9 +1667,7 @@ namespace Coffee
             {
                 if (ImGui::BeginCombo("Bus Channels", audioZoneComponent.audioBusName.c_str()))
                 {
-                    // TODO: Reconnect this list to audio-zone bus discovery API.
-                    const std::vector<std::string> availableBusNames{};
-                    for (const auto& busName : availableBusNames)
+                    for (auto& busName : //AudioZone::busNames)
                     {
                         const bool isSelected = (audioZoneComponent.audioBusName == busName);
 
@@ -1697,15 +1689,11 @@ namespace Coffee
 
                 ImGui::Text("Position");
                 if (ImGui::DragFloat3("##ZonePosition", glm::value_ptr(audioZoneComponent.position), 0.1f) == true)
-                {
-                    // Audio zone live update hook goes here.
-                }
+                    //AudioZone::UpdateReverbZone(audioZoneComponent);
 
                 ImGui::Text("Radius");
                 if (ImGui::SliderFloat("##ZoneRadius", &audioZoneComponent.radius, 1.f, 100.f))
-                {
-                    // Audio zone live update hook goes here.
-                }
+                    //AudioZone::UpdateReverbZone(audioZoneComponent);
             }
 
             if (!isCollapsingHeaderOpen)
@@ -2213,13 +2201,13 @@ namespace Coffee
 
                 if (ImGui::BeginCombo("Animation", AnimName))
                 {
-                    for (const auto& [name, animationIndex] : animatorComponent.GetAnimationController()->GetAnimationClipMap())
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
                         if (ImGui::Selectable(name.c_str()) && name != AnimName)
                         {
                             UpperAnimName = name.c_str();
                             LowerAnimName = name.c_str();
-                            animatorComponent.SetCurrentAnimation(animationIndex);
+                            animatorComponent.SetCurrentAnimation(animation);
                         }
                     }
                     ImGui::EndCombo();
@@ -2227,12 +2215,12 @@ namespace Coffee
 
                 if (ImGui::BeginCombo("UpperAnimation", UpperAnimName))
                 {
-                    for (const auto& [name, animationIndex] : animatorComponent.GetAnimationController()->GetAnimationClipMap())
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
                         if (ImGui::Selectable(name.c_str()) && name != UpperAnimName)
-                        {
+                        {;
                             UpperAnimName = name.c_str();
-                            animatorComponent.SetUpperAnimation(animationIndex);
+                            animatorComponent.SetUpperAnimation(animation);
                         }
                     }
                     ImGui::EndCombo();
@@ -2240,12 +2228,12 @@ namespace Coffee
 
                 if (ImGui::BeginCombo("LowerAnimation", LowerAnimName))
                 {
-                    for (const auto& [name, animationIndex] : animatorComponent.GetAnimationController()->GetAnimationClipMap())
+                    for (auto& [name, animation] : animatorComponent.GetAnimationController()->GetAnimationMap())
                     {
                         if (ImGui::Selectable(name.c_str()) && name != LowerAnimName)
                         {
                             LowerAnimName = name.c_str();
-                            animatorComponent.SetLowerAnimation(animationIndex);
+                            animatorComponent.SetLowerAnimation(animation);
                         }
                     }
                     ImGui::EndCombo();
@@ -2260,8 +2248,8 @@ namespace Coffee
                         if (ImGui::Selectable(joint.name.c_str()) && joint.name != RootJointName)
                         {
                             RootJointName = joint.name.c_str();
-                            std::map<std::string, unsigned int> animationMap = animatorComponent.GetAnimationController()->GetAnimationClipMap();
-                            m_Context->SetupPartialBlending(animationMap[UpperAnimName], animationMap[LowerAnimName], RootJointName, &animatorComponent);
+                            std::map<std::string, unsigned int> animationMap = animatorComponent.GetAnimationController()->GetAnimationMap();
+                            AnimationSystem::SetupPartialBlending(animationMap[UpperAnimName], animationMap[LowerAnimName], RootJointName, &animatorComponent);
                         }
                     }
                     ImGui::EndCombo();
@@ -2820,9 +2808,9 @@ namespace Coffee
                     if (!entity.HasComponent<AudioSourceComponent>())
                     {
                         entity.AddComponent<AudioSourceComponent>();
-                        m_Context->GetAudio()->RegisterAudioSourceComponent(entity.GetComponent<AudioSourceComponent>());
+                        Audio::RegisterAudioSourceComponent(entity.GetComponent<AudioSourceComponent>());
                         //AudioZone::RegisterObject(entity.GetComponent<AudioSourceComponent>().gameObjectID,
-                        //                          entity.GetComponent<AudioSourceComponent>().transform[3]);
+                                                  entity.GetComponent<AudioSourceComponent>().transform[3]);
                     }
 
                     ImGui::CloseCurrentPopup();
@@ -2832,7 +2820,7 @@ namespace Coffee
                     if (!entity.HasComponent<AudioListenerComponent>())
                     {
                         entity.AddComponent<AudioListenerComponent>();
-                        m_Context->GetAudio()->RegisterAudioListenerComponent(entity.GetComponent<AudioListenerComponent>());
+                        Audio::RegisterAudioListenerComponent(entity.GetComponent<AudioListenerComponent>());
                     }
 
                     ImGui::CloseCurrentPopup();
@@ -3048,7 +3036,7 @@ namespace Coffee
                         scriptFile.close();
 
                         // Add the script component to the entity
-                        entity.AddComponent<ScriptComponent>(m_Context->GetScriptingManager()->CreateScript(path, ScriptingLanguage::Lua));
+                        entity.AddComponent<ScriptComponent>(ScriptingManager::CreateScript(path, ScriptingLanguage::Lua));
                     }
                     else
                     {
@@ -3068,7 +3056,7 @@ namespace Coffee
                 if (!path.empty())
                 {
                     // Add the script component to the entity with the selected script
-                    entity.AddComponent<ScriptComponent>(m_Context->GetScriptingManager()->CreateScript(path, ScriptingLanguage::Lua));
+                    entity.AddComponent<ScriptComponent>(ScriptingManager::CreateScript(path, ScriptingLanguage::Lua));
                 }
 
                 ImGui::CloseCurrentPopup();

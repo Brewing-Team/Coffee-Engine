@@ -11,7 +11,7 @@ namespace Coffee {
 
     struct ImportData
     {
-        ResourceID uuid = ResourceID::null;
+        UUID uuid = UUID::null;
         ResourceType type = ResourceType::Unknown;
 
         std::filesystem::path originalPath;
@@ -30,7 +30,7 @@ namespace Coffee {
         {
             // Implement the logic to check if the ImportData has the necessary embedded data
             // This is a placeholder implementation
-            return uuid != ResourceID::null && (!cache || !cachedPath.empty());
+            return uuid != UUID::null && (!cache || !cachedPath.empty());
         }
     };
 

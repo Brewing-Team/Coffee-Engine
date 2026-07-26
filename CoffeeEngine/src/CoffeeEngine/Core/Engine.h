@@ -64,7 +64,7 @@ namespace Coffee
 		void PushOverlay(Scope<Layer> layer);
 
 		EngineContext GetContext() { return { m_Window.get(), &m_Renderer, &m_RendererAPI, &m_Input,
-						&m_ResourceManager, &m_SceneManager, &m_ProjectManager, &m_Scripting, &m_Audio, m_ImGuiLayer }; }
+						&m_ResourceManager, &m_SceneManager, &m_ProjectManager, &m_Scripting, &m_Audio }; }
 
 		/**
 		 * @brief Gets the main engine window.

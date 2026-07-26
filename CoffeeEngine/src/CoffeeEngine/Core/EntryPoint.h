@@ -1,8 +1,5 @@
 #pragma once
 
-#include "CoffeeEngine/Core/Engine.h"
-#include "CoffeeEngine/Core/Log.h"
-
 extern Coffee::Application* Coffee::CreateApplication();
 
 int main(int argc, const char** argv)

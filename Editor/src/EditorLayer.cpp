@@ -7,7 +7,6 @@
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
 #include "CoffeeEngine/Core/Window.h"
-#include "CoffeeEngine/ImGui/ImGuiLayer.h"
 #include "CoffeeEngine/Events/ApplicationEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Project/Project.h"
@@ -35,7 +34,6 @@
 #include "CoffeeEngine/Scene/SceneManager.h"
 
 #include <ImGuizmo.h>
-#include <SDL3/SDL_events.h>
 #include <stdint.h>
 #include <filesystem>
 #include <glm/fwd.hpp>
@@ -109,7 +107,7 @@ namespace Coffee {
 
         m_Context.window->SetIcon("icon.png");
 
-        m_EditorScene = CreateRef<Scene>(const_cast<EngineContext&>(m_Context));
+        m_EditorScene = CreateRef<Scene>();
             
         m_Context.sceneManager->SetSceneState(SceneManager::SceneState::Edit);
         m_Context.sceneManager->ChangeScene(m_EditorScene);
@@ -118,9 +116,6 @@ namespace Coffee {
 
         m_SceneTreePanel.SetContext(m_Context.sceneManager->GetActiveScene());
         m_ContentBrowserPanel.SetContext(m_Context.sceneManager->GetActiveScene());
-        m_ContentBrowserPanel.SetEngineContext(m_Context);
-        m_ImportPanel.SetEngineContext(m_Context);
-        m_ProjectSettingsPanel.SetContext(m_Context);
     }
 
     void EditorLayer::OnUpdate(float dt)
@@ -276,11 +271,7 @@ namespace Coffee {
                 if (ImGui::MenuItem(ICON_LC_FOLDER_OPEN " Open Scene...", "Ctrl+O")) { OpenScene(); }
                 if (ImGui::MenuItem(ICON_LC_SAVE " Save Scene", "Ctrl+S")) { SaveScene(); }
                 //if (ImGui::MenuItem(ICON_LC_SAVE " Save Scene As...", "Ctrl+Shift+S")) { SaveSceneAs(); }
-                if (ImGui::MenuItem(ICON_LC_X " Exit")) {
-                    SDL_Event quitEvent{};
-                    quitEvent.type = SDL_EVENT_QUIT;
-                    SDL_PushEvent(&quitEvent);
-                }
+                if (ImGui::MenuItem(ICON_LC_X " Exit")) { Application::Get().Close(); }
                 ImGui::EndMenu();
             }
             if (ImGui::BeginMenu("Project"))
@@ -300,15 +291,15 @@ namespace Coffee {
                 {
                     if(ImGui::MenuItem(ICON_LC_COFFEE " Coffee"))
                     {
-                        // Theme switching is managed by the host app layer.
+                        Application::Get().GetImGuiLayer()->SetCoffeeColorStyle();
                     }
                     if(ImGui::MenuItem("Godot"))
                     {
-                        // Theme switching is managed by the host app layer.
+                        Application::Get().GetImGuiLayer()->SetGodotColorStyle();
                     }
                     if(ImGui::MenuItem("Tea"))
                     {
-                        // Theme switching is managed by the host app layer.
+                        Application::Get().GetImGuiLayer()->SetTeaColorStyle();
                     }
                     ImGui::EndMenu();
                 }
@@ -402,10 +393,9 @@ namespace Coffee {
             }
 
             //set the fps counter in the right side of the menu bar
-            const float fps = ImGui::GetIO().Framerate;
-            ImVec2 textSize = ImGui::CalcTextSize(("FPS:" + std::to_string(fps)).c_str());
+            ImVec2 textSize = ImGui::CalcTextSize(("FPS:" + std::to_string(Application::Get().GetFPS())).c_str());
             ImGui::SetCursorPosX(ImGui::GetWindowWidth() - textSize.x);
-            ImGui::TextDisabled("FPS: %.1f", fps);
+            ImGui::TextDisabled("FPS: %.1f", Application::Get().GetFPS());
 
             ImGui::EndMainMenuBar();
         }
@@ -453,8 +443,8 @@ namespace Coffee {
 
         m_ViewportFocused = ImGui::IsWindowFocused();
         m_ViewportHovered = ImGui::IsWindowHovered();
-        if (m_Context.imguiLayer)
-            m_Context.imguiLayer->BlockEvents(!(m_ViewportFocused && m_ViewportHovered));
+
+        Application::Get().GetImGuiLayer()->BlockEvents(!m_ViewportHovered);
 
         ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
         ResizeViewport(viewportPanelSize.x, viewportPanelSize.y);
@@ -829,16 +819,13 @@ namespace Coffee {
 
     void EditorLayer::NewScene()
     {
-        m_EditorScene = CreateRef<Scene>(const_cast<EngineContext&>(m_Context));
+        m_EditorScene = CreateRef<Scene>();
         m_Context.sceneManager->ChangeScene(m_EditorScene);
 
         m_SceneTreePanel = SceneTreePanel();
 
         m_SceneTreePanel.SetContext(m_Context.sceneManager->GetActiveScene());
         m_ContentBrowserPanel.SetContext(m_Context.sceneManager->GetActiveScene());
-        m_ContentBrowserPanel.SetEngineContext(m_Context);
-        m_ImportPanel.SetEngineContext(m_Context);
-        m_ProjectSettingsPanel.SetContext(m_Context);
     }
 
     void EditorLayer::OpenScene()
@@ -849,16 +836,13 @@ namespace Coffee {
 
         if (!path.empty() and path.extension() == ".TeaScene")
         {
-            m_EditorScene = Scene::Load(path, const_cast<EngineContext&>(m_Context));
+            m_EditorScene = Scene::Load(path);
             m_Context.sceneManager->ChangeScene(m_EditorScene);
 
             m_SceneTreePanel = SceneTreePanel();
 
             m_SceneTreePanel.SetContext(m_Context.sceneManager->GetActiveScene());
             m_ContentBrowserPanel.SetContext(m_Context.sceneManager->GetActiveScene());
-            m_ContentBrowserPanel.SetEngineContext(m_Context);
-            m_ImportPanel.SetEngineContext(m_Context);
-            m_ProjectSettingsPanel.SetContext(m_Context);
         }
         else
         {
