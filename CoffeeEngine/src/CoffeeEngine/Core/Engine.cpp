@@ -5,7 +5,6 @@
 #include "CoffeeEngine/Core/Layer.h"
 #include "CoffeeEngine/Core/Stopwatch.h"
 #include "CoffeeEngine/Core/Input.h"
-#include "CoffeeEngine/Events/ControllerEvent.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
 #include "CoffeeEngine/ImGui/ImGuiLayer.h"
@@ -31,7 +30,7 @@ namespace Coffee
         : m_Window(Window::Create(WindowProps("Coffee Engine")))
         , m_RendererAPI()
         , m_Renderer(&m_RendererAPI)
-        , m_Input(m_Window.get())
+        , m_Input(*m_Window)
         , m_Audio()
         , m_ResourceManager()
         , m_SceneManager()
@@ -83,8 +82,6 @@ namespace Coffee
             if(e.Handled)
                 break;
         }
-
-        m_Input.OnEvent(e);
     }
 
     void Engine::Run(Application& app)
@@ -111,8 +108,7 @@ namespace Coffee
             //Process audio
             m_Audio.ProcessAudio();
 
-            //Prepare input frame
-            m_Input.OnFrameUpdate();
+            m_Input.Update();
 
             app.OnUpdate(deltaTime);
 
@@ -217,36 +213,6 @@ namespace Coffee
                 case SDL_EVENT_MOUSE_WHEEL:
                 {
                     MouseScrolledEvent e(event.wheel.x, event.wheel.y);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_GAMEPAD_ADDED:
-                {
-                    ControllerAddEvent e((event.gdevice.which));
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_GAMEPAD_REMOVED:
-                {
-                    ControllerRemoveEvent e(event.gdevice.which);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
-                {
-                    ButtonPressEvent e(event.gbutton.which, event.gbutton.button);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_GAMEPAD_BUTTON_UP:
-                {
-                    ButtonReleaseEvent e(event.gbutton.which, event.gbutton.button);
-                    m_EventCallback(e);
-                    break;
-                }
-                case SDL_EVENT_GAMEPAD_AXIS_MOTION:
-                {
-                    AxisMoveEvent e(event.gaxis.which, event.gaxis.axis, event.gaxis.value);
                     m_EventCallback(e);
                     break;
                 }

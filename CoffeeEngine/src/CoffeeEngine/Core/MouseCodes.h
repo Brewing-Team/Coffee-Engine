@@ -27,7 +27,8 @@ namespace Coffee
             ButtonMiddle =  2, ///< Middle mouse button
             ButtonRight =   3, ///< Right mouse button
             ButtonX1  =     4, ///< Extra mouse button 1
-            ButtonX2  =     5  ///< Extra mouse button 2
+            ButtonX2  =     5,  ///< Extra mouse button 2
+            COUNT =         8  ///< not a key, just marks the number of scancodes for array bounds
         };
     }
 }

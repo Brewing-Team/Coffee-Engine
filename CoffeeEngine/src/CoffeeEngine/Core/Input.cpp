@@ -3,7 +3,6 @@
 #include "CoffeeEngine/Core/Application.h"
 #include "CoffeeEngine/Core/Log.h"
 #include "CoffeeEngine/Core/Window.h"
-#include "CoffeeEngine/Events/ControllerEvent.h"
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
@@ -13,519 +12,128 @@
 #include <SDL3/SDL_init.h>
 
 #include <SDL3/SDL_timer.h>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/unordered_map.hpp>
 #include <cereal/archives/json.hpp>
+#include <cereal/types/unordered_map.hpp>
+#include <cereal/types/vector.hpp>
 #include <fstream>
 
-namespace Coffee {
+namespace Coffee
+{
 
-    constexpr const char* MAPPING_FILE_PATH = "InputMapping.json";
+Input::Input(const Window& window) : m_Window(window)
+{
+    m_keys.fill(KeyState::Idle);
+    m_mouseButtons.fill(KeyState::Idle);
 
-    Input::Input(Window* window)
+    m_mousePosition = glm::vec2(0.0f);
+    m_mouseWheelDelta = glm::vec2(0.0f);
+}
+void Input::Update()
+{
+    m_mouseWheelDelta = glm::vec2(0.0f);
+
+    for (KeyState& keyState : m_keys)
     {
-        SDL_InitSubSystem(SDL_INIT_GAMEPAD);
-
-        m_Window = window;
-
-        // Axis deadzone defaults
-        m_AxisDeadzones[Axis::LeftTrigger] = 0.15f;
-        m_AxisDeadzones[Axis::RightTrigger] = 0.15f;
-        m_AxisDeadzones[Axis::LeftX] = 0.15f;
-        m_AxisDeadzones[Axis::RightX] = 0.15f;
-        m_AxisDeadzones[Axis::LeftY] = 0.15f;
-        m_AxisDeadzones[Axis::RightY] = 0.15f;
-
-        m_RebindTimer = Timer(5.0,false,true,[this](){Input::ResetRebindState();});
-    
-        // Current frame's timestamp
-        // Direct call to SDL because I didn't find any functions for it within the engine's API
-        m_Timestamp = Input::OnFrameUpdate();
+        keyState = (keyState == KeyState::Down || keyState == KeyState::Repeat) ? KeyState::Repeat : KeyState::Idle;
     }
 
-/*     void Input::Save()
+    for (KeyState& buttonState : m_mouseButtons)
     {
-        // Can't save project input mapping if there's no project
-        if (Project::GetActive() == nullptr)
-            return;
-
-        auto path = Project::GetProjectDirectory() / MAPPING_FILE_PATH;
-
-        std::ofstream file(path);
-
-        cereal::JSONOutputArchive archive(file);
-
-        archive(m_BindingsMap);
+        buttonState = (buttonState == KeyState::Down || buttonState == KeyState::Repeat) ? KeyState::Repeat : KeyState::Idle;
     }
+}
+bool Input::IsKeyJustPressed(const KeyCode key)
+{
+    return m_keys[key] == KeyState::Down;
+}
 
-    void Input::Load()
+bool Input::IsKeyPressed(const KeyCode key)
+{
+    return m_keys[key] == KeyState::Down || m_keys[key] == KeyState::Repeat;
+}
+bool Input::IsKeyReleased(const KeyCode key)
+{
+    return m_keys[key] == KeyState::Up;
+}
+bool Input::IsMouseButtonJustPressed(const MouseCode button)
+{
+    return m_mouseButtons[button] == KeyState::Down;
+}
+
+bool Input::IsMouseButtonPressed(const MouseCode button)
+{
+    return m_mouseButtons[button] == KeyState::Down || m_mouseButtons[button] == KeyState::Repeat;
+}
+bool Input::IsMouseButtonReleased(const MouseCode button)
+{
+    return m_mouseButtons[button] == KeyState::Up;
+}
+void Input::SetMouseMode(const Window& window, MouseMode mouseMode)
+{
+    // TODO: Could be nice to handle SDL errors but I'm feeling lazy right now.
+
+    switch (mouseMode)
     {
-        if (Project::GetActive() == nullptr)
-            return;
-
-        auto path = Project::GetProjectDirectory() / MAPPING_FILE_PATH;
-
-        if (!std::filesystem::exists(path))
+        using enum MouseMode;
+        case MouseMode::Visible:
         {
-            COFFEE_INFO("Mappings file not found, generating...");
-            Input::GenerateDefaultMappingFile();
-            return;
+            SDL_SetWindowRelativeMouseMode(window.GetNativeWindow(), false);
+            SDL_SetWindowMouseRect(window.GetNativeWindow(), nullptr);
+            SDL_ShowCursor();
+            break;
         }
-
-        std::ifstream file(path);
-
-        cereal::JSONInputArchive archive(file);
-
-        archive(m_BindingsMap);
-
-        COFFEE_INFO("Loaded input mappings");
-    } */
-
-    bool Input::IsKeyPressed(const KeyCode key)
-    {
-        return m_KeyStates[key];
-        //const bool* state = SDL_GetKeyboardState(nullptr);
-        //return state[key];
-    }
-
-    bool Input::IsMouseButtonPressed(const MouseCode button)
-    {
-        return m_MouseStates[button];
-        // return SDL_GetMouseState(nullptr, nullptr) & SDL_BUTTON_MASK(button);
-    }
-
-    void Input::SetMouseGrabbed(bool grabbed)
-    {
-        SDL_SetWindowRelativeMouseMode((SDL_Window*)m_Window->GetNativeWindow(), grabbed);
-    }
-
-    const glm::vec2& Input::GetMousePosition()
-    {
-        return m_MousePosition;
-        // float x, y;
-        // SDL_GetMouseState(&x, &y);
-        // return {x, y};
-    }
-
-    const float Input::GetMouseX()
-    {
-        return GetMousePosition().x;
-    }
-
-    const float Input::GetMouseY()
-    {
-        return GetMousePosition().y;
-    }
-
-    glm::vec2 Input::GetMouseDelta()
-    {
-        glm::vec2 ret;
-        SDL_GetRelativeMouseState(&ret.x, &ret.y);
-        return ret;
-    }
-
-    bool Input::GetButtonRaw(const ButtonCode button)
-    {
-        return m_ButtonStates[button];
-    }
-
-    float Input::GetAxisRaw(const AxisCode axis)
-    {
-        return m_AxisStates[axis];
-    }
-    InputBinding& Input::GetBinding(const std::string& actionName)
-    {
-        return m_BindingsMap[actionName];
-    }
-
-    std::unordered_map<std::string, InputBinding>& Input::GetAllBindings()
-    {
-        return m_BindingsMap;
-    }
-
-    void Input::SendRumble(uint16_t lowFreqPower, uint16_t highFreqPower, uint32_t duration)
-    {
-        if (m_Gamepads.empty()) return;
-        if (auto g = m_Gamepads[0]->GetGamepad())
+        case MouseMode::Hidden:
         {
-            if (!SDL_RumbleGamepad(g,lowFreqPower, highFreqPower, duration))
-            {
-                COFFEE_WARN("Rumble failed: {0}", SDL_GetError());
-            }
+            SDL_SetWindowRelativeMouseMode(window.GetNativeWindow(), false);
+            SDL_SetWindowMouseRect(window.GetNativeWindow(), nullptr);
+            SDL_HideCursor();
+            break;
         }
-    }
-
-    const char* Input::GetKeyLabel(KeyCode key)
-    {
-        auto label = SDL_GetScancodeName((SDL_Scancode)key);
-        if (strlen(label) == 0) return "Empty";
-        return label;
-        //SDL_GetScancodeName(SDL_GetScancodeFromKey(key, nullptr));
-    }
-
-    const char* Input::GetMouseButtonLabel(MouseCode button)
-    {
-        constexpr const char* buttonNames[] = {"Mouse1", "Mouse2", "Mouse3", "Mouse4", "Mouse5"};
-        return buttonNames[button - 1];
-    }
-
-    const char* Input::GetButtonLabel(ButtonCode button)
-    {
-        if (button <= Button::Invalid)
-            return "Empty";
-
-        SDL_GamepadType type;
-        if (m_Gamepads.empty())
-            type = SDL_GAMEPAD_TYPE_XBOXONE;
-        else if (button < Button::Count)
-            type = SDL_GetGamepadType(m_Gamepads[0]->GetGamepad());
-        else
-            type = SDL_GAMEPAD_TYPE_STANDARD;
-
-        switch (type)
+        case MouseMode::Captured:
         {
-        case SDL_GAMEPAD_TYPE_XBOX360:
-        case SDL_GAMEPAD_TYPE_XBOXONE: {
-            constexpr const char* names[Button::Count] = {
-                "A",    "B",    "X",      "Y",      "Select", "Home",   "Start",   "LS",    "RS",
-                "LB",   "RB",   "Up",     "Down",   "Left",   "Right",  "Capture", "!RP1",  "!LP1",
-                "!RP2", "!LP2", "!Misc1", "!Misc2", "!Misc3", "!Misc4", "!Misc5",  "!Misc6"
-            };
-            return names[button];
+            SDL_RaiseWindow(window.GetNativeWindow());
+            SDL_SetWindowRelativeMouseMode(window.GetNativeWindow(), true);
+            SDL_SetWindowMouseRect(window.GetNativeWindow(), nullptr);
+            break;
         }
-        case SDL_GAMEPAD_TYPE_PS3:
-        case SDL_GAMEPAD_TYPE_PS4:
-        case SDL_GAMEPAD_TYPE_PS5: {
-            constexpr const char* names[Button::Count] = {
-                "Circle", "Cross", "Square", "Triangle", "Share", "PS button", "Option",
-                "L3", "R3", "L1", "R1", "Up", "Down", "Left", "Right", "Microphone",
-                "Right Paddle 1", "Left Paddle 1", "Right Paddle 2", "Left Paddle 2",
-                "Touchpad", "!Misc2", "!Misc3", "!Misc4", "!Misc5", "!Misc6"
-            };
-            return names[button];
-        }
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: {
-            constexpr const char* names[Button::Count] = {
-                "B",    "A",    "Y",      "X",      "Select", "Home",   "Start",   "LS",    "RS",
-                "L",    "R",    "Up",     "Down",   "Left",   "Right",  "Capture", "!RP1",  "!LP1",
-                "!RP2", "!LP2", "!Misc1", "!Misc2", "!Misc3", "!Misc4", "!Misc5",  "!Misc6"
-            };
-            return names[button];
-        }
-        default:
-            return std::format("Button {}", button).c_str();
-        }
-    }
-
-    const char* Input::GetAxisLabel(AxisCode axis)
-    {
-        if (axis <= Axis::Invalid)
-            return "Empty";
-        if (axis >= Axis::Count)
-            return "Unknown";
-
-        SDL_GamepadType type;
-        if (m_Gamepads.empty())
-            type = SDL_GAMEPAD_TYPE_XBOXONE;
-        else
-            type = SDL_GetGamepadType(m_Gamepads[0]->GetGamepad());
-
-        switch (type)
+        case MouseMode::Confined:
         {
-        case SDL_GAMEPAD_TYPE_XBOX360:
-        case SDL_GAMEPAD_TYPE_XBOXONE: {
-            constexpr const char* axis_names[Axis::Count] = {"Left X",  "Left Y",       "Right X",
-                                                             "Right Y", "Left Trigger", "Right Trigger"};
-            return axis_names[axis];
+            SDL_SetWindowRelativeMouseMode(window.GetNativeWindow(), false);
+            SDL_ShowCursor();
+
+            int width, height;
+            SDL_GetWindowSize(window.GetNativeWindow(), &width, &height);
+            SDL_Rect rect = { 0, 0, width, height };
+
+            SDL_SetWindowMouseRect(window.GetNativeWindow(), &rect);
+            break;
         }
-        case SDL_GAMEPAD_TYPE_PS3:
-        case SDL_GAMEPAD_TYPE_PS4:
-        case SDL_GAMEPAD_TYPE_PS5: {
-            constexpr const char* axis_names[Axis::Count] = {"Left X", "Left Y", "Right X", "Right Y", "L2", "R2"};
-            return axis_names[axis];
-        }
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
-        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR: {
-            constexpr const char* axis_names[Axis::Count] = {"Left X", "Left Y", "Right X", "Right Y", "ZL", "ZR"};
-            return axis_names[axis];
-        }
-        default:
-            return std::format("Axis {}", axis).c_str();
-        }
-    }
-
-    void Input::StartRebindMode(std::string actionName, RebindState state)
-    {
-        m_RebindActionName = actionName;
-        m_RebindState = state;
-        m_RebindTimer.Start(5.0);
-    }
-
-
-    void Input::ResetRebindState()
-    {
-        m_RebindState = RebindState::None;
-    }
-
-    void Input::OnAddController(const ControllerAddEvent* cEvent)
-    {
-        m_Gamepads.emplace_back(new Gamepad(cEvent->Controller));
-    }
-
-
-    void Input::OnRemoveController(const ControllerRemoveEvent* cEvent)
-    {
-        // Remove controller by SDL_Gamepad ID
-        auto pred = [&cEvent](const Ref<Gamepad>& gamepad) {
-            return gamepad->GetId() == cEvent->Controller;
-        };
-        erase_if(m_Gamepads, pred);
-    }
-    void Input::OnButtonPressed(const ButtonPressEvent& e) {
-        m_ButtonStates[e.Button] += 1;
-
-        // TODO I've got the feeling there's a better way of handling this
-        if (m_RebindState == RebindState::PosButton)
+        case MouseMode::ConfinedHidden:
         {
-            m_BindingsMap[m_RebindActionName].SetButtonPos(e.Button);
-            m_RebindTimer.Stop();
-            ResetRebindState();
-        }
-        else if (m_RebindState == RebindState::NegButton)
-        {
-            m_BindingsMap[m_RebindActionName].SetButtonNeg(e.Button);
-            m_RebindTimer.Stop();
-            ResetRebindState();
-        }
-    }
+            SDL_SetWindowRelativeMouseMode(window.GetNativeWindow(), false);
+            SDL_HideCursor();
 
-    void Input::OnButtonReleased(const ButtonReleaseEvent& e) {
-        m_ButtonStates[e.Button] -= 1;
-    }
+            int width, height;
+            SDL_GetWindowSize(window.GetNativeWindow(), &width, &height);
+            SDL_Rect rect = { 0, 0, width, height };
 
-    void Input::OnAxisMoved(const AxisMoveEvent& e) {
-
-        float deadzone = m_AxisDeadzones[e.Axis];
-        float normalizedValue = e.Value / 32767.0f;
-
-        // TODO fix axis curve (currently starts at whatever the deadzone value is instead of at slightly larger than 0)
-        if (std::abs(normalizedValue) < deadzone)
-        {
-            normalizedValue = 0.0f;
-        }
-       
-        m_AxisStates[e.Axis] = normalizedValue;
-
-        if (m_RebindState == RebindState::Axis && abs(normalizedValue) > 0.5f)
-        {
-            m_BindingsMap[m_RebindActionName].SetAxis(e.Axis);
-            m_RebindTimer.Stop();
-            ResetRebindState();
-        }
-    }
-    void Input::OnKeyPressed(const KeyPressedEvent& kEvent) {
-        m_KeyStates[kEvent.GetKeyCode()] = true;
-
-        // TODO I've got the feeling there's a better way of handling this
-        if (m_RebindState == RebindState::PosKey)
-        {
-            m_BindingsMap[m_RebindActionName].SetPosKey(kEvent.GetKeyCode());
-            m_RebindTimer.Stop();
-            ResetRebindState();
-        }
-        else if (m_RebindState == RebindState::NegKey)
-        {
-            m_BindingsMap[m_RebindActionName].SetNegKey(kEvent.GetKeyCode());
-            m_RebindTimer.Stop();
-            ResetRebindState();
+            SDL_SetWindowMouseRect(window.GetNativeWindow(), &rect);
+            break;
         }
     }
 
-    void Input::OnKeyReleased(const KeyReleasedEvent& kEvent) {
-        m_KeyStates[kEvent.GetKeyCode()] = false;
-    }
+    m_mouseMode = mouseMode;
+}
 
-    void Input::OnMouseButtonPressed(const MouseButtonPressedEvent& mEvent) {
-        m_MouseStates[mEvent.GetMouseButton()] = true;
-    }
+const glm::vec2& Input::GetMousePosition()
+{
+    return m_mousePosition;
+}
 
-    void Input::OnMouseButtonReleased(const MouseButtonReleasedEvent& mEvent) {
-        m_MouseStates[mEvent.GetMouseButton()] = false;
-    }
-
-    void Input::OnMouseMoved(const MouseMovedEvent& mEvent) {
-        m_MousePosition.x = mEvent.GetX();
-        m_MousePosition.y = mEvent.GetY();
-    }
-
-    void Input::OnEvent(Event& e)
-    {
-        if (e.Handled)
-            return;
-
-        // TODO change this code for an event dispatcher
-        if (e.IsInCategory(EventCategoryInput))
-        {
-            switch (e.GetEventType())
-            {
-                using enum EventType;
-            case ControllerConnected: {
-                if (const auto* cEvent = static_cast<ControllerAddEvent*>(&e))
-                    OnAddController(cEvent);
-                break;
-            }
-            case ControllerDisconnected: {
-                if (const auto* cEvent = static_cast<ControllerRemoveEvent*>(&e))
-                    OnRemoveController(cEvent);
-                break;
-            }
-            case ButtonPressed: {
-                if (const auto* bEvent = static_cast<ButtonPressEvent*>(&e))
-                    OnButtonPressed(*bEvent);
-                break;
-            }
-            case ButtonReleased: {
-                if (const auto* bEvent = static_cast<ButtonReleaseEvent*>(&e))
-                    OnButtonReleased(*bEvent);
-                break;
-            }
-            case AxisMoved: {
-                if (const auto* aEvent = static_cast<AxisMoveEvent*>(&e))
-                    OnAxisMoved(*aEvent);
-                break;
-            }
-            case KeyPressed: {
-                if (const auto* kEvent = static_cast<KeyPressedEvent*>(&e))
-                    OnKeyPressed(*kEvent);
-                break;
-            }
-            case KeyReleased: {
-                if (const auto* kEvent = static_cast<KeyReleasedEvent*>(&e))
-                    OnKeyReleased(*kEvent);
-                break;
-            }
-            case MouseButtonPressed: {
-                if (const auto* mEvent = static_cast<MouseButtonPressedEvent*>(&e))
-                    OnMouseButtonPressed(*mEvent);
-                break;
-            }
-            case MouseButtonReleased: {
-                if (const auto* mEvent = static_cast<MouseButtonReleasedEvent*>(&e))
-                    OnMouseButtonReleased(*mEvent);
-                break;
-            }
-            case MouseMoved: {
-                if (const auto* mEvent = static_cast<MouseMovedEvent*>(&e))
-                    OnMouseMoved(*mEvent);
-                break;
-            }
-
-            default: {
-                break;
-            }
-            }
-        }
-    }
-    long Input::OnFrameUpdate() { return m_Timestamp = SDL_GetTicks(); }
-
-    void Input::GenerateDefaultMappingFile()
-    {
-        #pragma region Defaults
-
-        //UI defaults
-        m_BindingsMap["UiX"]//.SetName("UiX")
-            .SetAxis(Axis::LeftX)
-            .SetButtonNeg(Button::DpadLeft).SetButtonPos(Button::DpadRight)
-            .SetPosKey(Key::D).SetNegKey(Key::A);
-
-        m_BindingsMap["UiY"]//.SetName("UiY")
-            .SetAxis(Axis::LeftY)
-            .SetButtonNeg(Button::DpadDown).SetButtonPos(Button::DpadUp)
-            .SetPosKey(Key::W).SetNegKey(Key::S);
-
-        m_BindingsMap["Cancel"]//.SetName("Cancel")
-            .SetButtonPos(Button::East)
-            .SetPosKey(Key::RShift);
-
-        m_BindingsMap["Confirm"]//.SetName("Confirm")
-            .SetButtonPos(Button::South)
-            .SetPosKey(Key::Return);
-
-
-        // Gameplay defaults
-        m_BindingsMap["MoveX"]//.SetName("MoveX")
-            .SetAxis(Axis::LeftX)
-            .SetNegKey(Key::A).SetPosKey(Key::D);
-
-        m_BindingsMap["MoveY"]//.SetName("MoveY")
-            .SetAxis(Axis::LeftY)
-            .SetNegKey(Key::S).SetPosKey(Key::W);
-
-        m_BindingsMap["AimX"]//.SetName("AimX")
-            .SetAxis(Axis::RightX)
-            .SetNegKey(Key::Kp4).SetPosKey(Key::Kp6);
-
-        m_BindingsMap["AimY"]//.SetName("AimY")
-            .SetAxis(Axis::RightY)
-            .SetNegKey(Key::Kp2).SetPosKey(Key::Kp8);
-
-        m_BindingsMap["Shoot"]//.SetName("Shoot")
-            .SetAxis(Axis::RightTrigger)
-            .SetPosKey(Key::Kp0);
-
-        m_BindingsMap["Melee"]//.SetName("Melee")
-            .SetButtonPos(Button::RightShoulder)
-            .SetPosKey(Key::E);
-
-        m_BindingsMap["Interact"]//.SetName("Interact")
-            .SetButtonPos(Button::South)
-            .SetPosKey(Key::V);
-
-        m_BindingsMap["Dash"]//.SetName("Dash")
-            .SetButtonPos(Button::East)
-            .SetPosKey(Key::Space);
-
-        m_BindingsMap["Cover"]//.SetName("Cover")
-            .SetButtonPos(Button::West)
-            .SetPosKey(Key::C);
-
-        m_BindingsMap["Skill1"]//.SetName("Skill1")
-            .SetButtonPos(Button::North)
-            .SetPosKey(Key::D1);
-
-        m_BindingsMap["Skill2"]//.SetName("Skill2")
-            .SetButtonPos(Button::LeftShoulder)
-            .SetPosKey(Key::D2);
-
-        m_BindingsMap["Skill3"]//.SetName("Skill3")
-            .SetAxis(Axis::LeftTrigger)
-            .SetPosKey(Key::D3);
-
-        m_BindingsMap["Injector"]//.SetName("Injector")
-            .SetButtonPos(Button::DpadUp)
-            .SetPosKey(Key::D4);
-
-        m_BindingsMap["Grenade"]//.SetName("Grenade")
-            .SetButtonPos(Button::DpadRight)
-            .SetPosKey(Key::Q);
-
-        m_BindingsMap["Map"]//.SetName("Map")
-            .SetButtonPos(Button::Back)
-            .SetPosKey(Key::Tab);
-
-        m_BindingsMap["Pause"]//.SetName("Pause")
-            .SetButtonPos(Button::Start)
-            .SetPosKey(Key::Escape);
-
-
-        #pragma endregion
-
-        //Input::Save();
-    }
-
+glm::vec2 Input::GetMouseDelta()
+{
+    glm::vec2 delta;
+    SDL_GetRelativeMouseState(&delta.x, &delta.y);
+    return delta;
+}
 } // namespace Coffee

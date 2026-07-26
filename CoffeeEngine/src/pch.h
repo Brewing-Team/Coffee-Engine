@@ -56,11 +56,6 @@
 #include "CoffeeEngine/Events/Event.h"
 #include "CoffeeEngine/Events/KeyEvent.h"
 #include "CoffeeEngine/Events/MouseEvent.h"
-#include "CoffeeEngine/Events/ControllerEvent.h"
-
-// Input
-#include "CoffeeEngine/Input/InputBinding.h"
-#include "CoffeeEngine/Input/Gamepad.h"
 
 // Serialization
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"

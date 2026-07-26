@@ -54,7 +54,7 @@ namespace Coffee {
 
         SetCoffeeColorStyle();
 
-        SDL_Window* window = static_cast<SDL_Window*>(m_Window->GetNativeWindow());
+        SDL_Window* window = m_Window->GetNativeWindow();
 
         ImGui_ImplSDL3_InitForOpenGL(window, SDL_GL_GetCurrentContext());
         ImGui_ImplOpenGL3_Init("#version 410");

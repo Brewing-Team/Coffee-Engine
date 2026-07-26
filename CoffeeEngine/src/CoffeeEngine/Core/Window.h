@@ -126,7 +126,7 @@ namespace Coffee {
          * @brief Gets the native window handle.
          * @return A pointer to the native window.
          */
-        virtual void* GetNativeWindow() const { return m_Window; }
+        SDL_Window* GetNativeWindow() const { return m_Window; }
 
         /**
          * @brief Creates a window with the specified properties.
