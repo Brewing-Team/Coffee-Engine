@@ -1,18 +1,11 @@
 #pragma once
 
-#include "CoffeeEngine/Core/ControllerCodes.h"
 #include "CoffeeEngine/Core/KeyCodes.h"
 #include "CoffeeEngine/Core/KeyState.h"
 #include "CoffeeEngine/Core/MouseCodes.h"
-#include "CoffeeEngine/Events/KeyEvent.h"
-#include "CoffeeEngine/Events/MouseEvent.h"
-#include "MouseMode.h"
-#include "Timer.h"
-
-#include "CoffeeEngine/Events/Event.h"
+#include "CoffeeEngine/Core/MouseMode.h"
 
 #include <glm/glm.hpp>
-#include <unordered_map>
 
 namespace Coffee
 {
