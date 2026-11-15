@@ -13,36 +13,31 @@ namespace Coffee {
 		}
 	}
 
-	void LayerStack::PushLayer(Scope<Layer> layer)
+	void LayerStack::PopLayer(Layer* layer)
 	{
-		m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, std::move(layer));
-		m_LayerInsertIndex++;
+	    auto end = m_Layers.begin() + m_LayerInsertIndex;
+	    auto it = std::find_if(m_Layers.begin(), end,
+            [layer](const Scope<Layer>& current) { return current.get() == layer; });
+
+	    if (it != end)
+	    {
+	        layer->OnDetach();
+	        m_Layers.erase(it);
+	        m_LayerInsertIndex--;
+	    }
 	}
 
-	void LayerStack::PushOverlay(Scope<Layer> overlay)
+	void LayerStack::PopOverlay(Layer* overlay)
 	{
-		m_Layers.emplace_back(std::move(overlay));
-	}
+	    auto begin = m_Layers.begin() + m_LayerInsertIndex;
+	    auto it = std::find_if(begin, m_Layers.end(),
+            [overlay](const Scope<Layer>& current) { return current.get() == overlay; });
 
-	void LayerStack::PopLayer(Scope<Layer> layer)
-	{
-		auto it = std::find(m_Layers.begin(), m_Layers.begin() + m_LayerInsertIndex, layer);
-		if (it != m_Layers.begin() + m_LayerInsertIndex)
-		{
-			layer->OnDetach();
-			m_Layers.erase(it);
-			m_LayerInsertIndex--;
-		}
-	}
-
-	void LayerStack::PopOverlay(Scope<Layer> overlay)
-	{
-		auto it = std::find(m_Layers.begin() + m_LayerInsertIndex, m_Layers.end(), overlay);
-		if (it != m_Layers.end())
-		{
-			overlay->OnDetach();
-			m_Layers.erase(it);
-		}
+	    if (it != m_Layers.end())
+	    {
+	        overlay->OnDetach();
+	        m_Layers.erase(it);
+	    }
 	}
 
 }

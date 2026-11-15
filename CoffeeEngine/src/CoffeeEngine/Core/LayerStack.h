@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include "Base.h"
+
+#include <concepts>
 #include <vector>
 
 namespace Coffee {
@@ -37,25 +40,40 @@ namespace Coffee {
          * @brief Adds a layer to the stack.
          * @param layer Pointer to the layer to be added.
          */
-        void PushLayer(Scope<Layer> layer);
+        template <typename T>
+        requires std::derived_from<T, Layer>
+        T* PushLayer(Scope<T> layer)
+        {
+            T* rawPtr = layer.get();
+            m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, std::move(layer));
+            m_LayerInsertIndex++;
+            return rawPtr;
+        }
 
         /**
          * @brief Adds an overlay to the stack.
          * @param overlay Pointer to the overlay to be added.
          */
-        void PushOverlay(Scope<Layer> overlay);
+        template<typename T>
+        requires std::derived_from<T, Layer>
+        T* PushOverlay(Scope<T> overlay)
+        {
+            T* rawPtr = overlay.get();
+            m_Layers.emplace_back(std::move(overlay));
+            return rawPtr;
+        }
 
         /**
          * @brief Removes a layer from the stack.
          * @param layer Pointer to the layer to be removed.
          */
-        void PopLayer(Scope<Layer> layer);
+        void PopLayer(Layer* layer);
 
         /**
          * @brief Removes an overlay from the stack.
          * @param overlay Pointer to the overlay to be removed.
          */
-        void PopOverlay(Scope<Layer> overlay);
+        void PopOverlay(Layer* overlay);
 
         /**
          * @brief Returns an iterator to the beginning of the layer stack.
