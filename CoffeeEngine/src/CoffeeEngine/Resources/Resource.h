@@ -7,6 +7,7 @@
 #pragma once
 #include "CoffeeEngine/Core/Assert.h"
 #include "CoffeeEngine/Core/UUID.h"
+#include "CoffeeEngine/Resources/ResourceType.h"
 #include "CoffeeEngine/IO/Serialization/FilesystemPathSerialization.h"
 #include <cereal/access.hpp>
 #include <cereal/archives/binary.hpp>
@@ -15,30 +16,6 @@
 #include <cereal/types/polymorphic.hpp>
 
 namespace Coffee {
-
-    /**
-     * @enum ResourceType
-     * @brief Enumeration of different types of resources.
-     */
-    enum class ResourceType
-    {
-        Unknown, ///< Unknown resource type
-        Texture, ///< Texture resource type
-        Texture2D, ///< Texture2D resource type
-        Texture3D, ///< Texture3D resource type
-        Cubemap, ///< Cubemap resource type
-        Model,   ///< Model resource type
-        Mesh,   ///< Mesh resource type
-        Shader,   ///< Shader resource type
-        Material, ///< Material resource type
-        PBRMaterial, ///< PBRMaterial resource type
-        ShaderMaterial, ///< ShaderMaterial resource type
-        AnimationSystem, ///< AnimationSystem resource type
-        Skeleton, ///< Skeleton resource type
-        Animation, ///< Animation resource type
-        AnimationController, ///< AnimationController resource type
-        Prefab, ///< Prefab resource type
-    };
 
     /**
      * @class Resource
@@ -51,7 +28,7 @@ namespace Coffee {
          * @brief Constructor that initializes the resource with a type.
          * @param type The type of the resource.
          */
-        Resource(ResourceType type = ResourceType::Unknown)
+        Resource(ResourceType type)
             : m_Type(type) {}
 
         /**
@@ -69,7 +46,7 @@ namespace Coffee {
          * @brief Gets the file path of the resource.
          * @return The file path of the resource.
          */
-        const std::filesystem::path& GetPath() { COFFEE_CORE_ASSERT(m_FilePath.empty(), "This Texture does not exist on disk!"); return m_FilePath; }
+        const std::filesystem::path& GetPath() { COFFEE_CORE_ASSERT(m_FilePath.empty(), "This resource does not exist on disk!"); return m_FilePath; }
 
         void SetPath(const std::filesystem::path& path) { m_FilePath = path; }
 
@@ -108,6 +85,10 @@ namespace Coffee {
          * @return True if the resource is embedded, false otherwise.
          */
         bool IsEmbedded() const { return m_isEmbedded; }
+
+    protected:
+        // Only accessible to derived classes and friend class cereal::access
+        Resource() = default;
 
     private:
         friend class cereal::access;

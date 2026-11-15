@@ -96,7 +96,7 @@ namespace Coffee {
         case ResourceType::ShaderMaterial:
             return ".shadermaterial";
         default:
-            return ".unknown";
+            static_assert("Unknown ResourceType please add your new type to the switch.");
         }
     }
 
@@ -104,24 +104,24 @@ namespace Coffee {
     {
         switch (type)
         {
-        case Coffee::ResourceType::Unknown:
+        case ResourceType::Unknown:
             break;
-        case Coffee::ResourceType::Texture2D:
+        case ResourceType::Texture2D:
             return ResourceFormat::Binary;
             break;
-        case Coffee::ResourceType::Texture3D:
+        case ResourceType::Texture3D:
             return ResourceFormat::Binary;
             break;
         case ResourceType::Cubemap:
             return ResourceFormat::Binary;
             break;
-        case Coffee::ResourceType::Model:
+        case ResourceType::Model:
             return ResourceFormat::Binary;
             break;
-        case Coffee::ResourceType::Mesh:
+        case ResourceType::Mesh:
             return ResourceFormat::Binary;
             break;
-        case Coffee::ResourceType::Shader:
+        case ResourceType::Shader:
             break;
         default:
             return ResourceFormat::Binary;
