@@ -56,13 +56,29 @@ namespace Coffee
 		 * @brief Pushes a layer onto the layer stack.
 		 * @param layer The layer to push.
 		 */
-		void PushLayer(Scope<Layer> layer);
+	    template <typename T>
+	    requires std::derived_from<T, Layer>
+		T* PushLayer(Scope<T> layer)
+	    {
+	        ZoneScoped;
+
+	        layer->OnAttach();
+	        return m_LayerStack.PushLayer(std::move(layer));
+	    }
 
 		/**
 		 * @brief Pushes an overlay onto the layer stack.
 		 * @param layer The overlay to push.
 		 */
-		void PushOverlay(Scope<Layer> layer);
+	    template <typename T>
+        requires std::derived_from<T, Layer>
+		T* PushOverlay(Scope<T> layer)
+	    {
+	        ZoneScoped;
+
+	        layer->OnAttach();
+	        return m_LayerStack.PushOverlay(std::move(layer));
+	    }
 
 		EngineContext GetContext() { return { m_Window.get(), &m_Renderer, &m_RendererAPI, &m_Input,
 						&m_ResourceManager, &m_SceneManager, &m_ProjectManager, &m_Scripting, &m_Audio }; }

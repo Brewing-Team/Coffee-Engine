@@ -44,26 +44,7 @@ namespace Coffee
 
         SetEventCallback(COFFEE_BIND_EVENT_FN(OnEvent));
 
-        auto imguiLayer = CreateScope<ImGuiLayer>();
-        m_ImGuiLayer = imguiLayer.get();
-
-		PushOverlay(std::move(imguiLayer));
-    }
-
-    void Engine::PushLayer(Scope<Layer> layer)
-    {
-        ZoneScoped;
-
-        layer->OnAttach();
-        m_LayerStack.PushLayer(std::move(layer));
-    }
-
-    void Engine::PushOverlay(Scope<Layer> layer)
-    {
-        ZoneScoped;
-
-        layer->OnAttach();
-        m_LayerStack.PushOverlay(std::move(layer));
+        m_ImGuiLayer = PushOverlay(CreateScope<ImGuiLayer>(m_Window));
     }
 
     void Engine::Close()
