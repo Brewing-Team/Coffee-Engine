@@ -23,7 +23,7 @@ namespace Coffee {
 
 namespace Coffee {
 
-    class EditorLayer : public Coffee::Layer
+    class EditorLayer : public Layer
     {
     public:
         EditorLayer(const EngineContext& ctx);
